@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="Empire" load_steps=2 format=3 uid="uid://b4mhfidkmt6ag"]
+
+[ext_resource type="Script" uid="uid://cifwawcw04jkd" path="res://scripts/empire/empire.gd" id="1_uypcs"]
+
+[resource]
+script = ExtResource("1_uypcs")
+name = "Mongol Empire"
+color = Color(0.43137255, 0.32156864, 0.17254902, 1)
+metadata/_custom_type_script = "uid://cifwawcw04jkd"

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://hrxtpk1h8o5y"]
+
+[ext_resource type="Texture2D" uid="uid://0bu638rj6so0" path="res://assets/natural_resources/Wild_game.png" id="1_atyv2"]
+[ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="1_i2i31"]
+
+[resource]
+script = ExtResource("1_i2i31")
+name = "Wild Game"
+image = ExtResource("1_atyv2")
+color = Color(0.06782378, 0.2206935, 0.1496984, 1)
+biomes = Dictionary[int, float]({
+0: 0.8,
+1: 0.5,
+2: 1.0,
+3: 1.0,
+4: 0.5,
+5: 1.0,
+6: 0.8
+})
+metadata/_custom_type_script = "uid://c0i1xexp0ed8k"

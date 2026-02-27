@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="LocationType" load_steps=2 format=3 uid="uid://cd0fssryl0wg2"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_s6o00"]
+
+[resource]
+script = ExtResource("1_s6o00")
+type = 3
+max_building = 5
+color = Color(1, 0.64705884, 0, 1)
+metadata/_custom_type_script = "uid://c0k8g56a31cdg"

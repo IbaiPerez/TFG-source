@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TileMeshData" load_steps=3 format=3 uid="uid://wcupwklnw38j"]
+
+[ext_resource type="PackedScene" uid="uid://bn1wjvjfyhqbp" path="res://assets/tiles/mountain_tile.glb" id="1_baqk1"]
+[ext_resource type="Script" uid="uid://dv1xa0u4u1a3g" path="res://scripts/tile/tile_mesh_data.gd" id="1_id1at"]
+
+[resource]
+script = ExtResource("1_id1at")
+mesh = ExtResource("1_baqk1")
+color = Color(0.38170326, 0.38170323, 0.38170323, 1)
+type = 6
+metadata/_custom_type_script = "uid://dv1xa0u4u1a3g"

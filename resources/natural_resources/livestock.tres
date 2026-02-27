@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://bdc8ttqwuh7kc"]
+
+[ext_resource type="Texture2D" uid="uid://dykb6kpwrtmcj" path="res://assets/natural_resources/Livestock.png" id="1_g0afx"]
+[ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="1_wvna7"]
+
+[resource]
+script = ExtResource("1_wvna7")
+name = "Livestock"
+image = ExtResource("1_g0afx")
+color = Color(0.4662493, 0.23009455, 0.1646412, 1)
+biomes = Dictionary[int, float]({
+0: 0.3,
+1: 1.0,
+2: 0.7,
+3: 1.0,
+4: 0.0,
+5: 1.0,
+6: 1.0
+})
+metadata/_custom_type_script = "uid://c0i1xexp0ed8k"

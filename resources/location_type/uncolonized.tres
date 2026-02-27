@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="LocationType" load_steps=2 format=3 uid="uid://3sm1dn2lvvcf"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_1uv3h"]
+
+[resource]
+script = ExtResource("1_1uv3h")
+color = Color(1, 1, 1, 1)
+metadata/_custom_type_script = "uid://c0k8g56a31cdg"

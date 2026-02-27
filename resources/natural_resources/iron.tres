@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://c2jvo50o3o5gh"]
+
+[ext_resource type="Texture2D" uid="uid://ba8wrk1pptg2d" path="res://assets/natural_resources/Iron.png" id="1_f04w3"]
+[ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="2_aes6y"]
+
+[resource]
+script = ExtResource("2_aes6y")
+name = "Iron"
+image = ExtResource("1_f04w3")
+color = Color(0.24477637, 0.2447764, 0.24477637, 1)
+biomes = Dictionary[int, float]({
+0: 1.0,
+1: 1.0,
+2: 0.8,
+3: 1.0,
+4: 1.0,
+5: 1.0,
+6: 0.3
+})
+metadata/_custom_type_script = "uid://c0i1xexp0ed8k"

@@ -1,0 +1,108 @@
+[gd_scene load_steps=2 format=3 uid="uid://chkt8mhljf7ue"]
+
+[ext_resource type="Script" uid="uid://cgmoodqwgdltf" path="res://scripts/ui/general_ui.gd" id="1_frbhi"]
+
+[node name="UI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_frbhi")
+
+[node name="TileInfo" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TileInfo"]
+layout_mode = 2
+alignment = 2
+
+[node name="LabelBiome" type="Label" parent="TileInfo/VBoxContainer"]
+layout_mode = 2
+text = "Biome: "
+
+[node name="LabelNaturalResource" type="Label" parent="TileInfo/VBoxContainer"]
+layout_mode = 2
+text = "Natural Resource: "
+
+[node name="LabelController" type="Label" parent="TileInfo/VBoxContainer"]
+layout_mode = 2
+text = "Controller: "
+
+[node name="LabelLocationType" type="Label" parent="TileInfo/VBoxContainer"]
+layout_mode = 2
+text = "Location Type: "
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="TileInfo"]
+layout_mode = 2
+
+[node name="Biome" type="Label" parent="TileInfo/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NaturalResource" type="Label" parent="TileInfo/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Controller" type="Label" parent="TileInfo/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LocationType" type="Label" parent="TileInfo/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="MapModes" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -151.0
+offset_top = -85.5
+offset_bottom = 85.5
+grow_horizontal = 0
+grow_vertical = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="MapModes"]
+layout_mode = 2
+text = "Map Modes"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MapModes"]
+layout_mode = 2
+
+[node name="MapModesButtons" type="VBoxContainer" parent="MapModes"]
+layout_mode = 2
+
+[node name="PoliticalModeButton" type="Button" parent="MapModes/MapModesButtons"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Political"
+
+[node name="BiomesModeButton" type="Button" parent="MapModes/MapModesButtons"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Biomes"
+
+[node name="NaturalResourcesBiomeButton" type="Button" parent="MapModes/MapModesButtons"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Natural Resources"
+
+[node name="LocationTypeModeButton" type="Button" parent="MapModes/MapModesButtons"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Location Type"
+
+[connection signal="pressed" from="MapModes/MapModesButtons/PoliticalModeButton" to="." method="_on_political_mode_button_pressed"]
+[connection signal="pressed" from="MapModes/MapModesButtons/BiomesModeButton" to="." method="_on_biomes_mode_button_pressed"]
+[connection signal="pressed" from="MapModes/MapModesButtons/NaturalResourcesBiomeButton" to="." method="_on_natural_resources_biome_button_pressed"]
+[connection signal="pressed" from="MapModes/MapModesButtons/LocationTypeModeButton" to="." method="_on_location_type_mode_button_pressed"]

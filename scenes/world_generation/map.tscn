@@ -1,0 +1,70 @@
+[gd_scene load_steps=11 format=3 uid="uid://dxw5gc7xqbkqj"]
+
+[ext_resource type="Script" uid="uid://bcsfis7fcjm3n" path="res://scripts/camera/camera_3d.gd" id="1_fam8b"]
+[ext_resource type="PackedScene" uid="uid://chkt8mhljf7ue" path="res://scenes/UI/general_ui.tscn" id="2_3j08d"]
+[ext_resource type="Script" uid="uid://cked06wplynoj" path="res://scripts/world_gen/world_generator.gd" id="2_50o2f"]
+[ext_resource type="Script" uid="uid://cngwdif8yna2x" path="res://scripts/tile/tiles_tracker.gd" id="3_g6xqq"]
+[ext_resource type="Resource" uid="uid://dawigvsddybjg" path="res://resources/world_settings/Default.tres" id="3_nktjb"]
+[ext_resource type="Script" uid="uid://b3b3jfnwhl7lh" path="res://scripts/map/interaction.gd" id="4_w7uq4"]
+[ext_resource type="PackedScene" uid="uid://b0owacbh83hyt" path="res://scenes/hexagon_cursor.tscn" id="5_leapw"]
+[ext_resource type="Script" uid="uid://ccptwq3cxwxmw" path="res://scripts/map/map_tracker.gd" id="8_70cmx"]
+
+[sub_resource type="Environment" id="Environment_kbma3"]
+ssao_enabled = true
+ssil_enabled = true
+sdfgi_enabled = true
+glow_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.39607844, 0.48235294, 0.5176471, 1)
+fog_density = 0.015
+fog_sky_affect = 0.0
+fog_height = 1.0
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_nktjb"]
+
+[node name="Map" type="Node3D"]
+
+[node name="Camera" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="Camera" node_paths=PackedStringArray("sun")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 0.99853665, -0.054078814, 0, 0.054078814, 0.99853665, 0, 0, 0)
+script = ExtResource("1_fam8b")
+movespeed = 15
+rot = Vector2(-25, -80)
+sun = NodePath("../../Scene/DirectionalLight3D")
+
+[node name="Scene" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Scene"]
+environment = SubResource("Environment_kbma3")
+camera_attributes = SubResource("CameraAttributesPractical_nktjb")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Scene"]
+transform = Transform3D(0.17364822, -0.6330222, 0.7544065, 0, 0.76604444, 0.6427876, -0.9848077, -0.11161892, 0.13302225, 0, 0, 0)
+directional_shadow_mode = 0
+sky_mode = 1
+
+[node name="TileParent" type="Node3D" parent="Scene"]
+
+[node name="UI" parent="Scene" instance=ExtResource("2_3j08d")]
+
+[node name="Node" type="Node" parent="."]
+
+[node name="TilesTracker" type="Node" parent="Node"]
+script = ExtResource("3_g6xqq")
+
+[node name="WorldGenerator" type="Node" parent="Node" node_paths=PackedStringArray("tile_parent")]
+unique_name_in_owner = true
+script = ExtResource("2_50o2f")
+settings = ExtResource("3_nktjb")
+tile_parent = NodePath("../../Scene/TileParent")
+
+[node name="InteractionTracker" type="Node3D" parent="Node" node_paths=PackedStringArray("main_camera")]
+script = ExtResource("4_w7uq4")
+tile_cursor_scene = ExtResource("5_leapw")
+main_camera = NodePath("../../Camera/Camera3D")
+
+[node name="MapTracker" type="Node" parent="Node" node_paths=PackedStringArray("tile_parent")]
+script = ExtResource("8_70cmx")
+tile_parent = NodePath("../../Scene/TileParent")

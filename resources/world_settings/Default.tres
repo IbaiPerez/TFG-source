@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="GenerationSettings" load_steps=28 format=3 uid="uid://dawigvsddybjg"]
+
+[ext_resource type="Script" uid="uid://cifwawcw04jkd" path="res://scripts/empire/empire.gd" id="1_0xpuv"]
+[ext_resource type="Script" uid="uid://7me17r3uuo2y" path="res://scripts/world_gen/generation_settings.gd" id="1_r2rcn"]
+[ext_resource type="Resource" uid="uid://dcm8kss34cngp" path="res://resources/empires/medici.tres" id="2_mi7t8"]
+[ext_resource type="Resource" uid="uid://ocx6xpafcagw" path="res://resources/tiles/ocean.tres" id="2_xdnel"]
+[ext_resource type="Resource" uid="uid://dlljlcjgbqsv5" path="res://resources/empires/babylonian.tres" id="3_0adxy"]
+[ext_resource type="Resource" uid="uid://oo7b8gl1jhg" path="res://resources/natural_resources/fish.tres" id="4_0xpuv"]
+[ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="4_lywyf"]
+[ext_resource type="Resource" uid="uid://wcupwklnw38j" path="res://resources/tiles/mountain.tres" id="4_vwfio"]
+[ext_resource type="Resource" uid="uid://b54xf0rwim6kw" path="res://resources/natural_resources/gold.tres" id="5_vkrep"]
+[ext_resource type="Resource" uid="uid://c2jvo50o3o5gh" path="res://resources/natural_resources/iron.tres" id="6_mi7t8"]
+[ext_resource type="Resource" uid="uid://bdc8ttqwuh7kc" path="res://resources/natural_resources/livestock.tres" id="7_0adxy"]
+[ext_resource type="Resource" uid="uid://b1glfrb7777r0" path="res://resources/natural_resources/salt.tres" id="8_ao7v6"]
+[ext_resource type="Script" uid="uid://dv1xa0u4u1a3g" path="res://scripts/tile/tile_mesh_data.gd" id="8_vwfio"]
+[ext_resource type="Resource" uid="uid://bcxmjb1pjcnsj" path="res://resources/tiles/grassland.tres" id="9_006mg"]
+[ext_resource type="Resource" uid="uid://cmixmuy45uhbr" path="res://resources/natural_resources/sand.tres" id="9_g0t0s"]
+[ext_resource type="Resource" uid="uid://d37byfwefsudv" path="res://resources/tiles/forest.tres" id="10_4whuf"]
+[ext_resource type="Resource" uid="uid://x52d3rkafp3" path="res://resources/natural_resources/stone.tres" id="10_p6vtu"]
+[ext_resource type="Resource" uid="uid://fdtmsxpg31sc" path="res://resources/tiles/desert.tres" id="11_3scch"]
+[ext_resource type="Resource" uid="uid://d24re8efjrw3" path="res://resources/natural_resources/wheat.tres" id="11_gi5ds"]
+[ext_resource type="Resource" uid="uid://hrxtpk1h8o5y" path="res://resources/natural_resources/wild_game.tres" id="12_sgjkb"]
+[ext_resource type="Resource" uid="uid://qm6yeu6t77kn" path="res://resources/natural_resources/wood.tres" id="13_g8mn0"]
+[ext_resource type="Resource" uid="uid://b4mhfidkmt6ag" path="res://resources/empires/mongol.tres" id="17_0adxy"]
+[ext_resource type="Resource" uid="uid://ndof7a80hfxe" path="res://resources/tiles/swamp.tres" id="23_mi7t8"]
+[ext_resource type="Resource" uid="uid://digb4xqb5ftle" path="res://resources/tiles/tundra.tres" id="24_0adxy"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_rh4e1"]
+noise_type = 5
+frequency = 0.1553
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_dwjk8"]
+noise_type = 3
+frequency = 0.1123
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_3epr2"]
+frequency = 0.1232
+
+[resource]
+script = ExtResource("1_r2rcn")
+tiles = Array[ExtResource("8_vwfio")]([ExtResource("9_006mg"), ExtResource("10_4whuf"), ExtResource("11_3scch"), ExtResource("23_mi7t8"), ExtResource("24_0adxy")])
+biome_weights = Array[float]([0.2, 0.3, 0.5, 0.3, 0.1])
+biome_noise = SubResource("FastNoiseLite_rh4e1")
+mountain_tile = ExtResource("4_vwfio")
+mountain_noise = SubResource("FastNoiseLite_dwjk8")
+ocean_tile = ExtResource("2_xdnel")
+ocean_noise = SubResource("FastNoiseLite_3epr2")
+player_empire = ExtResource("17_0adxy")
+empires = Array[ExtResource("1_0xpuv")]([ExtResource("2_mi7t8"), ExtResource("3_0adxy"), ExtResource("17_0adxy")])
+natural_resources = Array[ExtResource("4_lywyf")]([ExtResource("4_0xpuv"), ExtResource("5_vkrep"), ExtResource("6_mi7t8"), ExtResource("7_0adxy"), ExtResource("8_ao7v6"), ExtResource("9_g0t0s"), ExtResource("10_p6vtu"), ExtResource("11_gi5ds"), ExtResource("12_sgjkb"), ExtResource("13_g8mn0")])

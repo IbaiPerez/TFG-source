@@ -1,0 +1,375 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3kj1gsjxhgxb"]
+
+[ext_resource type="Script" uid="uid://4rhe1iiiaysm" path="res://scripts/ui/generation_ui.gd" id="1_j4uve"]
+
+[node name="GenerationUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_j4uve")
+
+[node name="GenerationSettings" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -196.0
+offset_top = -305.0
+offset_right = 196.0
+offset_bottom = 305.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="GenerationSettings"]
+layout_mode = 2
+text = "⚙️ GENERATION SETTINGS"
+
+[node name="HSeparator" type="HSeparator" parent="GenerationSettings"]
+layout_mode = 2
+
+[node name="SettingsContainer" type="VBoxContainer" parent="GenerationSettings"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+text = "Generation:"
+
+[node name="HSeparator" type="HSeparator" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="SeedRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/SeedRow"]
+layout_mode = 2
+text = "Seed: "
+
+[node name="SeedSpinBox" type="SpinBox" parent="GenerationSettings/SettingsContainer/SeedRow"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 999999.0
+
+[node name="RandomSeedButton" type="Button" parent="GenerationSettings/SettingsContainer/SeedRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🎲"
+
+[node name="RadiusRow" type="VBoxContainer" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/RadiusRow"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/RadiusRow/HBoxContainer"]
+layout_mode = 2
+text = "World Radius: "
+
+[node name="RadiusValue" type="Label" parent="GenerationSettings/SettingsContainer/RadiusRow/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RadiusSlider" type="HSlider" parent="GenerationSettings/SettingsContainer/RadiusRow"]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 5.0
+max_value = 15.0
+value = 5.0
+
+[node name="ShapeRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/ShapeRow"]
+layout_mode = 2
+text = "Map shape: "
+
+[node name="ShapeOptionButton" type="OptionButton" parent="GenerationSettings/SettingsContainer/ShapeRow"]
+unique_name_in_owner = true
+layout_mode = 2
+item_count = 4
+popup/item_0/text = "Hexagon"
+popup/item_0/id = 0
+popup/item_1/text = "Rectangular"
+popup/item_1/id = 1
+popup/item_2/text = "Diamond"
+popup/item_2/id = 2
+popup/item_3/text = "Circle"
+popup/item_3/id = 3
+
+[node name="Control" type="Control" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="BiomesContainer" type="VBoxContainer" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+text = "Biomes: "
+
+[node name="HSeparator" type="HSeparator" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+
+[node name="GrasslandRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+
+[node name="GrasslandCheck" type="CheckBox" parent="GenerationSettings/SettingsContainer/BiomesContainer/GrasslandRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+button_pressed = true
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/GrasslandRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Grassland"
+
+[node name="GrasslandDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/GrasslandRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="GrasslandDensityValue" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/GrasslandRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="ForestRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+
+[node name="ForestCheck" type="CheckBox" parent="GenerationSettings/SettingsContainer/BiomesContainer/ForestRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+button_pressed = true
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/ForestRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Forest"
+
+[node name="ForestDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/ForestRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="ForestDensityValue" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/ForestRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="DesertRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+
+[node name="DesertCheck" type="CheckBox" parent="GenerationSettings/SettingsContainer/BiomesContainer/DesertRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+button_pressed = true
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/DesertRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Desert"
+
+[node name="DesertDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/DesertRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="DesertDensityValue" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/DesertRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="Swamp" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+
+[node name="SwampCheck" type="CheckBox" parent="GenerationSettings/SettingsContainer/BiomesContainer/Swamp"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+button_pressed = true
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/Swamp"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Swamp"
+
+[node name="SwampDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/Swamp"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="SwampDensityValue" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/Swamp"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="TundraRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+
+[node name="TundraCheck" type="CheckBox" parent="GenerationSettings/SettingsContainer/BiomesContainer/TundraRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+button_pressed = true
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/TundraRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Tundra"
+
+[node name="TundraDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/TundraRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="TundraDensityValue" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/TundraRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="OceanRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+
+[node name="OceanCheck" type="CheckBox" parent="GenerationSettings/SettingsContainer/BiomesContainer/OceanRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+button_pressed = true
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/OceanRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Ocean"
+
+[node name="OceanDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/OceanRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="OceanDensityValue" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/OceanRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="MountainRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
+layout_mode = 2
+
+[node name="MountainCheck" type="CheckBox" parent="GenerationSettings/SettingsContainer/BiomesContainer/MountainRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+button_pressed = true
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/MountainRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Mountain"
+
+[node name="MountainDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/MountainRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="MountainDensityValue" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/MountainRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="BufferContainer" type="VBoxContainer" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BufferContainer"]
+layout_mode = 2
+text = "Buffer: "
+
+[node name="HSeparator" type="HSeparator" parent="GenerationSettings/SettingsContainer/BufferContainer"]
+layout_mode = 2
+
+[node name="OuterBufferRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BufferContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BufferContainer/OuterBufferRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Outer Buffer"
+
+[node name="OuterBufferSpinBox" type="SpinBox" parent="GenerationSettings/SettingsContainer/BufferContainer/OuterBufferRow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="InnerBufferRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer/BufferContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BufferContainer/InnerBufferRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "Inner Buffer"
+
+[node name="InnerBufferSpinBox" type="SpinBox" parent="GenerationSettings/SettingsContainer/BufferContainer/InnerBufferRow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HSeparator2" type="HSeparator" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GenerationSettings/SettingsContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="GenerationButton" type="Button" parent="GenerationSettings/SettingsContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Generate Map"
+
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/SeedRow/SeedSpinBox" to="." method="_on_seed_spin_box_value_changed"]
+[connection signal="pressed" from="GenerationSettings/SettingsContainer/SeedRow/RandomSeedButton" to="." method="_on_random_seed_button_pressed"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/RadiusRow/RadiusSlider" to="." method="_on_radius_slider_value_changed"]
+[connection signal="item_selected" from="GenerationSettings/SettingsContainer/ShapeRow/ShapeOptionButton" to="." method="_on_shape_option_button_item_selected"]
+[connection signal="toggled" from="GenerationSettings/SettingsContainer/BiomesContainer/GrasslandRow/GrasslandCheck" to="." method="_on_grassland_check_toggled"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BiomesContainer/GrasslandRow/GrasslandDensity" to="." method="_on_grassland_density_value_changed"]
+[connection signal="toggled" from="GenerationSettings/SettingsContainer/BiomesContainer/ForestRow/ForestCheck" to="." method="_on_forest_check_toggled"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BiomesContainer/ForestRow/ForestDensity" to="." method="_on_forest_density_value_changed"]
+[connection signal="toggled" from="GenerationSettings/SettingsContainer/BiomesContainer/DesertRow/DesertCheck" to="." method="_on_desert_check_toggled"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BiomesContainer/DesertRow/DesertDensity" to="." method="_on_desert_density_value_changed"]
+[connection signal="toggled" from="GenerationSettings/SettingsContainer/BiomesContainer/Swamp/SwampCheck" to="." method="_on_swamp_check_toggled"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BiomesContainer/Swamp/SwampDensity" to="." method="_on_swamp_density_value_changed"]
+[connection signal="toggled" from="GenerationSettings/SettingsContainer/BiomesContainer/TundraRow/TundraCheck" to="." method="_on_tundra_check_toggled"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BiomesContainer/TundraRow/TundraDensity" to="." method="_on_tundra_density_value_changed"]
+[connection signal="toggled" from="GenerationSettings/SettingsContainer/BiomesContainer/OceanRow/OceanCheck" to="." method="_on_ocean_check_toggled"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BiomesContainer/OceanRow/OceanDensity" to="." method="_on_ocean_density_value_changed"]
+[connection signal="toggled" from="GenerationSettings/SettingsContainer/BiomesContainer/MountainRow/MountainCheck" to="." method="_on_mountain_check_toggled"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BiomesContainer/MountainRow/MountainDensity" to="." method="_on_mountain_density_value_changed"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BufferContainer/OuterBufferRow/OuterBufferSpinBox" to="." method="_on_outer_buffer_spin_box_value_changed"]
+[connection signal="value_changed" from="GenerationSettings/SettingsContainer/BufferContainer/InnerBufferRow/InnerBufferSpinBox" to="." method="_on_inner_buffer_spin_box_value_changed"]
+[connection signal="pressed" from="GenerationSettings/SettingsContainer/HBoxContainer/GenerationButton" to="." method="_on_generation_button_pressed"]

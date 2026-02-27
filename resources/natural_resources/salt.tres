@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://b1glfrb7777r0"]
+
+[ext_resource type="Texture2D" uid="uid://dysode7erfuo" path="res://assets/natural_resources/Salt.png" id="1_jqrjj"]
+[ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="1_ouuq3"]
+
+[resource]
+script = ExtResource("1_ouuq3")
+name = "Salt"
+image = ExtResource("1_jqrjj")
+color = Color(1, 1, 1, 1)
+biomes = Dictionary[int, float]({
+0: 1.0,
+1: 1.0,
+2: 0.5,
+3: 1.0,
+4: 1.0,
+5: 0.3,
+6: 1.0
+})
+metadata/_custom_type_script = "uid://c0i1xexp0ed8k"

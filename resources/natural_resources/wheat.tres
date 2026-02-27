@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://d24re8efjrw3"]
+
+[ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="1_g06xf"]
+[ext_resource type="Texture2D" uid="uid://c7uxawoaqhxlk" path="res://assets/natural_resources/Wheat.png" id="1_sj7ll"]
+
+[resource]
+script = ExtResource("1_g06xf")
+name = "Wheat"
+image = ExtResource("1_sj7ll")
+color = Color(0.66352785, 0.6066635, 0.2794684, 1)
+biomes = Dictionary[int, float]({
+0: 0.0,
+1: 1.0,
+2: 1.0,
+3: 1.0,
+4: 1.0,
+5: 1.0,
+6: 1.0
+})
+metadata/_custom_type_script = "uid://c0i1xexp0ed8k"

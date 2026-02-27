@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Building" load_steps=5 format=3 uid="uid://ca7lot8wcnmj4"]
+
+[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="1_gtd2o"]
+[ext_resource type="Resource" uid="uid://rtx6nmn6ra2n" path="res://resources/location_type/village.tres" id="2_bhxrk"]
+[ext_resource type="Resource" uid="uid://d24re8efjrw3" path="res://resources/natural_resources/wheat.tres" id="2_soirk"]
+[ext_resource type="Script" uid="uid://cefhks0qi2q56" path="res://scripts/buildings/building.gd" id="3_bhxrk"]
+
+[resource]
+script = ExtResource("3_bhxrk")
+name = "Crops"
+natural_resource = ExtResource("2_soirk")
+location_type = ExtResource("2_bhxrk")
+image = ExtResource("1_gtd2o")
+metadata/_custom_type_script = "uid://cefhks0qi2q56"
