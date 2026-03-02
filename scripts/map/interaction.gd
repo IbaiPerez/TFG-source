@@ -31,7 +31,7 @@ func _input(event: InputEvent) -> void:
 		if Input.is_action_just_pressed("Click") and event.pressed:
 			attempt_select(hit_object)
 		if Input.is_action_just_pressed("RightClick") and event.pressed:
-			Events.change_controller.emit(hit_object,MONGOL)
+			Events.change_tile_controller.emit(hit_object,MONGOL)
 
 
 
