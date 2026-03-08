@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://bajwxktlf3vqs"]
+
+[ext_resource type="Script" uid="uid://b1gfd8vi2etbx" path="res://scripts/ui/cards/card_target_selector.gd" id="1_avfbh"]
+[ext_resource type="PackedScene" uid="uid://dqrqwdm4m66fh" path="res://scripts/ui/cards/card_arc.tscn" id="1_ons4e"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_avfbh"]
+size = Vector3(0.5, 0.5, 0.5)
+
+[node name="CardTargetSelector" type="Node2D"]
+script = ExtResource("1_avfbh")
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_layer = 2
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_avfbh")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="CardArc" parent="CanvasLayer" instance=ExtResource("1_ons4e")]
+
+[connection signal="area_entered" from="Area3D" to="." method="_on_area_3d_area_entered"]
+[connection signal="area_exited" from="Area3D" to="." method="_on_area_3d_area_exited"]

@@ -39,7 +39,7 @@ func raycast_at_mouse(origin, end) -> Node3D:
 		var query = PhysicsRayQueryParameters3D.create(origin, end)
 		var collision = get_world_3d().direct_space_state.intersect_ray(query)
 		if collision and collision.has("collider"):
-			var hit = collision.collider.get_parent()
+			var hit = collision.collider.get_parent().get_parent()
 			return hit
 		else:
 			deselect()

@@ -86,7 +86,9 @@ RotateCameraRight={
 [layer_names]
 
 2d_physics/layer_1="Tiles"
+3d_physics/layer_1="Tiles"
 2d_physics/layer_2="DropArea"
+3d_physics/layer_2="CardTargetSelector"
 2d_physics/layer_3="Cards"
 
 [rendering]

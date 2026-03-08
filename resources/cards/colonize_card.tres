@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="Card" load_steps=2 format=3 uid="uid://c0etbihgrwnb0"]
+
+[ext_resource type="Script" uid="uid://c2mper5y287uw" path="res://scripts/ui/cards/card.gd" id="1_5q71u"]
+
+[resource]
+script = ExtResource("1_5q71u")
+id = "Colonize"
+metadata/_custom_type_script = "uid://c2mper5y287uw"
