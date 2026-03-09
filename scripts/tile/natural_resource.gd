@@ -11,3 +11,5 @@ class_name NaturalResource
 														Tile.biome_type.Tundra:1,
 														Tile.biome_type.Ocean:1,
 														Tile.biome_type.Mountain:1}
+@export var food_produced:int = 0
+@export var gold_produced:int = 0

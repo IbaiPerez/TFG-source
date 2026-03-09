@@ -297,9 +297,9 @@ func _on_inner_buffer_spin_box_value_changed(value: float) -> void:
 	var new_inner = int(value)
 	settings.inner_buffer = new_inner
 	
-	outer_buffer_spin_box.max_value = new_inner
-	if outer_buffer_spin_box.value > new_inner:
-		outer_buffer_spin_box.value = new_inner
+	outer_buffer_spin_box.max_value = new_inner-1
+	if outer_buffer_spin_box.value >= new_inner:
+		outer_buffer_spin_box.value = new_inner-1
 
 func _on_generation_button_pressed() -> void:
 	settings.empires.erase(settings.player_empire)

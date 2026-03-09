@@ -17,4 +17,5 @@ biomes = Dictionary[int, float]({
 5: 1.0,
 6: 0.8
 })
-metadata/_custom_type_script = "uid://c0i1xexp0ed8k"
+food_produced = 2
+gold_produced = 2

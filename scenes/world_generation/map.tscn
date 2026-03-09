@@ -12,7 +12,7 @@
 [ext_resource type="Resource" uid="uid://c0etbihgrwnb0" path="res://resources/cards/colonize_card.tres" id="5_pd25s"]
 [ext_resource type="Resource" uid="uid://du8gb228p7mpl" path="res://resources/cards/build_card.tres" id="6_wc6b0"]
 [ext_resource type="Resource" uid="uid://dkgt7ss0n8aij" path="res://resources/cards/recruit_card.tres" id="6_wme18"]
-[ext_resource type="PackedScene" uid="uid://bajwxktlf3vqs" path="res://scripts/ui/cards/card_target_selector.tscn" id="7_wc6b0"]
+[ext_resource type="PackedScene" uid="uid://bajwxktlf3vqs" path="res://scenes/UI/card/card_target_selector.tscn" id="7_wc6b0"]
 [ext_resource type="Script" uid="uid://ccptwq3cxwxmw" path="res://scripts/map/map_tracker.gd" id="8_70cmx"]
 
 [sub_resource type="Environment" id="Environment_kbma3"]
