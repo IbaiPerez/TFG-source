@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://chkt8mhljf7ue"]
+[gd_scene load_steps=3 format=3 uid="uid://chkt8mhljf7ue"]
 
 [ext_resource type="Script" uid="uid://cgmoodqwgdltf" path="res://scripts/ui/general_ui.gd" id="1_frbhi"]
+[ext_resource type="PackedScene" uid="uid://vrviitccvw80" path="res://scenes/UI/stats_ui.tscn" id="2_dsvdl"]
 
 [node name="UI" type="Control"]
 layout_mode = 3
@@ -13,9 +14,14 @@ script = ExtResource("1_frbhi")
 
 [node name="TileInfo" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -52.0
+offset_right = 148.0
+offset_bottom = 52.0
+grow_vertical = 2
 alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="TileInfo"]
@@ -101,6 +107,9 @@ text = "Natural Resources"
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Location Type"
+
+[node name="StatsUI" parent="." instance=ExtResource("2_dsvdl")]
+layout_mode = 0
 
 [connection signal="pressed" from="MapModes/MapModesButtons/PoliticalModeButton" to="." method="_on_political_mode_button_pressed"]
 [connection signal="pressed" from="MapModes/MapModesButtons/BiomesModeButton" to="." method="_on_biomes_mode_button_pressed"]

@@ -1,0 +1,62 @@
+[gd_scene load_steps=4 format=3 uid="uid://vrviitccvw80"]
+
+[ext_resource type="Script" uid="uid://buet7wh6gsdbb" path="res://scripts/ui/stats_ui.gd" id="1_o6p4b"]
+[ext_resource type="Texture2D" uid="uid://d30k0vc2rh2gr" path="res://assets/gold_coins.png" id="1_o7hd0"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_yg7fg"]
+font_color = Color(0.35350588, 0.79012865, 0.4504454, 1)
+
+[node name="StatsUI" type="HBoxContainer"]
+custom_minimum_size = Vector2(1280, 0)
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 10
+alignment = 1
+script = ExtResource("1_o6p4b")
+
+[node name="GoldContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="GoldImage" type="TextureRect" parent="GoldContainer"]
+layout_mode = 2
+texture = ExtResource("1_o7hd0")
+stretch_mode = 5
+
+[node name="GoldTitle" type="Label" parent="GoldContainer"]
+layout_mode = 2
+text = "Gold: "
+
+[node name="Gold" type="Label" parent="GoldContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="GoldGeneration" type="Label" parent="GoldContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "+10"
+label_settings = SubResource("LabelSettings_yg7fg")
+
+[node name="HSeparator" type="VSeparator" parent="."]
+layout_mode = 2
+
+[node name="FoodContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="FoodImage" type="TextureRect" parent="FoodContainer"]
+layout_mode = 2
+
+[node name="FoodTitle" type="Label" parent="FoodContainer"]
+layout_mode = 2
+text = "Food: "
+
+[node name="FoodGeneration" type="Label" parent="FoodContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_yg7fg")

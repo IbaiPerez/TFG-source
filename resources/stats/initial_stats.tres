@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Stats" load_steps=3 format=3 uid="uid://cwfokudqrj6s1"]
+
+[ext_resource type="Script" uid="uid://cwtwyeoabj3wv" path="res://scripts/player/stats.gd" id="1_c8cpc"]
+[ext_resource type="Resource" uid="uid://cx2mgwwjnf8am" path="res://resources/card_piles/starting_deck.tres" id="2_dcygl"]
+
+[resource]
+script = ExtResource("1_c8cpc")
+initial_gold = 10
+starting_deck = ExtResource("2_dcygl")
+cards_per_turn = 1
+metadata/_custom_type_script = "uid://cwtwyeoabj3wv"
