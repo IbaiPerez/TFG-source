@@ -60,6 +60,8 @@ func on_card_aim_started(card:CardUI) -> void:
 	targeting = true
 	area_3d.monitoring = true
 	area_3d.monitorable = true
+	if card.card.is_batle_front_targeted():
+		area_3d.collision_mask = 3
 	current_card = card
 
 func on_card_aim_ended(_card:CardUI) -> void:
@@ -68,15 +70,16 @@ func on_card_aim_ended(_card:CardUI) -> void:
 	area_3d.position = Vector3.ZERO
 	area_3d.monitoring = false
 	area_3d.monitorable = false
+	area_3d.collision_mask = 1
 	current_card = null
 
 func _on_area_3d_area_entered(area: Area3D) -> void:
 	if not current_card or not targeting:
 		return
-	if not current_card.targets.has(area):
-		current_card.targets.append(area)
+	if not current_card.targets.has(area.get_parent()):
+		current_card.targets.append(area.get_parent())
 
 func _on_area_3d_area_exited(area: Area3D) -> void:
 	if not current_card or not targeting:
 		return
-	current_card.targets.erase(area)
+	current_card.targets.erase(area.get_parent())

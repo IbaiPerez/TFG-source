@@ -90,6 +90,7 @@ RotateCameraRight={
 2d_physics/layer_2="DropArea"
 3d_physics/layer_2="CardTargetSelector"
 2d_physics/layer_3="Cards"
+3d_physics/layer_3="BattleFront"
 
 [rendering]
 

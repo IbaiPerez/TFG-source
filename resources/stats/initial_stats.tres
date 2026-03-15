@@ -1,11 +1,14 @@
-[gd_resource type="Resource" script_class="Stats" load_steps=3 format=3 uid="uid://cwfokudqrj6s1"]
+[gd_resource type="Resource" script_class="Stats" load_steps=4 format=3 uid="uid://cwfokudqrj6s1"]
 
+[ext_resource type="Resource" uid="uid://b4mhfidkmt6ag" path="res://resources/empires/mongol.tres" id="1_1iik2"]
 [ext_resource type="Script" uid="uid://cwtwyeoabj3wv" path="res://scripts/player/stats.gd" id="1_c8cpc"]
 [ext_resource type="Resource" uid="uid://cx2mgwwjnf8am" path="res://resources/card_piles/starting_deck.tres" id="2_dcygl"]
 
 [resource]
 script = ExtResource("1_c8cpc")
-initial_gold = 10
+initial_gold = 50
+initial_gold_per_turn = 10
 starting_deck = ExtResource("2_dcygl")
 cards_per_turn = 1
+empire = ExtResource("1_1iik2")
 metadata/_custom_type_script = "uid://cwtwyeoabj3wv"

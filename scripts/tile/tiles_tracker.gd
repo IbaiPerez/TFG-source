@@ -6,7 +6,6 @@ const UNCOLONIZED = preload("uid://3sm1dn2lvvcf")
 const VILLAGE = preload("uid://dg0go8h0lbyaw")
 
 func _ready() -> void:
-	print("Conectando a la señal")
 	Events.change_tile_controller.connect(_on_change_tile_controller)
 
 func update_all_borders() -> void:

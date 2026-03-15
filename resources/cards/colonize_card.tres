@@ -1,8 +1,10 @@
-[gd_resource type="Resource" script_class="Card" load_steps=2 format=3 uid="uid://c0etbihgrwnb0"]
+[gd_resource type="Resource" script_class="ColonizeCard" load_steps=3 format=3 uid="uid://c0etbihgrwnb0"]
 
-[ext_resource type="Script" uid="uid://c2mper5y287uw" path="res://scripts/ui/cards/card.gd" id="1_5q71u"]
+[ext_resource type="Texture2D" uid="uid://b13ku1xgd1yby" path="res://assets/cards/colonize_card.png" id="1_oxi6w"]
+[ext_resource type="Script" uid="uid://bt4wuaodjv7yb" path="res://scripts/cards_resources/colonize_card.gd" id="2_oxi6w"]
 
 [resource]
-script = ExtResource("1_5q71u")
+script = ExtResource("2_oxi6w")
 id = "Colonize"
+icon = ExtResource("1_oxi6w")
 metadata/_custom_type_script = "uid://c2mper5y287uw"

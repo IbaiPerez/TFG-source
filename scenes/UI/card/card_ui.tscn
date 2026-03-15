@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://cf5a8tg1tqyy7"]
+[gd_scene load_steps=10 format=3 uid="uid://cf5a8tg1tqyy7"]
 
 [ext_resource type="Script" uid="uid://b6qcgtmpkclys" path="res://scripts/ui/cards/card_ui.gd" id="1_n5lja"]
+[ext_resource type="StyleBox" uid="uid://di80gk8nibent" path="res://resources/styles/cards/card_base_style.tres" id="2_phkl8"]
 [ext_resource type="Script" uid="uid://c5ki4ttj6n6dj" path="res://scripts/ui/cards/card_state_machine.gd" id="2_t3yei"]
 [ext_resource type="Script" uid="uid://deyqpbnyk1scr" path="res://scripts/ui/cards/card_states/card_base_state.gd" id="3_22406"]
 [ext_resource type="Script" uid="uid://bsxxk8p8e3ptm" path="res://scripts/ui/cards/card_states/card_clicked_state.gd" id="4_mm2o0"]
@@ -23,30 +24,24 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_n5lja")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="Panel" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-color = Color(0.26521236, 0.5037182, 0.18336338, 1)
+theme_override_styles/panel = ExtResource("2_phkl8")
 
-[node name="Label" type="Label" parent="."]
+[node name="Icon" type="TextureRect" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -11.5
-offset_right = 20.0
-offset_bottom = 11.5
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "State"
+expand_mode = 1
+stretch_mode = 5
 
 [node name="DropPointDetector" type="Area2D" parent="."]
 collision_layer = 4

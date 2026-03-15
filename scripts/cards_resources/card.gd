@@ -9,6 +9,10 @@ enum Target {TILE,SELF,BATTLE_FRONT}
 @export var type:Type
 @export var target:Target
 
+@export_group("Card Visual")
+@export var icon:Texture
+@export_multiline var tooltipe_text:String
+
 func is_tile_targeted() -> bool:
 	return target == Target.TILE
 
@@ -17,3 +21,10 @@ func is_batle_front_targeted() -> bool:
 
 func is_single_use() -> bool:
 	return type == Type.SINGLE_USE
+
+func play(targets:Array[Node], stats:Stats) -> void:
+	Events.card_played.emit(self)
+	apply_effects(targets,stats)
+
+func apply_effects(_targets:Array[Node],stats:Stats) -> void:
+	pass

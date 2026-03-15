@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CardPile" load_steps=4 format=3 uid="uid://cx2mgwwjnf8am"]
 
-[ext_resource type="Script" uid="uid://c2mper5y287uw" path="res://scripts/ui/cards/card.gd" id="1_v0ead"]
-[ext_resource type="Script" uid="uid://c2ey05treshq0" path="res://scripts/ui/cards/card_pile.gd" id="2_q71y1"]
+[ext_resource type="Script" uid="uid://c2mper5y287uw" path="res://scripts/cards_resources/card.gd" id="1_v0ead"]
+[ext_resource type="Script" uid="uid://c2ey05treshq0" path="res://scripts/cards_resources/card_pile.gd" id="2_q71y1"]
 [ext_resource type="Resource" uid="uid://c0etbihgrwnb0" path="res://resources/cards/colonize_card.tres" id="2_vvedp"]
 
 [resource]

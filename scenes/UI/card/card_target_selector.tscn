@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dqrqwdm4m66fh" path="res://scenes/UI/card/card_arc.tscn" id="1_ons4e"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_avfbh"]
-size = Vector3(0.5, 0.5, 0.5)
+size = Vector3(0.2, 0.2, 0.2)
 
 [node name="CardTargetSelector" type="Node2D"]
 script = ExtResource("1_avfbh")

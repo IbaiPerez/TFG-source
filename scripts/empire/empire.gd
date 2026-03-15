@@ -14,3 +14,6 @@ func remove_tile(tile:Tile):
 	if tile in controlled_tiles:
 		controlled_tiles.erase(tile)
 		tile.set_controller(null)
+
+func reset_controlled_tiles() -> void:
+	controlled_tiles = []
