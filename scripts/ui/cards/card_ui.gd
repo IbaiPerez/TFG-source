@@ -9,6 +9,7 @@ signal reparent_requested(card_ui:CardUI)
 @onready var panel: Panel = $Panel
 @onready var icon: TextureRect = $Icon
 @onready var drop_point_detector: Area2D = $DropPointDetector
+@onready var tooltip: PanelContainer = $Tooltip
 @onready var card_state_machine: CardStateMachine = $CardStateMachine as CardStateMachine
 @onready var targets: Array[Node] = []
 
@@ -17,6 +18,8 @@ var tween:Tween
 
 func _ready() -> void:
 	card_state_machine.init(self)
+	tooltip.modulate = Color.TRANSPARENT
+	tooltip.hide()
 
 func _input(event:InputEvent) -> void:
 	card_state_machine.on_input(event)
@@ -40,6 +43,7 @@ func _on_mouse_entered() -> void:
 
 func _on_mouse_exited() -> void:
 	card_state_machine.on_mouse_exited()
+
 
 func _set_card(value:Card) -> void:
 	if not is_node_ready():

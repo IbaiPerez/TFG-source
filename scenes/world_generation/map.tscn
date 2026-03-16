@@ -1,20 +1,19 @@
-[gd_scene load_steps=19 format=3 uid="uid://dxw5gc7xqbkqj"]
+[gd_scene load_steps=18 format=3 uid="uid://dxw5gc7xqbkqj"]
 
+[ext_resource type="Script" uid="uid://byck58typyfki" path="res://scenes/world_generation/map.gd" id="1_e8i6t"]
 [ext_resource type="Script" uid="uid://bcsfis7fcjm3n" path="res://scripts/camera/camera_3d.gd" id="1_fam8b"]
 [ext_resource type="PackedScene" uid="uid://chkt8mhljf7ue" path="res://scenes/UI/general_ui.tscn" id="2_3j08d"]
 [ext_resource type="Script" uid="uid://cked06wplynoj" path="res://scripts/world_gen/world_generator.gd" id="2_50o2f"]
+[ext_resource type="Script" uid="uid://cnmg8oshi6mou" path="res://scripts/ui/ui_layer.gd" id="3_64aj6"]
 [ext_resource type="Script" uid="uid://d142gg0pl4kbi" path="res://scripts/ui/hand.gd" id="3_ewd2j"]
 [ext_resource type="Script" uid="uid://cngwdif8yna2x" path="res://scripts/tile/tiles_tracker.gd" id="3_g6xqq"]
-[ext_resource type="PackedScene" uid="uid://cf5a8tg1tqyy7" path="res://scenes/UI/card/card_ui.tscn" id="3_ia38g"]
 [ext_resource type="Resource" uid="uid://dawigvsddybjg" path="res://resources/world_settings/Default.tres" id="3_nktjb"]
 [ext_resource type="Script" uid="uid://b3b3jfnwhl7lh" path="res://scripts/map/interaction.gd" id="4_w7uq4"]
 [ext_resource type="PackedScene" uid="uid://b0owacbh83hyt" path="res://scenes/hexagon_cursor.tscn" id="5_leapw"]
-[ext_resource type="Resource" uid="uid://c0etbihgrwnb0" path="res://resources/cards/colonize_card.tres" id="5_pd25s"]
-[ext_resource type="Resource" uid="uid://du8gb228p7mpl" path="res://resources/cards/build_card.tres" id="6_wc6b0"]
-[ext_resource type="Resource" uid="uid://dkgt7ss0n8aij" path="res://resources/cards/recruit_card.tres" id="6_wme18"]
 [ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="7_s416t"]
 [ext_resource type="PackedScene" uid="uid://bajwxktlf3vqs" path="res://scenes/UI/card/card_target_selector.tscn" id="7_wc6b0"]
 [ext_resource type="Script" uid="uid://ccptwq3cxwxmw" path="res://scripts/map/map_tracker.gd" id="8_70cmx"]
+[ext_resource type="Script" uid="uid://cwxxqp1cjvmcl" path="res://scripts/player/player_handler.gd" id="14_wme18"]
 
 [sub_resource type="Environment" id="Environment_kbma3"]
 ssao_enabled = true
@@ -33,6 +32,8 @@ fog_height = 1.0
 size = Vector2(1280, 550)
 
 [node name="Map" type="Node3D"]
+script = ExtResource("1_e8i6t")
+stats = ExtResource("7_s416t")
 
 [node name="Camera" type="Node3D" parent="."]
 
@@ -69,6 +70,7 @@ shape = SubResource("RectangleShape2D_ewd2j")
 main_camera = NodePath("../../Camera/Camera3D")
 
 [node name="UI_layer" type="CanvasLayer" parent="Scene" groups=["ui_layer"]]
+script = ExtResource("3_64aj6")
 
 [node name="UI" parent="Scene/UI_layer" instance=ExtResource("2_3j08d")]
 
@@ -87,21 +89,6 @@ grow_vertical = 0
 theme_override_constants/separation = 10
 alignment = 1
 script = ExtResource("3_ewd2j")
-
-[node name="CardUI" parent="Scene/UI_layer/Hand" instance=ExtResource("3_ia38g")]
-layout_mode = 2
-card = ExtResource("6_wme18")
-stats = ExtResource("7_s416t")
-
-[node name="CardUI2" parent="Scene/UI_layer/Hand" instance=ExtResource("3_ia38g")]
-layout_mode = 2
-card = ExtResource("5_pd25s")
-stats = ExtResource("7_s416t")
-
-[node name="CardUI3" parent="Scene/UI_layer/Hand" instance=ExtResource("3_ia38g")]
-layout_mode = 2
-card = ExtResource("6_wc6b0")
-stats = ExtResource("7_s416t")
 
 [node name="Node" type="Node" parent="."]
 
@@ -122,3 +109,7 @@ main_camera = NodePath("../../Camera/Camera3D")
 [node name="MapTracker" type="Node" parent="Node" node_paths=PackedStringArray("tile_parent")]
 script = ExtResource("8_70cmx")
 tile_parent = NodePath("../../Scene/TileParent")
+
+[node name="PlayerHandler" type="Node" parent="Node" node_paths=PackedStringArray("hand")]
+script = ExtResource("14_wme18")
+hand = NodePath("../../Scene/UI_layer/Hand")

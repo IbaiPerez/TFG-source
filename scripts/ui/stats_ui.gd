@@ -1,4 +1,4 @@
-extends HBoxContainer
+extends Control
 class_name StatsUI
 
 @onready var gold: Label = %Gold
@@ -6,6 +6,9 @@ class_name StatsUI
 @onready var food_generation: Label = %FoodGeneration
 @onready var gold_container: HBoxContainer = $GoldContainer
 @onready var food_container: HBoxContainer = $FoodContainer
+@onready var discard_pile: Label = $DiscardPile
+@onready var draw_pile: Label = $DrawPile
+
 
 func update_stats(stats: Stats) -> void:
 	if stats.gold_per_turn < 0:
@@ -21,3 +24,5 @@ func update_stats(stats: Stats) -> void:
 		food_generation.label_settings.font_color = Color.LIGHT_GREEN
 	food_generation.text = str(stats.food)
 	gold.text = str(stats.total_gold)
+	discard_pile.text = str(stats.discard_pile.cards.size())
+	draw_pile.text = str(stats.draw_pile.cards.size())

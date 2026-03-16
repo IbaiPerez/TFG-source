@@ -6,57 +6,90 @@
 [sub_resource type="LabelSettings" id="LabelSettings_yg7fg"]
 font_color = Color(0.35350588, 0.79012865, 0.4504454, 1)
 
-[node name="StatsUI" type="HBoxContainer"]
+[node name="StatsUI" type="Control"]
 custom_minimum_size = Vector2(1280, 0)
-offset_right = 40.0
-offset_bottom = 40.0
-theme_override_constants/separation = 10
-alignment = 1
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_o6p4b")
 
-[node name="GoldContainer" type="HBoxContainer" parent="."]
+[node name="Top" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="GoldContainer" type="HBoxContainer" parent="Top"]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="GoldImage" type="TextureRect" parent="GoldContainer"]
+[node name="GoldImage" type="TextureRect" parent="Top/GoldContainer"]
 layout_mode = 2
 texture = ExtResource("1_o7hd0")
 stretch_mode = 5
 
-[node name="GoldTitle" type="Label" parent="GoldContainer"]
+[node name="GoldTitle" type="Label" parent="Top/GoldContainer"]
 layout_mode = 2
 text = "Gold: "
 
-[node name="Gold" type="Label" parent="GoldContainer"]
+[node name="Gold" type="Label" parent="Top/GoldContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 text = "0"
 horizontal_alignment = 2
 
-[node name="GoldGeneration" type="Label" parent="GoldContainer"]
+[node name="GoldGeneration" type="Label" parent="Top/GoldContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 text = "+10"
 label_settings = SubResource("LabelSettings_yg7fg")
 
-[node name="HSeparator" type="VSeparator" parent="."]
+[node name="HSeparator" type="VSeparator" parent="Top"]
 layout_mode = 2
 
-[node name="FoodContainer" type="HBoxContainer" parent="."]
+[node name="FoodContainer" type="HBoxContainer" parent="Top"]
 layout_mode = 2
 
-[node name="FoodImage" type="TextureRect" parent="FoodContainer"]
+[node name="FoodImage" type="TextureRect" parent="Top/FoodContainer"]
 layout_mode = 2
 
-[node name="FoodTitle" type="Label" parent="FoodContainer"]
+[node name="FoodTitle" type="Label" parent="Top/FoodContainer"]
 layout_mode = 2
 text = "Food: "
 
-[node name="FoodGeneration" type="Label" parent="FoodContainer"]
+[node name="FoodGeneration" type="Label" parent="Top/FoodContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_yg7fg")
+
+[node name="DiscardPile" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+offset_right = 40.0
+grow_vertical = 0
+text = "2"
+
+[node name="DrawPile" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "3"

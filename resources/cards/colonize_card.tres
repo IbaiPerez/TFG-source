@@ -7,4 +7,5 @@
 script = ExtResource("2_oxi6w")
 id = "Colonize"
 icon = ExtResource("1_oxi6w")
+tooltipe_text = "[center][b][color=green]Coloniza[/color][/b] una [color=blue]casilla[/color] [shake rate=20 level=5][color=red]adyacente[/color][/shake] a una controlada por tu [b][color=green]imperio[/color][/b][center]"
 metadata/_custom_type_script = "uid://c2mper5y287uw"

@@ -112,10 +112,26 @@ layout_mode = 2
 text = "Location Type"
 
 [node name="StatsUI" parent="." instance=ExtResource("2_dsvdl")]
-layout_mode = 0
-offset_right = 1280.0
+layout_mode = 1
+
+[node name="EndTurnButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -110.0
+offset_top = -64.0
+offset_right = -10.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "End turn"
 
 [connection signal="pressed" from="MapModes/MapModesButtons/PoliticalModeButton" to="." method="_on_political_mode_button_pressed"]
 [connection signal="pressed" from="MapModes/MapModesButtons/BiomesModeButton" to="." method="_on_biomes_mode_button_pressed"]
 [connection signal="pressed" from="MapModes/MapModesButtons/NaturalResourcesBiomeButton" to="." method="_on_natural_resources_biome_button_pressed"]
 [connection signal="pressed" from="MapModes/MapModesButtons/LocationTypeModeButton" to="." method="_on_location_type_mode_button_pressed"]
+[connection signal="pressed" from="EndTurnButton" to="." method="_on_end_turn_button_pressed"]

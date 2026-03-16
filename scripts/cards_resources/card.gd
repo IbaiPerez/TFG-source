@@ -26,5 +26,5 @@ func play(targets:Array[Node], stats:Stats) -> void:
 	Events.card_played.emit(self)
 	apply_effects(targets,stats)
 
-func apply_effects(_targets:Array[Node],stats:Stats) -> void:
+func apply_effects(_targets:Array[Node],_stats:Stats) -> void:
 	pass

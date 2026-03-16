@@ -9,6 +9,6 @@ script = ExtResource("1_c8cpc")
 initial_gold = 50
 initial_gold_per_turn = 10
 starting_deck = ExtResource("2_dcygl")
-cards_per_turn = 1
+cards_per_turn = 2
 empire = ExtResource("1_1iik2")
 metadata/_custom_type_script = "uid://cwtwyeoabj3wv"
