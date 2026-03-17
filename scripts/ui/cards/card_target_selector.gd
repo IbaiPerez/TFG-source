@@ -8,6 +8,7 @@ const ARC_POINTS := 10
 var current_card:CardUI
 var targeting := false
 
+var highlighted_targets:Array[Node] = []
 @export var main_camera : Camera3D
 
 
@@ -63,6 +64,7 @@ func on_card_aim_started(card:CardUI) -> void:
 	if card.card.is_batle_front_targeted():
 		area_3d.collision_mask = 3
 	current_card = card
+	highlight_valid_targets(current_card.card.get_valid_targets(current_card.stats))
 
 func on_card_aim_ended(_card:CardUI) -> void:
 	targeting = false
@@ -72,14 +74,29 @@ func on_card_aim_ended(_card:CardUI) -> void:
 	area_3d.monitorable = false
 	area_3d.collision_mask = 1
 	current_card = null
+	clear_highlights()
 
 func _on_area_3d_area_entered(area: Area3D) -> void:
 	if not current_card or not targeting:
 		return
-	if not current_card.targets.has(area.get_parent()):
+	if not current_card.targets.has(area.get_parent()) and current_card.card.is_target_valid(area.get_parent(),current_card.stats):
 		current_card.targets.append(area.get_parent())
 
 func _on_area_3d_area_exited(area: Area3D) -> void:
 	if not current_card or not targeting:
 		return
 	current_card.targets.erase(area.get_parent())
+
+func highlight_valid_targets(valid_targets:Array[Node]) -> void:
+	clear_highlights()
+	
+	for target in valid_targets:
+		if target.has_method("set_highlight"):
+			highlighted_targets.append(target)
+			target.set_highlight(true)
+
+func clear_highlights() -> void:
+	for target in highlighted_targets:
+		if is_instance_valid(target) and target.has_method("set_highlight"):
+			target.set_highlight(false)
+	highlighted_targets.clear()

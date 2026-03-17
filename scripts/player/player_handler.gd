@@ -23,7 +23,10 @@ func start_turn() -> void:
 	draw_cards(stats.cards_per_turn)
 
 func end_turn() -> void:
-	discard_cards()
+	if hand.get_children().size() == 0:
+		Events.player_hand_discarded.emit()
+	else:
+		discard_cards()
 
 func draw_card() -> void:
 	reshuffle_deck_from_discard()

@@ -28,3 +28,9 @@ func play(targets:Array[Node], stats:Stats) -> void:
 
 func apply_effects(_targets:Array[Node],_stats:Stats) -> void:
 	pass
+
+func get_valid_targets(_stats:Stats) -> Array[Node]:
+	return []
+
+func is_target_valid(_node:Node,_stats:Stats) -> bool:
+	return false

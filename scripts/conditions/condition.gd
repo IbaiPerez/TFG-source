@@ -2,8 +2,8 @@ extends RefCounted
 class_name Condition
 
 
-func valid_targets(_targets:Array[Node]) -> Array[Node]:
+func valid_targets() -> Array[Node]:
 	return []
 
-func is_valid_target(_taget:Node) -> bool:
+func is_valid_target(_target:Node) -> bool:
 	return false

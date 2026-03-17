@@ -15,6 +15,7 @@ var neighbors = []
 
 var debug_label : Label3D
 var material:StandardMaterial3D
+var highlight_material: StandardMaterial3D
 var natural_resource_image: Sprite3D
 var border_mesh:MeshInstance3D
 
@@ -39,6 +40,13 @@ func set_parameters() -> void:
 	add_child(border_mesh)
 	border_mesh.position.y = 0.03
 	border_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	
+	highlight_material = StandardMaterial3D.new()
+	highlight_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	highlight_material.albedo_color = Color(1.0, 1.0, 0.2, 0.3) # Amarillo semitransparente
+	highlight_material.emission_enabled = true
+	highlight_material.emission = Color(1.0, 1.0, 0.0) # Luz amarilla
+	highlight_material.emission_energy_multiplier = 1.5 # Intensidad del brillo
 	
 
 func set_biome_material():
@@ -240,3 +248,15 @@ func get_hex_vertices() -> Array:
 		))
 	
 	return vertices
+
+func set_highlight(active: bool) -> void:
+	var mesh_instance: MeshInstance3D = get_child(0) as MeshInstance3D
+	if not mesh_instance:
+		return
+		
+	if active:
+		# Aplica el material por encima del color del bioma/imperio
+		mesh_instance.material_overlay = highlight_material
+	else:
+		# Quita la capa superior, dejando el tile normal
+		mesh_instance.material_overlay = null

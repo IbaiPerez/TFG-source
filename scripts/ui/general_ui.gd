@@ -17,10 +17,15 @@ func _ready() -> void:
 	Events.tile_deselected.connect(_on_tile_deselected)
 	Events.player_hand_drawn.connect(_on_player_hand_drawn)
 	tile_info.visible = false
+	await get_tree().create_timer(4).timeout
+	stats.set_gold_per_turn(12)
 
 func _set_stats(value:Stats) -> void:
 	stats = value
-	stats.stats_changed.connect(stats_ui.update_stats)
+	stats.stats_changed.connect(_on_stats_changed)
+
+func _on_stats_changed() -> void:
+	stats_ui.update_stats(stats)
 
 func _on_tile_selected(tile:Tile):
 	biome.text = tile.biome
