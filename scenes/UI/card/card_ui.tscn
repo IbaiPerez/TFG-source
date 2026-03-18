@@ -1,10 +1,13 @@
-[gd_scene load_steps=11 format=3 uid="uid://cf5a8tg1tqyy7"]
+[gd_scene load_steps=14 format=3 uid="uid://cf5a8tg1tqyy7"]
 
 [ext_resource type="Script" uid="uid://b6qcgtmpkclys" path="res://scripts/ui/cards/card_ui.gd" id="1_n5lja"]
 [ext_resource type="StyleBox" uid="uid://di80gk8nibent" path="res://resources/styles/cards/card_base_style.tres" id="2_phkl8"]
+[ext_resource type="Resource" uid="uid://c0etbihgrwnb0" path="res://resources/cards/colonize_card.tres" id="2_s6wud"]
 [ext_resource type="Script" uid="uid://c5ki4ttj6n6dj" path="res://scripts/ui/cards/card_state_machine.gd" id="2_t3yei"]
 [ext_resource type="Script" uid="uid://bardxjcsvsopn" path="res://scripts/ui/cards/tooltip.gd" id="3_15uyt"]
 [ext_resource type="Script" uid="uid://deyqpbnyk1scr" path="res://scripts/ui/cards/card_states/card_base_state.gd" id="3_22406"]
+[ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="3_vj4or"]
+[ext_resource type="Texture2D" uid="uid://b13ku1xgd1yby" path="res://assets/cards/colonize_card.png" id="4_j5ew7"]
 [ext_resource type="Script" uid="uid://bsxxk8p8e3ptm" path="res://scripts/ui/cards/card_states/card_clicked_state.gd" id="4_mm2o0"]
 [ext_resource type="Script" uid="uid://cvub66iuayr6d" path="res://scripts/ui/cards/card_states/card_dragging_state.gd" id="5_7jqc3"]
 [ext_resource type="Script" uid="uid://bj2jjak108acp" path="res://scripts/ui/cards/card_states/card_realeased_state.gd" id="6_phkl8"]
@@ -24,6 +27,8 @@ offset_bottom = -600.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_n5lja")
+card = ExtResource("2_s6wud")
+stats = ExtResource("3_vj4or")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
@@ -41,6 +46,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+texture = ExtResource("4_j5ew7")
 expand_mode = 1
 stretch_mode = 5
 

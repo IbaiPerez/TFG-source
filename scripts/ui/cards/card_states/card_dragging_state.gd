@@ -12,6 +12,7 @@ func enter() -> void:
 	minimum_drag_time_elapsed = false
 	var threshold_timer := get_tree().create_timer(DRAG_MINIMUM_THRESHOLD,false)
 	threshold_timer.timeout.connect(func():minimum_drag_time_elapsed=true)
+	card_ui.panel.set("theme_override_styles/panel",card_ui.CARD_DRAGGING_STYLE)
 
 func on_input(event:InputEvent) -> void:
 	var single_targeted := card_ui.card.is_tile_targeted() or card_ui.card.is_batle_front_targeted() 

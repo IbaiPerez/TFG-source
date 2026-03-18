@@ -6,6 +6,10 @@ signal reparent_requested(card_ui:CardUI)
 @export var card:Card:set = _set_card
 @export var stats:Stats
 
+const CARD_BASE_STYLE = preload("uid://di80gk8nibent")
+const CARD_DRAGGING_STYLE = preload("uid://bbh66eoc02kfu")
+const CARD_HOVER_STYLE = preload("uid://b52h7lujm1wex")
+
 @onready var panel: Panel = $Panel
 @onready var icon: TextureRect = $Icon
 @onready var drop_point_detector: Area2D = $DropPointDetector
