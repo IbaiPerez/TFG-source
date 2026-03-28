@@ -12,7 +12,7 @@ func get_valid_targets(stats:Stats) -> Array[Node]:
 	condition.empire = stats.empire
 	return condition.valid_targets()
 
-func is_target_valid(node:Node,stats:Stats) -> bool:
+func is_valid_target(node:Node,stats:Stats) -> bool:
 	var condition :=AdjacentCondition.new()
 	condition.empire = stats.empire
 	return condition.is_valid_target(node)

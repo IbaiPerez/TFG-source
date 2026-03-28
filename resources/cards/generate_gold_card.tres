@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="GenerateGoldCard" load_steps=2 format=3 uid="uid://iyfxq5856d4o"]
+
+[ext_resource type="Script" uid="uid://ftmabxbvfhl3" path="res://scripts/cards_resources/generate_gold_card.gd" id="1_v4b1e"]
+
+[resource]
+script = ExtResource("1_v4b1e")
+id = "Generate Gold Card"
+target = 1
+metadata/_custom_type_script = "uid://ftmabxbvfhl3"

@@ -22,3 +22,5 @@ signal card_played(card:Card)
 signal player_hand_drawn
 signal player_hand_discarded
 signal player_turn_ended
+
+signal try_to_build(tile:Tile,buildings:Array[Building])

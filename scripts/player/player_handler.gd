@@ -16,9 +16,18 @@ func start_game(new_stats:Stats) -> void:
 	stats.draw_pile = stats.deck.duplicate(true)
 	stats.draw_pile.shuffle()
 	stats.discard_pile = CardPile.new()
+	stats.empire.tile_conquered.connect(_on_tile_conquered)
+	stats.empire.tile_lost.connect(_on_tile_lost)
 	start_turn()
 
 func start_turn() -> void:
+	var gold_produced := 0
+	var food_produced := 0
+	for t in stats.empire.controlled_tiles:
+		gold_produced += t.gold_production
+		food_produced += t.food_production
+	stats.gold_per_turn = gold_produced
+	stats.food = food_produced
 	stats.total_gold += stats.gold_per_turn
 	draw_cards(stats.cards_per_turn)
 
@@ -64,4 +73,15 @@ func reshuffle_deck_from_discard() -> void:
 	stats.draw_pile.shuffle()
 
 func _on_card_played(card:Card) -> void:
-	stats.discard_pile.add_card(card)
+	if card.is_single_use():
+		stats.played_pile.add_card(card)
+	else:
+		stats.discard_pile.add_card(card)
+
+func _on_tile_conquered(tile:Tile):
+	stats.gold_per_turn += tile.gold_production
+	stats.food += tile.food_production
+
+func _on_tile_lost(tile:Tile):
+	stats.gold_per_turn =- tile.natural_resource.gold_produced
+	stats.food -= tile.natural_resource.food_produced

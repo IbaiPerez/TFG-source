@@ -1,10 +1,12 @@
-[gd_resource type="Resource" script_class="CardPile" load_steps=4 format=3 uid="uid://cx2mgwwjnf8am"]
+[gd_resource type="Resource" script_class="CardPile" load_steps=6 format=3 uid="uid://cx2mgwwjnf8am"]
 
 [ext_resource type="Script" uid="uid://c2mper5y287uw" path="res://scripts/cards_resources/card.gd" id="1_v0ead"]
 [ext_resource type="Script" uid="uid://c2ey05treshq0" path="res://scripts/cards_resources/card_pile.gd" id="2_q71y1"]
 [ext_resource type="Resource" uid="uid://c0etbihgrwnb0" path="res://resources/cards/colonize_card.tres" id="2_vvedp"]
+[ext_resource type="Resource" uid="uid://iyfxq5856d4o" path="res://resources/cards/generate_gold_card.tres" id="3_vvedp"]
+[ext_resource type="Resource" uid="uid://du8gb228p7mpl" path="res://resources/cards/build_card.tres" id="4_om8s7"]
 
 [resource]
 script = ExtResource("2_q71y1")
-cards = Array[ExtResource("1_v0ead")]([ExtResource("2_vvedp"), ExtResource("2_vvedp"), ExtResource("2_vvedp"), ExtResource("2_vvedp"), ExtResource("2_vvedp"), ExtResource("2_vvedp")])
+cards = Array[ExtResource("1_v0ead")]([ExtResource("2_vvedp"), ExtResource("2_vvedp"), ExtResource("3_vvedp"), ExtResource("4_om8s7")])
 metadata/_custom_type_script = "uid://c2ey05treshq0"

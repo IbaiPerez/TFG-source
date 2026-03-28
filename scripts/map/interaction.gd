@@ -7,7 +7,6 @@ var selected_tile : Node3D
 # Cursors
 var tile_cursor : Node3D
 var initial_scale
-const MONGOL = preload("uid://b4mhfidkmt6ag")
 
 
 

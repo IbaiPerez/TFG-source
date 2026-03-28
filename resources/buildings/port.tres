@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://c0m3461v0vbnf"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_62yht"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_cekw7"]
+[ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_wywg4"]
+[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_htdhu"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_yi1ie"]
+[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="5_6vu6y"]
+
+[resource]
+script = ExtResource("3_yi1ie")
+name = "Port"
+allowed_location_type = Array[ExtResource("1_62yht")]([ExtResource("2_wywg4"), ExtResource("3_htdhu")])
+allowed_biomes = Array[int]([5])
+image = ExtResource("5_6vu6y")
+construction_cost = 200
+gold_produced = 10
+metadata/_custom_type_script = "uid://2ce384crr8i0"

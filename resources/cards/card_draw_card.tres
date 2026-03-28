@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CardDrawCard" load_steps=2 format=3 uid="uid://cy4mp5x26d6gd"]
+
+[ext_resource type="Script" uid="uid://dr7dlirefmqmj" path="res://scripts/cards_resources/card_draw_card.gd" id="1_083s0"]
+
+[resource]
+script = ExtResource("1_083s0")
+id = "CardDraw"
+type = 1
+target = 1
+tooltipe_text = "[center][b][color=green]Draw[/color][/b] an extra  [color=blue]card[/color][center]"
+metadata/_custom_type_script = "uid://dr7dlirefmqmj"

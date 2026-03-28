@@ -79,7 +79,7 @@ func on_card_aim_ended(_card:CardUI) -> void:
 func _on_area_3d_area_entered(area: Area3D) -> void:
 	if not current_card or not targeting:
 		return
-	if not current_card.targets.has(area.get_parent()) and current_card.card.is_target_valid(area.get_parent(),current_card.stats):
+	if not current_card.targets.has(area.get_parent()) and current_card.card.is_valid_target(area.get_parent(),current_card.stats):
 		current_card.targets.append(area.get_parent())
 
 func _on_area_3d_area_exited(area: Area3D) -> void:

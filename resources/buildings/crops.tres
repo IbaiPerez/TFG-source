@@ -1,14 +1,18 @@
-[gd_resource type="Resource" script_class="Building" load_steps=5 format=3 uid="uid://ca7lot8wcnmj4"]
+[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://bl7qv7job3kaa"]
 
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="1_gtd2o"]
-[ext_resource type="Resource" uid="uid://rtx6nmn6ra2n" path="res://resources/location_type/village.tres" id="2_bhxrk"]
-[ext_resource type="Resource" uid="uid://d24re8efjrw3" path="res://resources/natural_resources/wheat.tres" id="2_soirk"]
-[ext_resource type="Script" uid="uid://cefhks0qi2q56" path="res://scripts/buildings/building.gd" id="3_bhxrk"]
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_gtd2o"]
+[ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_r3w6y"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_soirk"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_bhxrk"]
+[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_phfj3"]
+[ext_resource type="Resource" uid="uid://d24re8efjrw3" path="res://resources/natural_resources/wheat.tres" id="5_l3dn6"]
 
 [resource]
 script = ExtResource("3_bhxrk")
 name = "Crops"
-natural_resource = ExtResource("2_soirk")
-location_type = ExtResource("2_bhxrk")
-image = ExtResource("1_gtd2o")
-metadata/_custom_type_script = "uid://cefhks0qi2q56"
+required_natural_resource = ExtResource("5_l3dn6")
+allowed_location_type = Array[ExtResource("1_gtd2o")]([ExtResource("2_r3w6y")])
+image = ExtResource("4_phfj3")
+construction_cost = 50
+food_produced = 5
+metadata/_custom_type_script = "uid://2ce384crr8i0"

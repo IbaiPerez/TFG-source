@@ -1,6 +1,6 @@
-[gd_scene load_steps=18 format=3 uid="uid://dxw5gc7xqbkqj"]
+[gd_scene load_steps=19 format=3 uid="uid://dxw5gc7xqbkqj"]
 
-[ext_resource type="Script" uid="uid://byck58typyfki" path="res://scenes/world_generation/map.gd" id="1_e8i6t"]
+[ext_resource type="Script" uid="uid://byck58typyfki" path="res://scripts/world_gen/map.gd" id="1_e8i6t"]
 [ext_resource type="Script" uid="uid://bcsfis7fcjm3n" path="res://scripts/camera/camera_3d.gd" id="1_fam8b"]
 [ext_resource type="PackedScene" uid="uid://chkt8mhljf7ue" path="res://scenes/UI/general_ui.tscn" id="2_3j08d"]
 [ext_resource type="Script" uid="uid://cked06wplynoj" path="res://scripts/world_gen/world_generator.gd" id="2_50o2f"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://bajwxktlf3vqs" path="res://scenes/UI/card/card_target_selector.tscn" id="7_wc6b0"]
 [ext_resource type="Script" uid="uid://ccptwq3cxwxmw" path="res://scripts/map/map_tracker.gd" id="8_70cmx"]
 [ext_resource type="Script" uid="uid://cwxxqp1cjvmcl" path="res://scripts/player/player_handler.gd" id="14_wme18"]
+[ext_resource type="Script" uid="uid://bl6xyxdhcmisx" path="res://scripts/building/building_manager.gd" id="15_s416t"]
 
 [sub_resource type="Environment" id="Environment_kbma3"]
 ssao_enabled = true
@@ -110,6 +111,9 @@ main_camera = NodePath("../../Camera/Camera3D")
 script = ExtResource("8_70cmx")
 tile_parent = NodePath("../../Scene/TileParent")
 
-[node name="PlayerHandler" type="Node" parent="Node" node_paths=PackedStringArray("hand")]
+[node name="PlayerHandler" type="Node" parent="Node" node_paths=PackedStringArray("hand") groups=["player_handler"]]
 script = ExtResource("14_wme18")
 hand = NodePath("../../Scene/UI_layer/Hand")
+
+[node name="BuildingManager" type="Node" parent="Node"]
+script = ExtResource("15_s416t")

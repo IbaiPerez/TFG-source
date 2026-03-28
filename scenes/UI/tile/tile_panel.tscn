@@ -1,0 +1,85 @@
+[gd_scene load_steps=3 format=3 uid="uid://y8uliwdcrvdi"]
+
+[ext_resource type="Script" uid="uid://caxwev6n3vcjr" path="res://scripts/ui/tiles/tile_panel.gd" id="1_aa2ea"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_icdod"]
+bg_color = Color(0.9490196, 0.8862745, 0.7294118, 1)
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.24313726, 0.15294118, 0.13725491, 1)
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+
+[node name="TilePanel" type="PanelContainer"]
+custom_minimum_size = Vector2(280, 400)
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_icdod")
+script = ExtResource("1_aa2ea")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BiomeLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Biome"
+
+[node name="NaturalResourceContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResourceColorRect" type="ColorRect" parent="MarginContainer/VBoxContainer/NaturalResourceContainer"]
+custom_minimum_size = Vector2(6, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ResourceImage" type="TextureRect" parent="MarginContainer/VBoxContainer/NaturalResourceContainer"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="ResourceNameLabel" type="Label" parent="MarginContainer/VBoxContainer/NaturalResourceContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Natural Resource"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ControllerContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ControllerColorRect" type="ColorRect" parent="MarginContainer/VBoxContainer/ControllerContainer"]
+custom_minimum_size = Vector2(6, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ControllerLabel" type="Label" parent="MarginContainer/VBoxContainer/ControllerContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "No Controller"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LocationLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Location Type"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BuildingGrid" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3

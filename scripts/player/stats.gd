@@ -15,6 +15,7 @@ var food:int:set = set_food
 var deck:CardPile
 var discard_pile:CardPile
 var draw_pile:CardPile
+var played_pile:CardPile
 
 @export var empire:Empire
 
@@ -44,5 +45,6 @@ func create_instance() -> Resource:
 	instance.deck = instance.starting_deck.duplicate()
 	instance.draw_pile = CardPile.new()
 	instance.discard_pile = CardPile.new()
+	instance.played_pile = CardPile.new()
 	instance.empire = empire
 	return instance

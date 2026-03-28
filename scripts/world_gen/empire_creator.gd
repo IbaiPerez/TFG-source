@@ -10,7 +10,7 @@ func init_creator(_in_settings:GenerationSettings):
 func create_empires():
 	settings.player_empire.reset_controlled_tiles()
 	for tile in WorldMap.map:
-		if tile.pos_data.buffer and tile.biome != "Ocean" and tile.natural_resource.food_produced > 0:
+		if tile.pos_data.buffer and tile.biome != "Ocean" and tile.food_production > 0:
 			possible_tiles.append(tile)
 	
 	var player_initial_tile:Tile = possible_tiles.pick_random()
