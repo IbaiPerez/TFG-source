@@ -16,8 +16,17 @@ corner_radius_bottom_left = 24
 
 [node name="BuildingPanel" type="PanelContainer"]
 custom_minimum_size = Vector2(320, 420)
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -210.0
+offset_right = 160.0
+offset_bottom = 210.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ktlhe")
 script = ExtResource("1_u7i0o")
 

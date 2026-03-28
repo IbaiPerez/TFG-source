@@ -39,6 +39,13 @@ func play() -> void:
 	card.play(targets,stats)
 	queue_free()
 
+func confirm() -> void:
+	if not card:
+		return
+	
+	card.confirm(targets,stats)
+	get_parent().add_child(card.menu)
+
 func _on_gui_input(event:InputEvent) -> void:
 	card_state_machine.on_gui_input(event)
 

@@ -10,9 +10,14 @@ var stats:Stats
 var buildings:Array[Building]:set = set_buildings
 var _slots: Array = []
 
+signal card_confirmed(building:Building)
+
 
 func set_buildings(value:Array[Building]) -> void:
-	buildings = value
+	buildings = tile.get_valid_buildings(value)
+	
+	if not is_node_ready():
+		await ready
 	
 	_clear_grid()
 	for building in buildings:
@@ -31,5 +36,4 @@ func _clear_grid() -> void:
 	_slots.clear()
 
 func _on_building_selected(building: Building) -> void:
-	tile.build(building,stats)
-	self.visible = false
+	card_confirmed.emit(building)

@@ -8,6 +8,7 @@ enum Target {TILE,SELF,BATTLE_FRONT}
 @export var id:String
 @export var type:Type
 @export var target:Target
+@export var needs_confirmation:bool
 
 @export_group("Card Visual")
 @export var icon:Texture

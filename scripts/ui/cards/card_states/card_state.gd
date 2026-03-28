@@ -1,7 +1,7 @@
 extends Node
 class_name CardState
 
-enum State {BASE, CLICKED, DRAGGING, AIMING, RELEASED}
+enum State {BASE, CLICKED, DRAGGING, AIMING, CONFIRMING, RELEASED}
 
 signal transition_requested(from:CardState,to:State)
 

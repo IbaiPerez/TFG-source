@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuildCard" load_steps=14 format=3 uid="uid://du8gb228p7mpl"]
+[gd_resource type="Resource" script_class="BuildCard" load_steps=15 format=3 uid="uid://du8gb228p7mpl"]
 
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_ut245"]
 [ext_resource type="Resource" uid="uid://bl7qv7job3kaa" path="res://resources/buildings/crops.tres" id="2_deil1"]
@@ -13,9 +13,12 @@
 [ext_resource type="Resource" uid="uid://bww68w6ccgty4" path="res://resources/buildings/quarry.tres" id="10_3pral"]
 [ext_resource type="Resource" uid="uid://bwycs1wi7yoqk" path="res://resources/buildings/salt_mine.tres" id="11_ehbyy"]
 [ext_resource type="Resource" uid="uid://beh4anbgf3362" path="res://resources/buildings/sand_pit.tres" id="12_7plb7"]
+[ext_resource type="PackedScene" uid="uid://d4kc0x1wj7vrm" path="res://scenes/UI/building/building_panel.tscn" id="13_qds57"]
 
 [resource]
 script = ExtResource("2_kcpkn")
 buildings = Array[ExtResource("1_ut245")]([ExtResource("2_deil1"), ExtResource("3_qds57"), ExtResource("4_7gpwv"), ExtResource("5_vk8v1"), ExtResource("6_1t5ij"), ExtResource("7_1ofjh"), ExtResource("8_egw22"), ExtResource("9_vv10l"), ExtResource("10_3pral"), ExtResource("11_ehbyy"), ExtResource("12_7plb7")])
+confirm_menu = ExtResource("13_qds57")
 id = "Build Card"
+needs_confirmation = true
 metadata/_custom_type_script = "uid://c8is4xda402fx"
