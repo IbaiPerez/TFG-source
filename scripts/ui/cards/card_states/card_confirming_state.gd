@@ -4,8 +4,9 @@ var confirmed:bool
 
 func enter() -> void:
 	confirmed = false
-	card_ui.confirm()
-	card_ui.card.menu.card_confirmed.connect(_on_card_confirmed)
+	if not card_ui.targets.is_empty():
+		card_ui.confirm()
+		card_ui.card.menu.card_confirmed.connect(_on_card_confirmed)
 
 func exit() -> void:
 	card_ui.card.menu.queue_free()

@@ -48,7 +48,7 @@ func setup(value:Tile) -> void:
 	
 	if tile.food_production < 0:
 		food_produced.label_settings.font_color = Color.DARK_RED
-		food_produced.text = "-" + str(tile.food_production)
+		food_produced.text = str(tile.food_production)
 	elif tile.food_production == 0:
 		food_produced.label_settings.font_color = Color.BLACK
 		food_produced.text = str(tile.food_production)

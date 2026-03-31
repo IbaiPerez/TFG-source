@@ -22,7 +22,7 @@ func on_input(event:InputEvent) -> void:
 		transition_requested.emit(self,CardState.State.BASE)
 	elif event.is_action_released("Click") or event.is_action_pressed("Click"):
 		get_viewport().set_input_as_handled()
-		if card_ui.card.needs_confirmation:
+		if card_ui.card.needs_confirmation and not card_ui.targets.is_empty():
 			transition_requested.emit(self,CardState.State.CONFIRMING)
 		else:
 			transition_requested.emit(self,CardState.State.RELEASED)
