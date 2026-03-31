@@ -11,6 +11,8 @@ const BUILDING_CARD_UI = preload("uid://bxjlofssmvuwu")
 @onready var controller_label: Label = $MarginContainer/VBoxContainer/ControllerContainer/ControllerLabel
 @onready var location_label: Label = $MarginContainer/VBoxContainer/LocationLabel
 @onready var building_grid: GridContainer = $MarginContainer/VBoxContainer/BuildingGrid
+@onready var gold_produced: Label = $MarginContainer/VBoxContainer/ProductionContainer/GridContainer/GoldProduced
+@onready var food_produced: Label = $MarginContainer/VBoxContainer/ProductionContainer/GridContainer/FoodProduced
 
 var tile:Tile:set = setup
 
@@ -33,6 +35,26 @@ func setup(value:Tile) -> void:
 	else:
 		controller_color_rect.color = Color.TRANSPARENT
 		controller_label.text = "No controller"
+	
+	if tile.gold_production < 0:
+		gold_produced.label_settings.font_color = Color.DARK_RED
+		gold_produced.text = "-" + str(tile.gold_production)
+	elif tile.gold_production == 0:
+		gold_produced.label_settings.font_color = Color.BLACK
+		gold_produced.text = str(tile.gold_production)
+	else:
+		gold_produced.label_settings.font_color = Color.DARK_GREEN
+		gold_produced.text = "+" + str(tile.gold_production)
+	
+	if tile.food_production < 0:
+		food_produced.label_settings.font_color = Color.DARK_RED
+		food_produced.text = "-" + str(tile.food_production)
+	elif tile.food_production == 0:
+		food_produced.label_settings.font_color = Color.BLACK
+		food_produced.text = str(tile.food_production)
+	else:
+		food_produced.label_settings.font_color = Color.DARK_GREEN
+		food_produced.text = "+" + str(tile.food_production)
 	
 	location_label.text = Tile.location_type.find_key(tile.location.type)
 	

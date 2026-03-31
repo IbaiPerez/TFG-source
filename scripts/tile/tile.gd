@@ -23,6 +23,9 @@ var max_buildings: int = 0
 var food_production: int = 0
 var gold_production: int = 0
 
+signal building_completed(building:Building)
+signal building_demolished(building:Building)
+
 func set_parameters() -> void:
 	material = StandardMaterial3D.new()
 	material.albedo_color = mesh_data.color
@@ -55,7 +58,7 @@ func set_parameters() -> void:
 
 func recalculate_modifiers() -> void:
 	max_buildings = location.max_building if location else 0
-	food_production = natural_resource.food_produced if natural_resource else 0
+	food_production = (natural_resource.food_produced if natural_resource else 0) - (location.food_consumption if location else 0)
 	gold_production = natural_resource.gold_produced if natural_resource else 0
 	for b in buildings:
 		gold_production += b.gold_produced
@@ -77,7 +80,7 @@ func can_build(building: Building) -> bool:
 			return false
 
 	if building.allowed_biomes.size() > 0:
-		if mesh_data.biome_type not in building.allowed_biomes:
+		if mesh_data.type not in building.allowed_biomes:
 			return false
 
 	return true
@@ -99,8 +102,9 @@ func build(building:Building, stats:Stats) -> void:
 	buildings.append(instance)
 	for e in instance.effects:
 		e.apply_effect(self,stats)
-	recalculate_modifiers()
 	stats.total_gold -= building.construction_cost
+	recalculate_modifiers()
+	building_completed.emit(building)
 
 func demolish(building:Building, stats:Stats) -> void:
 	if building not in buildings:
@@ -110,6 +114,7 @@ func demolish(building:Building, stats:Stats) -> void:
 	for e in building.effects:
 		e.remove_effect(self,stats)
 	recalculate_modifiers()
+	building_demolished.emit(building)
 
 func set_biome_material():
 	material.albedo_color = mesh_data.color

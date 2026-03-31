@@ -5,6 +5,7 @@ signal generate_world(settings:GenerationSettings)
 
 signal change_tile_controller(tile:Tile, empire:Empire)
 signal tile_controller_changed(tile:Tile)
+signal change_tile_location_type(tile:Tile, location_type:LocationType)
 signal tile_location_type_changed(tile:Tile)
 
 

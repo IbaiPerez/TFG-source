@@ -26,6 +26,8 @@ func start_turn() -> void:
 	for t in stats.empire.controlled_tiles:
 		gold_produced += t.gold_production
 		food_produced += t.food_production
+		t.building_completed.connect(_on_building_completed)
+		t.building_demolished.connect(_on_building_demolished)
 	stats.gold_per_turn = gold_produced
 	stats.food = food_produced
 	stats.total_gold += stats.gold_per_turn
@@ -81,7 +83,19 @@ func _on_card_played(card:Card) -> void:
 func _on_tile_conquered(tile:Tile):
 	stats.gold_per_turn += tile.gold_production
 	stats.food += tile.food_production
+	tile.building_completed.connect(_on_building_completed)
+	tile.building_demolished.connect(_on_building_demolished)
 
 func _on_tile_lost(tile:Tile):
-	stats.gold_per_turn =- tile.natural_resource.gold_produced
+	stats.gold_per_turn += tile.natural_resource.gold_produced
 	stats.food -= tile.natural_resource.food_produced
+	tile.building_completed.disconnect(_on_building_completed)
+	tile.building_demolished.disconnect(_on_building_demolished)
+
+func _on_building_completed(building:Building):
+	stats.gold_per_turn += building.gold_produced
+	stats.food += building.food_produced
+
+func _on_building_demolished(building:Building):
+	stats.gold_per_turn -= building.gold_produced
+	stats.food -= building.food_produced

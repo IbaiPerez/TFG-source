@@ -7,4 +7,5 @@ script = ExtResource("1_52s4u")
 type = 2
 max_building = 3
 color = Color(1, 0.44313726, 0.3764706, 1)
+food_consumption = 5
 metadata/_custom_type_script = "uid://c0k8g56a31cdg"

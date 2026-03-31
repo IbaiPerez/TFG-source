@@ -16,12 +16,12 @@ func update_stats(stats: Stats) -> void:
 		gold_generation.label_settings.font_color = Color.DARK_RED
 	else:
 		gold_generation.text = "+" + str(stats.gold_per_turn)
-		gold_generation.label_settings.font_color = Color.LIGHT_GREEN
+		gold_generation.label_settings.font_color = Color.DARK_GREEN
 	
 	if stats.food < 0:
 		food_generation.label_settings.font_color = Color.DARK_RED
 	else:
-		food_generation.label_settings.font_color = Color.LIGHT_GREEN
+		food_generation.label_settings.font_color = Color.DARK_GREEN
 	food_generation.text = str(stats.food)
 	gold.text = str(stats.total_gold)
 	discard_pile.text = str(stats.discard_pile.cards.size())

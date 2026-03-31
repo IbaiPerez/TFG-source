@@ -1,7 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://vrviitccvw80"]
+[gd_scene load_steps=7 format=3 uid="uid://vrviitccvw80"]
 
 [ext_resource type="Script" uid="uid://buet7wh6gsdbb" path="res://scripts/ui/stats_ui.gd" id="1_o6p4b"]
 [ext_resource type="Texture2D" uid="uid://d30k0vc2rh2gr" path="res://assets/gold_coins.png" id="1_o7hd0"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_ivke5"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_yg7fg"]
 font_color = Color(0.5647059, 0.93333334, 0.5647059, 1)
@@ -55,7 +57,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 text = "+10"
-label_settings = SubResource("LabelSettings_yg7fg")
+label_settings = SubResource("LabelSettings_ivke5")
 
 [node name="HSeparator" type="VSeparator" parent="Top"]
 layout_mode = 2

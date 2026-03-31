@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://y8uliwdcrvdi"]
+[gd_scene load_steps=5 format=3 uid="uid://y8uliwdcrvdi"]
 
 [ext_resource type="Script" uid="uid://caxwev6n3vcjr" path="res://scripts/ui/tiles/tile_panel.gd" id="1_aa2ea"]
 
@@ -10,6 +10,10 @@ border_width_bottom = 5
 border_color = Color(0.24313726, 0.15294118, 0.13725491, 1)
 corner_radius_top_right = 24
 corner_radius_bottom_right = 24
+
+[sub_resource type="LabelSettings" id="LabelSettings_aa2ea"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_d271g"]
 
 [node name="TilePanel" type="PanelContainer"]
 custom_minimum_size = Vector2(280, 400)
@@ -46,6 +50,7 @@ size_flags_horizontal = 3
 [node name="ResourceImage" type="TextureRect" parent="MarginContainer/VBoxContainer/NaturalResourceContainer"]
 custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
+stretch_mode = 5
 
 [node name="ResourceNameLabel" type="Label" parent="MarginContainer/VBoxContainer/NaturalResourceContainer"]
 layout_mode = 2
@@ -68,6 +73,33 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "No Controller"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="ProductionContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/ProductionContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="Gold" type="Label" parent="MarginContainer/VBoxContainer/ProductionContainer/GridContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Gold:"
+horizontal_alignment = 2
+
+[node name="GoldProduced" type="Label" parent="MarginContainer/VBoxContainer/ProductionContainer/GridContainer"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_aa2ea")
+
+[node name="Food" type="Label" parent="MarginContainer/VBoxContainer/ProductionContainer/GridContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Food:"
+horizontal_alignment = 2
+
+[node name="FoodProduced" type="Label" parent="MarginContainer/VBoxContainer/ProductionContainer/GridContainer"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_d271g")
 
 [node name="LocationLabel" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
