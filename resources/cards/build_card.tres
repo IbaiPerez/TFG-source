@@ -1,24 +1,23 @@
-[gd_resource type="Resource" script_class="BuildCard" load_steps=15 format=3 uid="uid://du8gb228p7mpl"]
+[gd_resource type="Resource" script_class="BuildCard" load_steps=14 format=3 uid="uid://du8gb228p7mpl"]
 
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_ut245"]
-[ext_resource type="Resource" uid="uid://bl7qv7job3kaa" path="res://resources/buildings/crops.tres" id="2_deil1"]
+[ext_resource type="Resource" uid="uid://bl7qv7job3kaa" path="res://resources/buildings/basic/crops.tres" id="2_deil1"]
 [ext_resource type="Script" uid="uid://c8is4xda402fx" path="res://scripts/cards_resources/build_card.gd" id="2_kcpkn"]
-[ext_resource type="Resource" uid="uid://c0k8h3nebtqgc" path="res://resources/buildings/fishery.tres" id="3_qds57"]
-[ext_resource type="Resource" uid="uid://cfi05gb1nh8aq" path="res://resources/buildings/gold_mine.tres" id="4_7gpwv"]
-[ext_resource type="Resource" uid="uid://meetw5irkvkx" path="res://resources/buildings/hunting_ground.tres" id="5_vk8v1"]
-[ext_resource type="Resource" uid="uid://dh88wbo17xb6y" path="res://resources/buildings/iron_mine.tres" id="6_1t5ij"]
-[ext_resource type="Resource" uid="uid://qkll1ybuvbk7" path="res://resources/buildings/livestock_farm.tres" id="7_1ofjh"]
-[ext_resource type="Resource" uid="uid://cuo88ej6eqn2m" path="res://resources/buildings/logging_camp.tres" id="8_egw22"]
+[ext_resource type="Resource" uid="uid://c0k8h3nebtqgc" path="res://resources/buildings/basic/fishery.tres" id="3_qds57"]
+[ext_resource type="Resource" uid="uid://cfi05gb1nh8aq" path="res://resources/buildings/basic/gold_mine.tres" id="4_7gpwv"]
+[ext_resource type="Resource" uid="uid://meetw5irkvkx" path="res://resources/buildings/basic/hunting_ground.tres" id="5_vk8v1"]
+[ext_resource type="Resource" uid="uid://dh88wbo17xb6y" path="res://resources/buildings/basic/iron_mine.tres" id="6_1t5ij"]
+[ext_resource type="Resource" uid="uid://qkll1ybuvbk7" path="res://resources/buildings/basic/livestock_farm.tres" id="7_1ofjh"]
+[ext_resource type="Resource" uid="uid://cuo88ej6eqn2m" path="res://resources/buildings/basic/logging_camp.tres" id="8_egw22"]
 [ext_resource type="Resource" uid="uid://c0m3461v0vbnf" path="res://resources/buildings/port.tres" id="9_vv10l"]
-[ext_resource type="Resource" uid="uid://bww68w6ccgty4" path="res://resources/buildings/quarry.tres" id="10_3pral"]
-[ext_resource type="Resource" uid="uid://bwycs1wi7yoqk" path="res://resources/buildings/salt_mine.tres" id="11_ehbyy"]
-[ext_resource type="Resource" uid="uid://beh4anbgf3362" path="res://resources/buildings/sand_pit.tres" id="12_7plb7"]
-[ext_resource type="PackedScene" uid="uid://d4kc0x1wj7vrm" path="res://scenes/UI/building/building_panel.tscn" id="13_qds57"]
+[ext_resource type="Resource" uid="uid://bww68w6ccgty4" path="res://resources/buildings/basic/quarry.tres" id="10_3pral"]
+[ext_resource type="Resource" uid="uid://bwycs1wi7yoqk" path="res://resources/buildings/basic/salt_mine.tres" id="11_ehbyy"]
+[ext_resource type="Resource" uid="uid://beh4anbgf3362" path="res://resources/buildings/basic/sand_pit.tres" id="12_7plb7"]
 
 [resource]
 script = ExtResource("2_kcpkn")
 buildings = Array[ExtResource("1_ut245")]([ExtResource("2_deil1"), ExtResource("3_qds57"), ExtResource("4_7gpwv"), ExtResource("5_vk8v1"), ExtResource("6_1t5ij"), ExtResource("7_1ofjh"), ExtResource("8_egw22"), ExtResource("9_vv10l"), ExtResource("10_3pral"), ExtResource("11_ehbyy"), ExtResource("12_7plb7")])
-confirm_menu = ExtResource("13_qds57")
 id = "Build Card"
 needs_confirmation = true
+tooltipe_text = "Build buildings"
 metadata/_custom_type_script = "uid://c8is4xda402fx"

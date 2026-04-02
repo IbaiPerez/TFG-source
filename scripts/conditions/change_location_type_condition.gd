@@ -7,7 +7,9 @@ var stats:Stats
 func is_valid_target(target:Node) -> bool:
 	if not target is Tile:
 		return false
-	if target.controller == stats.empire and location_type.type == (target.location.type + 1) and stats.food >= location_type.food_consumption:
+	if target.controller == stats.empire and location_type.type == (
+		target.location.type + 1
+		) and stats.food >= location_type.food_consumption:
 		return true
 	return false
 

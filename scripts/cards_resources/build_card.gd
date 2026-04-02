@@ -2,9 +2,8 @@ extends Card
 class_name BuildCard
 
 @export var buildings:Array[Building] = []
-@export var confirm_menu:PackedScene
 
-var menu
+var menu:BuildingPanel
 var chosen:Building
 
 func apply_effects(targets:Array[Node],stats:Stats) -> void:
@@ -28,10 +27,4 @@ func get_valid_targets(stats:Stats) -> Array[Node]:
 func confirm(targets:Array[Node], stats:Stats) -> void:
 	if targets.size() != 1:
 		return
-	for t in targets:
-		if not t is Tile:
-			return
-		menu = confirm_menu.instantiate()
-		menu.tile = t
-		menu.stats = stats
-		menu.buildings = buildings
+	Events.build_card_confirm_started.emit(self,targets,stats)

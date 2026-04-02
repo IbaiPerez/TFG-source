@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Building" load_steps=6 format=3 uid="uid://5gla5ivmy2td"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_xv2v2"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_1omm3"]
+[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="3_h1djr"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_lrqus"]
+[ext_resource type="Resource" uid="uid://oo7b8gl1jhg" path="res://resources/natural_resources/fish.tres" id="6_cm5ae"]
+
+[resource]
+script = ExtResource("3_lrqus")
+name = "Fishing Market"
+required_natural_resource = ExtResource("6_cm5ae")
+image = ExtResource("3_h1djr")
+construction_cost = 200
+gold_produced = 5
+food_produced = 4
+metadata/_custom_type_script = "uid://2ce384crr8i0"

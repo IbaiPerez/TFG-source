@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Building" load_steps=5 format=3 uid="uid://bmw3vdfoviymi"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_5jsr6"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_ve44e"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_pquqj"]
+[ext_resource type="Resource" uid="uid://oo7b8gl1jhg" path="res://resources/natural_resources/fish.tres" id="3_ve44e"]
+
+[resource]
+script = ExtResource("3_pquqj")
+name = "Fishing Port"
+required_natural_resource = ExtResource("3_ve44e")
+allowed_biomes = Array[int]([5])
+construction_cost = 200
+gold_produced = 1
+food_produced = 10
+metadata/_custom_type_script = "uid://2ce384crr8i0"

@@ -2,9 +2,9 @@
 
 [ext_resource type="PackedScene" uid="uid://bxjlofssmvuwu" path="res://scenes/UI/building/building_card_ui.tscn" id="1_bss2g"]
 [ext_resource type="Script" uid="uid://ct3ddye2durvc" path="res://scripts/ui/buildings/building_slot.gd" id="1_l6egf"]
-[ext_resource type="Resource" uid="uid://bl7qv7job3kaa" path="res://resources/buildings/crops.tres" id="2_5u6n0"]
+[ext_resource type="Resource" uid="uid://bl7qv7job3kaa" path="res://resources/buildings/basic/crops.tres" id="2_5u6n0"]
 [ext_resource type="Texture2D" uid="uid://d30k0vc2rh2gr" path="res://assets/gold_coins.png" id="2_clcue"]
-[ext_resource type="Resource" uid="uid://beh4anbgf3362" path="res://resources/buildings/sand_pit.tres" id="4_enddh"]
+[ext_resource type="Resource" uid="uid://beh4anbgf3362" path="res://resources/buildings/basic/sand_pit.tres" id="4_enddh"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_enddh"]
 

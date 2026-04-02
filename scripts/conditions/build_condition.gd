@@ -14,13 +14,9 @@ func is_valid_target(target:Node) -> bool:
 		elif buildings.size() == 1:
 			return target.can_build(buildings.get(0) and stats.total_gold >= buildings.get(0).construction_cost)
 		else:
-			var valid_buildings:Array[Building] = target.get_valid_buildings(buildings)
-			if valid_buildings.is_empty():
-				return false
-			else:
-				for building:Building in valid_buildings:
-					if building.construction_cost <= stats.total_gold:
-						return true
+			for building:Building in buildings:
+				if building.construction_cost <= stats.total_gold and target.can_build(building):
+					return true
 	return false
 
 

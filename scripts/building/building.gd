@@ -11,3 +11,11 @@ class_name Building
 @export var gold_produced:int
 @export var food_produced:int
 @export var effects:Array[BuildingEffect]
+@export var upgrades_to: Array[Building] = []
+
+
+func can_be_upgraded(stats:Stats) -> bool:
+	for building in upgrades_to:
+		if building.construction_cost <= stats.total_gold:
+			return true
+	return false

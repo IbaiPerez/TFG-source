@@ -7,11 +7,16 @@ class_name BuildingCardUI
 @onready var cost_value_label: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/CostValueLabel
 @onready var gold_production_label: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/GoldProductionLabel
 @onready var food_production_label: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/FoodProductionLabel
+@onready var label_6: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/Label6
+@onready var allowed_locations_label: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/AllowedLocationsLabel
+@onready var label_7: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/Label7
+@onready var allowed_biomes_label: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/AllowedBiomesLabel
 @onready var effects_separator: HSeparator = $BuildingTooltip/MarginContainer/VBoxContainer/EffectsSeparator
 @onready var effects_container: VBoxContainer = $BuildingTooltip/MarginContainer/VBoxContainer/EffectsContainer
 
 @export var building:Building:set = _set_building
 
+signal building_selected(building:Building)
 
 func _set_building(value:Building) -> void:
 	if not is_node_ready():
@@ -27,6 +32,25 @@ func _set_building(value:Building) -> void:
 	cost_value_label.text = str(value.construction_cost)
 	gold_production_label.text = str(value.gold_produced)
 	food_production_label.text = str(value.food_produced)
+	if not building.allowed_location_type.is_empty():
+		label_6.visible = true
+		allowed_locations_label.visible = true
+		for location in building.allowed_location_type:
+			allowed_locations_label.text = ", ".join(
+		building.allowed_location_type.map(func(l): return Tile.location_type.keys()[l.type]))
+	else:
+		label_6.visible = false
+		allowed_locations_label.visible = false
+	if not building.allowed_location_type.is_empty():
+		label_7.visible = true
+		allowed_biomes_label.visible = true
+		for location in building.allowed_biomes:
+			allowed_biomes_label.text = ", ".join(
+		building.allowed_biomes.map(func(b): return Tile.biome_type.keys()[b]))
+	else:
+		label_7.visible = false
+		allowed_biomes_label.visible = false
+	
 	_populate_effects(value.effects)
 
 func _populate_effects(effects:Array[BuildingEffect]) -> void:
@@ -75,3 +99,9 @@ func _update_tooltip_position() -> void:
 		y = vp_size.y - tooltip_size.y
 
 	building_tooltip.global_position = Vector2(x, y)
+
+
+func _on_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouse:
+		if event.is_action_pressed("Click"):
+			building_selected.emit(building)

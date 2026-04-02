@@ -106,6 +106,60 @@ func build(building:Building, stats:Stats) -> void:
 	recalculate_modifiers()
 	building_completed.emit(building)
 
+func can_upgrade(old_building: Building, new_building: Building) -> bool:
+	if old_building not in buildings:
+		return false
+	if new_building not in old_building.upgrades_to:
+		return false
+	if new_building.allowed_biomes.size() > 0:
+		if mesh_data.type not in new_building.allowed_biomes:
+			return false
+	if new_building.required_natural_resource != null:
+		if natural_resource != new_building.required_natural_resource:
+			return false
+	if new_building.allowed_location_type.size() > 0:
+		if location not in new_building.allowed_location_type:
+			return false
+	return true
+
+func get_valid_upgrades(old_building:Building) -> Array[Building]:
+	var res:Array[Building] = []
+	for building in old_building.upgrades_to:
+		if can_upgrade(old_building, building):
+			res.append(building)
+	return res
+
+func has_upgradable_buildings(stats:Stats) -> bool:
+	for building in buildings:
+		if building.can_be_upgraded(stats):
+			return true
+	return false
+
+func get_upgradable_buildings(stats) -> Array[Building]:
+	var res := []
+	for building in buildings:
+		if building.can_be_upgraded(stats):
+			res.append(building)
+	return res
+
+func upgrade(old_building: Building, new_building: Building, stats: Stats) -> void:
+	if not can_upgrade(old_building, new_building):
+		return
+	var old_index = buildings.find(old_building)
+	if old_index == -1:
+		return
+	buildings.remove_at(old_index)
+	for e in old_building.effects:
+		e.remove_effect(self, stats)
+	var instance := new_building.duplicate(true)
+	buildings.insert(old_index, instance)
+	for e in instance.effects:
+		e.apply_effect(self, stats)
+	stats.total_gold -= new_building.construction_cost
+	recalculate_modifiers()
+	building_demolished.emit(old_building)
+	building_completed.emit(new_building)
+
 func demolish(building:Building, stats:Stats) -> void:
 	if building not in buildings:
 		return

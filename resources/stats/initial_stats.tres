@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("1_c8cpc")
-initial_gold = 50
+initial_gold = 1000
 initial_gold_per_turn = 10
 starting_deck = ExtResource("2_dcygl")
 cards_per_turn = 2

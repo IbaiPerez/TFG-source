@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Building" load_steps=9 format=3 uid="uid://c0k8h3nebtqgc"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_in7fw"]
+[ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_cmolb"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_u4m1h"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_fx6ve"]
+[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_56gil"]
+[ext_resource type="Resource" uid="uid://oo7b8gl1jhg" path="res://resources/natural_resources/fish.tres" id="5_bmybj"]
+[ext_resource type="Resource" uid="uid://bmw3vdfoviymi" path="res://resources/buildings/upgrades/fishing_port.tres" id="7_olad2"]
+[ext_resource type="Resource" uid="uid://5gla5ivmy2td" path="res://resources/buildings/upgrades/fishing_market.tres" id="8_73ctv"]
+
+[resource]
+script = ExtResource("3_fx6ve")
+name = "Fishery"
+required_natural_resource = ExtResource("5_bmybj")
+allowed_location_type = Array[ExtResource("1_in7fw")]([ExtResource("2_cmolb")])
+image = ExtResource("4_56gil")
+construction_cost = 50
+gold_produced = 1
+food_produced = 4
+upgrades_to = Array[ExtResource("3_fx6ve")]([ExtResource("7_olad2"), ExtResource("8_73ctv")])
+metadata/_custom_type_script = "uid://2ce384crr8i0"

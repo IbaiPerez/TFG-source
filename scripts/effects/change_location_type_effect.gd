@@ -13,5 +13,6 @@ func execute(targets: Array[Node]) -> void:
 		if target is Tile:
 			Events.change_tile_location_type.emit(target,location_type)
 			for building:Building in target.buildings:
-				if location_type not in building.allowed_location_type:
-					target.demolish(building,stats)
+				if not building.allowed_location_type.is_empty():
+					if location_type not in building.allowed_location_type:
+						target.demolish(building,stats)

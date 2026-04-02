@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://dh88wbo17xb6y"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_kf8dp"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_b8nmw"]
+[ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_kgknn"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_jcoq0"]
+[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_dkcil"]
+[ext_resource type="Resource" uid="uid://c2jvo50o3o5gh" path="res://resources/natural_resources/iron.tres" id="5_ldcje"]
+
+[resource]
+script = ExtResource("3_jcoq0")
+name = "Iron Mine"
+required_natural_resource = ExtResource("5_ldcje")
+allowed_location_type = Array[ExtResource("1_kf8dp")]([ExtResource("2_kgknn")])
+image = ExtResource("4_dkcil")
+construction_cost = 50
+gold_produced = 5
+metadata/_custom_type_script = "uid://2ce384crr8i0"

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://bwycs1wi7yoqk"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_fwhkv"]
+[ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_i6elg"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_q0fud"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_ccqln"]
+[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_baf2p"]
+[ext_resource type="Resource" uid="uid://b1glfrb7777r0" path="res://resources/natural_resources/salt.tres" id="5_sgore"]
+
+[resource]
+script = ExtResource("3_ccqln")
+name = "Salt Mine"
+required_natural_resource = ExtResource("5_sgore")
+allowed_location_type = Array[ExtResource("1_fwhkv")]([ExtResource("2_i6elg")])
+image = ExtResource("4_baf2p")
+construction_cost = 50
+gold_produced = 4
+metadata/_custom_type_script = "uid://2ce384crr8i0"
