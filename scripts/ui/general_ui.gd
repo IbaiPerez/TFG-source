@@ -6,16 +6,25 @@ class_name UI
 @onready var end_turn_button: Button = %EndTurnButton
 @onready var stats_ui: StatsUI = $StatsUI as StatsUI
 @onready var tile_panel: TilePanel = $TilePanel
-@onready var building_panel: BuildingPanel = $BuildingPanel
+@onready var draw_pile_button: CardPileOpener = %DrawPileButton
+@onready var discard_pile_button: CardPileOpener = %DiscardPileButton
+@onready var draw_pile_view: CardPileView = %DrawPileView
+@onready var discard_pile_view: CardPileView = %DiscardPileView
 
 
 func _ready() -> void:
 	Events.tile_selected.connect(_on_tile_selected)
 	Events.tile_deselected.connect(_on_tile_deselected)
 	Events.player_hand_drawn.connect(_on_player_hand_drawn)
-	Events.try_to_build.connect(_on_try_to_build)
+	draw_pile_button.pressed.connect(draw_pile_view.show_current_view.bind("Draw Pile",true))
+	discard_pile_button.pressed.connect(discard_pile_view.show_current_view.bind("Discard Pile"))
 	tile_panel.visible = false
-	building_panel.visible = false
+
+func initialize_card_pile_ui() -> void:
+	draw_pile_button.card_pile = stats.draw_pile
+	discard_pile_button.card_pile = stats.discard_pile
+	draw_pile_view.card_pile = stats.draw_pile
+	discard_pile_view.card_pile = stats.discard_pile
 
 func _set_stats(value:Stats) -> void:
 	stats = value
@@ -51,10 +60,3 @@ func _on_player_hand_drawn() -> void:
 func _on_end_turn_button_pressed() -> void:
 	end_turn_button.disabled = true
 	Events.player_turn_ended.emit()
-
-func _on_try_to_build(tile:Tile,buildings:Array[Building]) -> void:
-	building_panel.stats = stats
-	building_panel.tile = tile
-	building_panel.buildings = buildings
-	
-	building_panel.visible = true

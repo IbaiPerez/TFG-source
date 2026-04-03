@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://vrviitccvw80"]
+[gd_scene load_steps=5 format=3 uid="uid://vrviitccvw80"]
 
 [ext_resource type="Script" uid="uid://buet7wh6gsdbb" path="res://scripts/ui/stats_ui.gd" id="1_o6p4b"]
 [ext_resource type="Texture2D" uid="uid://d30k0vc2rh2gr" path="res://assets/gold_coins.png" id="1_o7hd0"]
@@ -7,12 +7,6 @@
 
 [sub_resource type="LabelSettings" id="LabelSettings_yg7fg"]
 font_color = Color(0.5647059, 0.93333334, 0.5647059, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_o6p4b"]
-font_color = Color(1, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_lyoid"]
-font_color = Color(0, 0, 1, 1)
 
 [node name="StatsUI" type="Control"]
 custom_minimum_size = Vector2(1280, 0)
@@ -78,32 +72,3 @@ custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_yg7fg")
-
-[node name="DiscardPile" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 180.0
-offset_top = -100.0
-offset_right = 220.0
-offset_bottom = -77.0
-grow_vertical = 0
-text = "2"
-label_settings = SubResource("LabelSettings_o6p4b")
-
-[node name="DrawPile" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -180.0
-offset_top = -100.0
-offset_right = -140.0
-offset_bottom = -77.0
-grow_horizontal = 0
-grow_vertical = 0
-text = "3"
-label_settings = SubResource("LabelSettings_lyoid")

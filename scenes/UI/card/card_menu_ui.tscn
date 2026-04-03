@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://bt76i1liwhags"]
+
+[ext_resource type="Script" uid="uid://08d34tq3r801" path="res://scripts/ui/cards/card_menu_ui.gd" id="1_slkpe"]
+[ext_resource type="Resource" uid="uid://c0etbihgrwnb0" path="res://resources/cards/colonize_card.tres" id="2_spfpi"]
+[ext_resource type="StyleBox" uid="uid://di80gk8nibent" path="res://resources/styles/cards/card_base_style.tres" id="4_nslii"]
+[ext_resource type="Texture2D" uid="uid://b13ku1xgd1yby" path="res://assets/cards/colonize_card.png" id="5_4ha2j"]
+
+[node name="CardMenuUI" type="CenterContainer"]
+offset_right = 100.0
+offset_bottom = 120.0
+size_flags_horizontal = 3
+script = ExtResource("1_slkpe")
+card = ExtResource("2_spfpi")
+
+[node name="Visuals" type="Control" parent="."]
+custom_minimum_size = Vector2(100, 120)
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="Visuals"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("4_nslii")
+
+[node name="Icon" type="TextureRect" parent="Visuals"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_4ha2j")
+expand_mode = 1
+stretch_mode = 5
+
+[connection signal="gui_input" from="Visuals" to="." method="_on_visuals_gui_input"]
+[connection signal="mouse_entered" from="Visuals" to="." method="_on_visuals_mouse_entered"]
+[connection signal="mouse_exited" from="Visuals" to="." method="_on_visuals_mouse_exited"]

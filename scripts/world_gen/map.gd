@@ -13,6 +13,7 @@ func _ready() -> void:
 	Events.player_hand_discarded.connect(player_handler.start_turn)
 	
 	start_game(new_stats)
+	ui_layer.ui.initialize_card_pile_ui()
 
 func start_game(new_stats:Stats) -> void:
 	player_handler.start_game(new_stats)
