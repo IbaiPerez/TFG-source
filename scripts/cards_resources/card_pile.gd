@@ -17,6 +17,13 @@ func add_card(card:Card) -> void:
 	cards.append(card)
 	card_pile_size_changed.emit(cards.size())
 
+func remove_card(card:Card) -> bool:
+	if card in cards:
+		cards.erase(card)
+		card_pile_size_changed.emit(cards.size())
+		return true
+	return false
+
 func shuffle() -> void:
 	cards.shuffle()
 

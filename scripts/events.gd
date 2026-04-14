@@ -26,3 +26,6 @@ signal upgrade_building_card_confirm_started(card:UpgradeBuildingCard,targets:Ar
 signal player_hand_drawn
 signal player_hand_discarded
 signal player_turn_ended
+
+signal turn_event_triggered(event:TurnEvent, context:EventContext)
+signal turn_event_resolved()

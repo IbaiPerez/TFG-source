@@ -18,6 +18,10 @@ var draw_pile:CardPile
 var played_pile:CardPile
 
 @export var empire:Empire
+@export var event_chance:float = 0.5
+@export var available_events:Array[TurnEvent] = []
+var used_unique_events:Array[String] = []
+var turn_number:int = 0
 
 
 func set_cards_per_turn(value:int) -> void:
@@ -47,4 +51,6 @@ func create_instance() -> Resource:
 	instance.discard_pile = CardPile.new()
 	instance.played_pile = CardPile.new()
 	instance.empire = empire
+	instance.used_unique_events = []
+	instance.turn_number = 0
 	return instance

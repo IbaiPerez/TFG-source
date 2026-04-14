@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Stats" load_steps=4 format=3 uid="uid://cwfokudqrj6s1"]
+[gd_resource type="Resource" script_class="Stats" load_steps=5 format=3 uid="uid://cwfokudqrj6s1"]
 
 [ext_resource type="Resource" uid="uid://b4mhfidkmt6ag" path="res://resources/empires/mongol.tres" id="1_1iik2"]
+[ext_resource type="Script" uid="uid://cyevp7dau37e6" path="res://scripts/turn_events/turn_event.gd" id="1_724wx"]
 [ext_resource type="Script" uid="uid://cwtwyeoabj3wv" path="res://scripts/player/stats.gd" id="1_c8cpc"]
 [ext_resource type="Resource" uid="uid://cx2mgwwjnf8am" path="res://resources/card_piles/starting_deck.tres" id="2_dcygl"]
 

@@ -2,11 +2,13 @@ extends Node
 
 const MAP = preload("uid://dxw5gc7xqbkqj")
 const BUILDING_PANEL = preload("uid://d4kc0x1wj7vrm")
+const TURN_EVENT_PANEL = preload("uid://dt9hturneventpnl")
 
 func _ready() -> void:
 	Events.generate_world.connect(_on_events_generate_world)
 	Events.build_card_confirm_started.connect(_on_build_card_confirm_started)
 	Events.upgrade_building_card_confirm_started.connect(_on_upgrade_building_card_confirm_started)
+	Events.turn_event_triggered.connect(_on_turn_event_triggered)
 
 
 func _on_events_generate_world(settings):
@@ -40,3 +42,10 @@ func _on_upgrade_building_card_confirm_started(card:UpgradeBuildingCard,targets:
 			func(building): card.old_building = building
 			)
 	get_tree().get_first_node_in_group("ui_layer").add_child(card.menu)
+
+func _on_turn_event_triggered(event:TurnEvent, context:EventContext) -> void:
+	var panel:TurnEventPanel = TURN_EVENT_PANEL.instantiate()
+	get_tree().get_first_node_in_group("ui_layer").add_child(panel)
+
+	var player_handler:PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+	panel.setup(event, context, player_handler.turn_event_manager)
