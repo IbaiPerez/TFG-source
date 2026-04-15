@@ -41,7 +41,7 @@ func _set_building(value:Building) -> void:
 	else:
 		label_6.visible = false
 		allowed_locations_label.visible = false
-	if not building.allowed_location_type.is_empty():
+	if not building.allowed_biomes.is_empty():
 		label_7.visible = true
 		allowed_biomes_label.visible = true
 		for location in building.allowed_biomes:

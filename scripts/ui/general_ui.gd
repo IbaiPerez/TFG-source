@@ -10,6 +10,7 @@ class_name UI
 @onready var discard_pile_button: CardPileOpener = %DiscardPileButton
 @onready var draw_pile_view: CardPileView = %DrawPileView
 @onready var discard_pile_view: CardPileView = %DiscardPileView
+@onready var map_modes_buttons: VBoxContainer = %MapModesButtons
 
 
 func _ready() -> void:
@@ -19,6 +20,14 @@ func _ready() -> void:
 	draw_pile_button.pressed.connect(draw_pile_view.show_current_view.bind("Draw Pile",true))
 	discard_pile_button.pressed.connect(discard_pile_view.show_current_view.bind("Discard Pile"))
 	tile_panel.visible = false
+	_setup_map_mode_buttons()
+
+func _setup_map_mode_buttons() -> void:
+	# Todos los botones del contenedor comparten el mismo ButtonGroup,
+	# asi que basta con obtenerlo del primero y conectar su signal.
+	var first_button:Button = map_modes_buttons.get_child(0) as Button
+	if first_button and first_button.button_group:
+		first_button.button_group.pressed.connect(_on_map_mode_button_pressed)
 
 func initialize_card_pile_ui() -> void:
 	draw_pile_button.card_pile = stats.draw_pile
@@ -40,19 +49,16 @@ func _on_tile_selected(tile:Tile):
 func _on_tile_deselected():
 	tile_panel.visible = false
 
-func _on_political_mode_button_pressed() -> void:
-	Events.change_map_mode.emit(Events.map_mode.PoliticalMode)
-
-func _on_biomes_mode_button_pressed() -> void:
-	Events.change_map_mode.emit(Events.map_mode.BiomesMode)
-
-
-func _on_natural_resources_biome_button_pressed() -> void:
-	Events.change_map_mode.emit(Events.map_mode.NaturalResourcesMode)
-
-
-func _on_location_type_mode_button_pressed() -> void:
-	Events.change_map_mode.emit(Events.map_mode.LocationTypeMode)
+func _on_map_mode_button_pressed(button:BaseButton) -> void:
+	match button.name:
+		"PoliticalModeButton":
+			Events.change_map_mode.emit(Events.map_mode.PoliticalMode)
+		"BiomesModeButton":
+			Events.change_map_mode.emit(Events.map_mode.BiomesMode)
+		"NaturalResourcesBiomeButton":
+			Events.change_map_mode.emit(Events.map_mode.NaturalResourcesMode)
+		"LocationTypeModeButton":
+			Events.change_map_mode.emit(Events.map_mode.LocationTypeMode)
 
 func _on_player_hand_drawn() -> void:
 	end_turn_button.disabled = false

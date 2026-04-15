@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://qkll1ybuvbk7"]
+[gd_resource type="Resource" script_class="Building" load_steps=8 format=3 uid="uid://qkll1ybuvbk7"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_pyppq"]
 [ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_drw5y"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_47dlx"]
 [ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_28t6q"]
 [ext_resource type="Resource" uid="uid://bdc8ttqwuh7kc" path="res://resources/natural_resources/livestock.tres" id="5_w5tqp"]
+[ext_resource type="Resource" uid="uid://branch01upgr9" path="res://resources/buildings/upgrades/ranch.tres" id="6_rnc"]
 
 [resource]
 script = ExtResource("3_47dlx")
@@ -16,4 +17,5 @@ image = ExtResource("4_28t6q")
 construction_cost = 50
 gold_produced = 3
 food_produced = 3
+upgrades_to = Array[ExtResource("3_47dlx")]([ExtResource("6_rnc")])
 metadata/_custom_type_script = "uid://2ce384crr8i0"

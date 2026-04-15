@@ -3,7 +3,7 @@ class_name TurnEventChoiceButton
 
 @onready var button: Button = $Button
 @onready var tooltip_panel: PanelContainer = $Tooltip
-@onready var tooltip_text_label: RichTextLabel = %TooltipText
+@onready var tooltip_text_label: Label = %TooltipText
 
 var choice:TurnEventChoice
 var affordable:bool = true
@@ -27,6 +27,8 @@ func _on_button_mouse_entered() -> void:
 	if not choice:
 		return
 	tooltip_panel.visible = true
+	# Esperar un frame para que el tooltip recompute su tamaño tras mostrarse
+	await get_tree().process_frame
 	_update_tooltip_position()
 
 
@@ -50,8 +52,14 @@ func _update_tooltip_position() -> void:
 		# Si no cabe a la derecha, ponerlo a la izquierda
 		x = global.x - tooltip_size.x - 8
 
+	# Si tampoco cabe a la izquierda, pegarlo al borde izquierdo de la pantalla
+	if x < 0:
+		x = 4
+
 	var y := global.y
 	if y + tooltip_size.y > vp_size.y:
-		y = vp_size.y - tooltip_size.y
+		y = vp_size.y - tooltip_size.y - 4
+	if y < 0:
+		y = 4
 
 	tooltip_panel.global_position = Vector2(x, y)

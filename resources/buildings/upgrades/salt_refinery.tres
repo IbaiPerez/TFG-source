@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://bsaltref01upg"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
+[ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_dvlq6"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="4_effect"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="5_bld"]
+[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="6_img"]
+[ext_resource type="Resource" uid="uid://b1glfrb7777r0" path="res://resources/natural_resources/salt.tres" id="7_res"]
+
+[resource]
+script = ExtResource("5_bld")
+name = "Salt Refinery"
+required_natural_resource = ExtResource("7_res")
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_dvlq6")])
+image = ExtResource("6_img")
+construction_cost = 200
+gold_produced = 10
+metadata/_custom_type_script = "uid://2ce384crr8i0"

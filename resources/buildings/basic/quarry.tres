@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://bww68w6ccgty4"]
+[gd_resource type="Resource" script_class="Building" load_steps=8 format=3 uid="uid://bww68w6ccgty4"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_aa23f"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_so8ab"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_nmsm6"]
 [ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_vt1to"]
 [ext_resource type="Resource" uid="uid://x52d3rkafp3" path="res://resources/natural_resources/stone.tres" id="5_7ixwb"]
+[ext_resource type="Resource" uid="uid://bstonecut01up" path="res://resources/buildings/upgrades/stonecutter_workshop.tres" id="6_stw"]
 
 [resource]
 script = ExtResource("3_nmsm6")
@@ -15,4 +16,5 @@ allowed_location_type = Array[ExtResource("1_aa23f")]([ExtResource("2_t7qwu")])
 image = ExtResource("4_vt1to")
 construction_cost = 50
 gold_produced = 4
+upgrades_to = Array[ExtResource("3_nmsm6")]([ExtResource("6_stw")])
 metadata/_custom_type_script = "uid://2ce384crr8i0"

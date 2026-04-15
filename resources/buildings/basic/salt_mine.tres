@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://bwycs1wi7yoqk"]
+[gd_resource type="Resource" script_class="Building" load_steps=8 format=3 uid="uid://bwycs1wi7yoqk"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_fwhkv"]
 [ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_i6elg"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_ccqln"]
 [ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_baf2p"]
 [ext_resource type="Resource" uid="uid://b1glfrb7777r0" path="res://resources/natural_resources/salt.tres" id="5_sgore"]
+[ext_resource type="Resource" uid="uid://bsaltref01upg" path="res://resources/buildings/upgrades/salt_refinery.tres" id="6_sref"]
 
 [resource]
 script = ExtResource("3_ccqln")
@@ -15,4 +16,5 @@ allowed_location_type = Array[ExtResource("1_fwhkv")]([ExtResource("2_i6elg")])
 image = ExtResource("4_baf2p")
 construction_cost = 50
 gold_produced = 4
+upgrades_to = Array[ExtResource("3_ccqln")]([ExtResource("6_sref")])
 metadata/_custom_type_script = "uid://2ce384crr8i0"

@@ -100,7 +100,7 @@ layout_mode = 2
 [node name="Label7" type="Label" parent="BuildingTooltip/MarginContainer/VBoxContainer/GridContainer"]
 visible = false
 layout_mode = 2
-text = "Allowed locations: "
+text = "Allowed biomes: "
 horizontal_alignment = 2
 
 [node name="AllowedBiomesLabel" type="Label" parent="BuildingTooltip/MarginContainer/VBoxContainer/GridContainer"]
