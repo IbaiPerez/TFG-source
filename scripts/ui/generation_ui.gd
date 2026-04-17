@@ -59,7 +59,10 @@ const BABYLONIAN = preload("uid://dlljlcjgbqsv5")
 const MEDICI = preload("uid://dcm8kss34cngp")
 const MONGOL = preload("uid://b4mhfidkmt6ag")
 
+const INITIAL_STATS = preload("uid://cwfokudqrj6s1")
+
 var settings:GenerationSettings
+var selected_empire:Empire
 
 
 
@@ -102,7 +105,10 @@ func _ready() -> void:
 	settings.empires.append(MONGOL)
 	settings.empires.append(MEDICI)
 	settings.empires.append(BABYLONIAN)
-	settings.player_empire = MONGOL
+	if selected_empire:
+		settings.player_empire = selected_empire
+	else:
+		settings.player_empire = MONGOL
 
 	setup_shape_options()
 	
@@ -312,4 +318,7 @@ func _on_generation_button_pressed() -> void:
 	print("Montañas: ", settings.create_mountains, " - Umbral: ", settings.mountain_treshold)
 	print("Océano: ", settings.create_water, " - Umbral: ", settings.ocean_treshold)
 	print("Buffers: Ext:", settings.outer_buffer, " Int:", settings.inner_buffer)
-	Events.generate_world.emit(settings)
+	# Prepare stats with the selected empire
+	var stats_template:Stats = INITIAL_STATS.duplicate()
+	stats_template.empire = settings.player_empire
+	Events.generate_world.emit(settings, stats_template)

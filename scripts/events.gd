@@ -1,6 +1,10 @@
 extends Node
 
-signal generate_world(settings:GenerationSettings)
+signal generate_world(settings:GenerationSettings, stats:Stats)
+
+signal navigate_to_empire_selection
+signal navigate_to_generation(empire:Empire)
+signal navigate_to_main_menu
 
 
 signal change_tile_controller(tile:Tile, empire:Empire)

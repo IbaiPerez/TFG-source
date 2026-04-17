@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dxw5gc7xqbkqj"]
+[gd_scene load_steps=18 format=3 uid="uid://dxw5gc7xqbkqj"]
 
 [ext_resource type="Script" uid="uid://byck58typyfki" path="res://scripts/world_gen/map.gd" id="1_e8i6t"]
 [ext_resource type="Script" uid="uid://bcsfis7fcjm3n" path="res://scripts/camera/camera_3d.gd" id="1_fam8b"]
@@ -10,7 +10,6 @@
 [ext_resource type="Resource" uid="uid://dawigvsddybjg" path="res://resources/world_settings/Default.tres" id="3_nktjb"]
 [ext_resource type="Script" uid="uid://b3b3jfnwhl7lh" path="res://scripts/map/interaction.gd" id="4_w7uq4"]
 [ext_resource type="PackedScene" uid="uid://b0owacbh83hyt" path="res://scenes/hexagon_cursor.tscn" id="5_leapw"]
-[ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="7_s416t"]
 [ext_resource type="PackedScene" uid="uid://bajwxktlf3vqs" path="res://scenes/UI/card/card_target_selector.tscn" id="7_wc6b0"]
 [ext_resource type="Script" uid="uid://ccptwq3cxwxmw" path="res://scripts/map/map_tracker.gd" id="8_70cmx"]
 [ext_resource type="Script" uid="uid://cwxxqp1cjvmcl" path="res://scripts/player/player_handler.gd" id="14_wme18"]
@@ -53,7 +52,6 @@ func try_demolish(building: Building, tile: Tile, stats: Stats) -> void:
 
 [node name="Map" type="Node3D"]
 script = ExtResource("1_e8i6t")
-stats = ExtResource("7_s416t")
 
 [node name="Camera" type="Node3D" parent="."]
 
