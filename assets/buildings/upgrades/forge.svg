@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E0DDD8" stroke="#555" stroke-width="3"/>
+
+  <!-- Anvil body -->
+  <path d="M30,72 L40,62 L88,62 L98,72 L92,72 L92,85 L36,85 L36,72 Z" fill="#555" stroke="#333" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Anvil top surface -->
+  <rect x="40" y="58" width="48" height="6" rx="2" fill="#6E6E6E" stroke="#333" stroke-width="1.5"/>
+  <!-- Anvil base -->
+  <rect x="42" y="85" width="44" height="10" rx="2" fill="#4A4A4A" stroke="#333" stroke-width="1.5"/>
+  <!-- Hammer -->
+  <line x1="62" y1="22" x2="48" y2="52" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+  <!-- Hammer head -->
+  <rect x="38" y="18" width="28" height="12" rx="3" fill="#808080" stroke="#555" stroke-width="2"/>
+  <!-- Sparks -->
+  <g fill="#FF6B00" opacity="0.8">
+    <circle cx="72" cy="48" r="2.5"/>
+    <circle cx="82" cy="42" r="2"/>
+    <circle cx="76" cy="38" r="1.5"/>
+    <circle cx="86" cy="52" r="1.5"/>
+  </g>
+  <!-- Fire glow -->
+  <ellipse cx="64" cy="55" rx="12" ry="4" fill="#FF6B00" opacity="0.2"/>
+
+</svg>

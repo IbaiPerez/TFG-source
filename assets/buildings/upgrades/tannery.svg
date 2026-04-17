@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E8DCC8" stroke="#6B4C1A" stroke-width="3"/>
+
+  <!-- Drying rack - horizontal beam -->
+  <line x1="24" y1="38" x2="104" y2="38" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+  <!-- Rack legs -->
+  <line x1="32" y1="38" x2="28" y2="100" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+  <line x1="96" y1="38" x2="100" y2="100" stroke="#8B6914" stroke-width="4" stroke-linecap="round"/>
+  <!-- Hide/leather hanging -->
+  <path d="M42,42 Q40,60 44,80 Q50,90 64,92 Q78,90 84,80 Q88,60 86,42" fill="#C4864A" stroke="#8B5A2A" stroke-width="2"/>
+  <!-- Hide texture -->
+  <path d="M52,55 Q58,58 62,55" fill="none" stroke="#A06830" stroke-width="1.5" opacity="0.6"/>
+  <path d="M62,65 Q68,68 74,65" fill="none" stroke="#A06830" stroke-width="1.5" opacity="0.6"/>
+  <path d="M56,75 Q62,78 68,75" fill="none" stroke="#A06830" stroke-width="1.5" opacity="0.6"/>
+  <!-- Hanging ties -->
+  <line x1="48" y1="38" x2="48" y2="44" stroke="#8B5A2A" stroke-width="2"/>
+  <line x1="64" y1="38" x2="64" y2="42" stroke="#8B5A2A" stroke-width="2"/>
+  <line x1="80" y1="38" x2="80" y2="44" stroke="#8B5A2A" stroke-width="2"/>
+
+</svg>

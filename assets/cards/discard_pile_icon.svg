@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#F5E6C8" stroke="#8B6914" stroke-width="3"/>
+
+  <!-- Bottom card (rotated, scattered) -->
+  <g transform="rotate(-12, 58, 68)">
+    <rect x="30" y="28" width="56" height="76" rx="6" fill="#E8DCC0" stroke="#A08050" stroke-width="1.5"/>
+    <!-- Face-up card line details -->
+    <rect x="36" y="34" width="44" height="6" rx="2" fill="#C4A04A" opacity="0.4"/>
+    <rect x="36" y="44" width="30" height="4" rx="2" fill="#C4A04A" opacity="0.3"/>
+  </g>
+
+  <!-- Middle card (slightly rotated other way) -->
+  <g transform="rotate(8, 68, 62)">
+    <rect x="34" y="24" width="56" height="76" rx="6" fill="#F0E4CC" stroke="#A08050" stroke-width="1.5"/>
+    <rect x="40" y="30" width="44" height="6" rx="2" fill="#C4A04A" opacity="0.4"/>
+    <rect x="40" y="40" width="34" height="4" rx="2" fill="#C4A04A" opacity="0.3"/>
+  </g>
+
+  <!-- Top card (face up, slight tilt) -->
+  <g transform="rotate(-3, 64, 64)">
+    <rect x="32" y="22" width="56" height="76" rx="6" fill="#FAF4E4" stroke="#8B6914" stroke-width="2"/>
+    <!-- Card face content -->
+    <rect x="38" y="28" width="44" height="6" rx="2" fill="#8B6914" opacity="0.5"/>
+    <rect x="38" y="38" width="32" height="4" rx="2" fill="#8B6914" opacity="0.35"/>
+    <rect x="38" y="46" width="38" height="4" rx="2" fill="#8B6914" opacity="0.25"/>
+    <!-- Card face icon area -->
+    <rect x="42" y="56" width="36" height="30" rx="3" fill="#E8DCC0" stroke="#C4A04A" stroke-width="1"/>
+    <!-- Simple icon inside (used/played indicator) -->
+    <path d="M52,74 L58,80 L72,64" fill="none" stroke="#6B8E23" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+  </g>
+</svg>

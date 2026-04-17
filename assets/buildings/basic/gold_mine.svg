@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F5E6C8" stroke="#8B6914" stroke-width="3"/>
+
+  <!-- Gold nuggets -->
+  <circle cx="45" cy="90" r="8" fill="#FFD700" stroke="#B8860B" stroke-width="2"/>
+  <circle cx="62" cy="95" r="6" fill="#FFC125" stroke="#B8860B" stroke-width="1.5"/>
+  <circle cx="78" cy="88" r="9" fill="#FFD700" stroke="#B8860B" stroke-width="2"/>
+  <circle cx="55" cy="82" r="5" fill="#FFEC8B" stroke="#B8860B" stroke-width="1.5"/>
+  <!-- Pickaxe handle -->
+  <line x1="30" y1="28" x2="85" y2="75" stroke="#8B6914" stroke-width="5" stroke-linecap="round"/>
+  <!-- Pickaxe head -->
+  <path d="M22,22 L38,18 L35,30 Z" fill="#808080" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M22,22 L26,36 L35,30 Z" fill="#6E6E6E" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+
+</svg>

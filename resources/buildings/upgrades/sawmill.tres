@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="4_effect"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="5_bld"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="6_img"]
+[ext_resource type="Texture2D" uid="uid://chpf6o02nk1cm" path="res://assets/buildings/upgrades/sawmill.svg" id="6_img"]
 [ext_resource type="Resource" uid="uid://qm6yeu6t77kn" path="res://resources/natural_resources/wood.tres" id="7_res"]
 
 [resource]

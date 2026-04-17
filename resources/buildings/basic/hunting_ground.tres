@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_lhlsh"]
 [ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_0mo6p"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="3_j3c45"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_0mo6p"]
+[ext_resource type="Texture2D" uid="uid://cgwwcu5l5rgkv" path="res://assets/buildings/basic/hunting_ground.svg" id="4_0mo6p"]
 [ext_resource type="Resource" uid="uid://hrxtpk1h8o5y" path="res://resources/natural_resources/wild_game.tres" id="4_iemaa"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="5_i4gj2"]
 [ext_resource type="Resource" uid="uid://btannery01upg" path="res://resources/buildings/upgrades/tannery.tres" id="6_tan"]

@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_mega"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="4_effect"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="5_bld"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="6_img"]
+[ext_resource type="Texture2D" path="res://assets/buildings/market_square.svg" id="6_img"]
 
 [resource]
 script = ExtResource("5_bld")

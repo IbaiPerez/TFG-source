@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F0E8E0" stroke="#6B4C1A" stroke-width="3"/>
+
+  <!-- Book shelf -->
+  <rect x="24" y="80" width="80" height="5" rx="1" fill="#8B6914" stroke="#6B4C0A" stroke-width="1.5"/>
+  <!-- Books row -->
+  <rect x="28" y="42" width="12" height="38" rx="1" fill="#B85C3A" stroke="#8B3A1A" stroke-width="1.5"/>
+  <rect x="42" y="38" width="10" height="42" rx="1" fill="#2C5F8A" stroke="#1A3A5A" stroke-width="1.5"/>
+  <rect x="54" y="44" width="13" height="36" rx="1" fill="#6B8E23" stroke="#4A6A14" stroke-width="1.5"/>
+  <rect x="69" y="40" width="11" height="40" rx="1" fill="#8B3A6A" stroke="#6B1A4A" stroke-width="1.5"/>
+  <rect x="82" y="46" width="12" height="34" rx="1" fill="#B8860B" stroke="#8B6914" stroke-width="1.5"/>
+  <!-- Book spine details -->
+  <line x1="34" y1="50" x2="34" y2="55" stroke="#F5E6C8" stroke-width="1.5" opacity="0.6"/>
+  <line x1="47" y1="46" x2="47" y2="52" stroke="#F5E6C8" stroke-width="1.5" opacity="0.6"/>
+  <line x1="60" y1="52" x2="60" y2="57" stroke="#F5E6C8" stroke-width="1.5" opacity="0.6"/>
+  <!-- Scroll on top -->
+  <g transform="translate(36,24)">
+    <rect x="0" y="4" width="52" height="10" rx="4" fill="#F5E6C8" stroke="#C4A04A" stroke-width="1.5"/>
+    <circle cx="2" cy="9" r="5" fill="#F5E6C8" stroke="#C4A04A" stroke-width="1.5"/>
+    <circle cx="50" cy="9" r="5" fill="#F5E6C8" stroke="#C4A04A" stroke-width="1.5"/>
+  </g>
+
+</svg>

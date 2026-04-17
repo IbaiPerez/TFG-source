@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E8E4E0" stroke="#6E5C3E" stroke-width="3"/>
+
+  <!-- Cave/mine entrance -->
+  <path d="M25,100 Q30,55 64,42 Q98,55 103,100" fill="#6E5C3E" stroke="#4A3C28" stroke-width="2"/>
+  <path d="M30,100 Q35,60 64,48 Q93,60 98,100" fill="#3A3028" stroke="none"/>
+  <!-- Salt crystals -->
+  <polygon points="50,68 54,48 60,68" fill="#E8E8F0" stroke="#B0B0C0" stroke-width="1.5" stroke-linejoin="round"/>
+  <polygon points="60,72 66,44 72,72" fill="white" stroke="#B0B0C0" stroke-width="1.5" stroke-linejoin="round"/>
+  <polygon points="70,70 74,52 80,70" fill="#E0E0EA" stroke="#B0B0C0" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Crystal sparkle -->
+  <g fill="white" opacity="0.8">
+    <circle cx="56" cy="54" r="1.5"/>
+    <circle cx="67" cy="50" r="2"/>
+    <circle cx="76" cy="58" r="1.5"/>
+  </g>
+
+</svg>

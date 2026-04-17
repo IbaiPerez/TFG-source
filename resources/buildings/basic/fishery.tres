@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_cmolb"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_u4m1h"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_fx6ve"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_56gil"]
+[ext_resource type="Texture2D" uid="uid://bin848i5vl678" path="res://assets/buildings/basic/fishery.svg" id="4_56gil"]
 [ext_resource type="Resource" uid="uid://oo7b8gl1jhg" path="res://resources/natural_resources/fish.tres" id="5_bmybj"]
 [ext_resource type="Resource" uid="uid://bmw3vdfoviymi" path="res://resources/buildings/upgrades/fishing_port.tres" id="7_olad2"]
 [ext_resource type="Resource" uid="uid://5gla5ivmy2td" path="res://resources/buildings/upgrades/fishing_market.tres" id="8_73ctv"]

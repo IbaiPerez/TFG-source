@@ -1,4 +1,4 @@
-extends Control
+extends MarginContainer
 class_name BuildingCardUI
 
 @onready var building_image: TextureRect = $PanelContainer/BuildingImage

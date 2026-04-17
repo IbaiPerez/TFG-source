@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_r3w6y"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_soirk"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_bhxrk"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_phfj3"]
+[ext_resource type="Texture2D" uid="uid://df10x7d2d2w2a" path="res://assets/buildings/basic/crops.svg" id="4_phfj3"]
 [ext_resource type="Resource" uid="uid://d24re8efjrw3" path="res://resources/natural_resources/wheat.tres" id="5_l3dn6"]
 [ext_resource type="Resource" uid="uid://bgranary01upg" path="res://resources/buildings/upgrades/granary.tres" id="6_gran"]
 

@@ -4,9 +4,9 @@
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_b8nmw"]
 [ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_kgknn"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_jcoq0"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_dkcil"]
+[ext_resource type="Texture2D" uid="uid://uks8r32hdahj" path="res://assets/buildings/basic/iron_mine.svg" id="4_dkcil"]
 [ext_resource type="Resource" uid="uid://c2jvo50o3o5gh" path="res://resources/natural_resources/iron.tres" id="5_ldcje"]
-[ext_resource type="Resource" uid="uid://bforge01upg99" path="res://resources/buildings/upgrades/forge.tres" id="6_frg"]
+[ext_resource type="Resource" uid="uid://bforge01uphba" path="res://resources/buildings/upgrades/forge.tres" id="6_frg"]
 
 [resource]
 script = ExtResource("3_jcoq0")

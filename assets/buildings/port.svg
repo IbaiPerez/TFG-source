@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E0EEF5" stroke="#2C5F8A" stroke-width="3"/>
+
+  <!-- Water -->
+  <path d="M8,82 Q28,75 48,82 Q68,89 88,82 Q108,75 120,82" fill="none" stroke="#4A90C4" stroke-width="2" opacity="0.4"/>
+  <rect x="5" y="86" width="118" height="22" fill="#4A90C4" opacity="0.12"/>
+  <!-- Ship hull -->
+  <path d="M20,78 Q28,92 64,96 Q100,92 108,78 Z" fill="#8B5A2A" stroke="#6B3A1A" stroke-width="2"/>
+  <!-- Deck -->
+  <line x1="26" y1="78" x2="102" y2="78" stroke="#6B3A1A" stroke-width="2"/>
+  <!-- Mast -->
+  <line x1="64" y1="78" x2="64" y2="22" stroke="#6B4C0A" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Main sail -->
+  <path d="M64,28 L96,48 L64,68 Z" fill="#F0E8D0" stroke="#C4A04A" stroke-width="1.5"/>
+  <!-- Small sail -->
+  <path d="M64,25 L38,40 L64,50 Z" fill="#F0E8D0" stroke="#C4A04A" stroke-width="1.5"/>
+  <!-- Flag -->
+  <polygon points="64,22 80,26 64,32" fill="#B85C3A" stroke="#8B3A1A" stroke-width="1"/>
+  <!-- Cabin -->
+  <rect x="82" y="68" width="16" height="10" rx="2" fill="#C4864A" stroke="#8B5A2A" stroke-width="1.5"/>
+
+</svg>

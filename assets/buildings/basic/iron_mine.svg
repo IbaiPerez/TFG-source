@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E0DDD8" stroke="#555" stroke-width="3"/>
+
+  <!-- Iron ore rocks -->
+  <polygon points="38,95 50,78 62,95" fill="#808080" stroke="#555" stroke-width="2" stroke-linejoin="round"/>
+  <polygon points="58,98 72,75 88,98" fill="#6E6E6E" stroke="#444" stroke-width="2" stroke-linejoin="round"/>
+  <polygon points="46,100 56,88 68,100" fill="#909090" stroke="#666" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Iron vein highlights -->
+  <line x1="52" y1="82" x2="56" y2="88" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round"/>
+  <line x1="74" y1="80" x2="78" y2="88" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round"/>
+  <!-- Pickaxe handle -->
+  <line x1="28" y1="25" x2="75" y2="65" stroke="#8B6914" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Pickaxe head -->
+  <path d="M20,20 L35,15 L32,28 Z" fill="#555" stroke="#333" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M20,20 L24,33 L32,28 Z" fill="#4A4A4A" stroke="#333" stroke-width="2" stroke-linejoin="round"/>
+
+</svg>

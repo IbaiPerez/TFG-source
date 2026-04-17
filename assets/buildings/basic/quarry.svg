@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E8E2D8" stroke="#7A7060" stroke-width="3"/>
+
+  <!-- Stone blocks stacked -->
+  <rect x="25" y="70" width="78" height="28" rx="3" fill="#B0A898" stroke="#7A7060" stroke-width="2"/>
+  <line x1="55" y1="70" x2="55" y2="98" stroke="#7A7060" stroke-width="1.5"/>
+  <rect x="32" y="48" width="60" height="24" rx="3" fill="#C0B8A8" stroke="#7A7060" stroke-width="2"/>
+  <line x1="62" y1="48" x2="62" y2="72" stroke="#7A7060" stroke-width="1.5"/>
+  <rect x="42" y="30" width="38" height="20" rx="3" fill="#D0C8B8" stroke="#7A7060" stroke-width="2"/>
+  <!-- Chisel marks -->
+  <line x1="48" y1="34" x2="52" y2="38" stroke="#8A8070" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="58" y1="36" x2="62" y2="40" stroke="#8A8070" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="68" y1="33" x2="72" y2="37" stroke="#8A8070" stroke-width="1.5" stroke-linecap="round"/>
+
+</svg>

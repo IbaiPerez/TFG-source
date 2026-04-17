@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://cuo88ej6eqn2m"]
+[gd_resource type="Resource" script_class="Building" load_steps=8 format=3 uid="uid://cuo88ej6eqn2m"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_ivlo4"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_0fyfp"]
@@ -6,12 +6,14 @@
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_ot1s7"]
 [ext_resource type="Resource" uid="uid://qm6yeu6t77kn" path="res://resources/natural_resources/wood.tres" id="4_c7fj6"]
 [ext_resource type="Resource" uid="uid://bsawmill01upg" path="res://resources/buildings/upgrades/sawmill.tres" id="5_saw"]
+[ext_resource type="Texture2D" uid="uid://br8pteyt66nxk" path="res://assets/buildings/basic/logging_camp.svg" id="img_icon"]
 
 [resource]
 script = ExtResource("3_ot1s7")
 name = "Logging Camp"
 required_natural_resource = ExtResource("4_c7fj6")
 allowed_location_type = Array[ExtResource("1_ivlo4")]([ExtResource("2_ot1s7")])
+image = ExtResource("img_icon")
 construction_cost = 50
 gold_produced = 4
 upgrades_to = Array[ExtResource("3_ot1s7")]([ExtResource("5_saw")])

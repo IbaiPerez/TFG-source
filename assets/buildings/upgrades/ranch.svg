@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F0F5E0" stroke="#5A7A1A" stroke-width="3"/>
+
+  <!-- Green field -->
+  <ellipse cx="64" cy="98" rx="50" ry="10" fill="#6B8E23" opacity="0.2"/>
+  <!-- Fence posts -->
+  <rect x="20" y="55" width="5" height="30" rx="1" fill="#8B6914" stroke="#6B4C0A" stroke-width="1"/>
+  <rect x="42" y="55" width="5" height="30" rx="1" fill="#8B6914" stroke="#6B4C0A" stroke-width="1"/>
+  <rect x="81" y="55" width="5" height="30" rx="1" fill="#8B6914" stroke="#6B4C0A" stroke-width="1"/>
+  <rect x="103" y="55" width="5" height="30" rx="1" fill="#8B6914" stroke="#6B4C0A" stroke-width="1"/>
+  <!-- Fence rails -->
+  <line x1="22" y1="62" x2="106" y2="62" stroke="#8B6914" stroke-width="3"/>
+  <line x1="22" y1="75" x2="106" y2="75" stroke="#8B6914" stroke-width="3"/>
+  <!-- Cow 1 (simplified) -->
+  <ellipse cx="48" cy="42" rx="14" ry="9" fill="white" stroke="#555" stroke-width="1.5"/>
+  <circle cx="38" cy="37" r="6" fill="white" stroke="#555" stroke-width="1.5"/>
+  <circle cx="36" cy="35" r="1.5" fill="#333"/>
+  <ellipse cx="46" cy="40" rx="4" ry="3" fill="#555"/>
+  <!-- Cow 2 -->
+  <ellipse cx="82" cy="40" rx="12" ry="8" fill="#DEB887" stroke="#8B6914" stroke-width="1.5"/>
+  <circle cx="74" cy="35" r="5" fill="#DEB887" stroke="#8B6914" stroke-width="1.5"/>
+  <circle cx="72" cy="34" r="1.5" fill="#333"/>
+
+</svg>

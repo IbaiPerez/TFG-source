@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_i6elg"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_q0fud"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_ccqln"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_baf2p"]
+[ext_resource type="Texture2D" uid="uid://bbglqv6u5i4rx" path="res://assets/buildings/basic/salt_mine.svg" id="4_baf2p"]
 [ext_resource type="Resource" uid="uid://b1glfrb7777r0" path="res://resources/natural_resources/salt.tres" id="5_sgore"]
 [ext_resource type="Resource" uid="uid://bsaltref01upg" path="res://resources/buildings/upgrades/salt_refinery.tres" id="6_sref"]
 

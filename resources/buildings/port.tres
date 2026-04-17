@@ -5,7 +5,7 @@
 [ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_wywg4"]
 [ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_htdhu"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_yi1ie"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="5_6vu6y"]
+[ext_resource type="Texture2D" path="res://assets/buildings/port.svg" id="5_6vu6y"]
 
 [resource]
 script = ExtResource("3_yi1ie")

@@ -21,6 +21,13 @@ func _ready() -> void:
 	discard_pile_button.pressed.connect(discard_pile_view.show_current_view.bind("Discard Pile"))
 	tile_panel.visible = false
 	_setup_map_mode_buttons()
+	_connect_modifier_manager.call_deferred()
+
+
+func _connect_modifier_manager() -> void:
+	var player_handler:PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+	if player_handler and player_handler.modifier_manager:
+		stats_ui.set_modifier_manager(player_handler.modifier_manager)
 
 func _setup_map_mode_buttons() -> void:
 	# Todos los botones del contenedor comparten el mismo ButtonGroup,

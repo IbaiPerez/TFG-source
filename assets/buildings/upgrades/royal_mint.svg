@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#FFF8DC" stroke="#B8860B" stroke-width="3"/>
+
+  <!-- Building base -->
+  <rect x="28" y="60" width="72" height="40" rx="3" fill="#C4A04A" stroke="#8B6914" stroke-width="2"/>
+  <!-- Columns -->
+  <rect x="34" y="55" width="8" height="45" rx="2" fill="#DAC060" stroke="#8B6914" stroke-width="1.5"/>
+  <rect x="86" y="55" width="8" height="45" rx="2" fill="#DAC060" stroke="#8B6914" stroke-width="1.5"/>
+  <!-- Pediment -->
+  <polygon points="24,58 64,30 104,58" fill="#DAC060" stroke="#8B6914" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Crown emblem -->
+  <g transform="translate(52,36)">
+    <polygon points="0,14 2,4 6,10 10,0 14,10 18,4 20,14" fill="#FFD700" stroke="#B8860B" stroke-width="1.5" stroke-linejoin="round"/>
+    <rect x="0" y="14" width="20" height="4" rx="1" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  </g>
+  <!-- Stacked coins at base -->
+  <ellipse cx="50" cy="88" rx="8" ry="3" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <ellipse cx="50" cy="85" rx="8" ry="3" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <ellipse cx="78" cy="90" rx="7" ry="3" fill="#FFC125" stroke="#B8860B" stroke-width="1"/>
+  <ellipse cx="78" cy="87" rx="7" ry="3" fill="#FFC125" stroke="#B8860B" stroke-width="1"/>
+
+</svg>

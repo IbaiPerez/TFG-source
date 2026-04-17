@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F5E6C8" stroke="#8B5A2A" stroke-width="3"/>
+
+  <!-- Barn body -->
+  <rect x="30" y="55" width="68" height="45" rx="2" fill="#C4864A" stroke="#8B5A2A" stroke-width="2"/>
+  <!-- Barn roof -->
+  <polygon points="25,55 64,25 103,55" fill="#8B3A1A" stroke="#6B2A0A" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Door -->
+  <rect x="50" y="72" width="28" height="28" rx="2" fill="#6B3A1A" stroke="#4A2810" stroke-width="1.5"/>
+  <!-- Door arch -->
+  <path d="M50,72 Q64,62 78,72" fill="#6B3A1A" stroke="#4A2810" stroke-width="1.5"/>
+  <!-- Wheat in door (stored grain) -->
+  <ellipse cx="58" cy="88" rx="4" ry="6" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <ellipse cx="64" cy="85" rx="4" ry="7" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <ellipse cx="70" cy="88" rx="4" ry="6" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <!-- Window -->
+  <circle cx="44" cy="70" r="5" fill="#FFE8A0" stroke="#8B5A2A" stroke-width="1.5"/>
+  <line x1="44" y1="65" x2="44" y2="75" stroke="#8B5A2A" stroke-width="1"/>
+  <line x1="39" y1="70" x2="49" y2="70" stroke="#8B5A2A" stroke-width="1"/>
+
+</svg>

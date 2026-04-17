@@ -1,9 +1,20 @@
-[gd_resource type="Resource" script_class="Stats" load_steps=5 format=3 uid="uid://cwfokudqrj6s1"]
+[gd_resource type="Resource" script_class="Stats" load_steps=16 format=3 uid="uid://cwfokudqrj6s1"]
 
 [ext_resource type="Resource" uid="uid://b4mhfidkmt6ag" path="res://resources/empires/mongol.tres" id="1_1iik2"]
 [ext_resource type="Script" uid="uid://cyevp7dau37e6" path="res://scripts/turn_events/turn_event.gd" id="1_724wx"]
 [ext_resource type="Script" uid="uid://cwtwyeoabj3wv" path="res://scripts/player/stats.gd" id="1_c8cpc"]
 [ext_resource type="Resource" uid="uid://cx2mgwwjnf8am" path="res://resources/card_piles/starting_deck.tres" id="2_dcygl"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_bldg"]
+[ext_resource type="Resource" uid="uid://bl7qv7job3kaa" path="res://resources/buildings/basic/crops.tres" id="4_crops"]
+[ext_resource type="Resource" uid="uid://c0k8h3nebtqgc" path="res://resources/buildings/basic/fishery.tres" id="5_fish"]
+[ext_resource type="Resource" uid="uid://cfi05gb1nh8aq" path="res://resources/buildings/basic/gold_mine.tres" id="6_gold"]
+[ext_resource type="Resource" uid="uid://meetw5irkvkx" path="res://resources/buildings/basic/hunting_ground.tres" id="7_hunt"]
+[ext_resource type="Resource" uid="uid://dh88wbo17xb6y" path="res://resources/buildings/basic/iron_mine.tres" id="8_iron"]
+[ext_resource type="Resource" uid="uid://qkll1ybuvbk7" path="res://resources/buildings/basic/livestock_farm.tres" id="9_live"]
+[ext_resource type="Resource" uid="uid://cuo88ej6eqn2m" path="res://resources/buildings/basic/logging_camp.tres" id="10_log"]
+[ext_resource type="Resource" uid="uid://bww68w6ccgty4" path="res://resources/buildings/basic/quarry.tres" id="11_qry"]
+[ext_resource type="Resource" uid="uid://bwycs1wi7yoqk" path="res://resources/buildings/basic/salt_mine.tres" id="12_salt"]
+[ext_resource type="Resource" uid="uid://beh4anbgf3362" path="res://resources/buildings/basic/sand_pit.tres" id="13_sand"]
 
 [resource]
 script = ExtResource("1_c8cpc")
@@ -11,5 +22,6 @@ initial_gold = 1000
 initial_gold_per_turn = 10
 starting_deck = ExtResource("2_dcygl")
 cards_per_turn = 2
+possible_buildings = Array[ExtResource("3_bldg")]([ExtResource("4_crops"), ExtResource("5_fish"), ExtResource("6_gold"), ExtResource("7_hunt"), ExtResource("8_iron"), ExtResource("9_live"), ExtResource("10_log"), ExtResource("11_qry"), ExtResource("12_salt"), ExtResource("13_sand")])
 empire = ExtResource("1_1iik2")
 metadata/_custom_type_script = "uid://cwtwyeoabj3wv"

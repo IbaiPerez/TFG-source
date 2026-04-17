@@ -2,11 +2,13 @@ extends Resource
 class_name Stats
 
 signal stats_changed
+signal possible_buildings_changed
 
 @export var initial_gold:int
 @export var initial_gold_per_turn:int
 @export var starting_deck:CardPile
 @export var cards_per_turn:int:set = set_cards_per_turn
+@export var possible_buildings:Array[Building] = []
 
 var total_gold:int:set = set_gold
 var gold_per_turn:int:set = set_gold_per_turn
@@ -41,6 +43,33 @@ func set_food(value:int) -> void:
 	stats_changed.emit()
 
 
+func add_possible_building(building:Building) -> void:
+	if building in possible_buildings:
+		return
+	possible_buildings.append(building)
+	_sync_build_cards()
+	possible_buildings_changed.emit()
+	stats_changed.emit()
+
+
+func remove_possible_building(building:Building) -> void:
+	if building not in possible_buildings:
+		return
+	possible_buildings.erase(building)
+	_sync_build_cards()
+	possible_buildings_changed.emit()
+	stats_changed.emit()
+
+
+func _sync_build_cards() -> void:
+	for pile:CardPile in [deck, draw_pile, discard_pile, played_pile]:
+		if pile == null:
+			continue
+		for card:Card in pile.cards:
+			if card is BuildCard:
+				card.buildings = possible_buildings.duplicate()
+
+
 func create_instance() -> Resource:
 	var instance:Stats = self.duplicate()
 	instance.total_gold = initial_gold
@@ -53,4 +82,6 @@ func create_instance() -> Resource:
 	instance.empire = empire
 	instance.used_unique_events = []
 	instance.turn_number = 0
+	instance.possible_buildings = possible_buildings.duplicate()
+	instance._sync_build_cards()
 	return instance

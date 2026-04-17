@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F0ECE4" stroke="#8A8070" stroke-width="3"/>
+
+  <!-- Base platform -->
+  <rect x="20" y="92" width="88" height="8" rx="2" fill="#C0B8A8" stroke="#8A8070" stroke-width="1.5"/>
+  <rect x="25" y="86" width="78" height="8" rx="2" fill="#D0C8B8" stroke="#8A8070" stroke-width="1.5"/>
+  <!-- Columns -->
+  <rect x="32" y="48" width="8" height="40" rx="2" fill="#E0D8C8" stroke="#8A8070" stroke-width="1.5"/>
+  <rect x="52" y="48" width="8" height="40" rx="2" fill="#E0D8C8" stroke="#8A8070" stroke-width="1.5"/>
+  <rect x="68" y="48" width="8" height="40" rx="2" fill="#E0D8C8" stroke="#8A8070" stroke-width="1.5"/>
+  <rect x="88" y="48" width="8" height="40" rx="2" fill="#E0D8C8" stroke="#8A8070" stroke-width="1.5"/>
+  <!-- Entablature -->
+  <rect x="26" y="44" width="76" height="6" rx="1" fill="#D0C8B8" stroke="#8A8070" stroke-width="1.5"/>
+  <!-- Pediment (triangle roof) -->
+  <polygon points="22,44 64,18 106,44" fill="#D8D0C0" stroke="#8A8070" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Sun/divine symbol in pediment -->
+  <circle cx="64" cy="34" r="6" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/>
+  <g stroke="#FFD700" stroke-width="1.5" stroke-linecap="round">
+    <line x1="64" y1="25" x2="64" y2="23"/>
+    <line x1="64" y1="43" x2="64" y2="45"/>
+    <line x1="55" y1="34" x2="53" y2="34"/>
+    <line x1="73" y1="34" x2="75" y2="34"/>
+  </g>
+
+</svg>

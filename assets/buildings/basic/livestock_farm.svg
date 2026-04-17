@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F0F5E0" stroke="#5A7A1A" stroke-width="3"/>
+
+  <!-- Ground -->
+  <ellipse cx="64" cy="100" rx="44" ry="6" fill="#6B8E23" opacity="0.25"/>
+  <!-- Cow body -->
+  <ellipse cx="64" cy="68" rx="30" ry="20" fill="white" stroke="#555" stroke-width="2"/>
+  <!-- Spots -->
+  <ellipse cx="52" cy="62" rx="8" ry="6" fill="#555" transform="rotate(-15,52,62)"/>
+  <ellipse cx="75" cy="70" rx="7" ry="5" fill="#555" transform="rotate(10,75,70)"/>
+  <!-- Head -->
+  <ellipse cx="34" cy="50" rx="14" ry="12" fill="white" stroke="#555" stroke-width="2"/>
+  <!-- Ears -->
+  <ellipse cx="24" cy="40" rx="5" ry="3" fill="#DEB887" stroke="#555" stroke-width="1.5" transform="rotate(-30,24,40)"/>
+  <ellipse cx="40" cy="38" rx="5" ry="3" fill="#DEB887" stroke="#555" stroke-width="1.5" transform="rotate(20,40,38)"/>
+  <!-- Eyes -->
+  <circle cx="29" cy="47" r="2.5" fill="#333"/>
+  <circle cx="39" cy="47" r="2.5" fill="#333"/>
+  <!-- Nose -->
+  <ellipse cx="34" cy="55" rx="6" ry="4" fill="#F5C6A0" stroke="#555" stroke-width="1"/>
+  <!-- Legs -->
+  <line x1="45" y1="85" x2="45" y2="98" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+  <line x1="55" y1="85" x2="55" y2="98" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+  <line x1="73" y1="85" x2="73" y2="98" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+  <line x1="83" y1="85" x2="83" y2="98" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E8E2D8" stroke="#7A7060" stroke-width="3"/>
+
+  <!-- Finished stone block -->
+  <g transform="translate(30,45)">
+    <!-- Top face -->
+    <polygon points="10,10 38,0 68,10 38,20" fill="#D0C8B8" stroke="#7A7060" stroke-width="2"/>
+    <!-- Front face -->
+    <polygon points="10,10 10,45 38,55 38,20" fill="#B0A898" stroke="#7A7060" stroke-width="2"/>
+    <!-- Right face -->
+    <polygon points="38,20 38,55 68,45 68,10" fill="#C0B8A8" stroke="#7A7060" stroke-width="2"/>
+  </g>
+  <!-- Chisel -->
+  <line x1="80" y1="26" x2="68" y2="52" stroke="#808080" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="66,52 62,62 72,58" fill="#808080" stroke="#555" stroke-width="1.5"/>
+  <!-- Hammer -->
+  <line x1="95" y1="22" x2="82" y2="40" stroke="#8B6914" stroke-width="3" stroke-linecap="round"/>
+  <rect x="88" y="15" width="16" height="10" rx="2" fill="#808080" stroke="#555" stroke-width="1.5" transform="rotate(-25,96,20)"/>
+  <!-- Stone dust particles -->
+  <g fill="#B0A898" opacity="0.5">
+    <circle cx="75" cy="56" r="2"/>
+    <circle cx="82" cy="50" r="1.5"/>
+    <circle cx="70" cy="48" r="1"/>
+  </g>
+
+</svg>

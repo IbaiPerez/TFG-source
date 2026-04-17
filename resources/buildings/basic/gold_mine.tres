@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_nct1j"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="2_xyefy"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_ba4gw"]
-[ext_resource type="Texture2D" uid="uid://dopoga2wqcdem" path="res://assets/buildings/BuildingPlaceholder.png" id="4_l57g6"]
+[ext_resource type="Texture2D" uid="uid://y8rd7goy7e8u" path="res://assets/buildings/basic/gold_mine.svg" id="4_l57g6"]
 [ext_resource type="Resource" uid="uid://b54xf0rwim6kw" path="res://resources/natural_resources/gold.tres" id="5_bhrfm"]
 [ext_resource type="Resource" uid="uid://broyalmint01u" path="res://resources/buildings/upgrades/royal_mint.tres" id="6_royal"]
 
