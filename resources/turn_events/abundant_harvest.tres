@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AbundantHarvestEvent" load_steps=2 format=3 uid="uid://babunharv01ev"]
+
+[ext_resource type="Script" uid="uid://duw5ehcsife7x" path="res://scripts/turn_events/events/abundant_harvest_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "abundant_harvest"
+title = "Cosecha Abundante"
+description = "[i]Las lluvias han sido generosas este año. Tus campos rebosan de grano y fruta, más de lo que nadie esperaba.[/i]"
+allow_skip = true
+weight = 7.0
+unique = false
+metadata/_custom_type_script = "uid://duw5ehcsife7x"

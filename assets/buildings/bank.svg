@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#FFF8DC" stroke="#B8860B" stroke-width="3"/>
+
+  <!-- Base platform -->
+  <rect x="18" y="92" width="92" height="8" rx="2" fill="#C4A04A" stroke="#8B6914" stroke-width="1.5"/>
+  <rect x="22" y="86" width="84" height="8" rx="2" fill="#DAC060" stroke="#8B6914" stroke-width="1.5"/>
+  <!-- Columns -->
+  <rect x="30" y="50" width="7" height="38" rx="2" fill="#F0E8D0" stroke="#B8860B" stroke-width="1.5"/>
+  <rect x="48" y="50" width="7" height="38" rx="2" fill="#F0E8D0" stroke="#B8860B" stroke-width="1.5"/>
+  <rect x="73" y="50" width="7" height="38" rx="2" fill="#F0E8D0" stroke="#B8860B" stroke-width="1.5"/>
+  <rect x="91" y="50" width="7" height="38" rx="2" fill="#F0E8D0" stroke="#B8860B" stroke-width="1.5"/>
+  <!-- Entablature -->
+  <rect x="24" y="46" width="80" height="6" rx="1" fill="#DAC060" stroke="#B8860B" stroke-width="1.5"/>
+  <!-- Pediment (triangle roof) -->
+  <polygon points="20,46 64,20 108,46" fill="#F0E0B0" stroke="#B8860B" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Gold coin symbol in pediment -->
+  <circle cx="64" cy="34" r="8" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/>
+  <text x="64" y="38" text-anchor="middle" font-size="12" font-weight="bold" fill="#8B6914" font-family="serif">$</text>
+  <!-- Door -->
+  <rect x="54" y="62" width="20" height="26" rx="2" fill="#8B6914" stroke="#6B4C0A" stroke-width="1.5"/>
+  <circle cx="70" cy="75" r="2" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <!-- Coin stacks -->
+  <circle cx="38" cy="82" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="38" cy="77" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="90" cy="82" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="90" cy="77" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="90" cy="72" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+
+</svg>

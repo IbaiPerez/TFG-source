@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TradeWindsEvent" load_steps=2 format=3 uid="uid://btradewind01ev"]
+
+[ext_resource type="Script" uid="uid://c2ypucotaxoli" path="res://scripts/turn_events/events/trade_winds_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "trade_winds"
+title = "Vientos de Comercio"
+description = "[i]Los vientos soplan a favor de tus barcos mercantes. Las rutas comerciales florecen como nunca antes.[/i]"
+allow_skip = true
+weight = 6.0
+unique = false
+metadata/_custom_type_script = "uid://c2ypucotaxoli"

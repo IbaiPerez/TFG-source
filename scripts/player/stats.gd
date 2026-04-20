@@ -66,7 +66,7 @@ func _sync_build_cards() -> void:
 		if pile == null:
 			continue
 		for card:Card in pile.cards:
-			if card is BuildCard:
+			if card is BuildCard and not card is DirectBuildCard:
 				card.buildings = possible_buildings.duplicate()
 
 

@@ -1,10 +1,12 @@
-[gd_resource type="Resource" script_class="UpgradeBuildingCard" load_steps=2 format=3 uid="uid://b4tivmqik2sh3"]
+[gd_resource type="Resource" script_class="UpgradeBuildingCard" load_steps=3 format=3 uid="uid://b4tivmqik2sh3"]
 
 [ext_resource type="Script" uid="uid://bsnrkkg2ij2wx" path="res://scripts/cards_resources/upgrade_building_card.gd" id="1_yyc4h"]
+[ext_resource type="Texture2D" path="res://assets/cards/upgrade_building_card.svg" id="2_icon"]
 
 [resource]
 script = ExtResource("1_yyc4h")
 id = "Upgrade Building Card"
+icon = ExtResource("2_icon")
 needs_confirmation = true
 tooltipe_text = "Upgrade buildings"
 metadata/_custom_type_script = "uid://bsnrkkg2ij2wx"

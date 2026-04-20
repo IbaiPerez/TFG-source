@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BadHarvestEvent" load_steps=2 format=3 uid="uid://bbadharv001ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/bad_harvest_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "bad_harvest"
+title = "Mala Cosecha"
+description = "[i]Las heladas tardías han dañado los cultivos. Tus campos producen mucho menos de lo esperado este año.[/i]"
+allow_skip = false
+weight = 7.0
+unique = false
+metadata/_custom_type_script = ""

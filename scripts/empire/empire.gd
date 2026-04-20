@@ -3,6 +3,7 @@ class_name Empire
 
 @export var name:String
 @export var color:Color
+@export var ability:EmpireAbility
 var controlled_tiles:Array[Tile] = []
 
 signal tile_conquered(tile:Tile)
@@ -27,5 +28,6 @@ func create_instance() -> Empire:
 	var empire:Empire = self.duplicate()
 	empire.name = name
 	empire.color = color
+	empire.ability = ability
 	empire.controlled_tiles = []
 	return empire

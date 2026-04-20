@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HordeAbility" load_steps=3 format=3 uid="uid://chorde001abil"]
+
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_2pqsx"]
+[ext_resource type="Script" uid="uid://ivmfcxtas8ng" path="res://scripts/empire/abilities/horde_ability.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "horde_nomada"
+ability_name = "Horda Nomada"
+description = "El espiritu nomada de las estepas impulsa tu expansion. Robas 1 carta adicional por turno y cada vez que juegas Colonizar hay un 30% de probabilidad de que vuelva a tu mano."

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MaterialCrisisEvent" load_steps=2 format=3 uid="uid://bmatcrisis01ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/material_crisis_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "material_crisis"
+title = "Crisis de Materiales"
+description = "[i]Los suministros de piedra y madera se han agotado en la región. Los precios de construcción se disparan.[/i]"
+allow_skip = false
+weight = 5.0
+unique = false
+metadata/_custom_type_script = ""

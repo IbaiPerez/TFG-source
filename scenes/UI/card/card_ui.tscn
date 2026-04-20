@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://bardxjcsvsopn" path="res://scripts/ui/cards/tooltip.gd" id="3_15uyt"]
 [ext_resource type="Script" uid="uid://deyqpbnyk1scr" path="res://scripts/ui/cards/card_states/card_base_state.gd" id="3_22406"]
 [ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="3_vj4or"]
-[ext_resource type="Texture2D" uid="uid://b13ku1xgd1yby" path="res://assets/cards/colonize_card.png" id="4_j5ew7"]
 [ext_resource type="Script" uid="uid://bsxxk8p8e3ptm" path="res://scripts/ui/cards/card_states/card_clicked_state.gd" id="4_mm2o0"]
 [ext_resource type="Script" uid="uid://cvub66iuayr6d" path="res://scripts/ui/cards/card_states/card_dragging_state.gd" id="5_7jqc3"]
+[ext_resource type="Texture2D" uid="uid://dgbynkimmrq4g" path="res://assets/cards/colonize_card.svg" id="5_j5ew7"]
 [ext_resource type="Script" uid="uid://bj2jjak108acp" path="res://scripts/ui/cards/card_states/card_realeased_state.gd" id="6_phkl8"]
 [ext_resource type="Script" uid="uid://bmvqfnxsgnm74" path="res://scripts/ui/cards/card_states/card_aiming_state.gd" id="7_7jqc3"]
 [ext_resource type="Script" uid="uid://cbulvvj4svqo7" path="res://scripts/ui/cards/card_states/card_confirming_state.gd" id="12_j5ew7"]
@@ -47,11 +47,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("4_j5ew7")
+texture = ExtResource("5_j5ew7")
 expand_mode = 1
 stretch_mode = 5
 
 [node name="Tooltip" type="PanelContainer" parent="."]
+visible = false
 z_index = 1
 z_as_relative = false
 layout_mode = 0

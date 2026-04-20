@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WiseTravelersEvent" load_steps=2 format=3 uid="uid://bwisetrav01ev"]
+
+[ext_resource type="Script" uid="uid://bq1qlc78gluqv" path="res://scripts/turn_events/events/wise_travelers_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "wise_travelers"
+title = "Sabios Viajeros"
+description = "[i]Un grupo de eruditos y sabios llega a tu corte. Su conocimiento es vasto y desean compartirlo a cambio de refugio.[/i]"
+allow_skip = true
+weight = 3.0
+unique = true
+metadata/_custom_type_script = "uid://bq1qlc78gluqv"

@@ -12,7 +12,7 @@ func is_valid_target(target:Node) -> bool:
 		if buildings.is_empty():
 			return false
 		elif buildings.size() == 1:
-			return target.can_build(buildings.get(0) and stats.total_gold >= buildings.get(0).construction_cost)
+			return target.can_build(buildings.get(0)) and stats.total_gold >= buildings.get(0).construction_cost
 		else:
 			for building:Building in buildings:
 				if building.construction_cost <= stats.total_gold and target.can_build(building):

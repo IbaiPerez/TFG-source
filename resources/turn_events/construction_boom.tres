@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ConstructionBoomEvent" load_steps=2 format=3 uid="uid://bconstboom01ev"]
+
+[ext_resource type="Script" uid="uid://c41e36b99f8e0" path="res://scripts/turn_events/events/construction_boom_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "construction_boom"
+title = "Boom de Construcción"
+description = "[i]Tu imperio crece sin cesar. Los maestros constructores acuden a tus tierras en busca de trabajo, trayendo consigo nuevos planos y técnicas.[/i]"
+allow_skip = false
+weight = 10.0
+unique = true
+metadata/_custom_type_script = "uid://c41e36b99f8e0"

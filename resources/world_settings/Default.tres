@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cifwawcw04jkd" path="res://scripts/empire/empire.gd" id="1_0xpuv"]
 [ext_resource type="Script" uid="uid://7me17r3uuo2y" path="res://scripts/world_gen/generation_settings.gd" id="1_r2rcn"]
-[ext_resource type="Resource" uid="uid://dcm8kss34cngp" path="res://resources/empires/medici.tres" id="2_mi7t8"]
+[ext_resource type="Resource" uid="uid://ba6dn1gfrs32d" path="res://resources/empires/medici.tres" id="2_mi7t8"]
 [ext_resource type="Resource" uid="uid://ocx6xpafcagw" path="res://resources/tiles/ocean.tres" id="2_xdnel"]
 [ext_resource type="Resource" uid="uid://dlljlcjgbqsv5" path="res://resources/empires/babylonian.tres" id="3_0adxy"]
 [ext_resource type="Resource" uid="uid://oo7b8gl1jhg" path="res://resources/natural_resources/fish.tres" id="4_0xpuv"]
@@ -46,5 +46,5 @@ mountain_noise = SubResource("FastNoiseLite_dwjk8")
 ocean_tile = ExtResource("2_xdnel")
 ocean_noise = SubResource("FastNoiseLite_3epr2")
 player_empire = ExtResource("17_0adxy")
-empires = Array[ExtResource("1_0xpuv")]([ExtResource("2_mi7t8"), ExtResource("3_0adxy"), ExtResource("17_0adxy")])
+empires = Array[ExtResource("1_0xpuv")]([ExtResource("2_mi7t8"), ExtResource("3_0adxy")])
 natural_resources = Array[ExtResource("4_lywyf")]([ExtResource("4_0xpuv"), ExtResource("5_vkrep"), ExtResource("6_mi7t8"), ExtResource("7_0adxy"), ExtResource("8_ao7v6"), ExtResource("9_g0t0s"), ExtResource("10_p6vtu"), ExtResource("11_gi5ds"), ExtResource("12_sgjkb"), ExtResource("13_g8mn0")])

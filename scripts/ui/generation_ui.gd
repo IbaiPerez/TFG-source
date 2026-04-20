@@ -56,8 +56,8 @@ const WILD_GAME = preload("uid://hrxtpk1h8o5y")
 const WOOD = preload("uid://qm6yeu6t77kn")
 
 const BABYLONIAN = preload("uid://dlljlcjgbqsv5")
-const MEDICI = preload("uid://dcm8kss34cngp")
 const MONGOL = preload("uid://b4mhfidkmt6ag")
+const MEDICI = preload("uid://ba6dn1gfrs32d")
 
 const INITIAL_STATS = preload("uid://cwfokudqrj6s1")
 
@@ -309,6 +309,9 @@ func _on_inner_buffer_spin_box_value_changed(value: float) -> void:
 
 func _on_generation_button_pressed() -> void:
 	settings.empires.erase(settings.player_empire)
+	# Solo 1 imperio IA: elegir uno aleatorio y descartar el resto
+	var ai_empire:Empire = settings.empires.pick_random()
+	settings.empires = [ai_empire]
 	print("=== GENERANDO MAPA ===")
 	print("Seed: ", settings.map_seed)
 	print("Noise: ", settings.biome_noise.noise_type)

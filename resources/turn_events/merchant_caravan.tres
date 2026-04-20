@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MerchantCaravanEvent" load_steps=2 format=3 uid="uid://bmerccarav01ev"]
+
+[ext_resource type="Script" uid="uid://cxvrxke3b4je6" path="res://scripts/turn_events/events/merchant_caravan_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "merchant_caravan"
+title = "Caravana Mercante"
+description = "[i]Una caravana de mercaderes extranjeros llega a tus tierras. Traen consigo monedas de oro y deseos de comerciar.[/i]"
+allow_skip = true
+weight = 8.0
+unique = false
+metadata/_custom_type_script = "uid://cxvrxke3b4je6"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TravelingArtisansEvent" load_steps=2 format=3 uid="uid://btravarts01ev"]
+
+[ext_resource type="Script" uid="uid://ck8qwiuw4gq0a" path="res://scripts/turn_events/events/traveling_artisans_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "traveling_artisans"
+title = "Artesanos Ambulantes"
+description = "[i]Un gremio de artesanos itinerantes ofrece sus servicios. Sus técnicas reducen el coste de cualquier obra.[/i]"
+allow_skip = true
+weight = 6.0
+unique = false
+metadata/_custom_type_script = "uid://ck8qwiuw4gq0a"

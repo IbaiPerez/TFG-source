@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CattleFairEvent" load_steps=2 format=3 uid="uid://bcattlefr01ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/cattle_fair_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "cattle_fair"
+title = "Feria de Ganado"
+description = "[i]Ganaderos de tierras lejanas organizan una gran feria. Puedes vender parte de tu ganado a buen precio.[/i]"
+allow_skip = true
+weight = 5.0
+unique = false
+metadata/_custom_type_script = ""

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Building" load_steps=9 format=3 uid="uid://bcoliseo001lt"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
+[ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_town"]
+[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_mega"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
+[ext_resource type="Texture2D" uid="uid://cgo14yir467h5" path="res://assets/buildings/lategame/coliseo.svg" id="5_img"]
+[ext_resource type="Script" uid="uid://beo6bt47hlphb" path="res://scripts/building/effect/add_build_cost_modifier_effect.gd" id="6_eff"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="7_beff"]
+
+[sub_resource type="Resource" id="eff_coliseo_cost"]
+script = ExtResource("6_eff")
+modifier_id = "coliseo_build_cost"
+modifier_name = "Eficiencia del Coliseo"
+percent = 20.0
+tooltipe_text = "-20% coste de construcción global"
+
+[resource]
+script = ExtResource("4_bld")
+name = "Coliseo"
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
+image = ExtResource("5_img")
+construction_cost = 400
+gold_produced = 8
+food_produced = 5
+effects = Array[ExtResource("7_beff")]([SubResource("eff_coliseo_cost")])
+metadata/_custom_type_script = "uid://2ce384crr8i0"

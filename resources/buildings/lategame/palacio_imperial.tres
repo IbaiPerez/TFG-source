@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="Building" load_steps=10 format=3 uid="uid://bpalacio001lt"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
+[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="2_mega"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_bld"]
+[ext_resource type="Texture2D" uid="uid://bs1apvrtmxs1y" path="res://assets/buildings/lategame/palacio_imperial.svg" id="4_img"]
+[ext_resource type="Script" uid="uid://dy7ew041vlors" path="res://scripts/building/effect/add_stat_modifier_effect.gd" id="5_eff"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="6_beff"]
+
+[sub_resource type="Resource" id="eff_palacio_gold"]
+script = ExtResource("5_eff")
+modifier_id = "palacio_gold"
+modifier_name = "Tesoro del Palacio"
+stat_type = 1
+value = 15.0
+tooltipe_text = "+15% producción de oro global"
+
+[sub_resource type="Resource" id="eff_palacio_food"]
+script = ExtResource("5_eff")
+modifier_id = "palacio_food"
+modifier_name = "Graneros del Palacio"
+stat_type = 3
+value = 15.0
+tooltipe_text = "+15% producción de comida global"
+
+[sub_resource type="Resource" id="eff_palacio_cards"]
+script = ExtResource("5_eff")
+modifier_id = "palacio_cards"
+modifier_name = "Consejo Imperial"
+stat_type = 6
+value = 1.0
+tooltipe_text = "+1 carta por turno"
+
+[resource]
+script = ExtResource("3_bld")
+name = "Palacio Imperial"
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_mega")])
+image = ExtResource("4_img")
+construction_cost = 800
+gold_produced = 10
+food_produced = 10
+effects = Array[ExtResource("6_beff")]([SubResource("eff_palacio_gold"), SubResource("eff_palacio_food"), SubResource("eff_palacio_cards")])
+metadata/_custom_type_script = "uid://2ce384crr8i0"

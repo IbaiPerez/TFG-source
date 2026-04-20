@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="BuildCard" load_steps=3 format=3 uid="uid://du8gb228p7mpl"]
+[gd_resource type="Resource" script_class="BuildCard" load_steps=4 format=3 uid="uid://du8gb228p7mpl"]
 
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_ut245"]
 [ext_resource type="Script" uid="uid://c8is4xda402fx" path="res://scripts/cards_resources/build_card.gd" id="2_kcpkn"]
+[ext_resource type="Texture2D" path="res://assets/cards/build_card.svg" id="3_icon"]
 
 [resource]
 script = ExtResource("2_kcpkn")
 id = "Build Card"
+icon = ExtResource("3_icon")
 needs_confirmation = true
 tooltipe_text = "Build buildings"
 metadata/_custom_type_script = "uid://c8is4xda402fx"

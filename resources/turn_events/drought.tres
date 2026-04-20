@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="DroughtEvent" load_steps=2 format=3 uid="uid://bdrought001ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/drought_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "drought"
+title = "Sequía"
+description = "[i]El sol castiga sin piedad. Los ríos se secan, los pozos se agotan y la tierra se agrieta bajo un cielo implacable.[/i]"
+allow_skip = false
+weight = 3.0
+unique = false
+metadata/_custom_type_script = ""

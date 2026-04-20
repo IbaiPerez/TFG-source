@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="Empire" load_steps=2 format=3 uid="uid://dcm8kss34cngp"]
+[gd_resource type="Resource" script_class="Empire" load_steps=3 format=3 uid="uid://ba6dn1gfrs32d"]
 
 [ext_resource type="Script" uid="uid://cifwawcw04jkd" path="res://scripts/empire/empire.gd" id="1_6ahxq"]
+[ext_resource type="Resource" uid="uid://cbanca001abil" path="res://resources/empire_abilities/banca_florentina.tres" id="1_onfsx"]
 
 [resource]
 script = ExtResource("1_6ahxq")
-name = "Medici Dinasty"
-color = Color(0.99215686, 0.8862745, 0.03137255, 1)
+name = "medici"
+color = Color(0.8235294, 0.74509805, 0, 1)
+ability = ExtResource("1_onfsx")
 metadata/_custom_type_script = "uid://cifwawcw04jkd"

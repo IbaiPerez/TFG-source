@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#FFF8DC" stroke="#8B6914" stroke-width="3"/>
+
+  <!-- Base platform -->
+  <rect x="16" y="92" width="96" height="8" rx="2" fill="#C4A04A" stroke="#8B6914" stroke-width="1.5"/>
+  <rect x="20" y="86" width="88" height="8" rx="2" fill="#DAC060" stroke="#8B6914" stroke-width="1.5"/>
+  <!-- Grand columns -->
+  <rect x="26" y="44" width="9" height="44" rx="2" fill="#F0E8D0" stroke="#B8860B" stroke-width="1.5"/>
+  <rect x="42" y="44" width="9" height="44" rx="2" fill="#F0E8D0" stroke="#B8860B" stroke-width="1.5"/>
+  <rect x="77" y="44" width="9" height="44" rx="2" fill="#F0E8D0" stroke="#B8860B" stroke-width="1.5"/>
+  <rect x="93" y="44" width="9" height="44" rx="2" fill="#F0E8D0" stroke="#B8860B" stroke-width="1.5"/>
+  <!-- Entablature -->
+  <rect x="20" y="40" width="88" height="6" rx="1" fill="#DAC060" stroke="#B8860B" stroke-width="1.5"/>
+  <!-- Grand pediment -->
+  <polygon points="16,40 64,12 112,40" fill="#F0E0B0" stroke="#B8860B" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Crown on pediment -->
+  <polygon points="52,28 56,20 60,26 64,18 68,26 72,20 76,28" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/>
+  <!-- Large vault door -->
+  <rect x="48" y="56" width="32" height="32" rx="3" fill="#8B6914" stroke="#6B4C0A" stroke-width="2"/>
+  <circle cx="64" cy="72" r="6" fill="#DAC060" stroke="#B8860B" stroke-width="1.5"/>
+  <circle cx="64" cy="72" r="2" fill="#FFD700"/>
+  <!-- Gold piles -->
+  <circle cx="32" cy="80" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="32" cy="75" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="32" cy="70" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="96" cy="80" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="96" cy="75" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="96" cy="70" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <circle cx="96" cy="65" r="4" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+</svg>

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DirectBuildCard" load_steps=5 format=3 uid="uid://bh3i06b8pks65"]
+
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_bldg"]
+[ext_resource type="Script" path="res://scripts/cards_resources/direct_build_card.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://cv3yrijpd5ejc" path="res://assets/cards/lategame/build_coliseo.svg" id="3_icon"]
+[ext_resource type="Resource" uid="uid://bcoliseo001lt" path="res://resources/buildings/lategame/coliseo.tres" id="4_building"]
+
+[resource]
+script = ExtResource("2_script")
+buildings = Array[ExtResource("1_bldg")]([ExtResource("4_building")])
+id = "Build Coliseo"
+type = 1
+icon = ExtResource("3_icon")
+tooltipe_text = "Construye un Coliseo (-20% coste construcción global)"

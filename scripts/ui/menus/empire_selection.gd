@@ -1,8 +1,9 @@
 extends Control
 
 const BABYLONIAN = preload("uid://dlljlcjgbqsv5")
-const MEDICI = preload("uid://dcm8kss34cngp")
 const MONGOL = preload("uid://b4mhfidkmt6ag")
+const MEDICI = preload("uid://ba6dn1gfrs32d")
+
 
 @onready var empire_grid: GridContainer = %EmpireGrid
 
@@ -22,7 +23,7 @@ func _build_empire_cards() -> void:
 
 func _create_empire_card(empire: Empire) -> PanelContainer:
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(200, 260)
+	panel.custom_minimum_size = Vector2(220, 400)
 
 	# Style: pergamino bg with empire color border
 	var style := StyleBoxFlat.new()
@@ -62,6 +63,26 @@ func _create_empire_card(empire: Empire) -> PanelContainer:
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.add_theme_font_size_override("font_size", 20)
 	vbox.add_child(name_label)
+
+	# Empire ability info
+	if empire.ability:
+		var separator := HSeparator.new()
+		vbox.add_child(separator)
+
+		var ability_name_label := Label.new()
+		ability_name_label.text = empire.ability.ability_name
+		ability_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		ability_name_label.add_theme_font_size_override("font_size", 14)
+		ability_name_label.add_theme_color_override("font_color", empire.color.darkened(0.2))
+		vbox.add_child(ability_name_label)
+
+		var ability_desc := Label.new()
+		ability_desc.text = empire.ability.description
+		ability_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		ability_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ability_desc.add_theme_font_size_override("font_size", 11)
+		ability_desc.add_theme_color_override("font_color", Color(0.35, 0.3, 0.2, 1.0))
+		vbox.add_child(ability_desc)
 
 	# Select button
 	var select_btn := Button.new()

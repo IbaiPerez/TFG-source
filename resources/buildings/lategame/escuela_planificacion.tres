@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Building" load_steps=10 format=3 uid="uid://da6db71b8pvvd"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
+[ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_town"]
+[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_mega"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
+[ext_resource type="Texture2D" uid="uid://dcdde0km0q431" path="res://assets/buildings/lategame/escuela_planificacion.svg" id="5_img"]
+[ext_resource type="Script" uid="uid://cg55hrg21np3q" path="res://scripts/building/effect/gold_on_card.gd" id="6_goc"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="7_beff"]
+[ext_resource type="Resource" uid="uid://8bwjayx8ben1" path="res://resources/cards/urban_project.tres" id="8_urban"]
+
+[sub_resource type="Resource" id="eff_urban_gold"]
+script = ExtResource("6_goc")
+required_card = ExtResource("8_urban")
+gold_reward = 20
+tooltipe_text = "+20 oro al jugar Urban Project"
+
+[resource]
+script = ExtResource("4_bld")
+name = "Escuela de Planificación"
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
+image = ExtResource("5_img")
+construction_cost = 350
+gold_produced = 3
+food_produced = 4
+effects = Array[ExtResource("7_beff")]([SubResource("eff_urban_gold")])
+metadata/_custom_type_script = "uid://2ce384crr8i0"

@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Urban Project: village growing into a town, architect with plans, buildings rising -->
+
+  <g fill="#1A1A1A">
+    <!-- Ground -->
+    <ellipse cx="256" cy="468" rx="230" ry="28"/>
+    <path d="M50,462 Q150,450 250,464 Q350,478 450,458" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === SMALL HUT (left, the "before" village) === -->
+    <!-- Hut body -->
+    <rect x="40" y="340" width="80" height="100" rx="3"/>
+    <line x1="50" y1="370" x2="110" y2="370" stroke="white" stroke-width="1" opacity="0.25"/>
+    <line x1="50" y1="400" x2="110" y2="400" stroke="white" stroke-width="1" opacity="0.25"/>
+    <!-- Hut roof (straw, simple) -->
+    <polygon points="30,342 80,290 130,342" stroke-linejoin="round"/>
+    <path d="M50,330 Q80,304 110,330" fill="none" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <path d="M60,318 Q80,298 100,318" fill="none" stroke="white" stroke-width="1" opacity="0.2"/>
+    <!-- Door -->
+    <rect x="64" y="390" width="28" height="50" rx="3" fill="white" opacity="0.08"/>
+    <rect x="64" y="390" width="28" height="50" rx="3" fill="none" stroke="white" stroke-width="1.5"/>
+
+    <!-- === ARROW of transformation === -->
+    <g>
+      <polygon points="160,340 200,310 200,326 260,326 260,354 200,354 200,370"/>
+      <!-- Arrow detail -->
+      <line x1="210" y1="336" x2="250" y2="336" stroke="white" stroke-width="1.5"/>
+      <line x1="210" y1="344" x2="250" y2="344" stroke="white" stroke-width="1.5"/>
+    </g>
+
+    <!-- === LARGE TOWN BUILDINGS (right, the "after") === -->
+    <!-- Main building (tall, ornate) -->
+    <rect x="310" y="220" width="90" height="226" rx="4"/>
+    <!-- Stone lines -->
+    <line x1="318" y1="260" x2="392" y2="260" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <line x1="318" y1="300" x2="392" y2="300" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <line x1="318" y1="340" x2="392" y2="340" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <line x1="318" y1="380" x2="392" y2="380" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <line x1="318" y1="420" x2="392" y2="420" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <!-- Roof pediment -->
+    <polygon points="304,222 355,170 406,222" stroke-linejoin="round"/>
+    <path d="M320,212 Q355,184 390,212" fill="none" stroke="white" stroke-width="1.5" opacity="0.25"/>
+    <!-- Roof ornament -->
+    <circle cx="355" cy="190" r="8" fill="white" opacity="0.15"/>
+    <circle cx="355" cy="190" r="4"/>
+    <!-- Windows row 1 -->
+    <rect x="322" y="236" width="20" height="18" rx="2" fill="white" opacity="0.08"/>
+    <rect x="322" y="236" width="20" height="18" rx="2" fill="none" stroke="white" stroke-width="1.5"/>
+    <line x1="332" y1="236" x2="332" y2="254" stroke="white" stroke-width="1"/>
+    <rect x="368" y="236" width="20" height="18" rx="2" fill="white" opacity="0.08"/>
+    <rect x="368" y="236" width="20" height="18" rx="2" fill="none" stroke="white" stroke-width="1.5"/>
+    <line x1="378" y1="236" x2="378" y2="254" stroke="white" stroke-width="1"/>
+    <!-- Windows row 2 -->
+    <rect x="322" y="272" width="20" height="18" rx="2" fill="white" opacity="0.08"/>
+    <rect x="322" y="272" width="20" height="18" rx="2" fill="none" stroke="white" stroke-width="1.5"/>
+    <rect x="368" y="272" width="20" height="18" rx="2" fill="white" opacity="0.08"/>
+    <rect x="368" y="272" width="20" height="18" rx="2" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Grand door -->
+    <rect x="336" y="386" width="38" height="60" rx="3" fill="white" opacity="0.08"/>
+    <path d="M336,386 Q355,368 374,386" fill="none" stroke="white" stroke-width="2.5"/>
+    <circle cx="365" cy="416" r="3.5" fill="white"/>
+    <line x1="355" y1="392" x2="355" y2="440" stroke="white" stroke-width="1.5"/>
+    <!-- Columns flanking door -->
+    <rect x="326" y="310" width="8" height="136" rx="2"/>
+    <line x1="328" y1="318" x2="328" y2="440" stroke="white" stroke-width="1" opacity="0.3"/>
+    <line x1="332" y1="318" x2="332" y2="440" stroke="white" stroke-width="0.8" opacity="0.2"/>
+    <rect x="376" y="310" width="8" height="136" rx="2"/>
+    <line x1="378" y1="318" x2="378" y2="440" stroke="white" stroke-width="1" opacity="0.3"/>
+    <line x1="382" y1="318" x2="382" y2="440" stroke="white" stroke-width="0.8" opacity="0.2"/>
+
+    <!-- Second building (behind, tower) -->
+    <rect x="410" y="180" width="50" height="266" rx="3"/>
+    <line x1="416" y1="220" x2="454" y2="220" stroke="white" stroke-width="1" opacity="0.25"/>
+    <line x1="416" y1="260" x2="454" y2="260" stroke="white" stroke-width="1" opacity="0.25"/>
+    <line x1="416" y1="300" x2="454" y2="300" stroke="white" stroke-width="1" opacity="0.25"/>
+    <line x1="416" y1="340" x2="454" y2="340" stroke="white" stroke-width="1" opacity="0.25"/>
+    <line x1="416" y1="380" x2="454" y2="380" stroke="white" stroke-width="1" opacity="0.25"/>
+    <line x1="416" y1="420" x2="454" y2="420" stroke="white" stroke-width="1" opacity="0.25"/>
+    <!-- Tower battlement -->
+    <rect x="410" y="170" width="10" height="14"/>
+    <rect x="424" y="170" width="10" height="14"/>
+    <rect x="438" y="170" width="10" height="14"/>
+    <!-- Tower windows -->
+    <rect x="424" y="234" width="16" height="14" rx="1" fill="white" opacity="0.08"/>
+    <rect x="424" y="234" width="16" height="14" rx="1" fill="none" stroke="white" stroke-width="1.5"/>
+    <rect x="424" y="272" width="16" height="14" rx="1" fill="white" opacity="0.08"/>
+    <rect x="424" y="272" width="16" height="14" rx="1" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Tower flag -->
+    <rect x="432" y="130" width="4" height="44" rx="1"/>
+    <polygon points="436,132 462,142 436,154"/>
+    <!-- Flag detail -->
+    <line x1="442" y1="140" x2="456" y2="140" stroke="white" stroke-width="1.5"/>
+    <line x1="442" y1="146" x2="454" y2="146" stroke="white" stroke-width="1"/>
+
+    <!-- Third building hint (far back) -->
+    <rect x="280" y="280" width="34" height="166" rx="2" opacity="0.7"/>
+    <polygon points="276,282 297,250 318,282" opacity="0.7"/>
+    <rect x="288" y="300" width="14" height="12" rx="1" fill="white" opacity="0.08"/>
+
+    <!-- === MAIN FIGURE: architect/planner with blueprint === -->
+    <!-- Head -->
+    <circle cx="180" cy="120" r="30"/>
+    <!-- Hat (wide brim, scholarly) -->
+    <path d="M142,112 Q148,86 168,78 Q184,74 200,80 Q214,90 216,112 Q204,102 186,98 Q164,100 150,108 Z"/>
+    <path d="M136,116 L224,108" stroke="#1A1A1A" stroke-width="6" stroke-linecap="round"/>
+    <path d="M140,112 Q180,120 220,110" fill="none" stroke="white" stroke-width="2"/>
+    <!-- Face -->
+    <ellipse cx="192" cy="118" rx="3" ry="4" fill="white"/>
+    <path d="M178,136 Q186,142 194,138" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Short beard -->
+    <path d="M166,140 Q170,158 180,164 Q192,158 196,140 Z" opacity="0.7"/>
+    <path d="M172,148 Q180,156 190,148" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+
+    <!-- Torso -->
+    <path d="M156,152 Q180,142 206,152 L214,280 Q186,292 162,282 Z"/>
+    <!-- Robe layers -->
+    <path d="M160,172 Q180,162 204,172" fill="none" stroke="white" stroke-width="2"/>
+    <path d="M158,204 Q182,194 208,204" fill="none" stroke="white" stroke-width="1.5" opacity="0.35"/>
+    <path d="M156,236 Q182,226 210,236" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Sash across -->
+    <path d="M200,156 Q208,200 204,260 Q200,282 206,286" stroke="white" stroke-width="2.5" fill="none"/>
+    <!-- Belt -->
+    <path d="M158,262 Q182,254 210,262 L208,274 Q182,266 160,274 Z"/>
+    <rect x="178" y="260" width="12" height="16" rx="2" fill="white"/>
+
+    <!-- Right arm gesturing toward the town -->
+    <path d="M204,164 Q228,156 252,160 Q276,166 294,180 L290,192 Q274,180 254,172 Q234,166 210,172 Z"/>
+    <!-- Hand pointing at buildings -->
+    <path d="M294,180 L318,172 Q316,178 294,190 L290,192 Z"/>
+    <path d="M318,172 L334,166 Q332,172 318,178 L316,178 Z"/>
+    <!-- Other fingers -->
+    <path d="M298,184 Q296,192 302,196 L308,194 Q304,190 304,184 Z"/>
+
+    <!-- Left arm holding unrolled blueprint -->
+    <path d="M158,166 Q136,174 120,190 Q108,208 104,230 L112,234 Q114,214 124,198 Q136,182 156,174 Z"/>
+    <!-- Hand -->
+    <ellipse cx="106" cy="238" rx="10" ry="8"/>
+
+    <!-- Blueprint scroll (held, partially unrolled down) -->
+    <rect x="88" y="228" width="40" height="6" rx="3"/>
+    <path d="M90,234 L86,380 L130,376 L128,234 Z" fill="white" opacity="0.1"/>
+    <path d="M90,234 L86,380 L130,376 L128,234 Z" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+    <!-- Blueprint: building outline sketch -->
+    <rect x="94" y="260" width="28" height="40" rx="1" fill="none" stroke="#1A1A1A" stroke-width="1.5"/>
+    <polygon points="94,260 108,242 122,260" fill="none" stroke="#1A1A1A" stroke-width="1.5"/>
+    <!-- Blueprint: measurements/notes -->
+    <line x1="94" y1="314" x2="120" y2="312" stroke="#1A1A1A" stroke-width="1.2" opacity="0.5"/>
+    <line x1="94" y1="326" x2="116" y2="324" stroke="#1A1A1A" stroke-width="1.2" opacity="0.5"/>
+    <line x1="94" y1="338" x2="122" y2="336" stroke="#1A1A1A" stroke-width="1.2" opacity="0.5"/>
+    <line x1="94" y1="350" x2="112" y2="348" stroke="#1A1A1A" stroke-width="1.2" opacity="0.5"/>
+    <!-- Roll bottom -->
+    <ellipse cx="108" cy="380" rx="24" ry="6"/>
+    <ellipse cx="108" cy="380" rx="24" ry="3" fill="white" opacity="0.1"/>
+
+    <!-- Legs -->
+    <path d="M166,280 Q156,320 148,360 Q142,394 138,424 Q136,442 144,450 L168,452 Q164,442 166,426 Q170,400 176,368 Q184,334 188,288 Z"/>
+    <path d="M200,280 Q208,322 218,362 Q226,396 232,428 L252,448 Q248,434 242,416 Q234,388 226,358 Q216,326 208,286 Z"/>
+    <!-- Boot -->
+    <path d="M138,446 Q134,452 138,458 L172,458 Q174,452 168,450"/>
+    <line x1="142" y1="454" x2="170" y2="454" stroke="white" stroke-width="1.5"/>
+    <path d="M232,428 Q236,440 246,448 L252,448 Q250,442 246,434 L238,430 Z"/>
+    <line x1="238" y1="440" x2="248" y2="444" stroke="white" stroke-width="1.2"/>
+
+    <!-- === BACKGROUND: worker carrying timber === -->
+    <g opacity="0.85">
+      <circle cx="240" cy="360" r="14"/>
+      <path d="M228,354 Q240,348 252,354" fill="none" stroke="white" stroke-width="1.5"/>
+      <path d="M230,372 Q240,368 250,372 L254,432 Q242,438 232,432 Z"/>
+      <path d="M236,390 Q242,386 248,390" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+      <path d="M232,430 L226,454 L236,456 L238,434"/>
+      <path d="M246,430 L252,454 L242,456 L242,434"/>
+      <!-- Timber beam on shoulder -->
+      <rect x="218" y="346" width="80" height="8" rx="2" transform="rotate(-10 258 350)"/>
+      <line x1="224" y1="349" x2="292" y2="341" stroke="white" stroke-width="1" opacity="0.3"/>
+      <!-- Arm holding -->
+      <path d="M250,374 Q256,364 254,352 L248,350 Q246,362 242,372 Z"/>
+    </g>
+
+    <!-- Dust/construction particles -->
+    <circle cx="300" cy="440" r="2.5" opacity="0.4"/>
+    <circle cx="310" cy="448" r="2" opacity="0.35"/>
+    <circle cx="290" cy="452" r="1.5" opacity="0.3"/>
+  </g>
+</svg>

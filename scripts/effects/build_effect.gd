@@ -1,5 +1,5 @@
 extends Effect
-class_name  BuildEffect
+class_name BuildEffect
 
 
 var building:Building

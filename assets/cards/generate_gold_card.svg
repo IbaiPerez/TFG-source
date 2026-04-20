@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Generate Gold: merchant with scales, treasure chest, coins -->
+
+  <g fill="#1A1A1A">
+    <!-- Ground -->
+    <ellipse cx="256" cy="468" rx="230" ry="28"/>
+    <path d="M50,462 Q150,450 250,464 Q350,478 450,458" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === TREASURE CHEST (right side) === -->
+    <!-- Chest body -->
+    <rect x="320" y="340" width="130" height="80" rx="4"/>
+    <!-- Chest wood grain -->
+    <line x1="330" y1="360" x2="440" y2="360" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <line x1="330" y1="380" x2="440" y2="380" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <line x1="330" y1="400" x2="440" y2="400" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Chest metal bands -->
+    <rect x="350" y="336" width="8" height="88" rx="1"/>
+    <line x1="352" y1="342" x2="356" y2="342" stroke="white" stroke-width="1.5"/>
+    <line x1="352" y1="416" x2="356" y2="416" stroke="white" stroke-width="1.5"/>
+    <rect x="412" y="336" width="8" height="88" rx="1"/>
+    <line x1="414" y1="342" x2="418" y2="342" stroke="white" stroke-width="1.5"/>
+    <line x1="414" y1="416" x2="418" y2="416" stroke="white" stroke-width="1.5"/>
+    <!-- Chest lid (open, tilted back) -->
+    <path d="M320,340 Q322,310 330,290 Q340,270 385,260 Q430,270 440,290 Q448,310 450,340 L320,340 Z"/>
+    <!-- Lid wood grain -->
+    <path d="M332,320 Q384,308 438,320" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <path d="M336,300 Q384,288 434,300" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Lock plate -->
+    <rect x="374" y="350" width="22" height="16" rx="3" fill="white" opacity="0.15"/>
+    <circle cx="385" cy="358" r="4" fill="white"/>
+    <rect x="383" y="358" width="4" height="8" rx="1"/>
+    <!-- Coins overflowing from chest -->
+    <circle cx="340" cy="332" r="10"/>
+    <circle cx="340" cy="332" r="6" fill="white" opacity="0.15"/>
+    <circle cx="358" cy="326" r="10"/>
+    <circle cx="358" cy="326" r="6" fill="white" opacity="0.15"/>
+    <circle cx="410" cy="328" r="10"/>
+    <circle cx="410" cy="328" r="6" fill="white" opacity="0.15"/>
+    <circle cx="428" cy="334" r="9"/>
+    <circle cx="428" cy="334" r="5" fill="white" opacity="0.15"/>
+    <circle cx="380" cy="322" r="11"/>
+    <circle cx="380" cy="322" r="7" fill="white" opacity="0.15"/>
+    <!-- Coins spilling out -->
+    <circle cx="310" cy="400" r="8"/>
+    <circle cx="310" cy="400" r="4" fill="white" opacity="0.15"/>
+    <circle cx="300" cy="414" r="7"/>
+    <circle cx="300" cy="414" r="4" fill="white" opacity="0.15"/>
+    <circle cx="460" cy="398" r="8"/>
+    <circle cx="460" cy="398" r="4" fill="white" opacity="0.15"/>
+
+    <!-- === MAIN FIGURE: wealthy merchant === -->
+    <!-- Head -->
+    <circle cx="160" cy="120" r="30"/>
+    <!-- Turban/hat -->
+    <path d="M132,108 Q134,82 152,72 Q168,66 184,72 Q198,82 196,108 Q186,96 168,92 Q148,94 136,104 Z"/>
+    <path d="M140,84 Q160,76 182,82" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+    <path d="M136,96 Q158,86 186,96" fill="none" stroke="white" stroke-width="1.5" opacity="0.25"/>
+    <!-- Turban jewel -->
+    <circle cx="160" cy="80" r="6" fill="white"/>
+    <circle cx="160" cy="80" r="3"/>
+    <!-- Face -->
+    <ellipse cx="174" cy="118" rx="3" ry="4" fill="white"/>
+    <path d="M166,134 Q172,140 180,136" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Beard -->
+    <path d="M144,136 Q148,158 160,168 Q172,158 176,136 Z" opacity="0.8"/>
+    <path d="M150,144 Q160,152 170,144" fill="none" stroke="white" stroke-width="1.2" opacity="0.3"/>
+    <path d="M152,154 Q160,162 168,154" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+
+    <!-- Torso - rich robes -->
+    <path d="M136,156 Q160,146 190,156 L200,294 Q170,306 142,296 Z"/>
+    <!-- Robe collar -->
+    <path d="M140,160 Q160,174 186,160" fill="none" stroke="white" stroke-width="2.5"/>
+    <!-- Robe fold lines -->
+    <path d="M144,192 Q164,184 188,192" fill="none" stroke="white" stroke-width="1.5" opacity="0.35"/>
+    <path d="M142,224 Q166,216 192,224" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <path d="M140,256 Q166,248 194,256" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Sash -->
+    <path d="M186,160 Q196,200 192,250 Q188,290 192,296" stroke="white" stroke-width="3" fill="none"/>
+    <!-- Belt -->
+    <path d="M138,274 Q166,264 196,274 L194,286 Q166,276 140,286 Z"/>
+    <rect x="160" y="270" width="14" height="18" rx="2" fill="white"/>
+
+    <!-- Right arm extended toward chest/coins -->
+    <path d="M188,170 Q214,168 240,176 Q266,186 284,200 L280,210 Q264,198 240,188 Q218,180 192,180 Z"/>
+    <!-- Sleeve detail -->
+    <path d="M220,178 Q240,174 260,184" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Hand holding coins -->
+    <ellipse cx="288" cy="210" rx="14" ry="12"/>
+    <path d="M280,206 Q286,198 296,202" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Coins in hand -->
+    <circle cx="296" cy="196" r="8"/>
+    <circle cx="296" cy="196" r="4" fill="white" opacity="0.15"/>
+    <circle cx="306" cy="202" r="7"/>
+    <circle cx="306" cy="202" r="4" fill="white" opacity="0.15"/>
+
+    <!-- Left arm holding balance/scales -->
+    <path d="M138,170 Q118,176 104,188 Q92,200 86,218 L94,222 Q98,206 108,194 Q120,182 140,178 Z"/>
+    <!-- Hand -->
+    <ellipse cx="88" cy="226" rx="10" ry="8"/>
+
+    <!-- === BALANCE SCALES held by left hand === -->
+    <!-- Central pole -->
+    <rect x="84" y="118" width="6" height="112" rx="2"/>
+    <!-- Top pivot -->
+    <polygon points="87,118 80,104 94,104"/>
+    <line x1="87" y1="106" x2="87" y2="116" stroke="white" stroke-width="1.5"/>
+    <!-- Beam -->
+    <rect x="36" y="114" width="102" height="6" rx="2"/>
+    <!-- Left chain -->
+    <line x1="42" y1="120" x2="30" y2="168" stroke="#1A1A1A" stroke-width="2.5"/>
+    <line x1="42" y1="120" x2="56" y2="168" stroke="#1A1A1A" stroke-width="2.5"/>
+    <!-- Left pan -->
+    <path d="M22,168 Q42,180 64,168" stroke="#1A1A1A" stroke-width="3" fill="none"/>
+    <path d="M22,168 Q42,180 64,168 Z"/>
+    <!-- Coins on left pan -->
+    <circle cx="36" cy="164" r="6"/>
+    <circle cx="36" cy="164" r="3" fill="white" opacity="0.15"/>
+    <circle cx="48" cy="162" r="6"/>
+    <circle cx="48" cy="162" r="3" fill="white" opacity="0.15"/>
+    <!-- Right chain -->
+    <line x1="132" y1="120" x2="120" y2="160" stroke="#1A1A1A" stroke-width="2.5"/>
+    <line x1="132" y1="120" x2="146" y2="160" stroke="#1A1A1A" stroke-width="2.5"/>
+    <!-- Right pan -->
+    <path d="M112,160 Q132,172 154,160" stroke="#1A1A1A" stroke-width="3" fill="none"/>
+    <path d="M112,160 Q132,172 154,160 Z"/>
+    <!-- Goods on right pan -->
+    <rect x="124" y="150" width="14" height="10" rx="2"/>
+    <line x1="126" y1="155" x2="136" y2="155" stroke="white" stroke-width="1"/>
+
+    <!-- Legs - robes flowing -->
+    <path d="M148,292 Q140,334 132,374 Q126,410 122,438 Q120,450 128,456 L152,458 Q148,448 150,432 Q154,406 160,374 Q168,336 172,298 Z"/>
+    <path d="M180,292 Q188,336 198,374 Q206,410 212,438 L232,454 Q228,440 222,420 Q214,390 206,360 Q196,326 190,296 Z"/>
+    <!-- Boot -->
+    <path d="M122,452 Q118,458 122,462 L156,462 Q158,456 152,454"/>
+    <line x1="126" y1="458" x2="154" y2="458" stroke="white" stroke-width="1.5"/>
+
+    <!-- === BACKGROUND: assistant counting === -->
+    <g opacity="0.85">
+      <circle cx="260" cy="300" r="16"/>
+      <path d="M248,282 Q260,276 272,282" fill="none" stroke="white" stroke-width="2"/>
+      <path d="M248,314 Q260,308 272,314 L276,382 Q262,390 250,382 Z"/>
+      <path d="M254,332 Q262,328 270,332" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+      <!-- Sitting on small stool, counting -->
+      <path d="M250,380 L244,430 L254,434 L258,384"/>
+      <path d="M268,380 L274,430 L264,434 L262,384"/>
+      <!-- Abacus/counting board -->
+      <rect x="280" y="326" width="6" height="44" rx="1"/>
+      <rect x="280" y="326" width="30" height="4" rx="1"/>
+      <rect x="280" y="366" width="30" height="4" rx="1"/>
+      <circle cx="290" cy="340" r="4"/>
+      <circle cx="300" cy="340" r="4"/>
+      <circle cx="290" cy="354" r="4"/>
+      <circle cx="300" cy="354" r="4"/>
+      <circle cx="290" cy="340" r="2" fill="white" opacity="0.2"/>
+      <circle cx="300" cy="354" r="2" fill="white" opacity="0.2"/>
+    </g>
+
+    <!-- Scattered coins on ground -->
+    <circle cx="280" cy="448" r="7"/>
+    <circle cx="280" cy="448" r="3.5" fill="white" opacity="0.15"/>
+    <circle cx="296" cy="454" r="6"/>
+    <circle cx="296" cy="454" r="3" fill="white" opacity="0.15"/>
+    <circle cx="266" cy="456" r="5"/>
+    <circle cx="266" cy="456" r="2.5" fill="white" opacity="0.15"/>
+
+    <!-- Small money bag on ground -->
+    <path d="M218,432 Q228,418 240,432 Q240,448 230,454 Q220,448 218,432 Z"/>
+    <path d="M222,422 Q230,416 238,422" fill="none" stroke="white" stroke-width="1.5"/>
+    <line x1="230" y1="430" x2="230" y2="446" stroke="white" stroke-width="1"/>
+    <line x1="224" y1="438" x2="236" y2="438" stroke="white" stroke-width="1"/>
+  </g>
+</svg>

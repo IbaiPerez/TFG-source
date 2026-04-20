@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Leader with cape pointing forward, settlers behind, banner high -->
+
+  <g fill="#1A1A1A">
+    <!-- Ground -->
+    <ellipse cx="256" cy="468" rx="230" ry="28"/>
+    <path d="M50,462 Q130,450 210,464 Q290,478 370,460 Q420,452 470,458" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === BANNER POLE (right side) === -->
+    <rect x="320" y="12" width="8" height="420" rx="2"/>
+    <line x1="323" y1="30" x2="323" y2="420" stroke="white" stroke-width="0.8" opacity="0.2"/>
+    <!-- Pole tip -->
+    <polygon points="324,12 318,0 330,0"/>
+    <line x1="324" y1="2" x2="324" y2="10" stroke="white" stroke-width="1.5"/>
+
+    <!-- Banner cloth -->
+    <path d="M328,18 Q380,12 410,36 Q440,60 436,90 Q432,120 400,136 Q368,148 328,140 Q342,116 340,90 Q338,60 328,18 Z"/>
+    <!-- Cloth folds -->
+    <path d="M336,34 Q370,36 400,56" fill="none" stroke="white" stroke-width="2" opacity="0.35"/>
+    <path d="M334,68 Q366,70 402,84" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <path d="M332,104 Q362,108 394,120" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Banner wheat symbol -->
+    <g stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round">
+      <line x1="378" y1="50" x2="378" y2="110"/>
+      <path d="M368,62 L378,72 L388,62"/>
+      <path d="M368,76 L378,86 L388,76"/>
+      <path d="M368,90 L378,100 L388,90"/>
+    </g>
+
+    <!-- === CENTRAL LEADER === -->
+    <!-- Head -->
+    <circle cx="220" cy="120" r="32"/>
+    <!-- Helmet -->
+    <path d="M190,108 Q192,86 210,78 Q224,74 238,78 Q252,86 254,108 Q240,100 220,98 Q200,100 190,108 Z"/>
+    <!-- Helmet crest -->
+    <path d="M220,78 Q222,56 228,44 Q232,40 236,44 Q238,56 236,78"/>
+    <!-- Helmet band detail -->
+    <path d="M192,108 Q220,118 252,108" fill="none" stroke="white" stroke-width="2.5"/>
+    <!-- Cheek guard -->
+    <path d="M190,110 L184,132 Q188,138 194,136 L196,118"/>
+    <!-- Face -->
+    <ellipse cx="232" cy="118" rx="3" ry="4" fill="white"/>
+    <!-- Jaw -->
+    <path d="M210,140 Q222,148 234,142" fill="none" stroke="white" stroke-width="1.5"/>
+
+    <!-- Torso -->
+    <path d="M196,150 Q220,142 244,150 L254,260 Q230,270 206,262 Z"/>
+    <!-- Armor chest plate -->
+    <path d="M202,162 Q220,154 242,162 Q238,184 220,190 Q202,184 202,162 Z" fill="white" opacity="0.15"/>
+    <path d="M206,168 Q220,162 240,168" fill="none" stroke="white" stroke-width="1.5"/>
+    <path d="M208,180 Q220,174 238,180" fill="none" stroke="white" stroke-width="1.2"/>
+    <!-- Belt -->
+    <path d="M200,240 Q220,234 248,242 L246,252 Q220,244 202,250 Z"/>
+    <rect x="218" y="238" width="12" height="16" rx="2" fill="white"/>
+    <rect x="222" y="242" width="4" height="8" rx="1"/>
+
+    <!-- Cape flowing from shoulders -->
+    <path d="M196,154 Q160,180 136,230 Q112,280 100,340 Q92,380 98,420 Q102,440 116,448 L128,444 Q118,434 114,416 Q108,384 116,340 Q128,284 152,234 Q170,196 200,162 Z"/>
+    <!-- Cape inner fold -->
+    <path d="M188,170 Q166,208 148,260 Q132,310 124,370" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+    <path d="M180,188 Q160,226 142,280 Q128,328 118,390" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+    <!-- Cape edge detail -->
+    <path d="M100,370 Q96,390 98,410 Q100,430 110,444" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+
+    <!-- Left arm pointing forward dramatically -->
+    <path d="M198,164 Q172,170 148,168 Q128,166 112,160 L108,168 Q126,176 148,178 Q172,180 200,172 Z"/>
+    <!-- Forearm detail -->
+    <path d="M140,170 Q152,166 166,170" fill="none" stroke="white" stroke-width="1.2" opacity="0.3"/>
+    <!-- Pointing hand -->
+    <path d="M112,160 L76,148 L74,156 L104,166 Z"/>
+    <!-- Extended finger -->
+    <path d="M76,148 L56,140 Q54,144 72,152 L74,156" />
+    <!-- Other fingers curled -->
+    <path d="M80,154 Q76,160 82,164 L88,162 Q82,158 84,154 Z"/>
+    <path d="M86,156 Q84,162 88,166 L94,164 Q90,160 90,156 Z"/>
+
+    <!-- Right arm holding banner pole -->
+    <path d="M242,160 Q268,170 290,190 Q310,212 320,236 L312,240 Q304,218 286,198 Q268,180 244,170 Z"/>
+    <!-- Hand gripping -->
+    <ellipse cx="318" cy="244" rx="12" ry="10"/>
+    <path d="M310,240 Q316,234 324,236" fill="none" stroke="white" stroke-width="1.5"/>
+
+    <!-- Left leg striding forward -->
+    <path d="M210,258 Q200,300 188,342 Q178,380 170,414 Q166,434 174,444 L196,448 Q192,436 194,418 Q198,386 206,350 Q214,312 220,268 Z"/>
+    <!-- Leg armor/greave -->
+    <path d="M182,390 Q190,384 198,390 Q198,406 190,412 Q182,406 182,390 Z" fill="white" opacity="0.15"/>
+    <path d="M186,394 Q190,390 196,394" fill="none" stroke="white" stroke-width="1.2"/>
+    <!-- Boot -->
+    <path d="M170,440 Q166,446 168,452 L200,452 Q202,446 196,444"/>
+    <line x1="172" y1="448" x2="198" y2="448" stroke="white" stroke-width="1.5"/>
+    <line x1="180" y1="444" x2="180" y2="452" stroke="white" stroke-width="1"/>
+
+    <!-- Right leg back -->
+    <path d="M236,258 Q244,300 254,342 Q262,380 268,416 L288,440 Q284,424 278,404 Q270,374 262,340 Q252,300 244,262 Z"/>
+    <!-- Boot -->
+    <path d="M268,416 Q272,430 282,440 L288,440 Q286,436 284,428 L272,420 Z"/>
+    <line x1="274" y1="432" x2="284" y2="436" stroke="white" stroke-width="1.2"/>
+
+    <!-- === BACKGROUND FIGURE LEFT (smaller, carrying bundle) === -->
+    <g opacity="0.85">
+      <!-- Head -->
+      <circle cx="70" cy="270" r="18"/>
+      <!-- Headwrap -->
+      <path d="M54,262 Q60,250 72,248 Q84,250 88,262 Q80,258 70,256 Q60,258 54,262 Z"/>
+      <line x1="56" y1="264" x2="86" y2="264" stroke="white" stroke-width="1.5"/>
+      <!-- Body -->
+      <path d="M56,286 Q70,280 84,286 L88,358 Q72,366 58,358 Z"/>
+      <path d="M62,304 Q72,298 82,304" fill="none" stroke="white" stroke-width="1.2" opacity="0.3"/>
+      <!-- Bundle on back -->
+      <ellipse cx="56" cy="310" rx="20" ry="16"/>
+      <line x1="40" y1="306" x2="72" y2="306" stroke="white" stroke-width="1.5"/>
+      <line x1="56" y1="296" x2="56" y2="324" stroke="white" stroke-width="1.5"/>
+      <!-- Strap across chest -->
+      <path d="M76,288 Q70,310 62,340" stroke="white" stroke-width="2"/>
+      <!-- Legs walking -->
+      <path d="M60,356 L52,424 L62,428 L68,360"/>
+      <path d="M76,356 L82,424 L72,428 L70,360"/>
+      <!-- Feet -->
+      <path d="M48,424 Q46,430 50,432 L66,432 L62,428" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+    </g>
+
+    <!-- === BACKGROUND FIGURE RIGHT (smaller, carrying tool) === -->
+    <g opacity="0.85">
+      <!-- Head -->
+      <circle cx="420" cy="280" r="18"/>
+      <!-- Hair -->
+      <path d="M404,272 Q406,258 418,254 Q430,256 436,268 Q428,264 420,262 Q412,264 406,270 Z"/>
+      <!-- Body -->
+      <path d="M406,296 Q420,290 434,296 L438,368 Q422,376 408,368 Z"/>
+      <path d="M412,314 Q422,308 432,314" fill="none" stroke="white" stroke-width="1.2" opacity="0.3"/>
+      <!-- Tool: pickaxe over shoulder -->
+      <rect x="398" y="254" width="4" height="90" rx="1" transform="rotate(-25 400 300)"/>
+      <!-- Pickaxe head -->
+      <path d="M374,240 Q380,232 390,236 L386,248 Q378,248 374,240 Z" transform="rotate(-25 382 240)"/>
+      <!-- Legs -->
+      <path d="M410,366 L404,432 L414,434 L418,370"/>
+      <path d="M428,366 L432,432 L424,434 L422,370"/>
+    </g>
+
+    <!-- Grass tufts -->
+    <g stroke="#1A1A1A" stroke-width="2.5" fill="none" stroke-linecap="round">
+      <path d="M36,458 Q32,442 28,434"/>
+      <path d="M36,458 Q40,440 46,434"/>
+      <path d="M476,454 Q472,438 468,430"/>
+      <path d="M476,454 Q480,436 486,430"/>
+    </g>
+  </g>
+</svg>

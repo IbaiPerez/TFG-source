@@ -33,3 +33,11 @@ signal player_turn_ended
 
 signal turn_event_triggered(event:TurnEvent, context:EventContext)
 signal turn_event_resolved()
+
+# Señales genericas de turno (para cualquier imperio)
+signal empire_turn_started(controller:EmpireController)
+signal empire_turn_ended(controller:EmpireController)
+
+# Señales para que los BuildingEffect puedan añadir/quitar modificadores
+signal request_add_modifier(modifier:Modifier, stats:Stats)
+signal request_remove_modifier(modifier:Modifier)

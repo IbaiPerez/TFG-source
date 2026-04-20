@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Card Draw: scribe/scholar pulling scroll from shelf, knowledge theme -->
+
+  <g fill="#1A1A1A">
+    <!-- Ground -->
+    <ellipse cx="256" cy="468" rx="230" ry="28"/>
+    <path d="M50,462 Q150,450 250,464 Q350,478 450,458" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === BOOKSHELF/SCROLL RACK (right side) === -->
+    <!-- Shelf frame -->
+    <rect x="290" y="80" width="170" height="360" rx="4"/>
+    <!-- Wood grain on frame -->
+    <line x1="296" y1="90" x2="296" y2="430" stroke="white" stroke-width="1" opacity="0.2"/>
+    <line x1="454" y1="90" x2="454" y2="430" stroke="white" stroke-width="1" opacity="0.2"/>
+    <!-- Inner back (lighter) -->
+    <rect x="300" y="90" width="150" height="340" fill="white" opacity="0.08"/>
+
+    <!-- Shelf dividers -->
+    <rect x="290" y="196" width="170" height="8" rx="1"/>
+    <line x1="294" y1="200" x2="456" y2="200" stroke="white" stroke-width="1.5"/>
+    <rect x="290" y="316" width="170" height="8" rx="1"/>
+    <line x1="294" y1="320" x2="456" y2="320" stroke="white" stroke-width="1.5"/>
+
+    <!-- Scrolls on top shelf -->
+    <g>
+      <!-- Scroll 1 -->
+      <rect x="310" y="106" width="22" height="84" rx="8"/>
+      <ellipse cx="321" cy="106" rx="11" ry="6" fill="white" opacity="0.1"/>
+      <ellipse cx="321" cy="190" rx="11" ry="6" fill="white" opacity="0.1"/>
+      <line x1="321" y1="112" x2="321" y2="184" stroke="white" stroke-width="1" opacity="0.3"/>
+      <!-- Scroll 2 -->
+      <rect x="340" y="100" width="22" height="90" rx="8"/>
+      <ellipse cx="351" cy="100" rx="11" ry="6" fill="white" opacity="0.1"/>
+      <ellipse cx="351" cy="190" rx="11" ry="6" fill="white" opacity="0.1"/>
+      <line x1="351" y1="106" x2="351" y2="184" stroke="white" stroke-width="1" opacity="0.3"/>
+      <!-- Scroll 3 -->
+      <rect x="370" y="108" width="22" height="82" rx="8"/>
+      <ellipse cx="381" cy="108" rx="11" ry="6" fill="white" opacity="0.1"/>
+      <ellipse cx="381" cy="190" rx="11" ry="6" fill="white" opacity="0.1"/>
+      <!-- Scroll 4 (leaning) -->
+      <rect x="400" y="102" width="20" height="88" rx="8" transform="rotate(8 410 146)"/>
+      <!-- Scroll 5 -->
+      <rect x="428" y="110" width="20" height="80" rx="8"/>
+    </g>
+
+    <!-- Books on middle shelf -->
+    <rect x="308" y="212" width="24" height="96" rx="2"/>
+    <line x1="320" y1="220" x2="320" y2="300" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <rect x="336" y="208" width="20" height="100" rx="2"/>
+    <line x1="346" y1="216" x2="346" y2="300" stroke="white" stroke-width="1" opacity="0.3"/>
+    <rect x="360" y="214" width="26" height="94" rx="2"/>
+    <line x1="373" y1="222" x2="373" y2="300" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <rect x="390" y="210" width="22" height="98" rx="2"/>
+    <rect x="416" y="216" width="24" height="92" rx="2"/>
+    <line x1="428" y1="224" x2="428" y2="300" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Book spine decorations -->
+    <line x1="310" y1="240" x2="330" y2="240" stroke="white" stroke-width="1.2"/>
+    <line x1="310" y1="270" x2="330" y2="270" stroke="white" stroke-width="1.2"/>
+    <line x1="362" y1="250" x2="384" y2="250" stroke="white" stroke-width="1.2"/>
+    <line x1="418" y1="256" x2="438" y2="256" stroke="white" stroke-width="1.2"/>
+
+    <!-- Gap where scroll was pulled from (middle shelf) -->
+    <rect x="306" y="330" width="32" height="94" fill="white" opacity="0.06"/>
+    <!-- Remaining scrolls on bottom shelf -->
+    <rect x="344" y="334" width="20" height="82" rx="8"/>
+    <rect x="370" y="330" width="22" height="86" rx="8"/>
+    <rect x="398" y="336" width="20" height="80" rx="8"/>
+    <rect x="424" y="332" width="22" height="84" rx="8"/>
+
+    <!-- === MAIN FIGURE: scholar pulling scroll === -->
+    <!-- Head -->
+    <circle cx="170" cy="134" r="30"/>
+    <!-- Long hair / wise look -->
+    <path d="M142,120 Q140,100 154,90 Q170,82 188,90 Q200,100 200,120 Q192,110 178,106 Q160,106 148,114 Z"/>
+    <path d="M148,96 Q168,88 190,96" fill="none" stroke="white" stroke-width="1.2" opacity="0.3"/>
+    <!-- Beard -->
+    <path d="M150,148 Q152,176 170,188 Q188,176 192,148 Z" opacity="0.8"/>
+    <path d="M156,158 Q170,168 184,158" fill="none" stroke="white" stroke-width="1.2" opacity="0.3"/>
+    <path d="M158,170 Q170,180 182,170" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+    <!-- Face -->
+    <ellipse cx="182" cy="130" rx="3" ry="4" fill="white"/>
+    <path d="M174,128 Q178,122 184,126" fill="none" stroke="white" stroke-width="1"/>
+
+    <!-- Torso - scholar's robe -->
+    <path d="M144,170 Q170,158 198,170 L208,306 Q178,318 150,308 Z"/>
+    <!-- Robe folds -->
+    <path d="M150,194 Q172,184 196,194" fill="none" stroke="white" stroke-width="1.5" opacity="0.35"/>
+    <path d="M148,226 Q174,216 200,226" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <path d="M146,260 Q174,250 202,260" fill="none" stroke="white" stroke-width="1.5" opacity="0.25"/>
+    <!-- Collar/neckline -->
+    <path d="M148,172 Q170,186 196,172" fill="none" stroke="white" stroke-width="2.5"/>
+    <!-- Robe sash -->
+    <path d="M196,172 Q206,220 202,280 Q198,310 204,310" stroke="white" stroke-width="2.5" fill="none"/>
+
+    <!-- Right arm reaching to grab scroll from shelf -->
+    <path d="M196,180 Q224,172 252,176 Q280,182 300,196 L296,208 Q278,196 254,188 Q230,184 200,190 Z"/>
+    <!-- Sleeve flowing -->
+    <path d="M230,182 Q256,178 280,190" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Hand gripping scroll -->
+    <ellipse cx="302" cy="210" rx="14" ry="10"/>
+    <path d="M292,206 Q300,198 312,202" fill="none" stroke="white" stroke-width="1.5"/>
+    <path d="M290,214 Q300,220 314,216" fill="none" stroke="white" stroke-width="1.5"/>
+
+    <!-- Scroll being pulled out (extends from hand to shelf gap) -->
+    <rect x="296" y="202" width="18" height="130" rx="7"/>
+    <ellipse cx="305" cy="202" rx="9" ry="5" fill="white" opacity="0.1"/>
+    <line x1="305" y1="210" x2="305" y2="326" stroke="white" stroke-width="1" opacity="0.3"/>
+
+    <!-- Left arm holding open scroll/reading -->
+    <path d="M146,180 Q126,190 112,206 Q100,224 94,246 L102,250 Q106,230 116,214 Q128,198 148,188 Z"/>
+    <!-- Hand -->
+    <ellipse cx="96" cy="254" rx="10" ry="8"/>
+
+    <!-- Open scroll in left hand (being read) -->
+    <!-- Scroll body unrolled -->
+    <path d="M50,210 L90,200 L96,350 L56,360 Z" fill="white" opacity="0.1"/>
+    <path d="M50,210 L90,200 L96,350 L56,360 Z" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+    <!-- Scroll roll top -->
+    <ellipse cx="70" cy="206" rx="24" ry="8"/>
+    <ellipse cx="70" cy="206" rx="24" ry="4" fill="white" opacity="0.1"/>
+    <!-- Scroll roll bottom -->
+    <ellipse cx="76" cy="356" rx="24" ry="8"/>
+    <ellipse cx="76" cy="356" rx="24" ry="4" fill="white" opacity="0.1"/>
+    <!-- Text lines on scroll -->
+    <g stroke="#1A1A1A" stroke-width="1.5" opacity="0.6">
+      <line x1="58" y1="228" x2="86" y2="222"/>
+      <line x1="58" y1="242" x2="84" y2="236"/>
+      <line x1="58" y1="256" x2="80" y2="250"/>
+      <line x1="58" y1="270" x2="86" y2="264"/>
+      <line x1="58" y1="284" x2="78" y2="278"/>
+      <line x1="58" y1="298" x2="86" y2="292"/>
+      <line x1="58" y1="312" x2="82" y2="306"/>
+      <line x1="58" y1="326" x2="86" y2="320"/>
+      <line x1="58" y1="340" x2="76" y2="334"/>
+    </g>
+
+    <!-- Legs -->
+    <path d="M156,304 Q146,346 138,386 Q132,420 128,444 Q126,454 134,460 L158,462 Q154,452 156,436 Q160,412 166,380 Q174,346 178,310 Z"/>
+    <path d="M190,304 Q198,346 208,386 Q216,418 222,444 L242,458 Q238,444 232,426 Q224,398 216,368 Q206,336 198,308 Z"/>
+    <!-- Boot -->
+    <path d="M128,456 Q124,462 128,466 L162,466 Q164,460 158,458"/>
+    <line x1="132" y1="462" x2="160" y2="462" stroke="white" stroke-width="1.5"/>
+
+    <!-- === BACKGROUND: apprentice with candle === -->
+    <g opacity="0.85">
+      <circle cx="240" cy="362" r="14"/>
+      <path d="M228,354 Q240,348 252,354" fill="none" stroke="white" stroke-width="1.5"/>
+      <path d="M230,374 Q240,370 250,374 L254,432 Q242,440 232,432 Z"/>
+      <path d="M234,392 Q242,388 248,392" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+      <path d="M232,430 L226,456 L236,458 L238,434"/>
+      <path d="M246,430 L250,456 L240,458 L240,434"/>
+      <!-- Candle held up -->
+      <rect x="254" y="350" width="4" height="24" rx="1"/>
+      <!-- Flame -->
+      <path d="M256,350 Q252,340 256,330 Q260,340 256,350 Z" fill="white" opacity="0.2"/>
+      <path d="M256,348 Q254,342 256,336 Q258,342 256,348 Z"/>
+    </g>
+
+    <!-- Dust motes / atmosphere -->
+    <circle cx="220" cy="200" r="2" opacity="0.4"/>
+    <circle cx="250" cy="260" r="1.5" opacity="0.3"/>
+    <circle cx="200" cy="290" r="2" opacity="0.35"/>
+  </g>
+</svg>

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://08d34tq3r801" path="res://scripts/ui/cards/card_menu_ui.gd" id="1_slkpe"]
 [ext_resource type="Resource" uid="uid://c0etbihgrwnb0" path="res://resources/cards/colonize_card.tres" id="2_spfpi"]
 [ext_resource type="StyleBox" uid="uid://di80gk8nibent" path="res://resources/styles/cards/card_base_style.tres" id="4_nslii"]
-[ext_resource type="Texture2D" uid="uid://b13ku1xgd1yby" path="res://assets/cards/colonize_card.png" id="5_4ha2j"]
+[ext_resource type="Texture2D" uid="uid://dgbynkimmrq4g" path="res://assets/cards/colonize_card.svg" id="5_4ha2j"]
 
 [node name="CardMenuUI" type="CenterContainer"]
 offset_right = 100.0

@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="Building" load_steps=6 format=3 uid="uid://blibrary001bl"]
+[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://blibrary001bl"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
 [ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="2_mega"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="3_effect"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
 [ext_resource type="Texture2D" path="res://assets/buildings/library.svg" id="5_img"]
+[ext_resource type="Resource" uid="uid://bgranbiblio01lt" path="res://resources/buildings/lategame/gran_biblioteca.tres" id="6_gbiblio"]
 
 [resource]
 script = ExtResource("4_bld")
@@ -13,4 +14,5 @@ allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_mega")])
 image = ExtResource("5_img")
 construction_cost = 350
 gold_produced = 12
+upgrades_to = Array[ExtResource("4_bld")]([ExtResource("6_gbiblio")])
 metadata/_custom_type_script = "uid://2ce384crr8i0"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TradeAgreementEvent" load_steps=2 format=3 uid="uid://btradeagr01ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/trade_agreement_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "trade_agreement"
+title = "Tratado Comercial"
+description = "[i]Un emisario de un reino vecino propone un acuerdo comercial a largo plazo. La inversión es alta, pero los beneficios son permanentes.[/i]"
+allow_skip = true
+weight = 4.0
+unique = false
+metadata/_custom_type_script = ""

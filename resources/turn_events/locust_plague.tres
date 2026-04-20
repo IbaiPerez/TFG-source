@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LocustPlagueEvent" load_steps=2 format=3 uid="uid://blocustplg01ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/locust_plague_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "locust_plague"
+title = "Plaga de Langostas"
+description = "[i]Una nube oscura se cierne sobre tus tierras. Miles de langostas devoran todo a su paso, dejando los campos yermos.[/i]"
+allow_skip = false
+weight = 4.0
+unique = false
+metadata/_custom_type_script = ""

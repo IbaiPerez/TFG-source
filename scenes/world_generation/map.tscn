@@ -1,9 +1,10 @@
-[gd_scene load_steps=18 format=3 uid="uid://dxw5gc7xqbkqj"]
+[gd_scene load_steps=19 format=3 uid="uid://dxw5gc7xqbkqj"]
 
 [ext_resource type="Script" uid="uid://byck58typyfki" path="res://scripts/world_gen/map.gd" id="1_e8i6t"]
 [ext_resource type="Script" uid="uid://bcsfis7fcjm3n" path="res://scripts/camera/camera_3d.gd" id="1_fam8b"]
 [ext_resource type="PackedScene" uid="uid://chkt8mhljf7ue" path="res://scenes/UI/general_ui.tscn" id="2_3j08d"]
 [ext_resource type="Script" uid="uid://cked06wplynoj" path="res://scripts/world_gen/world_generator.gd" id="2_50o2f"]
+[ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="2_wme18"]
 [ext_resource type="Script" uid="uid://cnmg8oshi6mou" path="res://scripts/ui/ui_layer.gd" id="3_64aj6"]
 [ext_resource type="Script" uid="uid://d142gg0pl4kbi" path="res://scripts/ui/hand.gd" id="3_ewd2j"]
 [ext_resource type="Script" uid="uid://cngwdif8yna2x" path="res://scripts/tile/tiles_tracker.gd" id="3_g6xqq"]
@@ -52,6 +53,7 @@ func try_demolish(building: Building, tile: Tile, stats: Stats) -> void:
 
 [node name="Map" type="Node3D"]
 script = ExtResource("1_e8i6t")
+stats = ExtResource("2_wme18")
 
 [node name="Camera" type="Node3D" parent="."]
 

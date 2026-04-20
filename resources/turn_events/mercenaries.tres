@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MercenariesEvent" load_steps=2 format=3 uid="uid://bmercenary01ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/mercenaries_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "mercenaries"
+title = "Mercenarios"
+description = "[i]Un grupo de soldados de fortuna busca empleo. Por el precio adecuado, podrían expandir tus fronteras.[/i]"
+allow_skip = true
+weight = 4.0
+unique = false
+metadata/_custom_type_script = ""

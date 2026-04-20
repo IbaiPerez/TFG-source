@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="GardensAbility" load_steps=5 format=3 uid="uid://cjardin001abil"]
+
+[ext_resource type="Script" path="res://scripts/empire/abilities/gardens_ability.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="2_bldg"]
+[ext_resource type="Resource" uid="uid://bziggurat01excl" path="res://resources/buildings/exclusive/ziggurat.tres" id="3_zigg"]
+[ext_resource type="Resource" uid="uid://d24re8efjrw3" path="res://resources/natural_resources/wheat.tres" id="4_wheat"]
+
+[resource]
+script = ExtResource("1_script")
+id = "jardines_colgantes"
+ability_name = "Jardines Colgantes"
+description = "La fertilidad de Mesopotamia alimenta tu civilizacion. Las casillas con Trigo producen +2 comida adicional y cada vez que juegas una carta de Construccion recibes +3 oro. Ademas, puedes construir el Zigurat, un edificio exclusivo equilibrado."
+exclusive_buildings = Array[ExtResource("2_bldg")]([ExtResource("3_zigg")])
+wheat_resource = ExtResource("4_wheat")

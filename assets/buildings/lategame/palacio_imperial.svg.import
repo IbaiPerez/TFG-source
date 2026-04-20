@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c0cyq4kraqy8y"
-path="res://.godot/imported/build_card.png-638bd1c038aa3aad1a4c667b4b1d8fc2.ctex"
+uid="uid://bs1apvrtmxs1y"
+path="res://.godot/imported/palacio_imperial.svg-5cf7fa6cd4bab43c05e49d91fb0f1f60.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cards/build_card.png"
-dest_files=["res://.godot/imported/build_card.png-638bd1c038aa3aad1a4c667b4b1d8fc2.ctex"]
+source_file="res://assets/buildings/lategame/palacio_imperial.svg"
+dest_files=["res://.godot/imported/palacio_imperial.svg-5cf7fa6cd4bab43c05e49d91fb0f1f60.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

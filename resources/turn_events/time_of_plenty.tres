@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TimeOfPlentyEvent" load_steps=2 format=3 uid="uid://btimeplent01ev"]
+
+[ext_resource type="Script" uid="uid://df4sirk7uh5cb" path="res://scripts/turn_events/events/time_of_plenty_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "time_of_plenty"
+title = "Tiempo de Abundancia"
+description = "[i]Una época de prosperidad bendice tus tierras. Los graneros se llenan y el pueblo celebra con fiestas.[/i]"
+allow_skip = true
+weight = 5.0
+unique = false
+metadata/_custom_type_script = "uid://df4sirk7uh5cb"

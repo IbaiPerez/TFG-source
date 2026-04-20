@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Upgrade Building: mason chiseling/improving an existing structure, adding ornaments -->
+
+  <g fill="#1A1A1A">
+    <!-- Ground -->
+    <ellipse cx="256" cy="468" rx="230" ry="28"/>
+    <path d="M50,462 Q150,450 250,464 Q350,478 450,458" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === EXISTING BUILDING being upgraded === -->
+    <!-- Base structure (simple hut) -->
+    <rect x="260" y="260" width="200" height="186" rx="4"/>
+    <!-- Stone texture -->
+    <line x1="270" y1="296" x2="450" y2="296" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <line x1="270" y1="334" x2="450" y2="334" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <line x1="270" y1="372" x2="450" y2="372" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <line x1="270" y1="410" x2="450" y2="410" stroke="white" stroke-width="1.2" opacity="0.25"/>
+    <!-- Vertical joints -->
+    <line x1="320" y1="260" x2="320" y2="296" stroke="white" stroke-width="1" opacity="0.2"/>
+    <line x1="380" y1="260" x2="380" y2="296" stroke="white" stroke-width="1" opacity="0.2"/>
+    <line x1="350" y1="296" x2="350" y2="334" stroke="white" stroke-width="1" opacity="0.2"/>
+    <line x1="410" y1="296" x2="410" y2="334" stroke="white" stroke-width="1" opacity="0.2"/>
+    <line x1="320" y1="334" x2="320" y2="372" stroke="white" stroke-width="1" opacity="0.2"/>
+    <line x1="380" y1="334" x2="380" y2="372" stroke="white" stroke-width="1" opacity="0.2"/>
+
+    <!-- Roof (old, simple) becoming ornate -->
+    <polygon points="250,262 360,160 470,262" stroke-linejoin="round"/>
+    <!-- Roof tiles texture -->
+    <path d="M290,244 Q360,200 430,244" fill="none" stroke="white" stroke-width="1.5" opacity="0.25"/>
+    <path d="M310,226 Q360,190 410,226" fill="none" stroke="white" stroke-width="1.5" opacity="0.25"/>
+    <path d="M330,210 Q360,182 390,210" fill="none" stroke="white" stroke-width="1.2" opacity="0.2"/>
+
+    <!-- NEW ornamental column being added (left side, half done) -->
+    <rect x="260" y="262" width="16" height="184" rx="3"/>
+    <!-- Column fluting -->
+    <line x1="264" y1="270" x2="264" y2="440" stroke="white" stroke-width="1.2" opacity="0.3"/>
+    <line x1="268" y1="270" x2="268" y2="440" stroke="white" stroke-width="1.2" opacity="0.3"/>
+    <line x1="272" y1="270" x2="272" y2="440" stroke="white" stroke-width="1.2" opacity="0.3"/>
+    <!-- Capital -->
+    <rect x="256" y="256" width="24" height="10" rx="2"/>
+    <path d="M258,258 Q268,252 278,258" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Base -->
+    <rect x="256" y="442" width="24" height="8" rx="2"/>
+
+    <!-- Door (old simple -> being carved) -->
+    <rect x="330" y="356" width="60" height="90" rx="4"/>
+    <rect x="330" y="356" width="60" height="90" rx="4" fill="white" opacity="0.08"/>
+    <!-- Door arch being carved -->
+    <path d="M330,356 Q360,330 390,356" fill="none" stroke="white" stroke-width="3"/>
+    <!-- Keystone -->
+    <polygon points="356,332 360,324 364,332" fill="white" opacity="0.2"/>
+    <!-- Door handle -->
+    <circle cx="378" cy="400" r="5" fill="white"/>
+    <circle cx="378" cy="400" r="2.5"/>
+    <!-- Door panels -->
+    <line x1="360" y1="362" x2="360" y2="440" stroke="white" stroke-width="1.5"/>
+    <line x1="336" y1="398" x2="384" y2="398" stroke="white" stroke-width="1.5"/>
+
+    <!-- Window being added (new, ornate) -->
+    <rect x="410" y="290" width="36" height="36" rx="2" fill="white" opacity="0.08"/>
+    <rect x="410" y="290" width="36" height="36" rx="2" fill="none" stroke="white" stroke-width="2"/>
+    <line x1="428" y1="290" x2="428" y2="326" stroke="white" stroke-width="1.5"/>
+    <line x1="410" y1="308" x2="446" y2="308" stroke="white" stroke-width="1.5"/>
+    <!-- Window sill -->
+    <rect x="406" y="326" width="44" height="6" rx="1"/>
+
+    <!-- Arrow indicating upgrade (↑) carved into wall -->
+    <g fill="white" opacity="0.3">
+      <polygon points="302,340 310,310 318,340 312,340 312,380 308,380 308,340"/>
+    </g>
+
+    <!-- === MAIN FIGURE: master mason with chisel === -->
+    <!-- Head -->
+    <circle cx="160" cy="168" r="28"/>
+    <!-- Headwrap/bandana -->
+    <path d="M134,158 Q140,140 156,134 Q172,130 186,138 Q194,146 192,160 Q182,150 166,148 Q150,150 138,156 Z"/>
+    <path d="M142,142 Q162,136 184,142" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <line x1="136" y1="160" x2="190" y2="160" stroke="white" stroke-width="2.5"/>
+    <!-- Bandana tail -->
+    <path d="M190,154 Q204,148 214,152 Q218,156 216,164" stroke="#1A1A1A" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M200,150 Q210,150 214,158" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+    <!-- Face -->
+    <ellipse cx="172" cy="166" rx="3" ry="4" fill="white"/>
+    <path d="M162,178 Q170,184 178,180" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Stubble -->
+    <path d="M150,182 Q160,190 174,186 Q182,182 188,178" fill="none" stroke="white" stroke-width="1" opacity="0.2"/>
+
+    <!-- Torso - work clothes -->
+    <path d="M140,194 Q162,184 186,194 L196,316 Q168,328 146,318 Z"/>
+    <!-- Work apron -->
+    <path d="M148,230 Q164,222 184,230 L182,310 Q166,318 150,310 Z" fill="white" opacity="0.1"/>
+    <path d="M150,234 Q164,228 182,234" fill="none" stroke="white" stroke-width="2"/>
+    <!-- Apron pocket -->
+    <rect x="158" y="268" width="20" height="18" rx="2" fill="white" opacity="0.08"/>
+    <path d="M160,270 Q168,266 176,270" fill="none" stroke="white" stroke-width="1.2"/>
+    <!-- Chisel sticking out of pocket -->
+    <rect x="164" y="260" width="3" height="16" rx="1" fill="white" opacity="0.2"/>
+    <!-- Belt -->
+    <path d="M144,296 Q166,288 192,296 L190,306 Q166,298 146,306 Z"/>
+    <rect x="162" y="292" width="12" height="16" rx="2" fill="white"/>
+    <!-- Mallet hanging from belt -->
+    <rect x="182" y="304" width="5" height="22" rx="1"/>
+    <rect x="178" y="324" width="14" height="10" rx="2"/>
+    <line x1="180" y1="329" x2="190" y2="329" stroke="white" stroke-width="1.2"/>
+
+    <!-- Right arm raised with chisel, working on column capital -->
+    <path d="M184,202 Q210,196 232,204 Q250,214 260,232 L254,240 Q246,224 230,214 Q214,206 190,210 Z"/>
+    <!-- Forearm -->
+    <path d="M252,234 Q258,242 262,254" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+    <!-- Hand -->
+    <ellipse cx="264" cy="252" rx="12" ry="10"/>
+    <path d="M256,248 Q262,240 274,244" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Chisel -->
+    <rect x="262" y="244" width="3" height="24" rx="1" transform="rotate(20 264 256)"/>
+    <polygon points="264,268 260,278 268,278" transform="rotate(20 264 273)"/>
+
+    <!-- Left arm steadying work / holding guide -->
+    <path d="M142,202 Q124,212 112,228 Q102,244 98,264 L106,268 Q108,250 116,236 Q128,218 144,210 Z"/>
+    <ellipse cx="100" cy="272" rx="10" ry="8"/>
+
+    <!-- Legs -->
+    <path d="M150,314 Q142,354 134,392 Q128,424 124,448 Q122,458 130,462 L154,464 Q150,454 152,438 Q156,414 162,384 Q170,350 174,322 Z"/>
+    <path d="M184,314 Q192,356 202,394 Q210,426 216,450 L236,462 Q232,448 226,430 Q218,400 210,370 Q200,338 194,318 Z"/>
+    <!-- Boot -->
+    <path d="M124,458 Q120,464 124,468 L158,468 Q160,462 154,460"/>
+    <line x1="128" y1="464" x2="156" y2="464" stroke="white" stroke-width="1.5"/>
+
+    <!-- === BACKGROUND: apprentice carrying decorative stone === -->
+    <g opacity="0.85">
+      <circle cx="80" cy="320" r="16"/>
+      <path d="M66,312 Q80,306 94,312" fill="none" stroke="white" stroke-width="2"/>
+      <path d="M68,334 Q80,328 92,334 L96,402 Q82,410 70,402 Z"/>
+      <path d="M74,352 Q82,348 90,352" fill="none" stroke="white" stroke-width="1" opacity="0.3"/>
+      <path d="M70,400 L64,448 L74,452 L78,404"/>
+      <path d="M88,400 L94,448 L84,452 L82,404"/>
+      <!-- Carrying ornate stone block on shoulder -->
+      <rect x="52" y="298" width="34" height="28" rx="3"/>
+      <path d="M56,306 Q68,300 84,306" fill="none" stroke="white" stroke-width="1.5"/>
+      <line x1="62" y1="310" x2="78" y2="310" stroke="white" stroke-width="1"/>
+      <line x1="68" y1="302" x2="68" y2="322" stroke="white" stroke-width="1"/>
+      <!-- Arm holding -->
+      <path d="M92,338 Q96,322 92,308 L86,304 Q82,318 86,336 Z"/>
+    </g>
+
+    <!-- Stone chips flying from chisel -->
+    <circle cx="274" cy="240" r="2.5"/>
+    <circle cx="280" cy="232" r="2"/>
+    <circle cx="270" cy="228" r="1.5"/>
+    <circle cx="284" cy="244" r="2"/>
+    <circle cx="278" cy="222" r="1.5"/>
+
+    <!-- Grass -->
+    <g stroke="#1A1A1A" stroke-width="2.5" fill="none" stroke-linecap="round">
+      <path d="M480" y1="456" d="M480,456 Q476,438 472,430"/>
+      <path d="M480,456 Q484,436 490,430"/>
+    </g>
+  </g>
+</svg>

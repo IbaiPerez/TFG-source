@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#FFF8DC" stroke="#B8860B" stroke-width="3"/>
+
+  <!-- Central gold coin -->
+  <circle cx="58" cy="62" r="24" fill="#FFD700" stroke="#B8860B" stroke-width="2.5"/>
+  <circle cx="58" cy="62" r="18" fill="none" stroke="#DAA520" stroke-width="1.5"/>
+  <text x="58" y="70" text-anchor="middle" font-size="22" font-weight="bold" fill="#8B6914" font-family="serif">$</text>
+
+  <!-- Percent symbol (bottom-left) -->
+  <g transform="translate(28, 102)">
+    <circle cx="-4" cy="-10" r="4" fill="#B8860B" stroke="#8B6914" stroke-width="1"/>
+    <circle cx="8" cy="2" r="4" fill="#B8860B" stroke="#8B6914" stroke-width="1"/>
+    <line x1="-8" y1="4" x2="12" y2="-14" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Red arrow DOWN (top-right corner) -->
+  <g transform="translate(98, 28)">
+    <polygon points="0,18 12,0 6,0 6,-12 -6,-12 -6,0 -12,0" fill="#E74C3C" stroke="#A93226" stroke-width="1.5" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -47,6 +47,7 @@ func _on_events_generate_world(settings: GenerationSettings, stats: Stats) -> vo
 	var world_generator = new_scene.get_node("%WorldGenerator")
 	world_generator.settings = settings
 	new_scene.stats = stats
+	new_scene.generation_settings = settings
 
 	_change_scene(new_scene)
 

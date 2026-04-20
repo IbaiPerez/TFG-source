@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BanditsEvent" load_steps=2 format=3 uid="uid://bbandits001ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/bandits_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "bandits"
+title = "Bandidos en los Caminos"
+description = "[i]Grupos de bandidos han tomado los caminos que conectan tus provincias. El comercio y los viajeros están en peligro.[/i]"
+allow_skip = false
+weight = 6.0
+unique = false
+metadata/_custom_type_script = ""

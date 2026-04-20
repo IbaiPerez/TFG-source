@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="Empire" load_steps=2 format=3 uid="uid://dlljlcjgbqsv5"]
+[gd_resource type="Resource" script_class="Empire" load_steps=3 format=3 uid="uid://dlljlcjgbqsv5"]
 
 [ext_resource type="Script" uid="uid://cifwawcw04jkd" path="res://scripts/empire/empire.gd" id="1_eaqj5"]
+[ext_resource type="Resource" uid="uid://cjardin001abil" path="res://resources/empire_abilities/jardines_colgantes.tres" id="2_abil"]
 
 [resource]
 script = ExtResource("1_eaqj5")
 name = "Babylonian"
 color = Color(0.8980392, 0.4509804, 0.4509804, 1)
+ability = ExtResource("2_abil")
 metadata/_custom_type_script = "uid://cifwawcw04jkd"

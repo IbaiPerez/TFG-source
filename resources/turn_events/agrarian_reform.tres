@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AgrarianReformEvent" load_steps=2 format=3 uid="uid://bagrreform01ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/agrarian_reform_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "agrarian_reform"
+title = "Reforma Agraria"
+description = "[i]Los campesinos claman por una redistribución de tierras. Invertir en agricultura podría alimentar a tu pueblo, pero a costa de las arcas.[/i]"
+allow_skip = true
+weight = 4.0
+unique = false
+metadata/_custom_type_script = ""
