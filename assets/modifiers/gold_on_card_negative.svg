@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background circle - gold/card blend -->
+  <circle cx="64" cy="64" r="60" fill="#FFF8DC" stroke="#B8860B" stroke-width="3"/>
+
+  <!-- Single card (left side) -->
+  <rect x="28" y="34" width="34" height="50" rx="4" fill="#EDE7F6" stroke="#5E35B1" stroke-width="2" transform="rotate(-5, 45, 59)"/>
+  <!-- Card detail - star -->
+  <g transform="translate(45, 57) rotate(-5)">
+    <polygon points="0,-8 2.5,-2.5 8,-2.5 4,1.5 5.5,8 0,5 -5.5,8 -4,1.5 -8,-2.5 -2.5,-2.5" fill="#7E57C2" stroke="#5E35B1" stroke-width="0.8"/>
+  </g>
+
+  <!-- Gold coin (right side, slightly overlapping) -->
+  <circle cx="80" cy="72" r="20" fill="#FFD700" stroke="#B8860B" stroke-width="2.5"/>
+  <circle cx="80" cy="72" r="15" fill="none" stroke="#DAA520" stroke-width="1.5"/>
+  <text x="80" y="79" text-anchor="middle" font-size="18" font-weight="bold" fill="#8B6914" font-family="serif">$</text>
+
+  <!-- Red arrow DOWN (top-right corner) -->
+  <g transform="translate(98, 28)">
+    <polygon points="0,18 12,0 6,0 6,-12 -6,-12 -6,0 -12,0" fill="#E74C3C" stroke="#A93226" stroke-width="1.5" stroke-linejoin="round"/>
+  </g>
+</svg>

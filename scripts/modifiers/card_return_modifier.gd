@@ -1,6 +1,9 @@
 extends Modifier
 class_name CardReturnModifier
 
+## Icono precargado
+const ICON_CARD_RETURN := preload("res://assets/modifiers/card_return_positive.svg")
+
 ## Carta que tiene probabilidad de volver a la mano
 var card_id:String
 ## Probabilidad de 0.0 a 1.0
@@ -14,6 +17,12 @@ func _init(p_id:String, p_name:String, p_card_id:String, p_chance:float,
 	super(p_id, p_name, p_duration, p_icon)
 	card_id = p_card_id
 	chance = p_chance
+
+	# Asignar icono y descripcion automaticamente
+	if icon == null:
+		icon = ICON_CARD_RETURN
+	if description.is_empty():
+		description = _build_description()
 
 
 func on_turn_start() -> void:
@@ -33,3 +42,7 @@ func should_return(card:Card) -> bool:
 
 func duplicate_modifier() -> Modifier:
 	return CardReturnModifier.new(id, name, card_id, chance, duration, icon)
+
+
+func _build_description() -> String:
+	return "%d%% chance to return %s to hand" % [int(chance * 100), card_id]

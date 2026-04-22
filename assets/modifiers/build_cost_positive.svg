@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#E8F5E9" stroke="#5D4037" stroke-width="3"/>
+
+  <!-- Hammer (central build symbol) -->
+  <g transform="translate(56, 66)">
+    <!-- Handle -->
+    <rect x="-3" y="4" width="6" height="28" rx="2" fill="#8D6E63" stroke="#5D4037" stroke-width="1.5"/>
+    <!-- Head -->
+    <rect x="-14" y="-12" width="28" height="18" rx="3" fill="#78909C" stroke="#455A64" stroke-width="2"/>
+    <!-- Head shine -->
+    <rect x="-10" y="-8" width="8" height="10" rx="1.5" fill="#90A4AE" opacity="0.6"/>
+  </g>
+
+  <!-- Green arrow UP (top-right corner) — discount -->
+  <g transform="translate(98, 28)">
+    <polygon points="0,-18 12,0 6,0 6,12 -6,12 -6,0 -12,0" fill="#2ECC40" stroke="#1B7A26" stroke-width="1.5" stroke-linejoin="round"/>
+  </g>
+</svg>
