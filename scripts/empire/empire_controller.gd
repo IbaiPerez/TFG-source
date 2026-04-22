@@ -103,7 +103,7 @@ func _evaluate_end_of_turn() -> bool:
 ## Procesa una carta jugada (descarte, devolucion a mano, o uso unico).
 func _handle_card_played(card:Card) -> void:
 	if modifier_manager.should_return_to_hand(card):
-		stats.discard_pile.add_card(card)
+		Events.card_returned_to_hand.emit(card)
 	elif card.is_single_use():
 		stats.played_pile.add_card(card)
 	else:

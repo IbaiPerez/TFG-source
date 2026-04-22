@@ -11,6 +11,7 @@ var _awaiting_event_resolution := false
 func _ready() -> void:
 	add_to_group("player_handler")
 	Events.card_played.connect(_on_card_played)
+	Events.card_returned_to_hand.connect(_on_card_returned_to_hand)
 	Events.turn_event_resolved.connect(_on_turn_event_resolved)
 	_init_managers()
 
@@ -46,6 +47,9 @@ func _on_turn_event_resolved() -> void:
 
 func _on_card_played(card:Card) -> void:
 	_handle_card_played(card)
+
+func _on_card_returned_to_hand(card:Card) -> void:
+	hand.add_card(card)
 
 ## --- Animaciones de mano (exclusivas del jugador) ---
 
