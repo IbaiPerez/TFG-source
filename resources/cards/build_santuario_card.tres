@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DirectBuildCard" load_steps=5 format=3 uid="uid://bsantuariocard1"]
+
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_bldg"]
+[ext_resource type="Script" path="res://scripts/cards_resources/direct_build_card.gd" id="2_script"]
+[ext_resource type="Texture2D" path="res://assets/cards/build_santuario_card.svg" id="3_icon"]
+[ext_resource type="Resource" uid="uid://bsantuario01bld" path="res://resources/buildings/santuario_bosque.tres" id="4_building"]
+
+[resource]
+script = ExtResource("2_script")
+buildings = Array[ExtResource("1_bldg")]([ExtResource("4_building")])
+id = "Build Santuario"
+type = 2
+icon = ExtResource("3_icon")
+needs_confirmation = true
+tooltipe_text = ""

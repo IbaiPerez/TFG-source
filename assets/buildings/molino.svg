@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F5E6C8" stroke="#8B7D3C" stroke-width="3"/>
+
+  <!-- Windmill tower -->
+  <path d="M52,90 L56,42 L72,42 L76,90 Z" fill="#C4A56A" stroke="#8B6914" stroke-width="2"/>
+  <!-- Tower door -->
+  <path d="M58,90 Q64,80 70,90 Z" fill="#6B4C0A"/>
+  <!-- Tower window -->
+  <circle cx="64" cy="58" r="4" fill="#6B4C0A" stroke="#8B6914" stroke-width="1"/>
+
+  <!-- Windmill blades center hub -->
+  <circle cx="64" cy="42" r="5" fill="#DAA520" stroke="#8B6914" stroke-width="1.5"/>
+
+  <!-- Blade 1 (up-right) -->
+  <path d="M66,40 L86,20 L82,18 L64,38 Z" fill="#E8D5A0" stroke="#B8860B" stroke-width="1"/>
+  <!-- Blade 2 (down-right) -->
+  <path d="M66,44 L86,64 L88,60 L68,42 Z" fill="#E8D5A0" stroke="#B8860B" stroke-width="1"/>
+  <!-- Blade 3 (down-left) -->
+  <path d="M62,44 L42,64 L46,66 L64,46 Z" fill="#E8D5A0" stroke="#B8860B" stroke-width="1"/>
+  <!-- Blade 4 (up-left) -->
+  <path d="M62,40 L42,20 L40,24 L60,42 Z" fill="#E8D5A0" stroke="#B8860B" stroke-width="1"/>
+
+  <!-- Wheat stalks at base -->
+  <line x1="36" y1="92" x2="38" y2="76" stroke="#C4A030" stroke-width="2" stroke-linecap="round"/>
+  <line x1="40" y1="92" x2="44" y2="78" stroke="#C4A030" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="38" cy="74" r="2.5" fill="#DAA520"/>
+  <circle cx="44" cy="76" r="2.5" fill="#DAA520"/>
+
+  <line x1="88" y1="92" x2="86" y2="76" stroke="#C4A030" stroke-width="2" stroke-linecap="round"/>
+  <line x1="92" y1="92" x2="88" y2="78" stroke="#C4A030" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="86" cy="74" r="2.5" fill="#DAA520"/>
+  <circle cx="88" cy="76" r="2.5" fill="#DAA520"/>
+
+  <!-- Ground line -->
+  <line x1="24" y1="92" x2="104" y2="92" stroke="#8B6914" stroke-width="2"/>
+</svg>

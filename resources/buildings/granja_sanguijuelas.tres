@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Building" load_steps=6 format=3 uid="uid://bsanguijuela1bld"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
+[ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_vil"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_bld"]
+[ext_resource type="Texture2D" path="res://assets/buildings/granja_sanguijuelas.svg" id="4_img"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="5_beff"]
+
+[resource]
+script = ExtResource("3_bld")
+name = "Granja de Sanguijuelas"
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_vil")])
+allowed_biomes = Array[int]([3])
+image = ExtResource("4_img")
+construction_cost = 80
+gold_produced = 8
+food_produced = -2
+metadata/_custom_type_script = "uid://2ce384crr8i0"

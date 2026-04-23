@@ -2,28 +2,28 @@
   <g fill="#1A1A1A">
     <ellipse cx="256" cy="468" rx="230" ry="28"/>
     <!-- Fort main body -->
-    <rect x="120" y="220" width="272" height="220" stroke="white" stroke-width="2.5" fill="none"/>
+    <rect x="120" y="220" width="272" height="220" stroke="#C9A84C" stroke-width="2.5" fill="none"/>
     <!-- Battlements -->
-    <rect x="120" y="200" width="40" height="24" stroke="white" stroke-width="2" fill="none"/>
-    <rect x="184" y="200" width="40" height="24" stroke="white" stroke-width="2" fill="none"/>
-    <rect x="248" y="200" width="40" height="24" stroke="white" stroke-width="2" fill="none"/>
-    <rect x="312" y="200" width="40" height="24" stroke="white" stroke-width="2" fill="none"/>
-    <rect x="352" y="200" width="40" height="24" stroke="white" stroke-width="2" fill="none"/>
+    <rect x="120" y="200" width="40" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
+    <rect x="184" y="200" width="40" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
+    <rect x="248" y="200" width="40" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
+    <rect x="312" y="200" width="40" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
+    <rect x="352" y="200" width="40" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
     <!-- Left tower -->
-    <rect x="80" y="140" width="60" height="300" stroke="white" stroke-width="2.5" fill="none"/>
-    <rect x="76" y="120" width="20" height="24" stroke="white" stroke-width="2" fill="none"/>
-    <rect x="116" y="120" width="20" height="24" stroke="white" stroke-width="2" fill="none"/>
+    <rect x="80" y="140" width="60" height="300" stroke="#C9A84C" stroke-width="2.5" fill="none"/>
+    <rect x="76" y="120" width="20" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
+    <rect x="116" y="120" width="20" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
     <!-- Right tower -->
-    <rect x="372" y="140" width="60" height="300" stroke="white" stroke-width="2.5" fill="none"/>
-    <rect x="368" y="120" width="20" height="24" stroke="white" stroke-width="2" fill="none"/>
-    <rect x="408" y="120" width="20" height="24" stroke="white" stroke-width="2" fill="none"/>
+    <rect x="372" y="140" width="60" height="300" stroke="#C9A84C" stroke-width="2.5" fill="none"/>
+    <rect x="368" y="120" width="20" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
+    <rect x="408" y="120" width="20" height="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
     <!-- Gate -->
-    <rect x="216" y="330" width="80" height="110" rx="40" stroke="white" stroke-width="2.5" fill="none"/>
+    <rect x="216" y="330" width="80" height="110" rx="40" stroke="#C9A84C" stroke-width="2.5" fill="none"/>
     <!-- Flag -->
-    <line x1="256" y1="100" x2="256" y2="200" stroke="white" stroke-width="2.5"/>
-    <polygon points="256,100 310,124 256,148" fill="none" stroke="white" stroke-width="2"/>
+    <line x1="256" y1="100" x2="256" y2="200" stroke="#C9A84C" stroke-width="2.5"/>
+    <polygon points="256,100 310,124 256,148" fill="none" stroke="#C9A84C" stroke-width="2"/>
     <!-- Tower windows -->
-    <rect x="98" y="180" width="20" height="30" rx="10" stroke="white" stroke-width="1.5" fill="none"/>
-    <rect x="394" y="180" width="20" height="30" rx="10" stroke="white" stroke-width="1.5" fill="none"/>
+    <rect x="98" y="180" width="20" height="30" rx="10" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+    <rect x="394" y="180" width="20" height="30" rx="10" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
   </g>
 </svg>

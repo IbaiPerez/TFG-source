@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UnlockSantuarioEvent" load_steps=2 format=3 uid="uid://bunlksantu01ev"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/unlock_santuario_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "unlock_santuario"
+title = "Espíritus del Bosque"
+description = "[i]En lo más profundo de tus bosques, los exploradores han encontrado un claro donde los árboles susurran con voces antiguas. Los espíritus del bosque se manifiestan ante tus colonos y ofrecen su bendición: permiten erigir un santuario sagrado en su honor. Pero la decisión es tuya.[/i]"
+allow_skip = true
+weight = 10.0
+unique = true

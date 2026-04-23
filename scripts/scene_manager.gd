@@ -3,6 +3,7 @@ extends Node
 const MAP = preload("uid://dxw5gc7xqbkqj")
 const BUILDING_PANEL = preload("uid://d4kc0x1wj7vrm")
 const TURN_EVENT_PANEL = preload("uid://dt9hturneventpnl")
+const RECOVER_CARD_PANEL = preload("res://scenes/UI/card/recover_card_panel.tscn")
 const MAIN_MENU = preload("res://scenes/UI/menus/main_menu.tscn")
 const EMPIRE_SELECTION = preload("res://scenes/UI/menus/empire_selection.tscn")
 const GENERATION_UI = preload("res://scenes/UI/generation_ui.tscn")
@@ -14,6 +15,7 @@ func _ready() -> void:
 	Events.navigate_to_main_menu.connect(_on_navigate_to_main_menu)
 	Events.build_card_confirm_started.connect(_on_build_card_confirm_started)
 	Events.upgrade_building_card_confirm_started.connect(_on_upgrade_building_card_confirm_started)
+	Events.recover_card_confirm_started.connect(_on_recover_card_confirm_started)
 	Events.turn_event_triggered.connect(_on_turn_event_triggered)
 
 
@@ -70,6 +72,11 @@ func _on_upgrade_building_card_confirm_started(card:UpgradeBuildingCard,targets:
 		card.menu.building_to_upgrade_selected.connect(
 			func(building): card.old_building = building
 			)
+	get_tree().get_first_node_in_group("ui_layer").add_child(card.menu)
+
+func _on_recover_card_confirm_started(card:RecoverCard, stats:Stats) -> void:
+	card.menu = RECOVER_CARD_PANEL.instantiate()
+	card.menu.card_pile = stats.played_pile
 	get_tree().get_first_node_in_group("ui_layer").add_child(card.menu)
 
 func _on_turn_event_triggered(event:TurnEvent, context:EventContext) -> void:

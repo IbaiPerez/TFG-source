@@ -17,7 +17,7 @@ func on_gui_input(event:InputEvent) -> void:
 		transition_requested.emit(self, CardState.State.CLICKED)
 
 func on_mouse_entered() -> void:
-	card_ui.tooltip.show_tooltip(card_ui.card.tooltipe_text)
+	card_ui.tooltip.show_tooltip(card_ui.card.get_tooltip())
 	card_ui.panel.set("theme_override_styles/panel",card_ui.CARD_HOVER_STYLE)
 
 func on_mouse_exited() -> void:

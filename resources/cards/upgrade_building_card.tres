@@ -8,5 +8,5 @@ script = ExtResource("1_yyc4h")
 id = "Upgrade Building Card"
 icon = ExtResource("2_icon")
 needs_confirmation = true
-tooltipe_text = "Upgrade buildings"
+tooltipe_text = ""
 metadata/_custom_type_script = "uid://bsnrkkg2ij2wx"

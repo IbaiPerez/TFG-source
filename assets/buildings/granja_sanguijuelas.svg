@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#3A4A3A" stroke="#2A3A2A" stroke-width="3"/>
+
+  <!-- Swamp water -->
+  <ellipse cx="64" cy="88" rx="40" ry="8" fill="#4A6A4A" opacity="0.5"/>
+
+  <!-- Wooden hut/shed -->
+  <rect x="40" y="52" width="48" height="36" rx="2" fill="#6B5A3E" stroke="#4A3E2A" stroke-width="1.5"/>
+  <!-- Roof -->
+  <path d="M36,52 L64,32 L92,52 Z" fill="#5C4A30" stroke="#4A3E2A" stroke-width="1.5"/>
+  <!-- Door -->
+  <rect x="56" y="66" width="16" height="22" rx="2" fill="#3E2E1A"/>
+  <!-- Window -->
+  <rect x="44" y="58" width="8" height="8" rx="1" fill="#5A8A5A" stroke="#4A3E2A" stroke-width="1"/>
+
+  <!-- Collection jars -->
+  <rect x="78" y="72" width="6" height="10" rx="2" fill="#7A9A7A" stroke="#4A6A4A" stroke-width="1"/>
+  <rect x="86" y="74" width="6" height="8" rx="2" fill="#7A9A7A" stroke="#4A6A4A" stroke-width="1"/>
+  <!-- Dark liquid in jars -->
+  <rect x="79" y="76" width="4" height="5" rx="1" fill="#4A1A1A" opacity="0.6"/>
+  <rect x="87" y="77" width="4" height="4" rx="1" fill="#4A1A1A" opacity="0.6"/>
+
+  <!-- Leech shapes in water -->
+  <path d="M38,86 Q42,82 46,86 Q42,88 38,86 Z" fill="#2A1A1A" opacity="0.7"/>
+  <path d="M72,90 Q76,86 80,90 Q76,92 72,90 Z" fill="#2A1A1A" opacity="0.7"/>
+  <path d="M54,92 Q58,88 62,92 Q58,94 54,92 Z" fill="#2A1A1A" opacity="0.6"/>
+
+  <!-- Stilts/posts -->
+  <line x1="44" y1="88" x2="44" y2="96" stroke="#6B5A3E" stroke-width="3" stroke-linecap="round"/>
+  <line x1="84" y1="88" x2="84" y2="96" stroke="#6B5A3E" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Coins symbol (gold production) -->
+  <circle cx="30" cy="46" r="5" fill="#FFD700" stroke="#DAA520" stroke-width="1"/>
+  <circle cx="34" cy="50" r="5" fill="#FFD700" stroke="#DAA520" stroke-width="1"/>
+</svg>

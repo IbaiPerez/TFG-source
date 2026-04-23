@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Build Santuario del Bosque: figure planting a sacred tree with spirit glow -->
+
+  <g fill="#1A1A1A">
+    <!-- Ground -->
+    <ellipse cx="256" cy="468" rx="230" ry="28"/>
+    <path d="M50,462 Q150,450 250,464 Q350,478 450,458" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === SACRED TREE (center) === -->
+    <!-- Trunk -->
+    <rect x="236" y="200" width="40" height="220" rx="8" />
+    <!-- Bark texture -->
+    <line x1="246" y1="220" x2="246" y2="400" stroke="white" stroke-width="1" opacity="0.15"/>
+    <line x1="266" y1="230" x2="266" y2="410" stroke="white" stroke-width="1" opacity="0.12"/>
+
+    <!-- Roots -->
+    <path d="M240,400 Q210,430 180,440 Q170,444 168,450" fill="none" stroke="#1A1A1A" stroke-width="10" stroke-linecap="round"/>
+    <path d="M272,400 Q300,430 330,440 Q340,444 344,450" fill="none" stroke="#1A1A1A" stroke-width="10" stroke-linecap="round"/>
+    <path d="M250,410 Q230,440 220,456" fill="none" stroke="#1A1A1A" stroke-width="8" stroke-linecap="round"/>
+    <path d="M262,410 Q280,440 292,456" fill="none" stroke="#1A1A1A" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Canopy layers -->
+    <ellipse cx="256" cy="160" rx="100" ry="70"/>
+    <ellipse cx="210" cy="180" rx="60" ry="50" opacity="0.8"/>
+    <ellipse cx="300" cy="180" rx="60" ry="50" opacity="0.8"/>
+    <ellipse cx="256" cy="140" rx="70" ry="50" opacity="0.9"/>
+    <!-- Canopy highlight -->
+    <path d="M180,160 Q220,120 256,110 Q290,120 330,160" fill="none" stroke="white" stroke-width="1.5" opacity="0.15"/>
+
+    <!-- Spirit glow in tree center -->
+    <ellipse cx="256" cy="160" rx="30" ry="25" fill="white" opacity="0.06"/>
+    <ellipse cx="256" cy="160" rx="18" ry="15" fill="white" opacity="0.08"/>
+    <circle cx="256" cy="160" r="8" fill="white" opacity="0.12"/>
+
+    <!-- Spirit sparkles around tree -->
+    <circle cx="200" cy="130" r="3" fill="white" opacity="0.2"/>
+    <circle cx="310" cy="140" r="2.5" fill="white" opacity="0.18"/>
+    <circle cx="180" cy="170" r="2" fill="white" opacity="0.15"/>
+    <circle cx="330" cy="165" r="2" fill="white" opacity="0.15"/>
+    <circle cx="220" cy="100" r="2" fill="white" opacity="0.12"/>
+    <circle cx="290" cy="105" r="2.5" fill="white" opacity="0.14"/>
+    <circle cx="256" cy="90" r="2" fill="white" opacity="0.1"/>
+
+    <!-- === SHRINE STONES at base === -->
+    <!-- Left stone -->
+    <rect x="180" y="420" width="30" height="24" rx="4"/>
+    <line x1="186" y1="432" x2="204" y2="432" stroke="white" stroke-width="1" opacity="0.2"/>
+    <!-- Right stone -->
+    <rect x="306" y="420" width="30" height="24" rx="4"/>
+    <line x1="312" y1="432" x2="330" y2="432" stroke="white" stroke-width="1" opacity="0.2"/>
+    <!-- Center altar -->
+    <rect x="220" y="412" width="72" height="10" rx="3"/>
+    <line x1="228" y1="417" x2="284" y2="417" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === FIGURE: druid/priest planting === -->
+    <!-- Head -->
+    <circle cx="100" cy="200" r="28"/>
+    <!-- Hood -->
+    <path d="M74,190 Q72,166 84,154 Q100,144 116,150 Q128,158 130,178 Q130,190 128,200 Q118,182 100,176 Q82,178 74,190 Z"/>
+    <path d="M84,160 Q100,152 118,158" fill="none" stroke="white" stroke-width="1.2" opacity="0.3"/>
+    <!-- Face -->
+    <ellipse cx="112" cy="198" rx="2.5" ry="3.5" fill="white"/>
+    <path d="M104,210 Q110,216 118,212" fill="none" stroke="white" stroke-width="1.5"/>
+
+    <!-- Torso - druid robe -->
+    <path d="M78,226 Q100,218 124,226 L132,376 Q108,386 84,378 Z"/>
+    <!-- Robe folds -->
+    <path d="M84,250 Q102,242 122,250" fill="none" stroke="white" stroke-width="1.5" opacity="0.35"/>
+    <path d="M82,282 Q102,274 126,282" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <path d="M80,316 Q102,308 128,316" fill="none" stroke="white" stroke-width="1.5" opacity="0.25"/>
+    <!-- Collar -->
+    <path d="M80,230 Q100,242 124,230" fill="none" stroke="white" stroke-width="2.5"/>
+    <!-- Vine sash -->
+    <path d="M100,300 Q96,330 100,360" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+
+    <!-- Right arm reaching toward tree with glow -->
+    <path d="M122,240 Q148,234 172,238 Q196,244 218,256 L214,268 Q194,258 174,250 Q150,244 126,248 Z"/>
+    <!-- Sleeve -->
+    <path d="M150,242 Q176,238 200,250" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <!-- Hand with magic -->
+    <ellipse cx="220" cy="264" rx="12" ry="9"/>
+    <!-- Magic wisps from hand to tree -->
+    <path d="M230,260 Q240,250 246,240" fill="none" stroke="white" stroke-width="1.5" opacity="0.15"/>
+    <path d="M228,268 Q242,260 250,248" fill="none" stroke="white" stroke-width="1" opacity="0.1"/>
+
+    <!-- Left arm with staff -->
+    <path d="M78,240 Q60,250 48,264 Q38,280 34,300 L42,304 Q44,284 52,270 Q62,256 80,246 Z"/>
+    <!-- Hand -->
+    <ellipse cx="36" cy="308" rx="10" ry="8"/>
+    <!-- Wooden staff -->
+    <line x1="40" y1="240" x2="36" y2="450" stroke="#1A1A1A" stroke-width="6" stroke-linecap="round"/>
+    <line x1="40" y1="240" x2="36" y2="450" stroke="white" stroke-width="1" opacity="0.15"/>
+    <!-- Staff top ornament -->
+    <circle cx="40" cy="236" r="8"/>
+    <circle cx="40" cy="236" r="4" fill="white" opacity="0.1"/>
+
+    <!-- Legs -->
+    <path d="M88,374 Q78,414 72,444 Q70,456 78,462 L100,464 Q96,454 98,440 Q102,416 108,388 Z"/>
+    <path d="M122,374 Q128,414 136,444 L156,458 Q152,444 146,428 Q138,404 130,382 Z"/>
+    <!-- Boot -->
+    <path d="M72,458 Q68,464 72,468 L104,468 Q106,462 100,460"/>
+    <line x1="76" y1="464" x2="102" y2="464" stroke="white" stroke-width="1.5"/>
+
+    <!-- === SMALL FOREST SPIRITS floating === -->
+    <g opacity="0.5">
+      <!-- Spirit 1 -->
+      <ellipse cx="370" cy="260" rx="12" ry="16"/>
+      <circle cx="366" cy="256" r="2" fill="white" opacity="0.4"/>
+      <circle cx="374" cy="256" r="2" fill="white" opacity="0.4"/>
+      <!-- Spirit 2 -->
+      <ellipse cx="400" cy="320" rx="10" ry="14"/>
+      <circle cx="396" cy="316" r="1.5" fill="white" opacity="0.4"/>
+      <circle cx="404" cy="316" r="1.5" fill="white" opacity="0.4"/>
+      <!-- Spirit 3 -->
+      <ellipse cx="350" cy="360" rx="10" ry="13"/>
+      <circle cx="346" cy="356" r="1.5" fill="white" opacity="0.4"/>
+      <circle cx="354" cy="356" r="1.5" fill="white" opacity="0.4"/>
+    </g>
+
+    <!-- Atmosphere particles -->
+    <circle cx="160" cy="300" r="2" opacity="0.3"/>
+    <circle cx="340" cy="200" r="1.5" opacity="0.25"/>
+    <circle cx="420" cy="400" r="2" opacity="0.2"/>
+
+    <!-- Magic circle on ground -->
+    <ellipse cx="256" cy="446" rx="100" ry="18" fill="none" stroke="white" stroke-width="1" opacity="0.08"/>
+    <ellipse cx="256" cy="446" rx="75" ry="13" fill="none" stroke="white" stroke-width="0.8" opacity="0.06"/>
+  </g>
+</svg>

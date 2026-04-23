@@ -9,5 +9,5 @@ script = ExtResource("2_kcpkn")
 id = "Build Card"
 icon = ExtResource("3_icon")
 needs_confirmation = true
-tooltipe_text = "Build buildings"
+tooltipe_text = ""
 metadata/_custom_type_script = "uid://c8is4xda402fx"

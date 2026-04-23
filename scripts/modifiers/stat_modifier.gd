@@ -9,6 +9,7 @@ enum StatType {
 	TILE_RESOURCE_GOLD,
 	TILE_RESOURCE_FOOD,
 	CARDS_PER_TURN,
+	CARD_DRAW_BONUS,
 }
 
 ## Iconos precargados por tipo/signo
@@ -71,7 +72,7 @@ func _build_icon_key() -> String:
 		StatType.PERCENT_FOOD:
 			resource_name = "food"
 			modifier_type = "percent"
-		StatType.CARDS_PER_TURN:
+		StatType.CARDS_PER_TURN, StatType.CARD_DRAW_BONUS:
 			resource_name = "cards"
 			modifier_type = "flat"
 		_:
@@ -101,6 +102,8 @@ func _build_description() -> String:
 			val_str = "%s%d food from %s" % [sign, int(value), res_name]
 		StatType.CARDS_PER_TURN:
 			val_str = "%s%d card%s per turn" % [sign, int(value), "" if absi(int(value)) == 1 else "s"]
+		StatType.CARD_DRAW_BONUS:
+			val_str = "%s%d extra card%s on draw" % [sign, int(value), "" if absi(int(value)) == 1 else "s"]
 		_:
 			val_str = "%s%d" % [sign, int(value)]
 

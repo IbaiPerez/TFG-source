@@ -2,32 +2,32 @@
   <g fill="#1A1A1A">
     <ellipse cx="256" cy="468" rx="230" ry="28"/>
     <!-- Building body -->
-    <rect x="120" y="220" width="272" height="220" stroke="white" stroke-width="2.5" fill="none"/>
+    <rect x="120" y="220" width="272" height="220" stroke="#C9A84C" stroke-width="2.5" fill="none"/>
     <!-- Columns -->
-    <rect x="140" y="240" width="16" height="196" stroke="white" stroke-width="1.5" fill="none"/>
-    <rect x="190" y="240" width="16" height="196" stroke="white" stroke-width="1.5" fill="none"/>
-    <rect x="306" y="240" width="16" height="196" stroke="white" stroke-width="1.5" fill="none"/>
-    <rect x="356" y="240" width="16" height="196" stroke="white" stroke-width="1.5" fill="none"/>
+    <rect x="140" y="240" width="16" height="196" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+    <rect x="190" y="240" width="16" height="196" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+    <rect x="306" y="240" width="16" height="196" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+    <rect x="356" y="240" width="16" height="196" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
     <!-- Entablature -->
-    <rect x="112" y="214" width="288" height="12" stroke="white" stroke-width="2" fill="none"/>
+    <rect x="112" y="214" width="288" height="12" stroke="#C9A84C" stroke-width="2" fill="none"/>
     <!-- Pediment -->
-    <polygon points="108,214 256,130 404,214" fill="none" stroke="white" stroke-width="2.5"/>
+    <polygon points="108,214 256,130 404,214" fill="none" stroke="#C9A84C" stroke-width="2.5"/>
     <!-- Compass rose in pediment -->
-    <circle cx="256" cy="174" r="24" stroke="white" stroke-width="2" fill="none"/>
-    <line x1="256" y1="150" x2="256" y2="198" stroke="white" stroke-width="1.5"/>
-    <line x1="232" y1="174" x2="280" y2="174" stroke="white" stroke-width="1.5"/>
-    <line x1="240" y1="158" x2="272" y2="190" stroke="white" stroke-width="1"/>
-    <line x1="272" y1="158" x2="240" y2="190" stroke="white" stroke-width="1"/>
+    <circle cx="256" cy="174" r="24" stroke="#C9A84C" stroke-width="2" fill="none"/>
+    <line x1="256" y1="150" x2="256" y2="198" stroke="#C9A84C" stroke-width="1.5"/>
+    <line x1="232" y1="174" x2="280" y2="174" stroke="#C9A84C" stroke-width="1.5"/>
+    <line x1="240" y1="158" x2="272" y2="190" stroke="#C9A84C" stroke-width="1"/>
+    <line x1="272" y1="158" x2="240" y2="190" stroke="#C9A84C" stroke-width="1"/>
     <!-- Door -->
-    <rect x="224" y="320" width="64" height="120" rx="4" stroke="white" stroke-width="2" fill="none"/>
+    <rect x="224" y="320" width="64" height="120" rx="4" stroke="#C9A84C" stroke-width="2" fill="none"/>
     <!-- Map/scroll details on sides -->
-    <rect x="144" y="260" width="40" height="30" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
-    <line x1="150" y1="268" x2="178" y2="268" stroke="white" stroke-width="1"/>
-    <line x1="150" y1="274" x2="178" y2="274" stroke="white" stroke-width="1"/>
-    <line x1="150" y1="280" x2="170" y2="280" stroke="white" stroke-width="1"/>
-    <rect x="328" y="260" width="40" height="30" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
-    <line x1="334" y1="268" x2="362" y2="268" stroke="white" stroke-width="1"/>
-    <line x1="334" y1="274" x2="362" y2="274" stroke="white" stroke-width="1"/>
-    <line x1="334" y1="280" x2="354" y2="280" stroke="white" stroke-width="1"/>
+    <rect x="144" y="260" width="40" height="30" rx="2" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+    <line x1="150" y1="268" x2="178" y2="268" stroke="#C9A84C" stroke-width="1"/>
+    <line x1="150" y1="274" x2="178" y2="274" stroke="#C9A84C" stroke-width="1"/>
+    <line x1="150" y1="280" x2="170" y2="280" stroke="#C9A84C" stroke-width="1"/>
+    <rect x="328" y="260" width="40" height="30" rx="2" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+    <line x1="334" y1="268" x2="362" y2="268" stroke="#C9A84C" stroke-width="1"/>
+    <line x1="334" y1="274" x2="362" y2="274" stroke="#C9A84C" stroke-width="1"/>
+    <line x1="334" y1="280" x2="354" y2="280" stroke="#C9A84C" stroke-width="1"/>
   </g>
 </svg>

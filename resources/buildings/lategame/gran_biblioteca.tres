@@ -1,28 +1,35 @@
-[gd_resource type="Resource" script_class="Building" load_steps=8 format=3 uid="uid://bgranbiblio01lt"]
+[gd_resource type="Resource" script_class="Building" load_steps=9 format=3 uid="uid://bgranbiblio01lt"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
-[ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_town"]
-[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_mega"]
-[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
-[ext_resource type="Texture2D" path="res://assets/buildings/lategame/gran_biblioteca.svg" id="5_img"]
-[ext_resource type="Script" uid="uid://dy7ew041vlors" path="res://scripts/building/effect/add_stat_modifier_effect.gd" id="6_eff"]
-[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="7_beff"]
+[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="2_mega"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_bld"]
+[ext_resource type="Texture2D" path="res://assets/buildings/lategame/gran_biblioteca.svg" id="4_img"]
+[ext_resource type="Script" uid="uid://dy7ew041vlors" path="res://scripts/building/effect/add_stat_modifier_effect.gd" id="5_eff"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="6_beff"]
 
 [sub_resource type="Resource" id="eff_biblio_cards"]
-script = ExtResource("6_eff")
+script = ExtResource("5_eff")
 tooltipe_text = "+1 carta por turno"
 modifier_id = "gran_biblioteca_cards"
 modifier_name = "Sabiduría Antigua"
 stat_type = 6
 value = 1.0
 
+[sub_resource type="Resource" id="eff_biblio_draw"]
+script = ExtResource("5_eff")
+tooltipe_text = "+1 carta extra al robar"
+modifier_id = "gran_biblioteca_draw"
+modifier_name = "Conocimiento Arcano"
+stat_type = 7
+value = 1.0
+
 [resource]
-script = ExtResource("4_bld")
+script = ExtResource("3_bld")
 name = "Gran Biblioteca"
-allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
-image = ExtResource("5_img")
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_mega")])
+image = ExtResource("4_img")
 construction_cost = 450
-gold_produced = 5
+gold_produced = 15
 food_produced = 3
-effects = Array[ExtResource("7_beff")]([SubResource("eff_biblio_cards")])
+effects = Array[ExtResource("6_beff")]([SubResource("eff_biblio_cards"), SubResource("eff_biblio_draw")])
 metadata/_custom_type_script = "uid://2ce384crr8i0"

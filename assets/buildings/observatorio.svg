@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#1A2A3A" stroke="#0A1A2A" stroke-width="3"/>
+
+  <!-- Stars in background -->
+  <circle cx="28" cy="24" r="1.5" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="96" cy="20" r="1" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="42" cy="16" r="1" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="88" cy="34" r="1.5" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="24" cy="42" r="1" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="102" cy="48" r="1" fill="#FFFFFF" opacity="0.5"/>
+
+  <!-- Tower body -->
+  <path d="M50,92 L54,40 L74,40 L78,92 Z" fill="#6A7A8A" stroke="#4A5A6A" stroke-width="1.5"/>
+  <!-- Tower stones -->
+  <line x1="56" y1="55" x2="72" y2="55" stroke="#4A5A6A" stroke-width="1" opacity="0.5"/>
+  <line x1="54" y1="70" x2="74" y2="70" stroke="#4A5A6A" stroke-width="1" opacity="0.5"/>
+  <line x1="52" y1="85" x2="76" y2="85" stroke="#4A5A6A" stroke-width="1" opacity="0.5"/>
+
+  <!-- Window -->
+  <rect x="58" y="72" width="12" height="10" rx="1" fill="#2A4A6A" stroke="#4A5A6A" stroke-width="1"/>
+  <!-- Window glow -->
+  <rect x="59" y="73" width="10" height="8" rx="1" fill="#6AB0E0" opacity="0.3"/>
+
+  <!-- Dome observatory top -->
+  <path d="M48,42 Q64,22 80,42 Z" fill="#5A6A7A" stroke="#4A5A6A" stroke-width="1.5"/>
+  <!-- Dome slit/opening -->
+  <path d="M62,42 L63,26 L65,26 L66,42" fill="#2A4A6A" stroke="#3A5A7A" stroke-width="0.8"/>
+
+  <!-- Telescope -->
+  <line x1="64" y1="34" x2="44" y2="18" stroke="#8A9AAA" stroke-width="3" stroke-linecap="round"/>
+  <!-- Telescope lens -->
+  <circle cx="42" cy="16" r="4" fill="#6AB0E0" stroke="#4A8AB0" stroke-width="1.5" opacity="0.8"/>
+  <!-- Lens glow -->
+  <circle cx="42" cy="16" r="2" fill="#AADDFF" opacity="0.4"/>
+
+  <!-- Snow on ground -->
+  <path d="M20,92 Q44,88 64,92 Q84,96 108,92" fill="none" stroke="#CCDDEE" stroke-width="2" opacity="0.5"/>
+
+  <!-- Ground -->
+  <line x1="20" y1="94" x2="108" y2="94" stroke="#3A4A5A" stroke-width="2"/>
+</svg>

@@ -9,5 +9,5 @@ id = "CardDraw"
 icon = ExtResource("2_icon")
 type = 1
 target = 1
-tooltipe_text = "[center][b][color=green]Draw[/color][/b] an extra  [color=blue]card[/color][center]"
+tooltipe_text = ""
 metadata/_custom_type_script = "uid://dr7dlirefmqmj"

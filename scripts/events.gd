@@ -27,6 +27,7 @@ signal card_returned_to_hand(card:Card)
 
 signal build_card_confirm_started(card:BuildCard,targets:Array[Node], stats:Stats)
 signal upgrade_building_card_confirm_started(card:UpgradeBuildingCard,targets:Array[Node], stats:Stats)
+signal recover_card_confirm_started(card:RecoverCard, stats:Stats)
 
 signal player_hand_drawn
 signal player_hand_discarded

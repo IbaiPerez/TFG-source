@@ -5,6 +5,11 @@ var old_building:Building
 var chosen:Building
 var menu:BuildingPanel
 
+
+func _build_tooltip() -> String:
+	return "[center][b][color=green]Mejora[/color][/b] un [color=blue]edificio[/color] existente[/center]"
+
+
 func apply_effects(targets:Array[Node],stats:Stats) -> void:
 	var effect := UpgradeBuildingEffect.new()
 	effect.new_building = chosen

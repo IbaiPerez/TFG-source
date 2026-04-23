@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://chkt8mhljf7ue"]
+[gd_scene load_steps=12 format=3 uid="uid://chkt8mhljf7ue"]
 
 [ext_resource type="Script" uid="uid://cgmoodqwgdltf" path="res://scripts/ui/general_ui.gd" id="1_frbhi"]
 [ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="2_1r63k"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://cnmg8oshi6mou" path="res://scripts/ui/ui_layer.gd" id="6_je6pe"]
 [ext_resource type="PackedScene" uid="uid://dj3wbq7xhym4d" path="res://scenes/UI/card/card_pile_view.tscn" id="7_y2dgm"]
 [ext_resource type="Texture2D" uid="uid://ke0uo44vme8s" path="res://assets/cards/discard_pile_icon.svg" id="8_disc"]
+[ext_resource type="Texture2D" uid="uid://d2r5m2jujfv48" path="res://assets/cards/played_pile_icon.svg" id="9_played"]
 
 [sub_resource type="Theme" id="Theme_dsvdl"]
 
@@ -155,6 +156,29 @@ offset_bottom = 56.0
 text = "100"
 horizontal_alignment = 1
 
+[node name="PlayedPileButton" parent="." node_paths=PackedStringArray("counter") instance=ExtResource("5_lgojk")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 1120.0
+offset_top = -135.0
+offset_right = 1160.0
+offset_bottom = -95.0
+grow_vertical = 0
+texture_normal = ExtResource("9_played")
+counter = NodePath("Counter")
+
+[node name="Counter" type="Label" parent="PlayedPileButton"]
+layout_mode = 0
+offset_left = -19.0
+offset_top = 33.0
+offset_right = 21.0
+offset_bottom = 56.0
+text = "0"
+horizontal_alignment = 1
+
 [node name="CardPileViews" type="CanvasLayer" parent="."]
 script = ExtResource("6_je6pe")
 metadata/_custom_type_script = "uid://cnmg8oshi6mou"
@@ -164,6 +188,10 @@ unique_name_in_owner = true
 visible = false
 
 [node name="DiscardPileView" parent="CardPileViews" instance=ExtResource("7_y2dgm")]
+unique_name_in_owner = true
+visible = false
+
+[node name="PlayedPileView" parent="CardPileViews" instance=ExtResource("7_y2dgm")]
 unique_name_in_owner = true
 visible = false
 

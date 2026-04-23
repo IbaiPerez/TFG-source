@@ -23,6 +23,18 @@ func is_batle_front_targeted() -> bool:
 func is_single_use() -> bool:
 	return type == Type.SINGLE_USE
 
+
+## Devuelve el tooltip de la carta. Si tooltipe_text está vacío, genera uno automático.
+func get_tooltip() -> String:
+	if tooltipe_text.is_empty():
+		tooltipe_text = _build_tooltip()
+	return tooltipe_text
+
+
+## Sobrescribir en subclases para generar el tooltip automáticamente.
+func _build_tooltip() -> String:
+	return ""
+
 func play(targets:Array[Node], stats:Stats) -> void:
 	Events.card_played.emit(self)
 	apply_effects(targets,stats)

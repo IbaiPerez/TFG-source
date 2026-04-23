@@ -97,6 +97,14 @@ func get_cards_per_turn_bonus() -> int:
 	return total
 
 
+func get_card_draw_bonus() -> int:
+	var total := 0
+	for mod in active_modifiers:
+		if mod is StatModifier and mod.type == StatModifier.StatType.CARD_DRAW_BONUS:
+			total += int(mod.value)
+	return total
+
+
 # --- Consulta de BuildCostModifier ---
 
 func get_build_cost_multiplier() -> float:

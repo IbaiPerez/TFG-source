@@ -31,4 +31,7 @@ func on_input(event:InputEvent) -> void:
 		transition_requested.emit(self,CardState.State.BASE)
 	elif minimum_drag_time_elapsed and confirm:
 		get_viewport().set_input_as_handled()
-		transition_requested.emit(self,CardState.State.RELEASED)
+		if card_ui.card.needs_confirmation:
+			transition_requested.emit(self,CardState.State.CONFIRMING)
+		else:
+			transition_requested.emit(self,CardState.State.RELEASED)

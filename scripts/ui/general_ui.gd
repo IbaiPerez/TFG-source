@@ -8,8 +8,10 @@ class_name UI
 @onready var tile_panel: TilePanel = $TilePanel
 @onready var draw_pile_button: CardPileOpener = %DrawPileButton
 @onready var discard_pile_button: CardPileOpener = %DiscardPileButton
+@onready var played_pile_button: CardPileOpener = %PlayedPileButton
 @onready var draw_pile_view: CardPileView = %DrawPileView
 @onready var discard_pile_view: CardPileView = %DiscardPileView
+@onready var played_pile_view: CardPileView = %PlayedPileView
 @onready var map_modes_buttons: VBoxContainer = %MapModesButtons
 
 
@@ -19,6 +21,7 @@ func _ready() -> void:
 	Events.player_hand_drawn.connect(_on_player_hand_drawn)
 	draw_pile_button.pressed.connect(draw_pile_view.show_current_view.bind("Draw Pile",true))
 	discard_pile_button.pressed.connect(discard_pile_view.show_current_view.bind("Discard Pile"))
+	played_pile_button.pressed.connect(played_pile_view.show_current_view.bind("Played Cards"))
 	tile_panel.visible = false
 	_setup_map_mode_buttons()
 	_connect_modifier_manager.call_deferred()
@@ -39,8 +42,10 @@ func _setup_map_mode_buttons() -> void:
 func initialize_card_pile_ui() -> void:
 	draw_pile_button.card_pile = stats.draw_pile
 	discard_pile_button.card_pile = stats.discard_pile
+	played_pile_button.card_pile = stats.played_pile
 	draw_pile_view.card_pile = stats.draw_pile
 	discard_pile_view.card_pile = stats.discard_pile
+	played_pile_view.card_pile = stats.played_pile
 
 func _set_stats(value:Stats) -> void:
 	stats = value

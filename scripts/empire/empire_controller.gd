@@ -64,8 +64,15 @@ func _process_turn_start() -> void:
 	base_gold += modifier_manager.get_flat_gold()
 	base_food += modifier_manager.get_flat_food()
 
-	var final_gold := int(base_gold * (1.0 + modifier_manager.get_percent_gold() / 100.0))
-	var final_food := int(base_food * (1.0 + modifier_manager.get_percent_food() / 100.0))
+	# Los modificadores porcentuales solo afectan a la produccion positiva,
+	# no a los costes de mantenimiento (produccion negativa).
+	var gold_positive := maxi(base_gold, 0)
+	var gold_negative := mini(base_gold, 0)
+	var food_positive := maxi(base_food, 0)
+	var food_negative := mini(base_food, 0)
+
+	var final_gold := int(gold_positive * (1.0 + modifier_manager.get_percent_gold() / 100.0)) + gold_negative
+	var final_food := int(food_positive * (1.0 + modifier_manager.get_percent_food() / 100.0)) + food_negative
 
 	stats.gold_per_turn = final_gold
 	stats.food = final_food

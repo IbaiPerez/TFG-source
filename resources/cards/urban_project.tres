@@ -10,5 +10,5 @@ location_type = ExtResource("1_oxr82")
 id = "Urban Project"
 icon = ExtResource("3_icon")
 type = 1
-tooltipe_text = "Upgrade a location to a Town"
+tooltipe_text = ""
 metadata/_custom_type_script = "uid://dtckv0u75pghh"
