@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#FFF5E0" stroke="#B8860B" stroke-width="3"/>
+
+  <!-- Building base -->
+  <rect x="26" y="52" width="76" height="48" rx="3" fill="#D4A84A" stroke="#8B6914" stroke-width="2"/>
+
+  <!-- Roof -->
+  <polygon points="20,54 64,24 108,54" fill="#B8860B" stroke="#8B5A00" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Roof trim -->
+  <line x1="24" y1="54" x2="104" y2="54" stroke="#FFD700" stroke-width="2.5"/>
+
+  <!-- Door -->
+  <rect x="50" y="70" width="28" height="30" rx="14 14 0 0" fill="#6B4C0A" stroke="#4A3408" stroke-width="1.5"/>
+
+  <!-- Door handle -->
+  <circle cx="72" cy="86" r="2" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+
+  <!-- Windows -->
+  <rect x="30" y="60" width="14" height="14" rx="2" fill="#FFF0C0" stroke="#8B6914" stroke-width="1.5"/>
+  <line x1="37" y1="60" x2="37" y2="74" stroke="#8B6914" stroke-width="1"/>
+  <line x1="30" y1="67" x2="44" y2="67" stroke="#8B6914" stroke-width="1"/>
+
+  <rect x="84" y="60" width="14" height="14" rx="2" fill="#FFF0C0" stroke="#8B6914" stroke-width="1.5"/>
+  <line x1="91" y1="60" x2="91" y2="74" stroke="#8B6914" stroke-width="1"/>
+  <line x1="84" y1="67" x2="98" y2="67" stroke="#8B6914" stroke-width="1"/>
+
+  <!-- Gold coin emblem on roof -->
+  <circle cx="64" cy="38" r="8" fill="#FFD700" stroke="#B8860B" stroke-width="2"/>
+  <text x="64" y="42" text-anchor="middle" font-size="12" font-weight="bold" fill="#8B6914" font-family="serif">G</text>
+
+  <!-- Coin stacks at base -->
+  <ellipse cx="34" cy="96" rx="6" ry="3" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <ellipse cx="34" cy="93" rx="6" ry="3" fill="#FFE44D" stroke="#B8860B" stroke-width="1"/>
+  <ellipse cx="34" cy="90" rx="6" ry="3" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+
+  <ellipse cx="94" cy="96" rx="6" ry="3" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <ellipse cx="94" cy="93" rx="6" ry="3" fill="#FFE44D" stroke="#B8860B" stroke-width="1"/>
+
+</svg>

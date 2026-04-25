@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="BasicShopEvent" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/shop/basic_shop_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "basic_shop"
+title = "Mercado Local"
+description = "[i]Un animado mercado se instala cerca de tus dominios. Los comerciantes ofrecen suministros a cambio de oro.[/i]"
+allow_skip = true
+weight = 6.0
+unique = false
+shop_type = 0

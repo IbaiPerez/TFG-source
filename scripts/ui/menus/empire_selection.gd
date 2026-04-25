@@ -27,7 +27,7 @@ func _create_empire_card(empire: Empire) -> PanelContainer:
 
 	# Style: pergamino bg with empire color border
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.949, 0.886, 0.729, 1.0)
+	style.bg_color = Color(0.97, 0.93, 0.85, 1.0)
 	style.border_width_left = 4
 	style.border_width_top = 4
 	style.border_width_right = 4

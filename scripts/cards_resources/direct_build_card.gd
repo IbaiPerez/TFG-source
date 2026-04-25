@@ -4,9 +4,9 @@ class_name DirectBuildCard
 
 func _build_tooltip() -> String:
 	if buildings.is_empty():
-		return "[center][b][color=green]Construye[/color][/b] un [color=blue]edificio[/color] directamente[/center]"
+		return "[center][b][color=#5B7A3A]Construye[/color][/b] un [color=#4A6A8A]edificio[/color] directamente[/center]"
 	var building_name := buildings[0].name if buildings[0] else "?"
-	return "[center][b][color=green]Construye[/color][/b] [color=blue]%s[/color][/center]" % building_name
+	return "[center][b][color=#5B7A3A]Construye[/color][/b] [color=#4A6A8A]%s[/color][/center]" % building_name
 
 
 func apply_effects(targets:Array[Node], stats:Stats) -> void:

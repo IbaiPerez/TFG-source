@@ -9,7 +9,7 @@ var chosen:Card   ## carta elegida por el jugador
 
 
 func _build_tooltip() -> String:
-	return "[center][b][color=green]Recupera[/color][/b] una [color=blue]carta de un solo uso[/color] jugada y devuelvela a tu mano[/center]"
+	return "[center][b][color=#5B7A3A]Recupera[/color][/b] una [color=#4A6A8A]carta de un solo uso[/color] jugada y devuelvela a tu mano[/center]"
 
 
 func confirm(targets:Array[Node], stats:Stats) -> void:

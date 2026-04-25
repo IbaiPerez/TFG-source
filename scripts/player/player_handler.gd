@@ -13,6 +13,7 @@ func _ready() -> void:
 	Events.card_played.connect(_on_card_played)
 	Events.card_returned_to_hand.connect(_on_card_returned_to_hand)
 	Events.turn_event_resolved.connect(_on_turn_event_resolved)
+	Events.shop_event_resolved.connect(_on_turn_event_resolved)
 	_init_managers()
 
 func start_game(new_stats:Stats) -> void:

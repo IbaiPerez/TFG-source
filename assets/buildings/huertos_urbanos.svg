@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E8F5E0" stroke="#4A7A2E" stroke-width="3"/>
+
+  <!-- Soil rows -->
+  <rect x="20" y="82" width="88" height="6" rx="2" fill="#8B6914" stroke="#6B4C0A" stroke-width="1.5"/>
+  <rect x="20" y="68" width="88" height="6" rx="2" fill="#8B6914" stroke="#6B4C0A" stroke-width="1.5"/>
+  <rect x="20" y="54" width="88" height="6" rx="2" fill="#8B6914" stroke="#6B4C0A" stroke-width="1.5"/>
+
+  <!-- Plants row 1 -->
+  <circle cx="34" cy="50" r="5" fill="#6AAF3D" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="52" cy="48" r="6" fill="#7DC44F" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="70" cy="50" r="5" fill="#6AAF3D" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="88" cy="49" r="5.5" fill="#7DC44F" stroke="#4A7A2E" stroke-width="1.5"/>
+
+  <!-- Plants row 2 -->
+  <circle cx="30" cy="64" r="5" fill="#7DC44F" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="48" cy="63" r="6" fill="#6AAF3D" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="66" cy="65" r="5" fill="#7DC44F" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="84" cy="64" r="5.5" fill="#6AAF3D" stroke="#4A7A2E" stroke-width="1.5"/>
+
+  <!-- Plants row 3 -->
+  <circle cx="34" cy="78" r="5" fill="#6AAF3D" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="52" cy="77" r="6" fill="#7DC44F" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="70" cy="79" r="5" fill="#6AAF3D" stroke="#4A7A2E" stroke-width="1.5"/>
+  <circle cx="88" cy="78" r="5.5" fill="#7DC44F" stroke="#4A7A2E" stroke-width="1.5"/>
+
+  <!-- Stems -->
+  <line x1="34" y1="54" x2="34" y2="44" stroke="#4A7A2E" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="52" y1="54" x2="52" y2="42" stroke="#4A7A2E" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="70" y1="54" x2="70" y2="44" stroke="#4A7A2E" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="88" y1="54" x2="88" y2="43" stroke="#4A7A2E" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Small fence posts -->
+  <rect x="18" y="42" width="4" height="50" rx="1" fill="#C4A04A" stroke="#8B6914" stroke-width="1"/>
+  <rect x="106" y="42" width="4" height="50" rx="1" fill="#C4A04A" stroke="#8B6914" stroke-width="1"/>
+  <!-- Fence rail -->
+  <line x1="18" y1="48" x2="110" y2="48" stroke="#C4A04A" stroke-width="2"/>
+  <line x1="18" y1="88" x2="110" y2="88" stroke="#C4A04A" stroke-width="2"/>
+
+  <!-- Water drop accent -->
+  <path d="M64,24 Q60,32 64,36 Q68,32 64,24Z" fill="#5BA8D4" stroke="#3A7AA8" stroke-width="1.5"/>
+
+</svg>

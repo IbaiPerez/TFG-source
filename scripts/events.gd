@@ -36,6 +36,9 @@ signal player_turn_ended
 signal turn_event_triggered(event:TurnEvent, context:EventContext)
 signal turn_event_resolved()
 
+signal shop_event_triggered(shop_config:ShopConfig, context:EventContext)
+signal shop_event_resolved()
+
 # Señales genericas de turno (para cualquier imperio)
 signal empire_turn_started(controller:EmpireController)
 signal empire_turn_ended(controller:EmpireController)

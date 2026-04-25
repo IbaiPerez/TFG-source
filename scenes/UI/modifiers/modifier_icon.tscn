@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://bardxjcsvsopn" path="res://scripts/ui/cards/tooltip.gd" id="2_tooltp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mod_normal"]
-bg_color = Color(0.9490196, 0.8862745, 0.7294118, 1)
+bg_color = Color(0.97, 0.93, 0.85, 1)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
@@ -16,7 +16,7 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mod_permanent"]
-bg_color = Color(0.9490196, 0.8862745, 0.7294118, 1)
+bg_color = Color(0.97, 0.93, 0.85, 1)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3

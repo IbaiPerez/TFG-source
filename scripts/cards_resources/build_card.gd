@@ -8,7 +8,7 @@ var chosen:Building
 
 
 func _build_tooltip() -> String:
-	return "[center][b][color=green]Construye[/color][/b] un [color=blue]edificio[/color] en una casilla controlada[/center]"
+	return "[center][b][color=#5B7A3A]Construye[/color][/b] un [color=#4A6A8A]edificio[/color] en una casilla controlada[/center]"
 
 
 func apply_effects(targets:Array[Node],stats:Stats) -> void:

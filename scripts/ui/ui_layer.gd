@@ -6,7 +6,6 @@ class_name UILayer
 @onready var hand: Hand = $Hand as Hand
 @onready var ui: Control = $UI as UI
 
-
 func _set_stats(value:Stats) -> void:
 	stats = value
 	hand.stats = stats

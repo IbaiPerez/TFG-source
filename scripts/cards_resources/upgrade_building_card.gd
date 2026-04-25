@@ -7,7 +7,7 @@ var menu:BuildingPanel
 
 
 func _build_tooltip() -> String:
-	return "[center][b][color=green]Mejora[/color][/b] un [color=blue]edificio[/color] existente[/center]"
+	return "[center][b][color=#5B7A3A]Mejora[/color][/b] un [color=#4A6A8A]edificio[/color] existente[/center]"
 
 
 func apply_effects(targets:Array[Node],stats:Stats) -> void:

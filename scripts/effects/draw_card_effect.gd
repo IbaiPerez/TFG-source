@@ -12,6 +12,6 @@ func execute(targets: Array[Node]) -> void:
 	if not player_handler:
 		return
 
-	var bonus := player_handler.modifier_manager.get_card_draw_bonus()
+	var bonus = player_handler.modifier_manager.get_card_draw_bonus()
 	player_handler.draw_cards(cards_to_draw + bonus)
 	

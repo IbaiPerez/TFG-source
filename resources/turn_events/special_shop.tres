@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SpecialShopEvent" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/shop/special_shop_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "special_shop"
+title = "Bazar Exótico"
+description = "[i]Un misterioso mercader ha desplegado su tienda en las afueras. Sus mercancías son raras y poderosas, pero su precio es elevado.[/i]"
+allow_skip = true
+weight = 3.0
+unique = false
+shop_type = 1

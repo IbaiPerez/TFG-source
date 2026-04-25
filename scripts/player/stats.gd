@@ -24,6 +24,7 @@ var played_pile:CardPile
 @export var available_events:Array[TurnEvent] = []
 var used_unique_events:Array[String] = []
 var turn_number:int = 0
+var total_purges_done:int = 0
 
 
 func set_cards_per_turn(value:int) -> void:
@@ -82,6 +83,7 @@ func create_instance() -> Resource:
 	instance.empire = empire
 	instance.used_unique_events = []
 	instance.turn_number = 0
+	instance.total_purges_done = 0
 	instance.possible_buildings = possible_buildings.duplicate()
 	instance._sync_build_cards()
 	return instance

@@ -5,7 +5,7 @@ class_name GenerateGoldCard
 
 
 func _build_tooltip() -> String:
-	return "[center][b][color=yellow]Genera %d[/color][/b] de [color=yellow]oro[/color][/center]" % amount
+	return "[center][b][color=#8A6A1A]Genera %d[/color][/b] de [color=#8A6A1A]oro[/color][/center]" % amount
 
 
 func apply_effects(targets:Array[Node],stats:Stats) -> void:

@@ -1,6 +1,6 @@
 [gd_resource type="Theme" load_steps=13 format=3 uid="uid://eqxjv365vxvf"]
 
-[ext_resource type="FontFile" uid="uid://jx7rnvnye0s6" path="res://assets/fonts/prince_valiant.ttf" id="1_font"]
+[ext_resource type="FontFile" path="res://assets/fonts/AlbertText-Bold.ttf" id="1_font"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_disabled"]
 content_margin_left = 14.0
@@ -83,7 +83,7 @@ color = Color(0.24313726, 0.15294118, 0.13725491, 0.75)
 thickness = 2
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.9490196, 0.8862745, 0.7294118, 1)
+bg_color = Color(0.97, 0.93, 0.85, 1)
 border_width_left = 5
 border_width_top = 5
 border_width_right = 5
@@ -95,7 +95,7 @@ corner_radius_bottom_right = 14
 corner_radius_bottom_left = 14
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_popup"]
-bg_color = Color(0.9490196, 0.8862745, 0.7294118, 1)
+bg_color = Color(0.97, 0.93, 0.85, 1)
 border_width_left = 4
 border_width_top = 4
 border_width_right = 4
@@ -153,7 +153,7 @@ Button/styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
 HSeparator/constants/separation = 8
 HSeparator/styles/separator = SubResource("StyleBoxLine_separator")
 Label/colors/font_color = Color(0.15, 0.1, 0.08, 1)
-Label/colors/font_outline_color = Color(0.9490196, 0.8862745, 0.7294118, 0.6)
+Label/colors/font_outline_color = Color(0.97, 0.93, 0.85, 0.6)
 Label/constants/outline_size = 0
 Label/font_sizes/font_size = 16
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel")

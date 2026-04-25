@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="286" >
+  <testsuite name="tests/test_building.gd" tests="24" failures="0" skipped="0" time="0.012138" >
+	  <testcase name="test_can_be_upgraded_true_when_affordable" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000426" >
+	  </testcase>
+	  <testcase name="test_can_be_upgraded_false_when_too_expensive" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000147" >
+	  </testcase>
+	  <testcase name="test_can_be_upgraded_false_with_no_upgrades" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000117" >
+	  </testcase>
+	  <testcase name="test_can_build_basic_success" assertions="1" status="pass" classname="tests/test_building.gd" time="0.002063" >
+	  </testcase>
+	  <testcase name="test_can_build_fails_when_max_buildings_reached" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000558" >
+	  </testcase>
+	  <testcase name="test_can_build_fails_when_building_already_exists" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000291" >
+	  </testcase>
+	  <testcase name="test_can_build_fails_wrong_natural_resource" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000272" >
+	  </testcase>
+	  <testcase name="test_can_build_succeeds_matching_natural_resource" assertions="1" status="pass" classname="tests/test_building.gd" time="0.0003" >
+	  </testcase>
+	  <testcase name="test_can_build_fails_wrong_location_type" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000299" >
+	  </testcase>
+	  <testcase name="test_can_build_fails_wrong_biome" assertions="1" status="pass" classname="tests/test_building.gd" time="0.00029" >
+	  </testcase>
+	  <testcase name="test_can_build_succeeds_matching_biome" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000273" >
+	  </testcase>
+	  <testcase name="test_build_adds_building_to_tile" assertions="1" status="pass" classname="tests/test_building.gd" time="0.00041" >
+	  </testcase>
+	  <testcase name="test_build_deducts_gold" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000407" >
+	  </testcase>
+	  <testcase name="test_build_does_nothing_if_cannot_build" assertions="2" status="pass" classname="tests/test_building.gd" time="0.000399" >
+	  </testcase>
+	  <testcase name="test_build_recalculates_production" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000369" >
+	  </testcase>
+	  <testcase name="test_get_valid_buildings_filters_correctly" assertions="2" status="pass" classname="tests/test_building.gd" time="0.000683" >
+	  </testcase>
+	  <testcase name="test_can_upgrade_success" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000501" >
+	  </testcase>
+	  <testcase name="test_can_upgrade_fails_building_not_on_tile" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000379" >
+	  </testcase>
+	  <testcase name="test_can_upgrade_fails_not_in_upgrade_path" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000335" >
+	  </testcase>
+	  <testcase name="test_upgrade_replaces_building" assertions="2" status="pass" classname="tests/test_building.gd" time="0.001904" >
+	  </testcase>
+	  <testcase name="test_upgrade_deducts_new_building_cost" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000484" >
+	  </testcase>
+	  <testcase name="test_demolish_removes_building" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000376" >
+	  </testcase>
+	  <testcase name="test_demolish_does_nothing_for_missing_building" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000479" >
+	  </testcase>
+	  <testcase name="test_recalculate_modifiers_includes_buildings" assertions="1" status="pass" classname="tests/test_building.gd" time="0.000376" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_card.gd" tests="13" failures="0" skipped="0" time="0.002949" >
+	  <testcase name="test_is_tile_targeted_returns_true_for_tile_target" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000223" >
+	  </testcase>
+	  <testcase name="test_is_tile_targeted_returns_false_for_self_target" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000189" >
+	  </testcase>
+	  <testcase name="test_is_batle_front_targeted" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000181" >
+	  </testcase>
+	  <testcase name="test_is_batle_front_targeted_false_for_tile" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000178" >
+	  </testcase>
+	  <testcase name="test_is_single_use_true" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000176" >
+	  </testcase>
+	  <testcase name="test_is_single_use_false_for_basic" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000175" >
+	  </testcase>
+	  <testcase name="test_is_single_use_false_for_special" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000222" >
+	  </testcase>
+	  <testcase name="test_get_tooltip_returns_tooltipe_text_when_set" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000257" >
+	  </testcase>
+	  <testcase name="test_get_tooltip_generates_from_build_tooltip_when_empty" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000256" >
+	  </testcase>
+	  <testcase name="test_get_valid_targets_returns_empty_by_default" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000286" >
+	  </testcase>
+	  <testcase name="test_is_valid_target_returns_false_by_default" assertions="1" status="pass" classname="tests/test_card.gd" time="0.000235" >
+	  </testcase>
+	  <testcase name="test_card_type_enum_values" assertions="3" status="pass" classname="tests/test_card.gd" time="0.000276" >
+	  </testcase>
+	  <testcase name="test_card_target_enum_values" assertions="3" status="pass" classname="tests/test_card.gd" time="0.000295" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_card_pile.gd" tests="16" failures="0" skipped="0" time="0.008092" >
+	  <testcase name="test_new_pile_is_empty" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000222" >
+	  </testcase>
+	  <testcase name="test_pile_not_empty_after_add" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000208" >
+	  </testcase>
+	  <testcase name="test_add_card_increases_size" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000238" >
+	  </testcase>
+	  <testcase name="test_draw_card_returns_last_added" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.001474" >
+	  </testcase>
+	  <testcase name="test_draw_card_decreases_size" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000825" >
+	  </testcase>
+	  <testcase name="test_draw_all_cards_empties_pile" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000234" >
+	  </testcase>
+	  <testcase name="test_remove_card_returns_true_when_found" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000206" >
+	  </testcase>
+	  <testcase name="test_remove_card_returns_false_when_not_found" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000201" >
+	  </testcase>
+	  <testcase name="test_remove_card_decreases_size" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000246" >
+	  </testcase>
+	  <testcase name="test_shuffle_preserves_size" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000275" >
+	  </testcase>
+	  <testcase name="test_clear_empties_pile" assertions="2" status="pass" classname="tests/test_card_pile.gd" time="0.000266" >
+	  </testcase>
+	  <testcase name="test_add_card_emits_signal" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.002372" >
+	  </testcase>
+	  <testcase name="test_draw_card_emits_signal" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000473" >
+	  </testcase>
+	  <testcase name="test_remove_card_emits_signal_on_success" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000333" >
+	  </testcase>
+	  <testcase name="test_clear_emits_signal" assertions="1" status="pass" classname="tests/test_card_pile.gd" time="0.000305" >
+	  </testcase>
+	  <testcase name="test_to_string_format" assertions="2" status="pass" classname="tests/test_card_pile.gd" time="0.000214" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_card_types.gd" tests="7" failures="0" skipped="0" time="0.001671" >
+	  <testcase name="test_generate_gold_card_adds_gold" assertions="1" status="pass" classname="tests/test_card_types.gd" time="0.000349" >
+	  </testcase>
+	  <testcase name="test_generate_gold_card_tooltip_contains_amount" assertions="1" status="pass" classname="tests/test_card_types.gd" time="0.000226" >
+	  </testcase>
+	  <testcase name="test_card_draw_card_tooltip_singular" assertions="1" status="pass" classname="tests/test_card_types.gd" time="0.0002" >
+	  </testcase>
+	  <testcase name="test_card_draw_card_tooltip_plural" assertions="1" status="pass" classname="tests/test_card_types.gd" time="0.000197" >
+	  </testcase>
+	  <testcase name="test_build_card_is_valid_target_false_for_non_tile" assertions="1" status="pass" classname="tests/test_card_types.gd" time="0.000232" >
+	  </testcase>
+	  <testcase name="test_build_card_get_valid_targets_empty_with_no_buildings" assertions="1" status="pass" classname="tests/test_card_types.gd" time="0.000266" >
+	  </testcase>
+	  <testcase name="test_colonize_card_tooltip_not_empty" assertions="1" status="pass" classname="tests/test_card_types.gd" time="0.000201" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_conditions_effects.gd" tests="19" failures="0" skipped="0" time="1.200946" >
+	  <testcase name="test_base_condition_returns_empty_targets" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.000286" >
+	  </testcase>
+	  <testcase name="test_base_condition_is_valid_false" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.000213" >
+	  </testcase>
+	  <testcase name="test_build_condition_valid_for_owned_tile" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.010636" >
+	  </testcase>
+	  <testcase name="test_build_condition_invalid_for_enemy_tile" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.006799" >
+	  </testcase>
+	  <testcase name="test_build_condition_invalid_for_non_tile" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.000485" >
+	  </testcase>
+	  <testcase name="test_build_condition_invalid_no_buildings" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.108764" >
+	  </testcase>
+	  <testcase name="test_build_condition_invalid_not_enough_gold" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.084029" >
+	  </testcase>
+	  <testcase name="test_build_condition_valid_targets" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.100084" >
+	  </testcase>
+	  <testcase name="test_adjacent_condition_valid_target" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.084536" >
+	  </testcase>
+	  <testcase name="test_adjacent_condition_invalid_already_owned" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.116619" >
+	  </testcase>
+	  <testcase name="test_adjacent_condition_invalid_not_adjacent" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.084567" >
+	  </testcase>
+	  <testcase name="test_adjacent_condition_valid_targets" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.100022" >
+	  </testcase>
+	  <testcase name="test_upgrade_condition_valid" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.100578" >
+	  </testcase>
+	  <testcase name="test_upgrade_condition_invalid_no_upgradable" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.101268" >
+	  </testcase>
+	  <testcase name="test_generate_gold_effect" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.000901" >
+	  </testcase>
+	  <testcase name="test_generate_gold_effect_no_stats" assertions="0" status="no asserts" classname="tests/test_conditions_effects.gd" time="0.000429" >
+	  </testcase>
+	  <testcase name="test_build_effect_builds_on_tile" assertions="2" status="pass" classname="tests/test_conditions_effects.gd" time="0.082082" >
+	  </testcase>
+	  <testcase name="test_build_effect_no_building" assertions="1" status="pass" classname="tests/test_conditions_effects.gd" time="0.117643" >
+	  </testcase>
+	  <testcase name="test_building_effect_base_does_nothing" assertions="0" status="no asserts" classname="tests/test_conditions_effects.gd" time="0.101005" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_empire.gd" tests="19" failures="0" skipped="0" time="0.7144" >
+	  <testcase name="test_empire_add_tile" assertions="2" status="pass" classname="tests/test_empire.gd" time="0.099164" >
+	  </testcase>
+	  <testcase name="test_empire_add_tile_emits_signal" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.100618" >
+	  </testcase>
+	  <testcase name="test_empire_add_tile_no_duplicate" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.101439" >
+	  </testcase>
+	  <testcase name="test_empire_remove_tile" assertions="2" status="pass" classname="tests/test_empire.gd" time="0.100373" >
+	  </testcase>
+	  <testcase name="test_empire_remove_tile_emits_signal" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.101391" >
+	  </testcase>
+	  <testcase name="test_empire_remove_tile_not_controlled_no_error" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.100251" >
+	  </testcase>
+	  <testcase name="test_empire_reset_controlled_tiles" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.100307" >
+	  </testcase>
+	  <testcase name="test_empire_create_instance" assertions="4" status="pass" classname="tests/test_empire.gd" time="0.002965" >
+	  </testcase>
+	  <testcase name="test_base_ability_creates_no_modifiers" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.000512" >
+	  </testcase>
+	  <testcase name="test_banking_ability_creates_two_modifiers" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.001246" >
+	  </testcase>
+	  <testcase name="test_banking_ability_has_gold_percent_modifier" assertions="2" status="pass" classname="tests/test_empire.gd" time="0.00138" >
+	  </testcase>
+	  <testcase name="test_banking_ability_has_build_cost_modifier" assertions="2" status="pass" classname="tests/test_empire.gd" time="0.000398" >
+	  </testcase>
+	  <testcase name="test_horde_ability_creates_two_modifiers" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.00177" >
+	  </testcase>
+	  <testcase name="test_horde_ability_has_cards_per_turn_modifier" assertions="2" status="pass" classname="tests/test_empire.gd" time="0.001005" >
+	  </testcase>
+	  <testcase name="test_horde_ability_has_card_return_modifier" assertions="3" status="pass" classname="tests/test_empire.gd" time="0.000352" >
+	  </testcase>
+	  <testcase name="test_gardens_ability_without_wheat_creates_one_modifier" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.000267" >
+	  </testcase>
+	  <testcase name="test_gardens_ability_with_wheat_creates_two_modifiers" assertions="1" status="pass" classname="tests/test_empire.gd" time="0.000281" >
+	  </testcase>
+	  <testcase name="test_gardens_ability_has_gold_on_card_modifier" assertions="3" status="pass" classname="tests/test_empire.gd" time="0.000274" >
+	  </testcase>
+	  <testcase name="test_gardens_ability_wheat_food_modifier" assertions="3" status="pass" classname="tests/test_empire.gd" time="0.000407" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_modifier.gd" tests="39" failures="0" skipped="0" time="3.906858" >
+	  <testcase name="test_modifier_init_defaults" assertions="3" status="pass" classname="tests/test_modifier.gd" time="0.088982" >
+	  </testcase>
+	  <testcase name="test_modifier_activate_sets_stats" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100381" >
+	  </testcase>
+	  <testcase name="test_modifier_deactivate_clears_stats" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100624" >
+	  </testcase>
+	  <testcase name="test_modifier_permanent_duration" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.10012" >
+	  </testcase>
+	  <testcase name="test_stat_modifier_flat_gold" assertions="3" status="pass" classname="tests/test_modifier.gd" time="0.082661" >
+	  </testcase>
+	  <testcase name="test_stat_modifier_description_flat_gold_positive" assertions="2" status="pass" classname="tests/test_modifier.gd" time="0.116429" >
+	  </testcase>
+	  <testcase name="test_stat_modifier_description_flat_gold_negative" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100096" >
+	  </testcase>
+	  <testcase name="test_stat_modifier_description_percent_gold" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.099828" >
+	  </testcase>
+	  <testcase name="test_stat_modifier_description_cards_per_turn" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100233" >
+	  </testcase>
+	  <testcase name="test_stat_modifier_description_tile_resource" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100673" >
+	  </testcase>
+	  <testcase name="test_stat_modifier_duplicate" assertions="3" status="pass" classname="tests/test_modifier.gd" time="0.10059" >
+	  </testcase>
+	  <testcase name="test_build_cost_modifier_discount" assertions="2" status="pass" classname="tests/test_modifier.gd" time="0.100747" >
+	  </testcase>
+	  <testcase name="test_build_cost_modifier_increase" assertions="2" status="pass" classname="tests/test_modifier.gd" time="0.100229" >
+	  </testcase>
+	  <testcase name="test_build_cost_modifier_duplicate" assertions="2" status="pass" classname="tests/test_modifier.gd" time="0.10143" >
+	  </testcase>
+	  <testcase name="test_card_return_should_return_matching_card" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.101101" >
+	  </testcase>
+	  <testcase name="test_card_return_does_not_return_wrong_card" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.101146" >
+	  </testcase>
+	  <testcase name="test_card_return_only_once_per_turn" assertions="2" status="pass" classname="tests/test_modifier.gd" time="0.100269" >
+	  </testcase>
+	  <testcase name="test_card_return_resets_on_turn_start" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100026" >
+	  </testcase>
+	  <testcase name="test_add_modifier" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100019" >
+	  </testcase>
+	  <testcase name="test_add_modifier_emits_signals" assertions="2" status="pass" classname="tests/test_modifier.gd" time="0.099739" >
+	  </testcase>
+	  <testcase name="test_remove_modifier" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100044" >
+	  </testcase>
+	  <testcase name="test_remove_modifier_emits_signals" assertions="2" status="pass" classname="tests/test_modifier.gd" time="0.099947" >
+	  </testcase>
+	  <testcase name="test_tick_decreases_duration" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.101157" >
+	  </testcase>
+	  <testcase name="test_tick_removes_expired_modifiers" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.101229" >
+	  </testcase>
+	  <testcase name="test_tick_does_not_touch_permanent" assertions="2" status="pass" classname="tests/test_modifier.gd" time="0.101375" >
+	  </testcase>
+	  <testcase name="test_get_flat_gold" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100171" >
+	  </testcase>
+	  <testcase name="test_get_percent_gold" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100258" >
+	  </testcase>
+	  <testcase name="test_get_flat_food" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100581" >
+	  </testcase>
+	  <testcase name="test_get_percent_food" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100002" >
+	  </testcase>
+	  <testcase name="test_get_cards_per_turn_bonus" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100704" >
+	  </testcase>
+	  <testcase name="test_get_card_draw_bonus" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100424" >
+	  </testcase>
+	  <testcase name="test_get_tile_gold_bonus" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100977" >
+	  </testcase>
+	  <testcase name="test_get_tile_gold_bonus_no_match" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.101622" >
+	  </testcase>
+	  <testcase name="test_get_build_cost_multiplier_discount" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100581" >
+	  </testcase>
+	  <testcase name="test_get_build_cost_multiplier_increase" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100892" >
+	  </testcase>
+	  <testcase name="test_get_build_cost_multiplier_stacked" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100941" >
+	  </testcase>
+	  <testcase name="test_should_return_to_hand" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.099911" >
+	  </testcase>
+	  <testcase name="test_should_return_to_hand_false_for_wrong_card" assertions="1" status="pass" classname="tests/test_modifier.gd" time="0.100676" >
+	  </testcase>
+	  <testcase name="test_multiple_ticks_expire_correctly" assertions="3" status="pass" classname="tests/test_modifier.gd" time="0.100043" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_shop.gd" tests="49" failures="0" skipped="0" time="0.606356" >
+	  <testcase name="test_item_is_available_with_stock" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000304" >
+	  </testcase>
+	  <testcase name="test_item_not_available_after_sold_out" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000288" >
+	  </testcase>
+	  <testcase name="test_item_unlimited_stock" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000284" >
+	  </testcase>
+	  <testcase name="test_item_can_afford_true" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000201" >
+	  </testcase>
+	  <testcase name="test_item_can_afford_exact" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000195" >
+	  </testcase>
+	  <testcase name="test_item_cannot_afford" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000189" >
+	  </testcase>
+	  <testcase name="test_item_purchase_deducts_gold" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000302" >
+	  </testcase>
+	  <testcase name="test_item_purchase_adds_card_to_discard" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000364" >
+	  </testcase>
+	  <testcase name="test_item_purchase_duplicates_card" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000396" >
+	  </testcase>
+	  <testcase name="test_item_purchase_increments_sold_count" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000293" >
+	  </testcase>
+	  <testcase name="test_config_can_purge_with_gold" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000223" >
+	  </testcase>
+	  <testcase name="test_config_cannot_purge_without_gold" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000206" >
+	  </testcase>
+	  <testcase name="test_config_cannot_purge_when_disabled" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000192" >
+	  </testcase>
+	  <testcase name="test_config_cannot_purge_over_max" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000201" >
+	  </testcase>
+	  <testcase name="test_config_purge_removes_from_draw_pile" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000274" >
+	  </testcase>
+	  <testcase name="test_config_purge_removes_from_discard_pile" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000235" >
+	  </testcase>
+	  <testcase name="test_config_purge_deducts_gold" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000277" >
+	  </testcase>
+	  <testcase name="test_config_purge_increments_global_counter" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000259" >
+	  </testcase>
+	  <testcase name="test_config_purge_increments_visit_counter" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000257" >
+	  </testcase>
+	  <testcase name="test_config_purge_cost_scales_after_purge" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000368" >
+	  </testcase>
+	  <testcase name="test_config_purge_fails_if_card_not_in_piles" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000343" >
+	  </testcase>
+	  <testcase name="test_config_purge_fails_without_gold" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000293" >
+	  </testcase>
+	  <testcase name="test_purge_cost_base" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000231" >
+	  </testcase>
+	  <testcase name="test_purge_cost_scales_linearly" assertions="3" status="pass" classname="tests/test_shop.gd" time="0.000292" >
+	  </testcase>
+	  <testcase name="test_scaled_price_no_scaling_at_base_turn" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000245" >
+	  </testcase>
+	  <testcase name="test_scaled_price_increases_past_base_turn" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000235" >
+	  </testcase>
+	  <testcase name="test_scaled_price_no_negative_scaling" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000241" >
+	  </testcase>
+	  <testcase name="test_basic_shop_has_2_or_3_items" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000331" >
+	  </testcase>
+	  <testcase name="test_basic_shop_allows_1_purge" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000301" >
+	  </testcase>
+	  <testcase name="test_basic_shop_prices_in_range" assertions="6" status="pass" classname="tests/test_shop.gd" time="0.000324" >
+	  </testcase>
+	  <testcase name="test_special_shop_has_3_items" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000321" >
+	  </testcase>
+	  <testcase name="test_special_shop_allows_2_or_3_purges" assertions="3" status="pass" classname="tests/test_shop.gd" time="0.000274" >
+	  </testcase>
+	  <testcase name="test_special_shop_prices_basic_in_range" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000264" >
+	  </testcase>
+	  <testcase name="test_special_shop_prices_special_in_range" assertions="2" status="pass" classname="tests/test_shop.gd" time="0.000285" >
+	  </testcase>
+	  <testcase name="test_generator_items_have_stock_1" assertions="3" status="pass" classname="tests/test_shop.gd" time="0.000356" >
+	  </testcase>
+	  <testcase name="test_generator_purge_cost_uses_global_count" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000276" >
+	  </testcase>
+	  <testcase name="test_pick_random_cards_no_duplicates" assertions="4" status="pass" classname="tests/test_shop.gd" time="0.00026" >
+	  </testcase>
+	  <testcase name="test_pick_random_cards_empty_pool" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.00023" >
+	  </testcase>
+	  <testcase name="test_pick_random_cards_pool_smaller_than_count" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.000229" >
+	  </testcase>
+	  <testcase name="test_basic_shop_event_not_available_early" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.088371" >
+	  </testcase>
+	  <testcase name="test_basic_shop_event_available_at_turn_8" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.10026" >
+	  </testcase>
+	  <testcase name="test_special_shop_event_not_available_early" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.101013" >
+	  </testcase>
+	  <testcase name="test_special_shop_event_available_at_turn_12" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.100566" >
+	  </testcase>
+	  <testcase name="test_special_shop_event_not_available_low_gold" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.100441" >
+	  </testcase>
+	  <testcase name="test_special_shop_event_not_available_few_tiles" assertions="1" status="pass" classname="tests/test_shop.gd" time="0.101703" >
+	  </testcase>
+	  <testcase name="test_shop_event_generates_basic_config" assertions="3" status="pass" classname="tests/test_shop.gd" time="0.00165" >
+	  </testcase>
+	  <testcase name="test_shop_event_generates_special_config" assertions="3" status="pass" classname="tests/test_shop.gd" time="0.000511" >
+	  </testcase>
+	  <testcase name="test_full_buy_and_purge_flow" assertions="8" status="pass" classname="tests/test_shop.gd" time="0.000609" >
+	  </testcase>
+	  <testcase name="test_purge_cost_escalation_across_visits" assertions="4" status="pass" classname="tests/test_shop.gd" time="0.000593" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_stats.gd" tests="19" failures="0" skipped="0" time="0.008177" >
+	  <testcase name="test_create_instance_sets_initial_gold" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.00044" >
+	  </testcase>
+	  <testcase name="test_create_instance_sets_initial_gold_per_turn" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000432" >
+	  </testcase>
+	  <testcase name="test_create_instance_sets_food_to_zero" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.0004" >
+	  </testcase>
+	  <testcase name="test_create_instance_creates_empty_piles" assertions="6" status="pass" classname="tests/test_stats.gd" time="0.000459" >
+	  </testcase>
+	  <testcase name="test_create_instance_duplicates_deck" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000414" >
+	  </testcase>
+	  <testcase name="test_create_instance_resets_turn_number" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.00042" >
+	  </testcase>
+	  <testcase name="test_create_instance_resets_unique_events" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000415" >
+	  </testcase>
+	  <testcase name="test_set_gold_emits_stats_changed" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000616" >
+	  </testcase>
+	  <testcase name="test_set_gold_per_turn_emits_stats_changed" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000603" >
+	  </testcase>
+	  <testcase name="test_set_food_emits_stats_changed" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000551" >
+	  </testcase>
+	  <testcase name="test_set_cards_per_turn_clamped_min" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000444" >
+	  </testcase>
+	  <testcase name="test_set_cards_per_turn_clamped_max" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000405" >
+	  </testcase>
+	  <testcase name="test_set_cards_per_turn_normal_value" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000366" >
+	  </testcase>
+	  <testcase name="test_add_possible_building" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000346" >
+	  </testcase>
+	  <testcase name="test_add_possible_building_emits_signal" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000485" >
+	  </testcase>
+	  <testcase name="test_add_possible_building_no_duplicate" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000361" >
+	  </testcase>
+	  <testcase name="test_remove_possible_building" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000294" >
+	  </testcase>
+	  <testcase name="test_remove_possible_building_emits_signal" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000413" >
+	  </testcase>
+	  <testcase name="test_remove_nonexistent_building_no_error" assertions="1" status="pass" classname="tests/test_stats.gd" time="0.000313" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_tile_resources.gd" tests="18" failures="0" skipped="0" time="0.189902" >
+	  <testcase name="test_natural_resource_defaults" assertions="2" status="pass" classname="tests/test_tile_resources.gd" time="0.000362" >
+	  </testcase>
+	  <testcase name="test_natural_resource_with_values" assertions="3" status="pass" classname="tests/test_tile_resources.gd" time="0.000318" >
+	  </testcase>
+	  <testcase name="test_natural_resource_biome_dictionary" assertions="4" status="pass" classname="tests/test_tile_resources.gd" time="0.001486" >
+	  </testcase>
+	  <testcase name="test_location_type_properties" assertions="3" status="pass" classname="tests/test_tile_resources.gd" time="0.000528" >
+	  </testcase>
+	  <testcase name="test_location_type_uncolonized" assertions="1" status="pass" classname="tests/test_tile_resources.gd" time="0.000415" >
+	  </testcase>
+	  <testcase name="test_location_type_megalopolis" assertions="1" status="pass" classname="tests/test_tile_resources.gd" time="0.000259" >
+	  </testcase>
+	  <testcase name="test_position_data_defaults" assertions="4" status="pass" classname="tests/test_tile_resources.gd" time="0.000251" >
+	  </testcase>
+	  <testcase name="test_position_data_with_values" assertions="4" status="pass" classname="tests/test_tile_resources.gd" time="0.000311" >
+	  </testcase>
+	  <testcase name="test_tile_mesh_data_biome_type" assertions="2" status="pass" classname="tests/test_tile_resources.gd" time="0.000315" >
+	  </testcase>
+	  <testcase name="test_biome_type_enum" assertions="7" status="pass" classname="tests/test_tile_resources.gd" time="0.000514" >
+	  </testcase>
+	  <testcase name="test_location_type_enum" assertions="4" status="pass" classname="tests/test_tile_resources.gd" time="0.000469" >
+	  </testcase>
+	  <testcase name="test_recalculate_modifiers_base_production" assertions="2" status="pass" classname="tests/test_tile_resources.gd" time="0.000518" >
+	  </testcase>
+	  <testcase name="test_recalculate_modifiers_with_building" assertions="2" status="pass" classname="tests/test_tile_resources.gd" time="0.000489" >
+	  </testcase>
+	  <testcase name="test_recalculate_max_buildings_from_location" assertions="1" status="pass" classname="tests/test_tile_resources.gd" time="0.000406" >
+	  </testcase>
+	  <testcase name="test_set_controller" assertions="1" status="pass" classname="tests/test_tile_resources.gd" time="0.080581" >
+	  </testcase>
+	  <testcase name="test_set_controller_null" assertions="1" status="pass" classname="tests/test_tile_resources.gd" time="0.100829" >
+	  </testcase>
+	  <testcase name="test_hex_vertices_returns_six" assertions="1" status="pass" classname="tests/test_tile_resources.gd" time="0.00118" >
+	  </testcase>
+	  <testcase name="test_hex_vertices_unit_radius" assertions="6" status="pass" classname="tests/test_tile_resources.gd" time="0.000671" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_turn_events.gd" tests="43" failures="0" skipped="0" time="3.121641" >
+	  <testcase name="test_comparison_greater" assertions="3" status="pass" classname="tests/test_turn_events.gd" time="0.000354" >
+	  </testcase>
+	  <testcase name="test_comparison_greater_equal" assertions="3" status="pass" classname="tests/test_turn_events.gd" time="0.000311" >
+	  </testcase>
+	  <testcase name="test_comparison_less" assertions="3" status="pass" classname="tests/test_turn_events.gd" time="0.000303" >
+	  </testcase>
+	  <testcase name="test_comparison_less_equal" assertions="3" status="pass" classname="tests/test_turn_events.gd" time="0.00031" >
+	  </testcase>
+	  <testcase name="test_comparison_equal" assertions="2" status="pass" classname="tests/test_turn_events.gd" time="0.000331" >
+	  </testcase>
+	  <testcase name="test_base_condition_always_true" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.096065" >
+	  </testcase>
+	  <testcase name="test_gold_threshold_condition_met" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100714" >
+	  </testcase>
+	  <testcase name="test_gold_threshold_condition_not_met" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.101263" >
+	  </testcase>
+	  <testcase name="test_food_threshold_condition" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.101777" >
+	  </testcase>
+	  <testcase name="test_turn_number_condition" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.101077" >
+	  </testcase>
+	  <testcase name="test_turn_number_condition_not_met" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100585" >
+	  </testcase>
+	  <testcase name="test_event_available_no_conditions" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.10028" >
+	  </testcase>
+	  <testcase name="test_event_not_available_condition_fails" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100509" >
+	  </testcase>
+	  <testcase name="test_event_available_all_conditions_pass" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.101432" >
+	  </testcase>
+	  <testcase name="test_gold_event_effect_adds_gold" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.101347" >
+	  </testcase>
+	  <testcase name="test_gold_event_effect_subtracts_gold" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100988" >
+	  </testcase>
+	  <testcase name="test_food_event_effect" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.10023" >
+	  </testcase>
+	  <testcase name="test_scaled_gold_effect_base_only" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100167" >
+	  </testcase>
+	  <testcase name="test_scaled_gold_effect_with_turn_factor" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.10008" >
+	  </testcase>
+	  <testcase name="test_scaled_gold_effect_with_gpt_percent" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100457" >
+	  </testcase>
+	  <testcase name="test_unlock_building_effect" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100098" >
+	  </testcase>
+	  <testcase name="test_cost_can_pay_enough_gold" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100599" >
+	  </testcase>
+	  <testcase name="test_cost_cannot_pay_not_enough_gold" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100729" >
+	  </testcase>
+	  <testcase name="test_cost_pay_deducts_gold" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.10085" >
+	  </testcase>
+	  <testcase name="test_cost_pay_deducts_food" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.10181" >
+	  </testcase>
+	  <testcase name="test_scaled_gold_cost_can_pay" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100273" >
+	  </testcase>
+	  <testcase name="test_scaled_gold_cost_cannot_pay" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100763" >
+	  </testcase>
+	  <testcase name="test_scaled_gold_cost_pay" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.101161" >
+	  </testcase>
+	  <testcase name="test_choice_is_affordable_no_cost" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100981" >
+	  </testcase>
+	  <testcase name="test_choice_is_affordable_with_payable_cost" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.101623" >
+	  </testcase>
+	  <testcase name="test_choice_not_affordable" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100579" >
+	  </testcase>
+	  <testcase name="test_choice_execute_applies_effects" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100274" >
+	  </testcase>
+	  <testcase name="test_choice_execute_pays_cost_then_applies" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.100252" >
+	  </testcase>
+	  <testcase name="test_choice_needs_player_input_false_by_default" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.001164" >
+	  </testcase>
+	  <testcase name="test_filter_matches_by_id" assertions="2" status="pass" classname="tests/test_turn_events.gd" time="0.000586" >
+	  </testcase>
+	  <testcase name="test_filter_matches_by_type" assertions="2" status="pass" classname="tests/test_turn_events.gd" time="0.000523" >
+	  </testcase>
+	  <testcase name="test_filter_find_first" assertions="2" status="pass" classname="tests/test_turn_events.gd" time="0.000406" >
+	  </testcase>
+	  <testcase name="test_filter_find_first_empty_when_no_match" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.000331" >
+	  </testcase>
+	  <testcase name="test_filter_has_match" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.000327" >
+	  </testcase>
+	  <testcase name="test_filter_no_match" assertions="1" status="pass" classname="tests/test_turn_events.gd" time="0.000321" >
+	  </testcase>
+	  <testcase name="test_context_build_populates_gold" assertions="3" status="pass" classname="tests/test_turn_events.gd" time="0.096408" >
+	  </testcase>
+	  <testcase name="test_context_card_count_by_id" assertions="2" status="pass" classname="tests/test_turn_events.gd" time="0.101476" >
+	  </testcase>
+	  <testcase name="test_context_card_count_by_type" assertions="2" status="pass" classname="tests/test_turn_events.gd" time="0.101527" >
+	  </testcase>
+	  </testsuite>
+  <testsuite name="tests/test_world_gen.gd" tests="20" failures="0" skipped="0" time="0.010769" >
+	  <testcase name="test_tile_to_world_origin_stagger" assertions="2" status="pass" classname="tests/test_world_gen.gd" time="0.000487" >
+	  </testcase>
+	  <testcase name="test_tile_to_world_origin_no_stagger" assertions="2" status="pass" classname="tests/test_world_gen.gd" time="0.000383" >
+	  </testcase>
+	  <testcase name="test_tile_to_world_horizontal_spacing" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000357" >
+	  </testcase>
+	  <testcase name="test_tile_to_world_y_is_zero" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000333" >
+	  </testcase>
+	  <testcase name="test_tile_to_world_tile_size_scales" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000395" >
+	  </testcase>
+	  <testcase name="test_noise_at_tile_normalized" assertions="121" status="pass" classname="tests/test_world_gen.gd" time="0.003765" >
+	  </testcase>
+	  <testcase name="test_circle_shape_filter_origin" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000461" >
+	  </testcase>
+	  <testcase name="test_circle_shape_filter_inside" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000352" >
+	  </testcase>
+	  <testcase name="test_circle_shape_filter_outside" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000316" >
+	  </testcase>
+	  <testcase name="test_diamond_shape_filter_origin" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.00038" >
+	  </testcase>
+	  <testcase name="test_diamond_shape_filter_outside" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000444" >
+	  </testcase>
+	  <testcase name="test_hexagonal_buffer_filter_center_inside" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000363" >
+	  </testcase>
+	  <testcase name="test_hexagonal_buffer_filter_edge_outside" assertions="1" status="pass" classname="tests/test_world_gen.gd" time="0.000303" >
+	  </testcase>
+	  <testcase name="test_rectangular_buffer_filter" assertions="2" status="pass" classname="tests/test_world_gen.gd" time="0.000314" >
+	  </testcase>
+	  <testcase name="test_circular_buffer_filter" assertions="2" status="pass" classname="tests/test_world_gen.gd" time="0.000301" >
+	  </testcase>
+	  <testcase name="test_diamond_buffer_filter" assertions="2" status="pass" classname="tests/test_world_gen.gd" time="0.000283" >
+	  </testcase>
+	  <testcase name="test_find_noise_caps" assertions="2" status="pass" classname="tests/test_world_gen.gd" time="0.000398" >
+	  </testcase>
+	  <testcase name="test_generate_position" assertions="2" status="pass" classname="tests/test_world_gen.gd" time="0.000431" >
+	  </testcase>
+	  <testcase name="test_generation_settings_defaults" assertions="2" status="pass" classname="tests/test_world_gen.gd" time="0.000329" >
+	  </testcase>
+	  <testcase name="test_generation_settings_shape_enum" assertions="4" status="pass" classname="tests/test_world_gen.gd" time="0.000374" >
+	  </testcase>
+	  </testsuite>
+  </testsuites>
