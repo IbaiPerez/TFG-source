@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DirectBuildCard" load_steps=5 format=3 uid="uid://rvxxtlwih1to"]
+
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_bldg"]
+[ext_resource type="Script" uid="uid://erjl2bxm27df" path="res://scripts/cards_resources/direct_build_card.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://rbc7shh2w8i6" path="res://assets/cards/build_library_card.svg" id="3_icon"]
+[ext_resource type="Resource" uid="uid://blibrary001bl" path="res://resources/buildings/library.tres" id="4_building"]
+
+[resource]
+script = ExtResource("2_script")
+buildings = Array[ExtResource("1_bldg")]([ExtResource("4_building")])
+id = "Build Library"
+type = 2
+needs_confirmation = true
+icon = ExtResource("3_icon")
+tooltipe_text = "Construye una Library (+1 carta por turno)"

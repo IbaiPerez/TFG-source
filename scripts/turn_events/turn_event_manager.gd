@@ -21,7 +21,10 @@ func evaluate(context:EventContext) -> TurnEvent:
 		return null
 
 	# Fase 3: seleccion ponderada por peso
-	return _weighted_pick(available)
+	var picked := _weighted_pick(available)
+	if picked:
+		picked.prepare(context)
+	return picked
 
 
 func resolve(event:TurnEvent, choice:TurnEventChoice,

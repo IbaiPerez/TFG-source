@@ -1,7 +1,6 @@
-[gd_resource type="Resource" script_class="Building" load_steps=9 format=3 uid="uid://bdfiap5opa08s"]
+[gd_resource type="Resource" script_class="Building" load_steps=8 format=3 uid="uid://bdfiap5opa08s"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
-[ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_town"]
 [ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_mega"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
 [ext_resource type="Texture2D" uid="uid://c3a7wlba1473k" path="res://assets/buildings/lategame/gran_catedral.svg" id="5_img"]
@@ -19,7 +18,7 @@ tooltipe_text = "+25% producción de comida global"
 [resource]
 script = ExtResource("4_bld")
 name = "Gran Catedral"
-allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("3_mega")])
 image = ExtResource("5_img")
 construction_cost = 500
 gold_produced = 5

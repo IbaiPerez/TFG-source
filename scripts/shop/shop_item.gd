@@ -20,5 +20,7 @@ func can_afford(gold:int) -> bool:
 
 func purchase(stats:Stats) -> void:
 	stats.total_gold -= price
-	stats.discard_pile.add_card(card.duplicate())
+	var instance := card.duplicate()
+	stats.sync_card_buildings(instance)
+	stats.discard_pile.add_card(instance)
 	_sold_count += 1

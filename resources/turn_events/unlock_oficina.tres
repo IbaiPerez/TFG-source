@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UnlockOficinaEvent" load_steps=2 format=3 uid="uid://jvefmmsls1fc"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/unlock_oficina_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "unlock_oficina"
+title = "Burocracia Imperial"
+description = "[i]La cantidad de edificios en tu imperio ha crecido hasta el punto de necesitar una gestión centralizada. Tus consejeros proponen establecer una oficina de construcción que coordine y abarate las futuras obras.[/i]"
+allow_skip = false
+weight = 10.0
+unique = true

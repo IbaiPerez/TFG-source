@@ -7,6 +7,6 @@ script = ExtResource("1_script")
 id = "spirit_ofrenda"
 title = "Ofrenda del Bosque"
 description = "[i]Al amanecer, los colonos encuentran cestas de frutos silvestres, setas y miel depositadas ante el Santuario. Los espíritus del bosque comparten su abundancia con quienes respetan la arboleda sagrada.[/i]"
-allow_skip = true
+allow_skip = false
 weight = 2.0
 unique = false

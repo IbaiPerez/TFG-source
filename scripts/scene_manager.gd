@@ -5,6 +5,7 @@ const BUILDING_PANEL = preload("uid://d4kc0x1wj7vrm")
 const TURN_EVENT_PANEL = preload("uid://dt9hturneventpnl")
 const SHOP_PANEL = preload("res://scenes/UI/shop/shop_panel.tscn")
 const RECOVER_CARD_PANEL = preload("res://scenes/UI/card/recover_card_panel.tscn")
+const EVENT_CARD_SELECTION_PANEL = preload("res://scenes/UI/turn_events/event_card_selection_panel.tscn")
 const MAIN_MENU = preload("res://scenes/UI/menus/main_menu.tscn")
 const EMPIRE_SELECTION = preload("res://scenes/UI/menus/empire_selection.tscn")
 const GENERATION_UI = preload("res://scenes/UI/generation_ui.tscn")
@@ -94,6 +95,11 @@ func _on_turn_event_triggered(event:TurnEvent, context:EventContext) -> void:
 		if event.unique:
 			player_handler.turn_event_manager.stats.used_unique_events.append(event.id)
 	else:
+		# Añadir panel de selección de carta si no existe ya
+		if not ui_layer.has_node("EventCardSelectionPanel"):
+			var card_sel := EVENT_CARD_SELECTION_PANEL.instantiate()
+			ui_layer.add_child(card_sel)
+
 		var panel:TurnEventPanel = TURN_EVENT_PANEL.instantiate()
 		ui_layer.add_child(panel)
 		panel.setup(event, context, player_handler.turn_event_manager)

@@ -26,6 +26,11 @@ var used_unique_events:Array[String] = []
 var turn_number:int = 0
 var total_purges_done:int = 0
 
+## Pool de cartas desbloqueadas (evento genérico + tienda)
+var unlocked_card_pool:Array[UnlockedCardEntry] = []
+## Cartas exclusivas de tienda (no aparecen en el evento genérico)
+var shop_exclusive_pool:Array[UnlockedCardEntry] = []
+
 
 func set_cards_per_turn(value:int) -> void:
 	cards_per_turn = clampi(value,1,20)
@@ -71,6 +76,18 @@ func _sync_build_cards() -> void:
 				card.buildings = possible_buildings.duplicate()
 
 
+## Sincroniza buildings en una BuildCard suelta (antes de añadirla a una pila).
+func sync_card_buildings(card:Card) -> void:
+	if card is BuildCard and not card is DirectBuildCard:
+		card.buildings = possible_buildings.duplicate()
+
+
+## Cartas precargadas para los pools iniciales
+const _COLONIZE_CARD = preload("res://resources/cards/colonize_card.tres")
+const _CARD_DRAW_CARD = preload("res://resources/cards/card_draw_card.tres")
+const _RECOVER_CARD = preload("res://resources/cards/recover_card.tres")
+
+
 func create_instance() -> Resource:
 	var instance:Stats = self.duplicate()
 	instance.total_gold = initial_gold
@@ -86,4 +103,33 @@ func create_instance() -> Resource:
 	instance.total_purges_done = 0
 	instance.possible_buildings = possible_buildings.duplicate()
 	instance._sync_build_cards()
+	instance._init_card_pools()
 	return instance
+
+
+func _init_card_pools() -> void:
+	# Pool general: empieza con colonizar
+	unlocked_card_pool = [
+		# BASIC: peso alto al inicio, baja con los turnos
+		UnlockedCardEntry.new(_COLONIZE_CARD, 10.0, -0.3, 2.0),
+	]
+
+	# Pool exclusivo de tienda
+	shop_exclusive_pool = [
+		UnlockedCardEntry.new(_CARD_DRAW_CARD, 5.0, 0.1, 3.0),
+		UnlockedCardEntry.new(_RECOVER_CARD, 4.0, 0.1, 2.0),
+	]
+
+
+func add_to_card_pool(entry:UnlockedCardEntry) -> void:
+	for existing in unlocked_card_pool:
+		if existing.card.id == entry.card.id:
+			return  # Ya existe, no duplicar
+	unlocked_card_pool.append(entry)
+
+
+func get_full_shop_pool() -> Array[UnlockedCardEntry]:
+	var pool:Array[UnlockedCardEntry] = []
+	pool.append_array(unlocked_card_pool)
+	pool.append_array(shop_exclusive_pool)
+	return pool

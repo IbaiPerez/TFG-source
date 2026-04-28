@@ -15,3 +15,9 @@ var conditions:Array[TurnEventCondition] = []
 
 func is_available(context:EventContext) -> bool:
 	return conditions.all(func(c): return c.is_met(context))
+
+
+## Llamado antes de mostrar el evento al jugador.
+## Sobrescribir en subclases que necesiten configurar choices dinámicamente.
+func prepare(_context:EventContext) -> void:
+	pass

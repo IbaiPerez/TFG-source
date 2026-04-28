@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Build Temple: priest before a temple with divine light -->
+
+  <g fill="#1A1A1A">
+    <!-- Ground -->
+    <ellipse cx="256" cy="468" rx="230" ry="28"/>
+    <path d="M50,462 Q150,450 250,464 Q350,478 450,458" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === TEMPLE STRUCTURE (center-right) === -->
+    <!-- Base platform -->
+    <rect x="200" y="400" width="260" height="16" rx="3"/>
+    <line x1="210" y1="408" x2="450" y2="408" stroke="white" stroke-width="1" opacity="0.15"/>
+    <!-- Steps -->
+    <rect x="215" y="386" width="230" height="16" rx="2"/>
+    <line x1="225" y1="394" x2="435" y2="394" stroke="white" stroke-width="1" opacity="0.12"/>
+
+    <!-- Columns -->
+    <rect x="230" y="210" width="22" height="178" rx="4"/>
+    <line x1="237" y1="220" x2="237" y2="380" stroke="white" stroke-width="1" opacity="0.12"/>
+    <rect x="280" y="210" width="22" height="178" rx="4"/>
+    <rect x="348" y="210" width="22" height="178" rx="4"/>
+    <rect x="398" y="210" width="22" height="178" rx="4"/>
+    <line x1="413" y1="220" x2="413" y2="380" stroke="white" stroke-width="1" opacity="0.12"/>
+
+    <!-- Entablature -->
+    <rect x="218" y="198" width="216" height="16" rx="2"/>
+    <line x1="228" y1="206" x2="424" y2="206" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- Pediment (triangle) -->
+    <polygon points="210,200 326,120 442,200"/>
+    <polygon points="225,198 326,130 427,198" fill="none" stroke="white" stroke-width="1" opacity="0.12"/>
+
+    <!-- Sacred symbol in pediment -->
+    <circle cx="326" cy="168" r="16"/>
+    <circle cx="326" cy="168" r="10" fill="white" opacity="0.08"/>
+    <circle cx="326" cy="168" r="5" fill="white" opacity="0.06"/>
+
+    <!-- Divine light rays from top -->
+    <line x1="326" y1="100" x2="326" y2="70" stroke="white" stroke-width="2" opacity="0.12"/>
+    <line x1="300" y1="108" x2="280" y2="82" stroke="white" stroke-width="1.5" opacity="0.1"/>
+    <line x1="352" y1="108" x2="372" y2="82" stroke="white" stroke-width="1.5" opacity="0.1"/>
+    <line x1="282" y1="124" x2="258" y2="104" stroke="white" stroke-width="1" opacity="0.08"/>
+    <line x1="370" y1="124" x2="394" y2="104" stroke="white" stroke-width="1" opacity="0.08"/>
+
+    <!-- Inner sanctuary (dark doorway) -->
+    <rect x="302" y="290" width="48" height="96" rx="24"/>
+    <path d="M310,386 Q326,370 342,386" fill="none" stroke="white" stroke-width="1" opacity="0.1"/>
+
+    <!-- Altar flame inside -->
+    <ellipse cx="326" cy="350" rx="6" ry="10" fill="white" opacity="0.06"/>
+    <ellipse cx="326" cy="346" rx="3" ry="6" fill="white" opacity="0.08"/>
+
+    <!-- === PRIEST FIGURE (left) === -->
+    <!-- Head -->
+    <circle cx="110" cy="210" r="28"/>
+    <!-- Headdress -->
+    <path d="M84,200 Q82,180 92,168 Q110,156 128,164 Q138,172 140,188 Q140,198 138,206 Q126,190 110,184 Q94,186 84,200 Z"/>
+    <line x1="94" y1="170" x2="128" y2="170" stroke="white" stroke-width="1.2" opacity="0.2"/>
+    <!-- Face -->
+    <ellipse cx="122" cy="208" rx="2.5" ry="3.5" fill="white"/>
+    <path d="M112,220 Q118,226 126,222" fill="none" stroke="white" stroke-width="1.5"/>
+
+    <!-- Torso - priestly robe -->
+    <path d="M86,236 Q110,228 136,236 L144,390 Q116,400 92,392 Z"/>
+    <!-- Robe decoration -->
+    <path d="M92,260 Q110,252 132,260" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <path d="M90,296 Q110,288 134,296" fill="none" stroke="white" stroke-width="1.5" opacity="0.25"/>
+    <path d="M88,332 Q110,324 136,332" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+    <!-- Sash -->
+    <line x1="110" y1="260" x2="110" y2="390" stroke="white" stroke-width="2" opacity="0.15"/>
+
+    <!-- Right arm raised in blessing -->
+    <path d="M134,250 Q158,240 178,224 Q192,212 200,198 L208,204 Q198,218 184,232 Q166,248 140,258 Z"/>
+    <!-- Hand -->
+    <ellipse cx="204" cy="198" rx="10" ry="8"/>
+    <!-- Blessing rays from hand -->
+    <line x1="210" y1="188" x2="220" y2="174" stroke="white" stroke-width="1.5" opacity="0.15"/>
+    <line x1="216" y1="196" x2="230" y2="188" stroke="white" stroke-width="1" opacity="0.12"/>
+    <line x1="212" y1="204" x2="228" y2="202" stroke="white" stroke-width="1" opacity="0.1"/>
+
+    <!-- Left arm holding scroll -->
+    <path d="M86,250 Q68,262 56,280 Q48,296 46,316 L54,318 Q54,298 60,284 Q70,268 88,256 Z"/>
+    <!-- Hand -->
+    <ellipse cx="48" cy="322" rx="9" ry="7"/>
+    <!-- Scroll -->
+    <rect x="34" y="308" width="8" height="36" rx="4"/>
+    <circle cx="38" cy="308" r="6"/>
+    <circle cx="38" cy="344" r="6"/>
+    <circle cx="38" cy="308" r="3" fill="white" opacity="0.08"/>
+    <circle cx="38" cy="344" r="3" fill="white" opacity="0.08"/>
+
+    <!-- Legs -->
+    <path d="M96,388 Q88,424 82,450 Q80,460 88,464 L110,466 Q106,458 108,444 Q112,424 116,400 Z"/>
+    <path d="M132,388 Q138,424 144,450 L164,462 Q160,450 154,436 Q146,414 140,396 Z"/>
+    <!-- Boot detail -->
+    <path d="M82,460 Q78,466 82,470 L114,470 Q116,464 110,462"/>
+
+    <!-- === FLOATING PARTICLES === -->
+    <circle cx="180" cy="300" r="2" opacity="0.25"/>
+    <circle cx="260" cy="250" r="1.5" opacity="0.2"/>
+    <circle cx="380" cy="280" r="2" opacity="0.2"/>
+    <circle cx="160" cy="150" r="1.5" opacity="0.15"/>
+    <circle cx="440" cy="350" r="1.5" opacity="0.18"/>
+  </g>
+</svg>

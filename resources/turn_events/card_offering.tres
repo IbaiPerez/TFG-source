@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CardOfferingEvent" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/card_offering_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "card_offering"
+title = "Ofrenda de Cartas"
+description = "[i]Un mensajero llega con noticias de tierras lejanas. Trae consigo un pergamino con nuevas tácticas y estrategias que podrían serte útiles.[/i]"
+allow_skip = true
+weight = 7.0

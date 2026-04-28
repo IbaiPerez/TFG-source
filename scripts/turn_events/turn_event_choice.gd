@@ -21,6 +21,20 @@ func needs_player_input() -> bool:
 	return false
 
 
+func needs_tile_input() -> bool:
+	for effect in effects:
+		if effect.needs_tile_input():
+			return true
+	return false
+
+
+func get_tile_effect() -> TurnEventEffect:
+	for effect in effects:
+		if effect.needs_tile_input():
+			return effect
+	return null
+
+
 func execute(context:EventContext, chosen_cards:Dictionary = {}) -> void:
 	if cost:
 		cost.pay(context, chosen_cards.get("cost"))

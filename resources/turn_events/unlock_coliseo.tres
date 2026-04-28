@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UnlockColiseoEvent" load_steps=2 format=3 uid="uid://jvd2vpyvkgfc"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/unlock_coliseo_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "unlock_coliseo"
+title = "Arquitectos del Espectáculo"
+description = "[i]La fama de tu imperio atrae a arquitectos visionarios de tierras lejanas. Proponen construir un gran coliseo en tu megalópolis, un monumento que reduzca los costes de construcción en todo el imperio gracias a las técnicas que enseñarán a tus canteros.[/i]"
+allow_skip = false
+weight = 10.0
+unique = true

@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="BankingAbility" load_steps=3 format=3 uid="uid://cbanca001abil"]
+[gd_resource type="Resource" script_class="BankingAbility" load_steps=4 format=3 uid="uid://cbanca001abil"]
 
 [ext_resource type="Script" uid="uid://bxdrxv7cq17i4" path="res://scripts/empire/abilities/banking_ability.gd" id="1_script"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="2_bldg"]
+[ext_resource type="Resource" uid="uid://bbank001excl" path="res://resources/buildings/exclusive/bank.tres" id="3_bank"]
 
 [resource]
 script = ExtResource("1_script")
 id = "Banca Fiorentina"
 ability_name = "Banca Fiorentina"
 description = "El poder del dinero abre todas las puertas. Tu produccion de oro aumenta un 15% y el coste de construccion de todos los edificios se reduce un 20%. Ademas, puedes construir el Banco, un edificio exclusivo con alta produccion de oro."
-exclusive_buildings = Array[ExtResource("2_bldg")]([null])
+exclusive_buildings = Array[ExtResource("2_bldg")]([ExtResource("3_bank")])
 metadata/_custom_type_script = "uid://bxdrxv7cq17i4"

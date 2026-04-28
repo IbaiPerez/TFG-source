@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="Building" load_steps=6 format=3 uid="uid://swgfuxrr1xi6"]
+[gd_resource type="Resource" script_class="Building" load_steps=7 format=3 uid="uid://swgfuxrr1xi6"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
 [ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_town"]
 [ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_mega"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
 [ext_resource type="Texture2D" path="res://assets/buildings/ziggurat.svg" id="5_img"]
+[ext_resource type="Resource" uid="uid://bjardcel001lt" path="res://resources/buildings/lategame/jardines_celestiales.tres" id="6_jardcel"]
 
 [resource]
 script = ExtResource("4_bld")
@@ -14,4 +15,5 @@ image = ExtResource("5_img")
 construction_cost = 300
 gold_produced = 6
 food_produced = 6
+upgrades_to = Array[ExtResource("4_bld")]([ExtResource("6_jardcel")])
 metadata/_custom_type_script = "uid://2ce384crr8i0"

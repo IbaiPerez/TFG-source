@@ -7,7 +7,6 @@ class_name TurnEventFactory
 
 
 const COLONIZE_CARD = preload("res://resources/cards/colonize_card.tres")
-const GOLD_CARD = preload("res://resources/cards/generate_gold_card.tres")
 const CARD_DRAW_CARD = preload("res://resources/cards/card_draw_card.tres")
 const WHEAT_RESOURCE = preload("res://resources/natural_resources/wheat.tres")
 
@@ -17,7 +16,6 @@ static func create_test_events() -> Array[TurnEvent]:
 	events.append(_merchant_caravan())
 	events.append(_poor_harvest())
 	events.append(_investment())
-	events.append(_extra_card())
 	events.append(_trade_route_discovery())
 	events.append(_golden_age())
 	return events
@@ -95,26 +93,6 @@ static func _investment() -> TurnEvent:
 	invest_choice.effects = [ApplyModifierEffect.new(bonus)]
 	event.choices = [invest_choice]
 
-	return event
-
-
-## Evento que te añade una carta al mazo de descartes
-static func _extra_card() -> TurnEvent:
-	var event := TurnEvent.new()
-	event.id = "extra_card"
-	event.title = "Oferta del mercader"
-	event.description = "[i]Un mercader te ofrece una carta extra de oro.[/i]"
-	event.weight = 1.0
-
-	var take_choice := TurnEventChoice.new()
-	take_choice.label = "Aceptar la carta (10 oro)"
-	take_choice.description = "Añade una carta de 'Generar Oro' a tu mazo de descartes."
-	var take_cost := TurnEventCost.new()
-	take_cost.gold = 10
-	take_choice.cost = take_cost
-	take_choice.effects = [AddCardEffect.new(GOLD_CARD)]
-
-	event.choices = [take_choice]
 	return event
 
 

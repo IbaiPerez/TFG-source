@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UnlockUrbanizeEvent" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/unlock_urbanize_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "unlock_urbanize"
+title = "Auge Urbano"
+description = "[i]Tus aldeas prosperan y crecen sin cesar. Los maestros constructores y administradores más veteranos proponen un ambicioso plan: transformar las aldeas más desarrolladas en auténticas ciudades, con mercados, almacenes y puertos que impulsen tu civilización a una nueva era.[/i]"
+allow_skip = false
+weight = 20.0
+unique = true

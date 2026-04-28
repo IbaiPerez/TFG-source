@@ -26,6 +26,11 @@ func _ready() -> void:
 	Events.player_turn_ended.connect(turn_manager.on_player_turn_ended)
 	Events.player_hand_discarded.connect(turn_manager.on_player_hand_discarded)
 
+	# Selector de tiles para eventos (Megalópolis, etc.)
+	var tile_selector := EventTileSelector.new()
+	tile_selector.name = "EventTileSelector"
+	add_child(tile_selector)
+
 	# Registrar jugador como primer controlador
 	player_handler.start_game(new_stats)
 	turn_manager.register_controller(player_handler)

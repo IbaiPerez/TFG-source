@@ -46,3 +46,13 @@ signal empire_turn_ended(controller:EmpireController)
 # Señales para que los BuildingEffect puedan añadir/quitar modificadores
 signal request_add_modifier(modifier:Modifier, stats:Stats)
 signal request_remove_modifier(modifier:Modifier)
+
+# Señales para selección de tile desde eventos
+signal request_tile_selection(eligible_tiles:Array[Tile])
+signal tile_selection_made(tile:Tile)
+signal tile_selection_cancelled()
+
+# Señales para selección de carta desde eventos
+signal request_card_selection(candidates:Array[Card])
+signal card_selection_made(card:Card)
+signal card_selection_cancelled()

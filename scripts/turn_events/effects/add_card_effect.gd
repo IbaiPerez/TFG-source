@@ -9,4 +9,6 @@ func _init(p_card:Card):
 
 
 func execute(context:EventContext, _chosen_card:Card = null) -> void:
-	context.stats.discard_pile.add_card(card.duplicate())
+	var instance := card.duplicate()
+	context.stats.sync_card_buildings(instance)
+	context.stats.discard_pile.add_card(instance)

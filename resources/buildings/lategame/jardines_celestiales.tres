@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Building" load_steps=9 format=3 uid="uid://bjardcel001lt"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
+[ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_town"]
+[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_mega"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
+[ext_resource type="Script" uid="uid://dy7ew041vlors" path="res://scripts/building/effect/add_stat_modifier_effect.gd" id="6_eff"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="7_beff"]
+
+[sub_resource type="Resource" id="eff_jardcel_food"]
+script = ExtResource("6_eff")
+modifier_id = "jardines_celestiales_food"
+modifier_name = "Fertilidad Divina"
+stat_type = 3
+value = 15.0
+tooltipe_text = "+15% producción de comida global"
+
+[sub_resource type="Resource" id="Resource_mkm3q"]
+metadata/__load_path__ = "res://assets/buildings/lategame/jardines_celestiales.svg"
+
+[resource]
+script = ExtResource("4_bld")
+name = "Jardines Celestiales"
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
+image = SubResource("Resource_mkm3q")
+construction_cost = 550
+gold_produced = 8
+food_produced = 14
+effects = Array[ExtResource("7_beff")]([SubResource("eff_jardcel_food")])
+metadata/_custom_type_script = "uid://2ce384crr8i0"

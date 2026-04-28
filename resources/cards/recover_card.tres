@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="RecoverCard" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="RecoverCard" load_steps=3 format=3 uid="uid://10j0tbedjn7y"]
 
-[ext_resource type="Script" path="res://scripts/cards_resources/recover_card.gd" id="1_rcvr"]
-[ext_resource type="Texture2D" path="res://assets/cards/recover_card.svg" id="2_icon"]
+[ext_resource type="Script" uid="uid://dl2al0inry8c3" path="res://scripts/cards_resources/recover_card.gd" id="1_rcvr"]
+[ext_resource type="Texture2D" uid="uid://by6mbu2ho2unw" path="res://assets/cards/recover_card.svg" id="2_icon"]
 
 [resource]
 script = ExtResource("1_rcvr")
@@ -10,4 +10,3 @@ type = 2
 target = 1
 needs_confirmation = true
 icon = ExtResource("2_icon")
-tooltipe_text = ""

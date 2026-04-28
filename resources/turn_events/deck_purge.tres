@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DeckPurgeEvent" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/deck_purge_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "deck_purge"
+title = "Depuración del Mazo"
+description = "[i]Un archivero itinerante visita tu corte y se ofrece a revisar tus estrategias. Puede ayudarte a descartar los planes menos útiles para que tu mazo sea más eficiente.[/i]"
+allow_skip = false
+weight = 8.0

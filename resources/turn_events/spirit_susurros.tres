@@ -7,6 +7,6 @@ script = ExtResource("1_script")
 id = "spirit_susurros"
 title = "Susurros Ancestrales"
 description = "[i]Por las noches, voces antiguas resuenan desde el Santuario. Los espíritus ancestrales comparten su sabiduría con tus consejeros, revelando estrategias olvidadas y abriendo nuevas posibilidades cada turno.[/i]"
-allow_skip = true
+allow_skip = false
 weight = 1.5
 unique = false

@@ -23,7 +23,7 @@ func start_game(new_stats:Stats) -> void:
 func start_turn() -> void:
 	_process_turn_start()
 	var effective_cards := _get_effective_cards_per_turn()
-	_draw_cards_animated(effective_cards)
+	draw_cards_animated(effective_cards)
 
 func end_turn() -> void:
 	if hand.get_children().size() == 0:
@@ -54,7 +54,7 @@ func _on_card_returned_to_hand(card:Card) -> void:
 
 ## --- Animaciones de mano (exclusivas del jugador) ---
 
-func _draw_cards_animated(amount:int) -> void:
+func draw_cards_animated(amount:int) -> void:
 	var tween := create_tween()
 	for i in range(amount):
 		tween.tween_callback(_draw_card_to_hand)

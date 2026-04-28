@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="DirectBuildCard" load_steps=5 format=3 uid="uid://bh3jdv72fte65"]
 
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_bldg"]
-[ext_resource type="Script" path="res://scripts/cards_resources/direct_build_card.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://erjl2bxm27df" path="res://scripts/cards_resources/direct_build_card.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://y6jhavc4672j" path="res://assets/cards/lategame/build_oficina.svg" id="3_icon"]
 [ext_resource type="Resource" uid="uid://cmrd4ei4rhs2d" path="res://resources/buildings/lategame/oficina_construccion.tres" id="4_building"]
 
@@ -9,6 +9,6 @@
 script = ExtResource("2_script")
 buildings = Array[ExtResource("1_bldg")]([ExtResource("4_building")])
 id = "Build Oficina de Construccion"
-type = 1
+type = 2
 icon = ExtResource("3_icon")
 tooltipe_text = "Construye una Oficina de Construcción (+15 oro al construir o mejorar)"

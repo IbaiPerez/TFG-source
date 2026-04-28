@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Build Library: scholar before a grand library building with books -->
+
+  <g fill="#1A1A1A">
+    <!-- Ground -->
+    <ellipse cx="256" cy="468" rx="230" ry="28"/>
+    <path d="M50,462 Q150,450 250,464 Q350,478 450,458" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === LIBRARY BUILDING (center-right) === -->
+    <!-- Base platform -->
+    <rect x="190" y="404" width="270" height="14" rx="3"/>
+    <line x1="200" y1="411" x2="450" y2="411" stroke="white" stroke-width="1" opacity="0.15"/>
+
+    <!-- Main facade -->
+    <rect x="205" y="190" width="240" height="216" rx="3"/>
+    <!-- Window row top -->
+    <rect x="222" y="210" width="24" height="36" rx="3" fill="white" opacity="0.06"/>
+    <rect x="260" y="210" width="24" height="36" rx="3" fill="white" opacity="0.06"/>
+    <rect x="366" y="210" width="24" height="36" rx="3" fill="white" opacity="0.06"/>
+    <rect x="404" y="210" width="24" height="36" rx="3" fill="white" opacity="0.06"/>
+    <!-- Window row bottom -->
+    <rect x="222" y="268" width="24" height="36" rx="3" fill="white" opacity="0.05"/>
+    <rect x="260" y="268" width="24" height="36" rx="3" fill="white" opacity="0.05"/>
+    <rect x="366" y="268" width="24" height="36" rx="3" fill="white" opacity="0.05"/>
+    <rect x="404" y="268" width="24" height="36" rx="3" fill="white" opacity="0.05"/>
+
+    <!-- Central grand entrance -->
+    <rect x="300" y="210" width="50" height="196" rx="4"/>
+    <rect x="306" y="216" width="38" height="186" rx="3" fill="white" opacity="0.04"/>
+    <!-- Arch over entrance -->
+    <path d="M298,210 Q325,186 352,210" fill="none" stroke="white" stroke-width="1.5" opacity="0.15"/>
+
+    <!-- Cornice -->
+    <rect x="198" y="182" width="254" height="12" rx="2"/>
+    <line x1="208" y1="188" x2="442" y2="188" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- Dome -->
+    <path d="M280,184 Q325,120 370,184"/>
+    <path d="M290,184 Q325,130 360,184" fill="none" stroke="white" stroke-width="1" opacity="0.12"/>
+    <!-- Dome pinnacle -->
+    <line x1="325" y1="124" x2="325" y2="100" stroke="#1A1A1A" stroke-width="4"/>
+    <circle cx="325" cy="96" r="6"/>
+    <circle cx="325" cy="96" r="3" fill="white" opacity="0.08"/>
+
+    <!-- Knowledge glow from dome -->
+    <circle cx="325" cy="96" r="18" fill="white" opacity="0.04"/>
+    <line x1="325" y1="76" x2="325" y2="64" stroke="white" stroke-width="1.5" opacity="0.1"/>
+    <line x1="310" y1="80" x2="300" y2="68" stroke="white" stroke-width="1" opacity="0.08"/>
+    <line x1="340" y1="80" x2="350" y2="68" stroke="white" stroke-width="1" opacity="0.08"/>
+
+    <!-- Book stacks at entrance -->
+    <rect x="220" y="370" width="28" height="8" rx="1"/>
+    <rect x="218" y="360" width="32" height="8" rx="1"/>
+    <rect x="222" y="350" width="26" height="8" rx="1"/>
+    <line x1="224" y1="365" x2="246" y2="365" stroke="white" stroke-width="0.8" opacity="0.15"/>
+
+    <rect x="400" y="374" width="26" height="8" rx="1"/>
+    <rect x="398" y="364" width="30" height="8" rx="1"/>
+    <line x1="402" y1="369" x2="424" y2="369" stroke="white" stroke-width="0.8" opacity="0.15"/>
+
+    <!-- === SCHOLAR FIGURE (left) === -->
+    <!-- Head -->
+    <circle cx="100" cy="220" r="26"/>
+    <!-- Beret/cap -->
+    <path d="M76,212 Q78,196 90,190 Q100,186 114,190 Q124,196 126,210 Q118,200 100,196 Q84,198 76,212 Z"/>
+    <ellipse cx="100" cy="190" rx="28" ry="8"/>
+    <!-- Face -->
+    <ellipse cx="114" cy="218" rx="2.5" ry="3" fill="white"/>
+    <path d="M104,230 Q110,234 118,230" fill="none" stroke="white" stroke-width="1.5"/>
+    <!-- Glasses -->
+    <circle cx="108" cy="218" r="7" fill="none" stroke="white" stroke-width="1" opacity="0.2"/>
+    <circle cx="122" cy="218" r="7" fill="none" stroke="white" stroke-width="1" opacity="0.2"/>
+    <line x1="115" y1="218" x2="116" y2="218" stroke="white" stroke-width="1" opacity="0.2"/>
+
+    <!-- Torso - scholar robe -->
+    <path d="M78,246 Q100,238 126,246 L134,396 Q108,406 84,398 Z"/>
+    <!-- Robe folds -->
+    <path d="M84,270 Q100,262 124,270" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <path d="M82,306 Q100,298 126,306" fill="none" stroke="white" stroke-width="1.5" opacity="0.25"/>
+    <path d="M80,342 Q100,334 128,342" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- Right arm holding open book -->
+    <path d="M124,260 Q146,254 164,256 Q178,260 186,270 L182,280 Q174,272 162,268 Q148,264 128,268 Z"/>
+    <!-- Hand -->
+    <ellipse cx="186" cy="278" rx="10" ry="8"/>
+    <!-- Open book in hand -->
+    <path d="M168,268 L168,312 Q186,306 204,312 L204,268 Q186,274 168,268 Z"/>
+    <line x1="186" y1="270" x2="186" y2="310" stroke="white" stroke-width="1" opacity="0.15"/>
+    <!-- Page lines -->
+    <line x1="174" y1="280" x2="184" y2="278" stroke="white" stroke-width="0.8" opacity="0.1"/>
+    <line x1="174" y1="288" x2="184" y2="286" stroke="white" stroke-width="0.8" opacity="0.1"/>
+    <line x1="174" y1="296" x2="184" y2="294" stroke="white" stroke-width="0.8" opacity="0.1"/>
+    <line x1="188" y1="278" x2="198" y2="280" stroke="white" stroke-width="0.8" opacity="0.1"/>
+    <line x1="188" y1="286" x2="198" y2="288" stroke="white" stroke-width="0.8" opacity="0.1"/>
+
+    <!-- Left arm at side -->
+    <path d="M78,260 Q62,272 52,290 Q46,308 44,328 L52,330 Q52,310 56,294 Q64,276 80,266 Z"/>
+    <!-- Hand -->
+    <ellipse cx="46" cy="334" rx="9" ry="7"/>
+
+    <!-- Legs -->
+    <path d="M90,394 Q82,428 78,454 Q76,462 84,466 L106,468 Q102,460 104,448 Q108,428 112,406 Z"/>
+    <path d="M126,394 Q132,428 138,454 L156,464 Q152,452 148,438 Q142,418 136,400 Z"/>
+    <!-- Boot -->
+    <path d="M78,462 Q74,468 78,472 L110,472 Q112,466 106,464"/>
+
+    <!-- === FLOATING KNOWLEDGE PARTICLES === -->
+    <circle cx="170" cy="160" r="2" opacity="0.2"/>
+    <circle cx="260" cy="140" r="1.5" opacity="0.15"/>
+    <circle cx="420" cy="300" r="2" opacity="0.18"/>
+    <circle cx="150" cy="350" r="1.5" opacity="0.15"/>
+    <circle cx="460" cy="200" r="1.5" opacity="0.12"/>
+  </g>
+</svg>

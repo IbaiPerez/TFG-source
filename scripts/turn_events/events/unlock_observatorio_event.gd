@@ -9,6 +9,7 @@ const OBSERVATORIO = preload("res://resources/buildings/observatorio.tres")
 
 func _init():
 	conditions = [
+		UniqueEventOccurredCondition.new("construction_boom"),
 		ControlledTilesCondition.new(3, Comparison.Type.GREATER_EQUAL, null, 4)
 	]
 
