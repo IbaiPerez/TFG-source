@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F0E0E0" stroke="#8B1A1A" stroke-width="3"/>
+
+  <!-- Two hexagons representing tiles in conflict -->
+  <!-- Left hex (friendly - blue) -->
+  <polygon points="32,50 44,42 56,50 56,66 44,74 32,66" fill="#3D7AB8" stroke="#2E5A88" stroke-width="2"/>
+
+  <!-- Right hex (enemy - red) -->
+  <polygon points="72,50 84,42 96,50 96,66 84,74 72,66" fill="#B83D3D" stroke="#882E2E" stroke-width="2"/>
+
+  <!-- Crossed swords between them -->
+  <line x1="52" y1="46" x2="76" y2="70" stroke="#C0C0C0" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="76" y1="46" x2="52" y2="70" stroke="#C0C0C0" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Sword handles -->
+  <circle cx="50" cy="44" r="3" fill="#8B6914"/>
+  <circle cx="78" cy="44" r="3" fill="#8B6914"/>
+
+  <!-- Battle text / banner -->
+  <rect x="30" y="82" width="68" height="20" rx="4" fill="#8B1A1A" opacity="0.9"/>
+  <text x="64" y="96" font-family="Arial" font-size="11" fill="white" text-anchor="middle" font-weight="bold">FRENTE</text>
+</svg>

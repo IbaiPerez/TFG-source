@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Troop" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/military/troop.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/troops/militia.svg" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+name = "Milicia"
+icon = ExtResource("2_icon")
+type = 2
+attack = 3
+defense = 3
+recruitment_cost_gold = 20
+maintenance_gold = 2
+maintenance_food = 1

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UnlockRecruitEvent" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/unlock_recruit_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "unlock_recruit"
+title = "Llamada a las armas"
+description = "[i]Las fronteras de tu imperio rozan las de un rival. Tus consejeros recomiendan preparar las defensas y formar un ejército. Es hora de reclutar tropas.[/i]"
+allow_skip = false
+weight = 100.0
+unique = true

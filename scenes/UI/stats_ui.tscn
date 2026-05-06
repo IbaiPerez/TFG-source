@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://vrviitccvw80"]
+[gd_scene load_steps=8 format=3 uid="uid://vrviitccvw80"]
 
 [ext_resource type="Script" uid="uid://buet7wh6gsdbb" path="res://scripts/ui/stats_ui.gd" id="1_o6p4b"]
 [ext_resource type="Texture2D" uid="uid://d30k0vc2rh2gr" path="res://assets/gold_coins.png" id="1_o7hd0"]
 [ext_resource type="PackedScene" uid="uid://mdfrspnlscn4tfg" path="res://scenes/UI/modifiers/modifiers_panel.tscn" id="3_modp"]
+[ext_resource type="PackedScene" path="res://scenes/UI/military/troop_pool_opener.tscn" id="4_troop_opener"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats_bg"]
 content_margin_left = 16.0
@@ -119,6 +120,14 @@ label_settings = SubResource("LabelSettings_yg7fg")
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
+
+[node name="TroopPoolButton" parent="Background/MainRow" node_paths=PackedStringArray("counter") instance=ExtResource("4_troop_opener")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+counter = NodePath("Counter")
 
 [node name="ModifiersPanel" parent="Background/MainRow" instance=ExtResource("3_modp")]
 unique_name_in_owner = true

@@ -1,7 +1,7 @@
 extends MarginContainer
 class_name BuildingCardUI
 
-@onready var building_image: TextureRect = $PanelContainer/BuildingImage
+@onready var building_image: TextureRect = $PanelContainer/Overlay/BuildingImage
 @onready var building_tooltip: PanelContainer = $BuildingTooltip
 @onready var name_label: Label = $BuildingTooltip/MarginContainer/VBoxContainer/NameLabel
 @onready var cost_value_label: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/CostValueLabel
@@ -13,20 +13,45 @@ class_name BuildingCardUI
 @onready var allowed_biomes_label: Label = $BuildingTooltip/MarginContainer/VBoxContainer/GridContainer/AllowedBiomesLabel
 @onready var effects_separator: HSeparator = $BuildingTooltip/MarginContainer/VBoxContainer/EffectsSeparator
 @onready var effects_container: VBoxContainer = $BuildingTooltip/MarginContainer/VBoxContainer/EffectsContainer
+@onready var demolish_button: Button = $PanelContainer/Overlay/DemolishButton
 
 @export var building:Building:set = _set_building
+## Cuando es true y hay un building asignado, muestra un botón rojo
+## que al pulsarse emite `demolish_requested(building)`.
+## El padre que instancia este slot decide si activar la demolición
+## (p.ej. TilePanel sí, BuildingPanel no).
+@export var allow_demolish:bool = false:set = _set_allow_demolish
 
 signal building_selected(building:Building)
+## Emitida cuando el usuario pulsa el botón rojo de demoler.
+## El padre debe ejecutar la demolición (Tile.demolish) ya que
+## este nodo no conoce el Tile ni los Stats.
+signal demolish_requested(building:Building)
+
+
+func _set_allow_demolish(value:bool) -> void:
+	allow_demolish = value
+	_refresh_demolish_button_visibility()
+
+
+func _refresh_demolish_button_visibility() -> void:
+	if not is_node_ready():
+		return
+	if demolish_button == null:
+		return
+	demolish_button.visible = allow_demolish and building != null
+
 
 func _set_building(value:Building) -> void:
 	if not is_node_ready():
 		await ready
-	
+
 	building = value
+	_refresh_demolish_button_visibility()
 
 	if not building:
 		return
-	
+
 	building_image.texture = value.image
 	name_label.text = value.name
 	cost_value_label.text = str(value.construction_cost)
@@ -105,3 +130,9 @@ func _on_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouse:
 		if event.is_action_pressed("Click"):
 			building_selected.emit(building)
+
+
+func _on_demolish_button_pressed() -> void:
+	if building == null:
+		return
+	demolish_requested.emit(building)

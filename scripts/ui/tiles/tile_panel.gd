@@ -13,6 +13,14 @@ const BUILDING_CARD_UI = preload("uid://bxjlofssmvuwu")
 @onready var building_grid: GridContainer = $MarginContainer/VBoxContainer/BuildingGrid
 @onready var gold_produced: Label = $MarginContainer/VBoxContainer/ProductionContainer/GridContainer/GoldProduced
 @onready var food_produced: Label = $MarginContainer/VBoxContainer/ProductionContainer/GridContainer/FoodProduced
+@onready var demolish_confirm_dialog: ConfirmationDialog = $DemolishConfirmDialog
+
+## Necesario para llamar a Tile.demolish y para comprobar que la
+## casilla pertenece al imperio del jugador antes de mostrar el botón.
+var stats:Stats
+
+## Edificio pendiente de confirmación en el ConfirmationDialog.
+var _building_to_demolish:Building = null
 
 var tile:Tile:set = setup
 
@@ -62,14 +70,57 @@ func setup(value:Tile) -> void:
 
 
 func _setup_buildings() -> void:
-	
+
 	for child in building_grid.get_children():
 		child.queue_free()
-	
+
 	var slots:int = tile.max_buildings
-	
+	var can_demolish:bool = _player_controls_tile()
+
 	for i in range(slots):
 		var card:BuildingCardUI = BUILDING_CARD_UI.instantiate()
 		building_grid.add_child(card)
 		var building:Building = tile.buildings.get(i) if i < tile.buildings.size() else null
+		card.allow_demolish = can_demolish
 		card.building = building
+		card.demolish_requested.connect(_on_demolish_requested)
+
+
+func _player_controls_tile() -> bool:
+	if tile == null or stats == null:
+		return false
+	return tile.controller != null and tile.controller == stats.empire
+
+
+func _on_demolish_requested(building:Building) -> void:
+	if not _player_controls_tile():
+		return
+	if building == null:
+		return
+	_building_to_demolish = building
+	if demolish_confirm_dialog == null:
+		# Sin diálogo (test/escena alternativa): demoler directamente
+		_perform_demolish()
+		return
+	demolish_confirm_dialog.dialog_text = "¿Demoler %s? Esta acción no se puede deshacer." % building.name
+	demolish_confirm_dialog.popup_centered()
+
+
+func _on_demolish_confirmed() -> void:
+	_perform_demolish()
+
+
+func _on_demolish_canceled() -> void:
+	_building_to_demolish = null
+
+
+func _perform_demolish() -> void:
+	if _building_to_demolish == null:
+		return
+	if tile == null or stats == null:
+		_building_to_demolish = null
+		return
+	tile.demolish(_building_to_demolish, stats)
+	_building_to_demolish = null
+	# Refrescar la UI tras la demolición (recalcula labels y libera el slot)
+	setup(tile)

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Fondo escudo -->
+  <path d="M64 8 L112 32 L112 72 Q112 104 64 120 Q16 104 16 72 L16 32 Z" fill="#5B7B3A" stroke="#2C4015" stroke-width="3"/>
+  <!-- Arco grande -->
+  <path d="M28 32 Q12 64 28 96" fill="none" stroke="#6B4E23" stroke-width="5" stroke-linecap="round"/>
+  <line x1="28" y1="32" x2="34" y2="64" stroke="#222" stroke-width="1.5"/>
+  <line x1="34" y1="64" x2="28" y2="96" stroke="#222" stroke-width="1.5"/>
+  <!-- Lluvia de flechas (varias diagonales) -->
+  <line x1="50" y1="20" x2="60" y2="40" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+  <polygon points="60,40 54,38 60,46" fill="#A0A0A0" stroke="#666" stroke-width="0.8"/>
+  <line x1="68" y1="22" x2="78" y2="42" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+  <polygon points="78,42 72,40 78,48" fill="#A0A0A0" stroke="#666" stroke-width="0.8"/>
+  <line x1="86" y1="20" x2="96" y2="40" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+  <polygon points="96,40 90,38 96,46" fill="#A0A0A0" stroke="#666" stroke-width="0.8"/>
+  <line x1="58" y1="56" x2="68" y2="76" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+  <polygon points="68,76 62,74 68,82" fill="#A0A0A0" stroke="#666" stroke-width="0.8"/>
+  <line x1="78" y1="58" x2="88" y2="78" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+  <polygon points="88,78 82,76 88,84" fill="#A0A0A0" stroke="#666" stroke-width="0.8"/>
+  <text x="64" y="118" text-anchor="middle" font-size="9" font-weight="bold" fill="#F5E6C8" font-family="sans-serif">Flechas</text>
+</svg>

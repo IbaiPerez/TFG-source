@@ -265,6 +265,7 @@ func test_generate_gold_effect_no_stats():
 	effect.amount = 75
 	# stats is null - should not crash
 	effect.execute([])
+	pass_test("No crash con stats null")
 
 
 # ============================================================
@@ -311,3 +312,4 @@ func test_building_effect_base_does_nothing():
 	# Should not crash
 	effect.apply_effect(tile, stats)
 	effect.remove_effect(tile, stats)
+	pass_test("BuildingEffect base no crashea")

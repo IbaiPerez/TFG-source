@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#E8E8D0" stroke="#5C4033" stroke-width="3"/>
+
+  <!-- Group of silhouettes (recruiting) -->
+  <!-- Person 1 (center) -->
+  <circle cx="64" cy="38" r="10" fill="#4A3A2A"/>
+  <path d="M50 55 Q50 48 64 48 Q78 48 78 55 L78 80 L50 80 Z" fill="#4A3A2A"/>
+
+  <!-- Person 2 (left, smaller) -->
+  <circle cx="38" cy="50" r="7" fill="#6B5A4A" opacity="0.7"/>
+  <path d="M29 62 Q29 57 38 57 Q47 57 47 62 L47 80 L29 80 Z" fill="#6B5A4A" opacity="0.7"/>
+
+  <!-- Person 3 (right, smaller) -->
+  <circle cx="90" cy="50" r="7" fill="#6B5A4A" opacity="0.7"/>
+  <path d="M81 62 Q81 57 90 57 Q99 57 99 62 L99 80 L81 80 Z" fill="#6B5A4A" opacity="0.7"/>
+
+  <!-- Plus symbol -->
+  <circle cx="64" cy="100" r="14" fill="#3A7A3A" stroke="#2A5A2A" stroke-width="2"/>
+  <rect x="60" y="91" width="8" height="18" rx="2" fill="white"/>
+  <rect x="56" y="96" width="16" height="8" rx="2" fill="white"/>
+</svg>

@@ -9,6 +9,7 @@ const EVENT_CARD_SELECTION_PANEL = preload("res://scenes/UI/turn_events/event_ca
 const MAIN_MENU = preload("res://scenes/UI/menus/main_menu.tscn")
 const EMPIRE_SELECTION = preload("res://scenes/UI/menus/empire_selection.tscn")
 const GENERATION_UI = preload("res://scenes/UI/generation_ui.tscn")
+const BATTLE_FRONT_PANEL = preload("res://scenes/UI/military/battle_front_panel.tscn")
 
 func _ready() -> void:
 	Events.generate_world.connect(_on_events_generate_world)
@@ -19,6 +20,9 @@ func _ready() -> void:
 	Events.upgrade_building_card_confirm_started.connect(_on_upgrade_building_card_confirm_started)
 	Events.recover_card_confirm_started.connect(_on_recover_card_confirm_started)
 	Events.turn_event_triggered.connect(_on_turn_event_triggered)
+	Events.recruit_card_confirm_started.connect(_on_recruit_card_confirm_started)
+	Events.open_front_card_confirm_started.connect(_on_open_front_card_confirm_started)
+	Events.battle_front_selected.connect(_on_battle_front_selected)
 
 
 func _change_scene(new_scene: Node) -> void:
@@ -103,3 +107,47 @@ func _on_turn_event_triggered(event:TurnEvent, context:EventContext) -> void:
 		var panel:TurnEventPanel = TURN_EVENT_PANEL.instantiate()
 		ui_layer.add_child(panel)
 		panel.setup(event, context, player_handler.turn_event_manager)
+
+
+func _on_recruit_card_confirm_started(card: RecruitCard, stats: Stats) -> void:
+	var recruit_panel := RecruitPanel.new()
+	card.menu = recruit_panel
+	recruit_panel.stats = stats
+	recruit_panel.available_troops = card.available_troops
+	get_tree().get_first_node_in_group("ui_layer").add_child(recruit_panel)
+
+
+func _on_open_front_card_confirm_started(card: OpenFrontCard, _target_tile: Tile, own_tiles: Array[Tile], _stats: Stats) -> void:
+	var panel := OpenFrontPanel.new()
+	card.menu = panel
+	panel.setup(card, own_tiles)
+	get_tree().get_first_node_in_group("ui_layer").add_child(panel)
+
+
+func _on_battle_front_selected(front: BattleFront) -> void:
+	var ui_layer := get_tree().get_first_node_in_group("ui_layer")
+	var player_handler: PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+	if player_handler == null:
+		return
+
+	var panel: BattleFrontPanel = BATTLE_FRONT_PANEL.instantiate()
+	panel.setup(front, player_handler.stats.empire)
+	panel.assign_troop_requested.connect(_on_assign_troop_requested.bind(player_handler))
+	ui_layer.add_child(panel)
+
+
+func _on_assign_troop_requested(front: BattleFront, player_handler: PlayerHandler) -> void:
+	var ui_layer := get_tree().get_first_node_in_group("ui_layer")
+
+	var assign_panel := AssignTroopsPanel.new()
+	assign_panel.setup(front, player_handler.stats)
+	assign_panel.troop_assigned.connect(
+		func(troop: Troop):
+			var side: StringName
+			if front.attacker_empire == player_handler.stats.empire:
+				side = &"attacker"
+			else:
+				side = &"defender"
+			player_handler.battle_front_manager.assign_troop_to_front(front, troop, side)
+	)
+	ui_layer.add_child(assign_panel)

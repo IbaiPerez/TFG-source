@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UnlockArrowRainEvent" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/turn_events/events/unlock_arrow_rain_event.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "unlock_arrow_rain"
+title = "Doctrina del Tiro Masivo"
+description = "[i]Tus arqueros han perfeccionado el tiro en parábola. Tus capitanes proponen formalizar la doctrina de la lluvia de flechas: una andanada coordinada que satura el campo enemigo... siempre que el terreno permita ver el blanco.[/i]"
+allow_skip = true
+weight = 80.0
+unique = true

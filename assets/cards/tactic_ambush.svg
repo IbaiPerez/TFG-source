@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Fondo escudo -->
+  <path d="M64 8 L112 32 L112 72 Q112 104 64 120 Q16 104 16 72 L16 32 Z" fill="#2E4225" stroke="#101810" stroke-width="3"/>
+  <!-- Hojas / arbustos de fondo -->
+  <ellipse cx="32" cy="64" rx="18" ry="22" fill="#3F5C30" stroke="#101810" stroke-width="1.5"/>
+  <ellipse cx="96" cy="60" rx="18" ry="22" fill="#3F5C30" stroke="#101810" stroke-width="1.5"/>
+  <ellipse cx="64" cy="80" rx="22" ry="14" fill="#3F5C30" stroke="#101810" stroke-width="1.5"/>
+  <!-- Daga al acecho -->
+  <line x1="60" y1="34" x2="70" y2="68" stroke="#D0D0D0" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="56" y1="36" x2="68" y2="36" stroke="#8B6914" stroke-width="3" stroke-linecap="round"/>
+  <!-- Ojos en la oscuridad -->
+  <circle cx="50" cy="56" r="2" fill="#FFD700"/>
+  <circle cx="80" cy="58" r="2" fill="#FFD700"/>
+  <text x="64" y="110" text-anchor="middle" font-size="10" font-weight="bold" fill="#F5E6C8" font-family="sans-serif">Embosc.</text>
+</svg>

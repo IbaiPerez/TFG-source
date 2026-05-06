@@ -5,6 +5,7 @@ class_name StatsUI
 @onready var gold_generation: Label = %GoldGeneration
 @onready var food_generation: Label = %FoodGeneration
 @onready var modifiers_panel: ModifiersPanel = %ModifiersPanel
+@onready var troop_pool_button: TroopPoolOpener = %TroopPoolButton
 
 
 func update_stats(stats: Stats) -> void:

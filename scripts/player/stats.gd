@@ -3,6 +3,9 @@ class_name Stats
 
 signal stats_changed
 signal possible_buildings_changed
+signal troop_recruited(troop:Troop)
+signal troop_lost(troop:Troop)
+signal troop_pool_changed(new_size:int)
 
 @export var initial_gold:int
 @export var initial_gold_per_turn:int
@@ -25,6 +28,9 @@ var played_pile:CardPile
 var used_unique_events:Array[String] = []
 var turn_number:int = 0
 var total_purges_done:int = 0
+
+## Pool de tropas reclutadas
+var troop_pool:Array[Troop] = []
 
 ## Pool de cartas desbloqueadas (evento genérico + tienda)
 var unlocked_card_pool:Array[UnlockedCardEntry] = []
@@ -102,6 +108,7 @@ func create_instance() -> Resource:
 	instance.turn_number = 0
 	instance.total_purges_done = 0
 	instance.possible_buildings = possible_buildings.duplicate()
+	instance.troop_pool = []
 	instance._sync_build_cards()
 	instance._init_card_pools()
 	return instance
@@ -133,3 +140,44 @@ func get_full_shop_pool() -> Array[UnlockedCardEntry]:
 	pool.append_array(unlocked_card_pool)
 	pool.append_array(shop_exclusive_pool)
 	return pool
+
+
+## --- Gestión de tropas ---
+
+func recruit_troop(troop:Troop) -> bool:
+	var cost_gold := troop.recruitment_cost_gold
+	if total_gold < cost_gold:
+		return false
+	total_gold -= cost_gold
+	troop_pool.append(troop)
+	troop_recruited.emit(troop)
+	troop_pool_changed.emit(troop_pool.size())
+	stats_changed.emit()
+	return true
+
+
+func remove_troop(troop:Troop) -> void:
+	var idx := troop_pool.find(troop)
+	if idx >= 0:
+		troop_pool.remove_at(idx)
+		troop_lost.emit(troop)
+		troop_pool_changed.emit(troop_pool.size())
+		stats_changed.emit()
+
+
+func can_afford_troop(troop:Troop) -> bool:
+	return total_gold >= troop.recruitment_cost_gold
+
+
+func get_troop_maintenance_gold() -> int:
+	var total := 0
+	for troop in troop_pool:
+		total += troop.maintenance_gold
+	return total
+
+
+func get_troop_maintenance_food() -> int:
+	var total := 0
+	for troop in troop_pool:
+		total += troop.maintenance_food
+	return total

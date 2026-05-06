@@ -139,6 +139,7 @@ func _make_tile(p_biome: Tile.biome_type = Tile.biome_type.Grassland,
 	tile.max_buildings = p_max_buildings
 	tile.buildings = []
 	tile.recalculate_modifiers()
+	autofree(tile)
 	return tile
 
 

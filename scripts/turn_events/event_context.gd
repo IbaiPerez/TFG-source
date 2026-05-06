@@ -19,8 +19,14 @@ var tiles_by_resource:Dictionary
 var tiles_by_biome:Dictionary
 var tiles_by_location:Dictionary
 
+## Datos militares
+var troop_pool_size:int = 0
+var active_front_count:int = 0
+var has_adjacent_enemy:bool = false
 
-static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_number:int) -> EventContext:
+
+static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_number:int,
+		p_battle_front_manager:BattleFrontManager = null) -> EventContext:
 	var ctx = EventContext.new()
 	ctx.stats = p_stats
 	ctx.modifier_manager = p_modifier_manager
@@ -71,5 +77,20 @@ static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_numb
 			if not ctx.tiles_by_location.has(tile.location.type):
 				ctx.tiles_by_location[tile.location.type] = []
 			ctx.tiles_by_location[tile.location.type].append(tile)
+
+	# Datos militares
+	ctx.troop_pool_size = p_stats.troop_pool.size()
+	if p_battle_front_manager:
+		ctx.active_front_count = p_battle_front_manager.active_fronts.size()
+
+	# Comprobar si hay alguna tile controlada adyacente a otro imperio
+	ctx.has_adjacent_enemy = false
+	for tile in ctx.controlled_tiles:
+		for neighbor in tile.neighbors:
+			if neighbor is Tile and neighbor.controller != null and neighbor.controller != p_stats.empire:
+				ctx.has_adjacent_enemy = true
+				break
+		if ctx.has_adjacent_enemy:
+			break
 
 	return ctx

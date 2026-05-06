@@ -11,6 +11,10 @@ var turn_manager:TurnManager
 var ai_controllers:Array[AIController] = []
 
 func _ready() -> void:
+	# Limpiar el registro global de frentes por si quedaron instancias
+	# de una partida anterior (cambio de escena → menú → nueva partida).
+	BattleFront.clear_active_instances()
+
 	var new_stats:Stats = stats.create_instance()
 	ui_layer.stats = new_stats
 

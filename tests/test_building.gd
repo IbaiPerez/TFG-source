@@ -38,6 +38,7 @@ func _make_tile(p_biome: Tile.biome_type = Tile.biome_type.Grassland,
 	tile.max_buildings = p_max_buildings
 	tile.food_production = tile.natural_resource.food_produced - tile.location.food_consumption
 	tile.gold_production = tile.natural_resource.gold_produced
+	autofree(tile)
 	return tile
 
 

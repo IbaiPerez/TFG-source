@@ -56,3 +56,17 @@ signal tile_selection_cancelled()
 signal request_card_selection(candidates:Array[Card])
 signal card_selection_made(card:Card)
 signal card_selection_cancelled()
+
+# Señales de confirmación de cartas militares
+signal recruit_card_confirm_started(card:RecruitCard, stats:Stats)
+signal open_front_card_confirm_started(card:OpenFrontCard, target_tile:Tile, own_tiles:Array[Tile], stats:Stats)
+signal open_front_source_selected(card:OpenFrontCard, source_tile:Tile)
+signal open_front_source_cancelled(card:OpenFrontCard)
+
+# Señales de frentes de batalla
+signal battle_front_opened(front:BattleFront)
+signal battle_front_resolved(front:BattleFront, attacker_won:bool)
+signal battle_front_marker_changed(front:BattleFront, new_value:float)
+signal troop_assigned_to_front(front:BattleFront, troop:Troop, side:StringName)
+signal battle_front_bonus_applied(front:BattleFront, side:StringName)
+signal battle_front_selected(front:BattleFront)

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Fondo escudo -->
+  <path d="M64 8 L112 32 L112 72 Q112 104 64 120 Q16 104 16 72 L16 32 Z" fill="#5A5566" stroke="#252028" stroke-width="3"/>
+  <!-- Casco con cresta -->
+  <path d="M44 56 Q44 28 64 26 Q84 28 84 56 L84 64 L44 64 Z" fill="#9090A0" stroke="#252028" stroke-width="2"/>
+  <rect x="50" y="52" width="28" height="8" fill="#1A1A22"/>
+  <path d="M62 26 Q64 12 66 26" fill="#3A3A4A" stroke="#1A1A22" stroke-width="2"/>
+  <!-- Espada y escudo cruzados -->
+  <line x1="32" y1="100" x2="56" y2="76" stroke="#C0C0C0" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="30" cy="102" r="3" fill="#8B6914"/>
+  <ellipse cx="86" cy="86" rx="14" ry="18" fill="#7A7A88" stroke="#252028" stroke-width="2"/>
+  <ellipse cx="86" cy="86" rx="6" ry="8" fill="#252028"/>
+  <text x="64" y="118" text-anchor="middle" font-size="9" font-weight="bold" fill="#F5E6C8" font-family="sans-serif">Asalto</text>
+</svg>

@@ -1,0 +1,201 @@
+[gd_scene load_steps=6 format=3 uid="uid://0tbdwh0f1c3j"]
+
+[ext_resource type="Script" uid="uid://dhp3rnu8a0c8" path="res://scripts/ui/military/battle_front_panel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.97, 0.93, 0.85, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.24313726, 0.15294118, 0.13725491, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tug_bg"]
+bg_color = Color(0.24313726, 0.15294118, 0.13725491, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 26
+font_color = Color(0.15, 0.1, 0.08, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_info"]
+font_size = 16
+font_color = Color(0.15, 0.1, 0.08, 1)
+
+[node name="BattleFrontPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(520, 410)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -205.0
+offset_right = 260.0
+offset_bottom = 205.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+script = ExtResource("1_script")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="MainVBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/MainVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Atacante vs Defensor"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="TugContainer" type="Control" parent="MarginContainer/MainVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="TugBarBackground" type="PanelContainer" parent="MarginContainer/MainVBox/TugContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tug_bg")
+
+[node name="TugBar" type="ColorRect" parent="MarginContainer/MainVBox/TugContainer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 7.0
+offset_right = -2.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="TugIndicator" type="ColorRect" parent="MarginContainer/MainVBox/TugContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(4, 30)
+layout_mode = 0
+offset_top = 5.0
+offset_right = 4.0
+offset_bottom = 35.0
+mouse_filter = 2
+color = Color(1, 1, 1, 1)
+
+[node name="InfoHBox" type="HBoxContainer" parent="MarginContainer/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="MarkerLabel" type="Label" parent="MarginContainer/MainVBox/InfoHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Marcador: 0.0 / 20.0"
+label_settings = SubResource("LabelSettings_info")
+
+[node name="TurnsLabel" type="Label" parent="MarginContainer/MainVBox/InfoHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Turno 0 (mín. 3 restantes)"
+label_settings = SubResource("LabelSettings_info")
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="SidesHBox" type="HBoxContainer" parent="MarginContainer/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="AttackerColumn" type="VBoxContainer" parent="MarginContainer/MainVBox/SidesHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AttackerLabel" type="Label" parent="MarginContainer/MainVBox/SidesHBox/AttackerColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Atacante"
+horizontal_alignment = 1
+
+[node name="AttackerStats" type="RichTextLabel" parent="MarginContainer/MainVBox/SidesHBox/AttackerColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="AttackerTroopsContainer" type="VBoxContainer" parent="MarginContainer/MainVBox/SidesHBox/AttackerColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/MainVBox/SidesHBox"]
+layout_mode = 2
+
+[node name="DefenderColumn" type="VBoxContainer" parent="MarginContainer/MainVBox/SidesHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="DefenderLabel" type="Label" parent="MarginContainer/MainVBox/SidesHBox/DefenderColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Defensor"
+horizontal_alignment = 1
+
+[node name="DefenderStats" type="RichTextLabel" parent="MarginContainer/MainVBox/SidesHBox/DefenderColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="DefenderTroopsContainer" type="VBoxContainer" parent="MarginContainer/MainVBox/SidesHBox/DefenderColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ButtonHBox" type="HBoxContainer" parent="MarginContainer/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="AssignButton" type="Button" parent="MarginContainer/MainVBox/ButtonHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+text = "Asignar Tropas"
+
+[node name="CloseButton" type="Button" parent="MarginContainer/MainVBox/ButtonHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Cerrar"

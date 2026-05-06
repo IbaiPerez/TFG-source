@@ -115,3 +115,12 @@ size_flags_horizontal = 4
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 3
+
+[node name="DemolishConfirmDialog" type="ConfirmationDialog" parent="."]
+title = "Demoler edificio"
+ok_button_text = "Demoler"
+cancel_button_text = "Cancelar"
+dialog_text = "¿Demoler edificio? Esta acción no se puede deshacer."
+
+[connection signal="confirmed" from="DemolishConfirmDialog" to="." method="_on_demolish_confirmed"]
+[connection signal="canceled" from="DemolishConfirmDialog" to="." method="_on_demolish_canceled"]

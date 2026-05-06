@@ -10,6 +10,7 @@ signal turn_finished(controller:EmpireController)
 var stats:Stats
 var modifier_manager:ModifierManager
 var turn_event_manager:TurnEventManager
+var battle_front_manager:BattleFrontManager
 
 func _init_managers() -> void:
 	modifier_manager = ModifierManager.new()
@@ -17,6 +18,9 @@ func _init_managers() -> void:
 
 	turn_event_manager = TurnEventManager.new()
 	add_child(turn_event_manager)
+
+	battle_front_manager = BattleFrontManager.new()
+	add_child(battle_front_manager)
 
 	Events.request_add_modifier.connect(_on_request_add_modifier)
 	Events.request_remove_modifier.connect(_on_request_remove_modifier)
@@ -30,6 +34,7 @@ func start_game(new_stats:Stats) -> void:
 	stats.empire.tile_conquered.connect(_on_tile_conquered)
 	stats.empire.tile_lost.connect(_on_tile_lost)
 	turn_event_manager.stats = stats
+	battle_front_manager.stats = stats
 	_apply_empire_ability()
 
 func _apply_empire_ability() -> void:
@@ -74,6 +79,21 @@ func _process_turn_start() -> void:
 	var final_gold := int(gold_positive * (1.0 + modifier_manager.get_percent_gold() / 100.0)) + gold_negative
 	var final_food := int(food_positive * (1.0 + modifier_manager.get_percent_food() / 100.0)) + food_negative
 
+	# Mantenimiento de tropas (se resta despues de los % para que no se amplifique)
+	final_gold -= stats.get_troop_maintenance_gold()
+	final_food -= stats.get_troop_maintenance_food()
+
+	# Mantenimiento extra por tropas asignadas a frentes (escalado progresivo)
+	for front in battle_front_manager.active_fronts:
+		var side: StringName
+		if front.attacker_empire == stats.empire:
+			side = &"attacker"
+		else:
+			side = &"defender"
+		var maint := front.get_front_maintenance(side)
+		final_gold -= maint["gold"]
+		final_food -= maint["food"]
+
 	stats.gold_per_turn = final_gold
 	stats.food = final_food
 	stats.total_gold += stats.gold_per_turn
@@ -99,7 +119,7 @@ func _reshuffle_deck_from_discard() -> void:
 
 ## Evalua eventos de fin de turno. Retorna true si hay un evento pendiente.
 func _evaluate_end_of_turn() -> bool:
-	var context = EventContext.build(stats, modifier_manager, stats.turn_number)
+	var context = EventContext.build(stats, modifier_manager, stats.turn_number, battle_front_manager)
 	var event = turn_event_manager.evaluate(context)
 
 	if event != null:
@@ -144,6 +164,10 @@ func _on_request_add_modifier(modifier:Modifier, p_stats:Stats) -> void:
 func _on_request_remove_modifier(modifier:Modifier) -> void:
 	if modifier in modifier_manager.active_modifiers:
 		modifier_manager.remove_modifier(modifier)
+
+## Procesa los frentes de batalla al inicio del turno.
+func _process_battle_fronts() -> void:
+	battle_front_manager.tick_all_fronts()
 
 ## Metodo abstracto: las subclases implementan su logica de turno.
 func start_turn() -> void:

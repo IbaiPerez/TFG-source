@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="TacticCard" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards_resources/tactic_card.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/cards/tactic_cavalry_charge.svg" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+tactic_name = "Carga de Caballería"
+affected_troop_types = Array[int]([0])
+attack_percent_per_type = 30.0
+defense_percent_per_type = 0.0
+attack_per_troop = 0.0
+defense_per_troop = 0.0
+biome_modifiers = {
+0: 1.5,
+1: 0.5,
+2: 1.2,
+3: 0.4,
+4: 1.0,
+5: 0.0,
+6: 0.2
+}
+id = "Tactic Cavalry Charge"
+type = 1
+target = 2
+needs_confirmation = false
+icon = ExtResource("2_icon")
+tooltipe_text = ""

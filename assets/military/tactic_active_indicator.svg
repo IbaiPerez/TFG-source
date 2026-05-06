@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Estandarte / banderín -->
+  <line x1="14" y1="6" x2="14" y2="60" stroke="#3A2820" stroke-width="3" stroke-linecap="round"/>
+  <path d="M14 8 L52 14 L42 22 L52 30 L14 24 Z" fill="#C8312C" stroke="#5A0A06" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Estrella en el banderín -->
+  <polygon points="30,14 32,18 36,18 33,21 34,25 30,23 26,25 27,21 24,18 28,18" fill="#FFD24A" stroke="#8B6914" stroke-width="0.5"/>
+  <!-- Punta de la lanza/asta -->
+  <polygon points="14,2 11,8 17,8" fill="#C0C0C0" stroke="#5A5A5A" stroke-width="1"/>
+</svg>

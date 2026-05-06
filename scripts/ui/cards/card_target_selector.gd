@@ -55,14 +55,14 @@ func ease_out_cubic(number:float) -> float:
 	return 1.0 - pow(1.0 - number, 3.0)
 
 func on_card_aim_started(card:CardUI) -> void:
-	if not card.card.is_tile_targeted():
+	if not card.card.is_tile_targeted() and not card.card.is_batle_front_targeted():
 		return
-	
+
 	targeting = true
 	area_3d.monitoring = true
 	area_3d.monitorable = true
 	if card.card.is_batle_front_targeted():
-		area_3d.collision_mask = 3
+		area_3d.collision_mask = 4  # Layer 3 = "BattleFront" = bit 2 = valor 4
 	current_card = card
 	highlight_valid_targets(current_card.card.get_valid_targets(current_card.stats))
 

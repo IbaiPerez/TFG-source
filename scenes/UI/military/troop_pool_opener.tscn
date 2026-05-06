@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/military/troops_icon.svg" id="1_icon"]
+[ext_resource type="Script" path="res://scripts/ui/military/troop_pool_opener.gd" id="2_opener"]
+
+[node name="TroopPoolOpener" type="TextureButton" node_paths=PackedStringArray("counter")]
+custom_minimum_size = Vector2(40, 40)
+offset_right = 40.0
+offset_bottom = 40.0
+texture_normal = ExtResource("1_icon")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("2_opener")
+counter = NodePath("Counter")
+
+[node name="Counter" type="Label" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 60.0
+offset_bottom = 46.0
+text = "0"
+horizontal_alignment = 1

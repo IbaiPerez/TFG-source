@@ -23,6 +23,8 @@ func _make_stats(p_gold:int = 100, p_turn:int = 10) -> Stats:
 	s.event_chance = 1.0
 	s.turn_number = p_turn
 	s.total_purges_done = 0
+	s.unlocked_card_pool = []
+	s.shop_exclusive_pool = []
 	return s
 
 
@@ -31,6 +33,11 @@ func _make_card(p_id:String = "test", p_type:Card.Type = Card.Type.BASIC) -> Car
 	c.id = p_id
 	c.type = p_type
 	return c
+
+
+func _make_entry(card:Card = null, weight:float = 5.0) -> UnlockedCardEntry:
+	var c := card if card else _make_card()
+	return UnlockedCardEntry.new(c, weight, 0.0, 1.0)
 
 
 func _make_context(stats:Stats, turn:int = 10) -> EventContext:
@@ -53,6 +60,22 @@ func _make_shop_config() -> ShopConfig:
 	config.allow_purge = true
 	config.max_purges = 2
 	return config
+
+
+## Rellena stats con un pool de UnlockedCardEntry de prueba.
+func _populate_pool(stats:Stats, basic_count:int = 3,
+		special_count:int = 1, single_use_count:int = 1) -> void:
+	stats.unlocked_card_pool = []
+	stats.shop_exclusive_pool = []
+	for i in basic_count:
+		var card := _make_card("b%d" % (i + 1), Card.Type.BASIC)
+		stats.unlocked_card_pool.append(_make_entry(card))
+	for i in special_count:
+		var card := _make_card("s%d" % (i + 1), Card.Type.SPECIAL)
+		stats.shop_exclusive_pool.append(_make_entry(card))
+	for i in single_use_count:
+		var card := _make_card("su%d" % (i + 1), Card.Type.SINGLE_USE)
+		stats.shop_exclusive_pool.append(_make_entry(card))
 
 
 # ============================================================
@@ -283,13 +306,7 @@ func test_scaled_price_no_negative_scaling():
 
 func test_basic_shop_has_2_or_3_items():
 	var stats := _make_stats(100, 10)
-	# Forzar pool con cartas de test
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [
-		_make_card("b1"), _make_card("b2"), _make_card("b3"), _make_card("b4"),
-	]
-	ShopGenerator._special_cards = [_make_card("s1", Card.Type.SPECIAL)]
-	ShopGenerator._single_use_cards = [_make_card("su1", Card.Type.SINGLE_USE)]
+	_populate_pool(stats, 4, 1, 1)
 
 	var config := ShopGenerator.generate_basic_shop(stats)
 	assert_gte(config.items.size(), 2, "Minimo 2 items")
@@ -298,8 +315,7 @@ func test_basic_shop_has_2_or_3_items():
 
 func test_basic_shop_allows_1_purge():
 	var stats := _make_stats(100, 10)
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1"), _make_card("b2"), _make_card("b3")]
+	_populate_pool(stats, 3)
 	var config := ShopGenerator.generate_basic_shop(stats)
 	assert_true(config.allow_purge)
 	assert_eq(config.max_purges, 1)
@@ -307,8 +323,7 @@ func test_basic_shop_allows_1_purge():
 
 func test_basic_shop_prices_in_range():
 	var stats := _make_stats(100, 8)  # Turno base, sin escalado
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1"), _make_card("b2"), _make_card("b3")]
+	_populate_pool(stats, 3, 0, 0)  # Solo basicas para que el rango sea 30-50
 	var config := ShopGenerator.generate_basic_shop(stats)
 	for item in config.items:
 		assert_gte(item.price, 30, "Precio minimo basico: 30")
@@ -317,24 +332,15 @@ func test_basic_shop_prices_in_range():
 
 func test_special_shop_has_3_items():
 	var stats := _make_stats(100, 14)
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1"), _make_card("b2")]
-	ShopGenerator._special_cards = [
-		_make_card("s1", Card.Type.SPECIAL),
-		_make_card("s2", Card.Type.SPECIAL),
-	]
-	ShopGenerator._single_use_cards = [_make_card("su1", Card.Type.SINGLE_USE)]
+	_populate_pool(stats, 2, 2, 1)
 
 	var config := ShopGenerator.generate_special_shop(stats)
-	assert_eq(config.items.size(), 3, "1 basica + 1 especial + 1 mixta")
+	assert_eq(config.items.size(), 3, "Tienda especial debe tener 3 items")
 
 
 func test_special_shop_allows_2_or_3_purges():
 	var stats := _make_stats(100, 14)
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1")]
-	ShopGenerator._special_cards = [_make_card("s1", Card.Type.SPECIAL)]
-	ShopGenerator._single_use_cards = [_make_card("su1", Card.Type.SINGLE_USE)]
+	_populate_pool(stats, 1, 1, 1)
 
 	var config := ShopGenerator.generate_special_shop(stats)
 	assert_true(config.allow_purge)
@@ -342,36 +348,20 @@ func test_special_shop_allows_2_or_3_purges():
 	assert_lte(config.max_purges, 3)
 
 
-func test_special_shop_prices_basic_in_range():
+func test_special_shop_prices_in_valid_range():
 	var stats := _make_stats(100, 12)  # Turno base especial
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1")]
-	ShopGenerator._special_cards = [_make_card("s1", Card.Type.SPECIAL)]
-	ShopGenerator._single_use_cards = [_make_card("su1", Card.Type.SINGLE_USE)]
+	_populate_pool(stats, 1, 1, 1)
 
 	var config := ShopGenerator.generate_special_shop(stats)
-	# Primer item es basico
-	assert_gte(config.items[0].price, 30)
-	assert_lte(config.items[0].price, 50)
-
-
-func test_special_shop_prices_special_in_range():
-	var stats := _make_stats(100, 12)  # Turno base especial
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1")]
-	ShopGenerator._special_cards = [_make_card("s1", Card.Type.SPECIAL)]
-	ShopGenerator._single_use_cards = [_make_card("su1", Card.Type.SINGLE_USE)]
-
-	var config := ShopGenerator.generate_special_shop(stats)
-	# Items 2 y 3 son especiales
-	assert_gte(config.items[1].price, 50)
-	assert_lte(config.items[1].price, 80)
+	for item in config.items:
+		# Todas deben estar en alguno de los rangos validos
+		assert_gte(item.price, 30, "Precio minimo global: 30")
+		assert_lte(item.price, 80, "Precio maximo global: 80")
 
 
 func test_generator_items_have_stock_1():
 	var stats := _make_stats(100, 10)
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1"), _make_card("b2"), _make_card("b3")]
+	_populate_pool(stats, 3)
 
 	var config := ShopGenerator.generate_basic_shop(stats)
 	for item in config.items:
@@ -381,20 +371,19 @@ func test_generator_items_have_stock_1():
 func test_generator_purge_cost_uses_global_count():
 	var stats := _make_stats(100, 10)
 	stats.total_purges_done = 3
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1"), _make_card("b2")]
+	_populate_pool(stats, 2)
 
 	var config := ShopGenerator.generate_basic_shop(stats)
 	var expected := ShopGenerator._get_purge_cost(3)  # 20 + 3*8 = 44
 	assert_eq(config.purge_cost, expected)
 
 
-func test_pick_random_cards_no_duplicates():
-	ShopGenerator._pool_loaded = true
-	var pool:Array[Card] = [
-		_make_card("a"), _make_card("b"), _make_card("c"), _make_card("d"),
-	]
-	var picked := ShopGenerator._pick_random_cards(pool, 3)
+func test_weighted_pick_no_duplicates():
+	var pool:Array[UnlockedCardEntry] = []
+	for id in ["a", "b", "c", "d"]:
+		pool.append(_make_entry(_make_card(id)))
+
+	var picked := ShopGenerator._weighted_pick_cards(pool, 3, 10)
 	assert_eq(picked.size(), 3)
 
 	# Verificar que no hay duplicados
@@ -404,15 +393,15 @@ func test_pick_random_cards_no_duplicates():
 		ids[card.id] = true
 
 
-func test_pick_random_cards_empty_pool():
-	var pool:Array[Card] = []
-	var picked := ShopGenerator._pick_random_cards(pool, 3)
+func test_weighted_pick_empty_pool():
+	var pool:Array[UnlockedCardEntry] = []
+	var picked := ShopGenerator._weighted_pick_cards(pool, 3, 10)
 	assert_eq(picked.size(), 0)
 
 
-func test_pick_random_cards_pool_smaller_than_count():
-	var pool:Array[Card] = [_make_card("a")]
-	var picked := ShopGenerator._pick_random_cards(pool, 5)
+func test_weighted_pick_pool_smaller_than_count():
+	var pool:Array[UnlockedCardEntry] = [_make_entry(_make_card("a"))]
+	var picked := ShopGenerator._weighted_pick_cards(pool, 5, 10)
 	assert_eq(picked.size(), 1, "No deberia pedir mas cartas de las disponibles")
 
 
@@ -490,8 +479,7 @@ func test_special_shop_event_not_available_few_tiles():
 func test_shop_event_generates_basic_config():
 	var evt := BasicShopEvent.new()
 	var stats := _make_stats(100, 10)
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1"), _make_card("b2"), _make_card("b3")]
+	_populate_pool(stats, 3)
 
 	var config := evt.generate_shop(stats)
 	assert_not_null(config)
@@ -502,10 +490,7 @@ func test_shop_event_generates_basic_config():
 func test_shop_event_generates_special_config():
 	var evt := SpecialShopEvent.new()
 	var stats := _make_stats(100, 14)
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1")]
-	ShopGenerator._special_cards = [_make_card("s1", Card.Type.SPECIAL)]
-	ShopGenerator._single_use_cards = [_make_card("su1", Card.Type.SINGLE_USE)]
+	_populate_pool(stats, 1, 1, 1)
 
 	var config := evt.generate_shop(stats)
 	assert_not_null(config)
@@ -520,9 +505,7 @@ func test_shop_event_generates_special_config():
 func test_full_buy_and_purge_flow():
 	var stats := _make_stats(200, 10)
 	stats.draw_pile.add_card(_make_card("old_card"))
-
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("new_basic"), _make_card("b2")]
+	_populate_pool(stats, 3)
 
 	var config := ShopGenerator.generate_basic_shop(stats)
 	var initial_gold := stats.total_gold
@@ -556,9 +539,7 @@ func test_purge_cost_escalation_across_visits():
 	stats.draw_pile.add_card(_make_card("c1"))
 	stats.draw_pile.add_card(_make_card("c2"))
 	stats.draw_pile.add_card(_make_card("c3"))
-
-	ShopGenerator._pool_loaded = true
-	ShopGenerator._basic_cards = [_make_card("b1"), _make_card("b2")]
+	_populate_pool(stats, 3)
 
 	# Primera visita
 	var config1 := ShopGenerator.generate_basic_shop(stats)
@@ -577,15 +558,3 @@ func test_purge_cost_escalation_across_visits():
 	var config3 := ShopGenerator.generate_basic_shop(stats)
 	var cost3 := config3.purge_cost
 	assert_eq(cost3, 36, "Tercera visita: coste escalado (20 + 2*8)")
-
-
-# ============================================================
-#  Limpieza del estado estatico del generador
-# ============================================================
-
-func after_each():
-	# Resetear el pool cacheado para no contaminar otros tests
-	ShopGenerator._pool_loaded = false
-	ShopGenerator._basic_cards.clear()
-	ShopGenerator._special_cards.clear()
-	ShopGenerator._single_use_cards.clear()

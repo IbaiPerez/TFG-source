@@ -38,6 +38,7 @@ func _make_tile_with_resource(res: NaturalResource) -> Tile:
 	loc.food_consumption = 0
 	tile.location = loc
 	tile.max_buildings = 1
+	autofree(tile)
 	return tile
 
 

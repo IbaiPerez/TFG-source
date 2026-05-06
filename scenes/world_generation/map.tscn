@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dxw5gc7xqbkqj"]
+[gd_scene load_steps=20 format=3 uid="uid://dxw5gc7xqbkqj"]
 
 [ext_resource type="Script" uid="uid://byck58typyfki" path="res://scripts/world_gen/map.gd" id="1_e8i6t"]
 [ext_resource type="Script" uid="uid://bcsfis7fcjm3n" path="res://scripts/camera/camera_3d.gd" id="1_fam8b"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://bajwxktlf3vqs" path="res://scenes/UI/card/card_target_selector.tscn" id="7_wc6b0"]
 [ext_resource type="Script" uid="uid://ccptwq3cxwxmw" path="res://scripts/map/map_tracker.gd" id="8_70cmx"]
 [ext_resource type="Script" uid="uid://cwxxqp1cjvmcl" path="res://scripts/player/player_handler.gd" id="14_wme18"]
+[ext_resource type="Script" uid="uid://djm7lx8epff0y" path="res://scripts/military/battle_front_visual_manager.gd" id="15_bfvm"]
 
 [sub_resource type="Environment" id="Environment_kbma3"]
 ssao_enabled = true
@@ -136,3 +137,7 @@ hand = NodePath("../../Scene/UI_layer/Hand")
 
 [node name="BuildingManager" type="Node" parent="Node"]
 script = SubResource("GDScript_wme18")
+
+[node name="BattleFrontVisualManager" type="Node" parent="Node" node_paths=PackedStringArray("visual_parent")]
+script = ExtResource("15_bfvm")
+visual_parent = NodePath("../../Scene/TileParent")

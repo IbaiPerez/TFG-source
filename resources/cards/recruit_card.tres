@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RecruitCard" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/cards_resources/recruit_card.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/cards/recruit.svg" id="2_icon"]
+[ext_resource type="Resource" path="res://resources/troops/militia.tres" id="3_militia"]
+[ext_resource type="Resource" path="res://resources/troops/cavalry.tres" id="4_cavalry"]
+[ext_resource type="Resource" path="res://resources/troops/pikemen.tres" id="5_pikemen"]
+[ext_resource type="Resource" path="res://resources/troops/heavy_infantry.tres" id="6_heavy"]
+[ext_resource type="Resource" path="res://resources/troops/ranged.tres" id="7_ranged"]
+
+[resource]
+script = ExtResource("1_script")
+available_troops = [ExtResource("3_militia"), ExtResource("4_cavalry"), ExtResource("5_pikemen"), ExtResource("6_heavy"), ExtResource("7_ranged")]
+id = "Recruit"
+type = 0
+target = 1
+needs_confirmation = true
+icon = ExtResource("2_icon")
+tooltipe_text = ""

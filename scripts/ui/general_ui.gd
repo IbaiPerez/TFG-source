@@ -12,6 +12,7 @@ class_name UI
 @onready var draw_pile_view: CardPileView = %DrawPileView
 @onready var discard_pile_view: CardPileView = %DiscardPileView
 @onready var played_pile_view: CardPileView = %PlayedPileView
+@onready var troop_pool_view: TroopPoolView = %TroopPoolView
 @onready var map_modes_buttons: VBoxContainer = %MapModesButtons
 
 
@@ -22,6 +23,7 @@ func _ready() -> void:
 	draw_pile_button.pressed.connect(draw_pile_view.show_current_view.bind("Draw Pile",true))
 	discard_pile_button.pressed.connect(discard_pile_view.show_current_view.bind("Discard Pile"))
 	played_pile_button.pressed.connect(played_pile_view.show_current_view.bind("Played Cards"))
+	stats_ui.troop_pool_button.pressed.connect(troop_pool_view.show_current_view.bind("Tropas reclutadas"))
 	tile_panel.visible = false
 	_setup_map_mode_buttons()
 	_connect_modifier_manager.call_deferred()
@@ -46,6 +48,9 @@ func initialize_card_pile_ui() -> void:
 	draw_pile_view.card_pile = stats.draw_pile
 	discard_pile_view.card_pile = stats.discard_pile
 	played_pile_view.card_pile = stats.played_pile
+	stats_ui.troop_pool_button.stats = stats
+	troop_pool_view.stats = stats
+	tile_panel.stats = stats
 
 func _set_stats(value:Stats) -> void:
 	stats = value
