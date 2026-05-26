@@ -6,6 +6,8 @@ class_name LocustPlagueEvent
 
 
 func _init():
+	category = EventCategory.Type.FLAVOUR
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		TurnNumberCondition.new(6, Comparison.Type.GREATER_EQUAL),

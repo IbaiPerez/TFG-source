@@ -10,6 +10,8 @@ const BUILD_CARD = preload("res://resources/cards/build_card.tres")
 
 
 func _init():
+	category = EventCategory.Type.CORE_PROGRESSION
+
 	# Condicion: controlar al menos 5 casillas
 	conditions = [
 		ControlledTilesCondition.new(5, Comparison.Type.GREATER_EQUAL)

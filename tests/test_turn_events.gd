@@ -434,3 +434,419 @@ func test_context_card_count_by_type():
 	var ctx := _make_context(stats)
 	assert_eq(ctx.card_count_by_type.get(Card.Type.BASIC, 0), 2)
 	assert_eq(ctx.card_count_by_type.get(Card.Type.SPECIAL, 0), 1)
+
+
+# ============================================================
+#  EventCategoryWeights
+# ============================================================
+
+func _make_weights(p_core_priority:float = 0.9) -> EventCategoryWeights:
+	var w := EventCategoryWeights.new()
+	w.core_priority_chance = p_core_priority
+	# Por defecto, los tests asumen que el evento siempre dispara para
+	# poder verificar la lógica de selección sin lidiar con la fase A.
+	w.event_chance_fallback = 1.0
+	w.core_progression_fallback = 1.0
+	w.optional_progression_fallback = 1.0
+	w.flavour_fallback = 1.0
+	w.deck_fallback = 1.0
+	w.shop_fallback = 1.0
+	w.spirit_fallback = 1.0
+	w.decision_fallback = 1.0
+	return w
+
+
+func test_weights_returns_fallback_when_curve_is_null():
+	var w := _make_weights()
+	w.flavour_fallback = 4.5
+	assert_almost_eq(w.get_weight(EventCategory.Type.FLAVOUR, 10), 4.5, 0.0001)
+
+
+## Helper: construye una Curve lista para usarse como peso de categoría.
+## Nota: Curve clampa los puntos al rango [min_value, max_value]. Por
+## defecto Godot deja ese rango en [0, 1]. Esta función lo abre a
+## [0, p_max_value] para poder usar valores arbitrarios de peso.
+func _make_weight_curve(p_min_domain:float, p_max_domain:float,
+		p_max_value:float = 100.0) -> Curve:
+	var curve := Curve.new()
+	# El orden importa: min/max_value antes de add_point para que los
+	# puntos no se clampen al rango por defecto [0, 1].
+	curve.min_value = 0.0
+	curve.max_value = p_max_value
+	curve.min_domain = p_min_domain
+	curve.max_domain = p_max_domain
+	return curve
+
+
+## Test diagnóstico: usa valores dentro del rango por defecto [0, 1] para
+## descartar problemas de clamping y verificar que la curva se está
+## sampleando correctamente sobre su dominio.
+func test_weights_curve_basic_sampling_within_default_range():
+	var w := _make_weights()
+	var curve := Curve.new()
+	curve.min_domain = 1.0
+	curve.max_domain = 100.0
+	# Valores dentro del [0, 1] default para no depender de max_value.
+	curve.add_point(Vector2(1.0, 0.2))
+	curve.add_point(Vector2(100.0, 0.8))
+	w.flavour_curve = curve
+
+	# La curva debe estar siendo usada (no el fallback de 1.0)
+	var mid:float = w.get_weight(EventCategory.Type.FLAVOUR, 50)
+	assert_between(mid, 0.2, 0.8)
+
+
+func test_weights_clamps_turn_to_curve_domain():
+	var w := _make_weights()
+	var curve := _make_weight_curve(1.0, 100.0, 10.0)
+	curve.add_point(Vector2(1.0, 2.0))
+	curve.add_point(Vector2(100.0, 8.0))
+	w.flavour_curve = curve
+
+	# Turn dentro de dominio: interpolación entre 2.0 y 8.0 a turno 50
+	var mid:float = w.get_weight(EventCategory.Type.FLAVOUR, 50)
+	assert_between(mid, 2.0, 8.0)
+
+	# Turn por encima del dominio: clampa al extremo (8.0)
+	var beyond:float = w.get_weight(EventCategory.Type.FLAVOUR, 999)
+	assert_almost_eq(beyond, 8.0, 0.01)
+
+	# Turn por debajo del dominio: clampa al extremo (2.0)
+	var below:float = w.get_weight(EventCategory.Type.FLAVOUR, 0)
+	assert_almost_eq(below, 2.0, 0.01)
+
+
+func test_weights_curve_takes_precedence_over_fallback():
+	var w := _make_weights()
+	w.flavour_fallback = 1.0
+	# Curva constante en y=7.0 (dentro del rango max_value=10)
+	var curve := _make_weight_curve(1.0, 100.0, 10.0)
+	curve.add_point(Vector2(1.0, 7.0))
+	curve.add_point(Vector2(100.0, 7.0))
+	w.flavour_curve = curve
+	# La curva (constante 7.0) debe ganar sobre el fallback 1.0
+	assert_almost_eq(w.get_weight(EventCategory.Type.FLAVOUR, 30), 7.0, 0.01)
+
+
+# ============================================================
+#  EventCategoryWeights.event_chance dinámico
+# ============================================================
+
+func test_event_chance_returns_fallback_when_curve_is_null():
+	var w := _make_weights()
+	w.event_chance_fallback = 0.7
+	assert_almost_eq(w.get_event_chance(15), 0.7, 0.0001)
+
+
+func test_event_chance_uses_curve_when_present():
+	var w := _make_weights()
+	w.event_chance_fallback = 0.1
+	# Curve dentro del rango por defecto [0, 1] (probabilidad)
+	var curve := Curve.new()
+	curve.min_domain = 1.0
+	curve.max_domain = 100.0
+	curve.add_point(Vector2(1.0, 0.5))
+	curve.add_point(Vector2(100.0, 0.9))
+	w.event_chance_curve = curve
+
+	# La curva debe ganar sobre el fallback 0.1
+	var early:float = w.get_event_chance(1)
+	assert_almost_eq(early, 0.5, 0.01)
+	var late:float = w.get_event_chance(100)
+	assert_almost_eq(late, 0.9, 0.01)
+	# A mitad, valor intermedio entre 0.5 y 0.9
+	var mid:float = w.get_event_chance(50)
+	assert_between(mid, 0.5, 0.9)
+
+
+func test_event_chance_clamps_turn_to_curve_domain():
+	var w := _make_weights()
+	var curve := Curve.new()
+	curve.min_domain = 1.0
+	curve.max_domain = 100.0
+	curve.add_point(Vector2(1.0, 0.5))
+	curve.add_point(Vector2(100.0, 0.9))
+	w.event_chance_curve = curve
+
+	# Turn por encima del dominio se clampa al final de la curva
+	assert_almost_eq(w.get_event_chance(999), 0.9, 0.01)
+	# Turn por debajo del dominio se clampa al inicio
+	assert_almost_eq(w.get_event_chance(0), 0.5, 0.01)
+
+
+func test_event_chance_clamps_output_to_zero_one():
+	# Aunque la curva pudiera devolver valores fuera de [0, 1] por
+	# overshoot de tangentes, el método debe clampar el resultado.
+	var w := _make_weights()
+	var curve := Curve.new()
+	curve.min_domain = 1.0
+	curve.max_domain = 10.0
+	curve.min_value = -5.0
+	curve.max_value = 5.0
+	curve.add_point(Vector2(1.0, -2.0))
+	curve.add_point(Vector2(10.0, 3.0))
+	w.event_chance_curve = curve
+
+	# Valor inicial -2.0 debe clamparse a 0.0
+	assert_almost_eq(w.get_event_chance(1), 0.0, 0.01)
+	# Valor final 3.0 debe clamparse a 1.0
+	assert_almost_eq(w.get_event_chance(10), 1.0, 0.01)
+
+
+func test_manager_uses_event_chance_curve():
+	# Con curva que devuelve 0.0, no debe disparar nunca
+	var stats := _make_stats()
+	stats.event_chance = 1.0  # legacy: si se usa, dispararía siempre
+	var weights := _make_weights()
+	var curve := Curve.new()
+	curve.min_domain = 1.0
+	curve.max_domain = 100.0
+	curve.add_point(Vector2(1.0, 0.0))
+	curve.add_point(Vector2(100.0, 0.0))
+	weights.event_chance_curve = curve
+	stats.category_weights = weights
+	stats.available_events = [
+		_make_categorized_event("a", EventCategory.Type.FLAVOUR)
+	]
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	# La curva fuerza chance=0, el legacy stats.event_chance debe ignorarse
+	for i in range(20):
+		assert_null(mgr.evaluate(ctx))
+
+
+func test_manager_falls_back_to_stats_event_chance_when_no_weights():
+	# Si category_weights es null, el manager usa stats.event_chance legacy
+	var stats := _make_stats()
+	stats.event_chance = 0.0  # nunca dispara
+	stats.category_weights = null
+	stats.available_events = [
+		_make_categorized_event("a", EventCategory.Type.FLAVOUR)
+	]
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	for i in range(20):
+		assert_null(mgr.evaluate(ctx))
+
+
+# ============================================================
+#  TurnEventManager con categorías
+# ============================================================
+
+func _make_manager(stats:Stats) -> TurnEventManager:
+	var mgr := TurnEventManager.new()
+	mgr.stats = stats
+	add_child_autoqfree(mgr)
+	return mgr
+
+
+func _make_categorized_event(p_id:String, p_category:int,
+		p_weight:float = 1.0, p_unique:bool = false) -> TurnEvent:
+	var evt := TurnEvent.new()
+	evt.id = p_id
+	evt.weight = p_weight
+	evt.unique = p_unique
+	evt.category = p_category
+	evt.conditions = []
+	evt.choices = []
+	return evt
+
+
+func test_manager_returns_null_when_event_chance_fails():
+	var stats := _make_stats()
+	stats.available_events = [
+		_make_categorized_event("a", EventCategory.Type.FLAVOUR)
+	]
+	# Forzamos event_chance=0 vía el fallback de category_weights.
+	# (stats.event_chance legacy se ignora cuando hay category_weights)
+	var weights := _make_weights()
+	weights.event_chance_fallback = 0.0
+	stats.category_weights = weights
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	# Con event_chance=0.0 nunca debe devolver evento
+	for i in range(20):
+		assert_null(mgr.evaluate(ctx))
+
+
+func test_manager_returns_null_when_no_events_available():
+	var stats := _make_stats()
+	stats.event_chance = 1.0
+	stats.available_events = []
+	stats.category_weights = _make_weights()
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	assert_null(mgr.evaluate(ctx))
+
+
+func test_manager_prioritizes_core_when_priority_chance_one():
+	var stats := _make_stats()
+	stats.event_chance = 1.0
+	stats.available_events = [
+		_make_categorized_event("core", EventCategory.Type.CORE_PROGRESSION),
+		_make_categorized_event("flavour", EventCategory.Type.FLAVOUR),
+	]
+	stats.category_weights = _make_weights(1.0)  # CORE priority = 100%
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	# Con priority=1.0 siempre debe disparar el CORE
+	for i in range(20):
+		var picked = mgr.evaluate(ctx)
+		assert_not_null(picked)
+		assert_eq(picked.id, "core")
+
+
+func test_manager_skips_core_priority_when_chance_zero():
+	# Con priority=0.0 CORE nunca pasa la fase B y compite normal en C.
+	# Si solo hay CORE disponible aún debe poder dispararse vía C.
+	var stats := _make_stats()
+	stats.event_chance = 1.0
+	stats.available_events = [
+		_make_categorized_event("core", EventCategory.Type.CORE_PROGRESSION),
+	]
+	stats.category_weights = _make_weights(0.0)
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	var picked = mgr.evaluate(ctx)
+	assert_not_null(picked)
+	assert_eq(picked.id, "core")
+
+
+func test_manager_excludes_categories_without_candidates():
+	# Solo hay un evento DECK disponible: el manager solo puede pickear DECK.
+	var stats := _make_stats()
+	stats.event_chance = 1.0
+	stats.available_events = [
+		_make_categorized_event("deck_only", EventCategory.Type.DECK),
+	]
+	stats.category_weights = _make_weights()
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	for i in range(10):
+		var picked = mgr.evaluate(ctx)
+		assert_not_null(picked)
+		assert_eq(picked.id, "deck_only")
+
+
+func test_manager_skips_used_unique_events():
+	var stats := _make_stats()
+	stats.event_chance = 1.0
+	stats.available_events = [
+		_make_categorized_event("once", EventCategory.Type.FLAVOUR, 1.0, true),
+	]
+	stats.used_unique_events = ["once"]
+	stats.category_weights = _make_weights()
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	# El único evento ya está consumido, no hay nada que disparar
+	assert_null(mgr.evaluate(ctx))
+
+
+func test_manager_resolve_marks_unique_as_used():
+	var stats := _make_stats()
+	var evt := _make_categorized_event("uniq", EventCategory.Type.FLAVOUR, 1.0, true)
+	var choice := TurnEventChoice.new()
+	choice.effects = []
+	evt.choices = [choice]
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	mgr.resolve(evt, choice, ctx)
+	assert_has(stats.used_unique_events, "uniq")
+
+
+func test_manager_works_without_category_weights():
+	# Si stats.category_weights es null, el manager cae a peso uniforme
+	# por categoría y core_priority_chance default = 0.9.
+	var stats := _make_stats()
+	stats.event_chance = 1.0
+	stats.category_weights = null
+	stats.available_events = [
+		_make_categorized_event("only", EventCategory.Type.FLAVOUR),
+	]
+	var mgr := _make_manager(stats)
+	var ctx := _make_context(stats)
+	var picked = mgr.evaluate(ctx)
+	assert_not_null(picked)
+	assert_eq(picked.id, "only")
+
+
+# ============================================================
+#  Asignación de categoría en eventos representativos
+# ============================================================
+
+func test_construction_boom_is_core_progression():
+	var evt := ConstructionBoomEvent.new()
+	assert_eq(evt.category, EventCategory.Type.CORE_PROGRESSION)
+
+
+func test_unlock_recruit_is_core_progression():
+	var evt := UnlockRecruitEvent.new()
+	assert_eq(evt.category, EventCategory.Type.CORE_PROGRESSION)
+
+
+func test_unlock_upgrade_is_core_progression():
+	var evt := UnlockUpgradeEvent.new()
+	assert_eq(evt.category, EventCategory.Type.CORE_PROGRESSION)
+
+
+func test_unlock_caravana_is_optional_progression():
+	var evt := UnlockCaravanaEvent.new()
+	assert_eq(evt.category, EventCategory.Type.OPTIONAL_PROGRESSION)
+
+
+func test_unlock_palacio_is_optional_progression():
+	var evt := UnlockPalacioEvent.new()
+	assert_eq(evt.category, EventCategory.Type.OPTIONAL_PROGRESSION)
+
+
+func test_bandits_is_flavour():
+	var evt := BanditsEvent.new()
+	assert_eq(evt.category, EventCategory.Type.FLAVOUR)
+
+
+func test_wise_travelers_is_flavour():
+	var evt := WiseTravelersEvent.new()
+	assert_eq(evt.category, EventCategory.Type.FLAVOUR)
+
+
+func test_mercenaries_is_flavour():
+	var evt := MercenariesEvent.new()
+	assert_eq(evt.category, EventCategory.Type.FLAVOUR)
+
+
+func test_card_offering_is_deck():
+	var evt := CardOfferingEvent.new()
+	assert_eq(evt.category, EventCategory.Type.DECK)
+
+
+func test_deck_purge_is_deck():
+	var evt := DeckPurgeEvent.new()
+	assert_eq(evt.category, EventCategory.Type.DECK)
+
+
+func test_basic_shop_is_shop():
+	var evt := BasicShopEvent.new()
+	assert_eq(evt.category, EventCategory.Type.SHOP)
+
+
+func test_special_shop_is_shop():
+	var evt := SpecialShopEvent.new()
+	assert_eq(evt.category, EventCategory.Type.SHOP)
+
+
+func test_spirit_pacto_is_spirit():
+	var evt := SpiritPactoEvent.new()
+	assert_eq(evt.category, EventCategory.Type.SPIRIT)
+
+
+func test_megalopolis_is_decision():
+	var evt := MegalopolisEvent.new()
+	assert_eq(evt.category, EventCategory.Type.DECISION)
+
+
+func test_default_turn_event_category_is_flavour():
+	# Un TurnEvent.new() sin categoría explícita debe defaultear a FLAVOUR
+	# (definido en turn_event.gd para los tests/factories que no setean
+	# categoría explícitamente).
+	var evt := TurnEvent.new()
+	assert_eq(evt.category, EventCategory.Type.FLAVOUR)

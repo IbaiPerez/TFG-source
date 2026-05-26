@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://chkt8mhljf7ue"]
+[gd_scene load_steps=14 format=3 uid="uid://chkt8mhljf7ue"]
 
 [ext_resource type="Script" uid="uid://cgmoodqwgdltf" path="res://scripts/ui/general_ui.gd" id="1_frbhi"]
 [ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="2_1r63k"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://ke0uo44vme8s" path="res://assets/cards/discard_pile_icon.svg" id="8_disc"]
 [ext_resource type="Texture2D" uid="uid://d2r5m2jujfv48" path="res://assets/cards/played_pile_icon.svg" id="9_played"]
 [ext_resource type="PackedScene" path="res://scenes/UI/military/troop_pool_view.tscn" id="10_troop_view"]
+[ext_resource type="PackedScene" uid="uid://daiactionlog1" path="res://scenes/UI/ai_action_log.tscn" id="11_ailog"]
 
 [sub_resource type="Theme" id="Theme_dsvdl"]
 
@@ -29,16 +30,16 @@ stats = ExtResource("2_1r63k")
 
 [node name="MapModes" type="VBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 6
+anchors_preset = 3
 anchor_left = 1.0
-anchor_top = 0.5
+anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 0.5
+anchor_bottom = 1.0
 offset_left = -151.0
-offset_top = -85.5
-offset_bottom = 85.5
+offset_top = -315.0
+offset_bottom = -145.0
 grow_horizontal = 0
-grow_vertical = 2
+grow_vertical = 0
 alignment = 1
 
 [node name="Label" type="Label" parent="MapModes"]
@@ -100,6 +101,14 @@ offset_bottom = -24.0
 grow_horizontal = 0
 grow_vertical = 0
 text = "End turn"
+
+[node name="AIActionLog" parent="." instance=ExtResource("11_ailog")]
+unique_name_in_owner = true
+layout_mode = 1
+offset_left = 10.0
+offset_top = 138.0
+offset_right = 300.0
+offset_bottom = 438.0
 
 [node name="TilePanel" parent="." instance=ExtResource("4_ilc3t")]
 visible = false

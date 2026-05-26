@@ -6,6 +6,8 @@ class_name WiseTravelersEvent
 
 
 func _init():
+	category = EventCategory.Type.FLAVOUR
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		TurnNumberCondition.new(15, Comparison.Type.GREATER_EQUAL),

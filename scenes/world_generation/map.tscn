@@ -59,6 +59,7 @@ stats = ExtResource("2_wme18")
 [node name="Camera" type="Node3D" parent="."]
 
 [node name="Camera3D" type="Camera3D" parent="Camera" node_paths=PackedStringArray("sun")]
+process_mode = 3
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 0.99853665, -0.054078814, 0, 0.054078814, 0.99853665, 0, 0, 0)
 script = ExtResource("1_fam8b")
@@ -123,6 +124,7 @@ settings = ExtResource("3_nktjb")
 tile_parent = NodePath("../../Scene/TileParent")
 
 [node name="InteractionTracker" type="Node3D" parent="Node" node_paths=PackedStringArray("main_camera")]
+process_mode = 3
 script = ExtResource("4_w7uq4")
 tile_cursor_scene = ExtResource("5_leapw")
 main_camera = NodePath("../../Camera/Camera3D")

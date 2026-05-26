@@ -21,5 +21,6 @@ func apply_effects(_targets:Array[Node], stats:Stats) -> void:
 		return
 	# Quitar la carta elegida de la played_pile
 	stats.played_pile.remove_card(chosen)
-	# Devolver la carta elegida a la mano del jugador
-	Events.card_returned_to_hand.emit(chosen)
+	# Devolver la carta elegida a la mano del dueño (jugador o IA según
+	# de quién sea la stats que se está usando para jugar la carta).
+	Events.card_returned_to_hand.emit(chosen, stats)

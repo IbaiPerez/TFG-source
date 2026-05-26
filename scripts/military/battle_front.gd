@@ -25,7 +25,21 @@ var marker: float = 0.0
 ## Control de tiempo
 var turns_elapsed: int = 0
 var min_duration: int = 3
-var threshold: float = 20.0
+
+## Umbral inicial del frente. El umbral efectivo se calcula con
+## `get_current_threshold()` y va decreciendo desde `threshold` (default 15)
+## hasta `MIN_THRESHOLD` (10) de forma lineal en `THRESHOLD_DECAY_TURNS` (30)
+## turnos transcurridos en el frente.
+##
+## Why: con threshold fijo en 20, los datos de simulacion mostraron que el
+## ~50% de los frentes vivos en R100 tenian |marker| < 5 y ninguno alcanzaba
+## el umbral. La fuerza simetrica entre bandos hace que el marker oscile
+## cerca de 0 y el frente nunca cierre. Bajar el techo a 15 y dejar que el
+## tiempo lo erosione hasta 10 evita esos atascos: cuanto mas tiempo lleva
+## un frente abierto sin decision, mas facil se vuelve resolverlo.
+var threshold: float = 15.0
+const MIN_THRESHOLD: float = 10.0
+const THRESHOLD_DECAY_TURNS: int = 30
 
 ## Tropas asignadas por bando (arrays de Troop)
 var attacker_troops: Array[Troop] = []
@@ -76,35 +90,44 @@ static func clear_active_instances() -> void:
 ## Calcula el ataque total de un bando (tropas + bioma + edificios + bonuses de cartas).
 ##
 ## El ataque base de las tropas se pasa por TroopEffectiveness para aplicar
-## el multiplicador piedra-papel-tijera contra la composición enemiga. El
-## bioma, los edificios y los bonuses de cartas no se ven afectados por la
-## efectividad — sólo el aporte ofensivo de las tropas.
+## el multiplicador piedra-papel-tijera contra la composición enemiga, y
+## después se escala por el modificador de bioma de la tile **contraria**
+## (atacar un bosque/montaña es más difícil que asaltar una pradera). Los
+## edificios y los bonuses de cartas tácticas no se ven afectados por el
+## bioma base — los bonuses tienen su propio modificador capturado al jugar
+## la carta.
 func get_total_attack(side: StringName) -> float:
 	var total: float = 0.0
-	var tile: Tile
+	var own_tile: Tile
+	var enemy_tile: Tile
 	var troops: Array[Troop]
 	var enemy_troops: Array[Troop]
 	var bonuses: Array[Dictionary]
 
 	if side == &"attacker":
-		tile = attacker_tile
+		own_tile = attacker_tile
+		enemy_tile = defender_tile
 		troops = attacker_troops
 		enemy_troops = defender_troops
 		bonuses = attacker_bonuses
 	else:
-		tile = defender_tile
+		own_tile = defender_tile
+		enemy_tile = attacker_tile
 		troops = defender_troops
 		enemy_troops = attacker_troops
 		bonuses = defender_bonuses
 
-	# Bonus base del bioma
-	total += _get_biome_attack(tile)
+	# Bonus de edificios militares (en la tile propia)
+	total += _get_building_attack(own_tile)
 
-	# Bonus de edificios militares
-	total += _get_building_attack(tile)
-
-	# Stats de tropas con efectividad por tipo aplicada (ataque efectivo).
-	total += TroopEffectiveness.get_effective_attack(troops, enemy_troops)
+	# Stats de tropas con efectividad por tipo aplicada (ataque efectivo)
+	# escaladas por el modificador de bioma de la tile **contraria** y por
+	# el `combat_multiplier` del imperio del bando (penalizacion economica
+	# por deficit en oro/comida — Opcion 3 del rebalanceo). Edificios y
+	# bonuses tacticos NO se ven afectados por la penalizacion economica.
+	var troops_attack := TroopEffectiveness.get_effective_attack(troops, enemy_troops)
+	var combat_mult := _get_side_combat_multiplier(side)
+	total += troops_attack * _get_biome_attack_multiplier(enemy_tile) * combat_mult
 
 	# Bonuses de cartas tácticas
 	var flat_bonus: float = 0.0
@@ -133,30 +156,38 @@ func get_total_attack(side: StringName) -> float:
 
 
 ## Calcula la defensa total de un bando.
+##
+## La defensa de las tropas se escala por el modificador de bioma de la tile
+## **propia** (defender en bosque/montaña refuerza a las tropas; defender en
+## pradera/desierto las debilita). Los edificios y bonuses tácticos no pasan
+## por este multiplicador — los bonuses tienen su propio modificador de bioma.
 func get_total_defense(side: StringName) -> float:
 	var total: float = 0.0
-	var tile: Tile
+	var own_tile: Tile
 	var troops: Array[Troop]
 	var bonuses: Array[Dictionary]
 
 	if side == &"attacker":
-		tile = attacker_tile
+		own_tile = attacker_tile
 		troops = attacker_troops
 		bonuses = attacker_bonuses
 	else:
-		tile = defender_tile
+		own_tile = defender_tile
 		troops = defender_troops
 		bonuses = defender_bonuses
 
-	# Bonus base del bioma
-	total += _get_biome_defense(tile)
+	# Bonus de edificios militares (en la tile propia)
+	total += _get_building_defense(own_tile)
 
-	# Bonus de edificios militares
-	total += _get_building_defense(tile)
-
-	# Stats de tropas
+	# Stats de tropas escalados por el modificador de bioma de la tile propia
+	# y por el `combat_multiplier` del imperio del bando (penalizacion
+	# economica por deficit en oro/comida — Opcion 3). Edificios y bonuses
+	# tacticos NO se ven afectados.
+	var troops_defense: float = 0.0
 	for troop in troops:
-		total += troop.defense
+		troops_defense += troop.defense
+	var combat_mult := _get_side_combat_multiplier(side)
+	total += troops_defense * _get_biome_defense_multiplier(own_tile) * combat_mult
 
 	# Bonuses de cartas tácticas
 	var flat_bonus: float = 0.0
@@ -250,7 +281,26 @@ func can_resolve() -> bool:
 		return false
 	if turns_elapsed < min_duration:
 		return false
-	return absf(marker) >= threshold
+	return absf(marker) >= get_current_threshold()
+
+
+## Umbral efectivo en el turno actual. Decae linealmente desde `threshold`
+## (umbral inicial, p.ej. 15) hasta `MIN_THRESHOLD` (10) durante los primeros
+## `THRESHOLD_DECAY_TURNS` (30) turnos del frente. A partir de ahi se queda
+## clavado en `MIN_THRESHOLD`.
+##
+## How to apply: usar este metodo en cualquier comparacion contra el umbral
+## (can_resolve, calculate_casualties, _resolve, UI/visuales). Acceder
+## directamente a `threshold` solo es valido para inicializacion, persistencia
+## (save/load) o cuando se quiere el valor de configuracion, no el efectivo.
+func get_current_threshold() -> float:
+	# Casos triviales: decay desactivado, o el inicial ya es <= MIN_THRESHOLD
+	# (configuracion de test con thresholds pequeños). En ambos casos, no
+	# decaemos — el threshold solo baja, nunca sube.
+	if THRESHOLD_DECAY_TURNS <= 0 or threshold <= MIN_THRESHOLD:
+		return threshold
+	var t: float = clampf(float(turns_elapsed) / float(THRESHOLD_DECAY_TURNS), 0.0, 1.0)
+	return lerpf(threshold, MIN_THRESHOLD, t)
 
 
 ## Asigna una tropa a un bando. Las tropas quedan comprometidas.
@@ -334,7 +384,11 @@ func calculate_casualties() -> Dictionary:
 	if not is_resolved:
 		return { "attacker_losses": 0, "defender_losses": 0 }
 
-	var attacker_won := marker >= threshold
+	# Usamos el umbral del turno en que se resolvio. Como `_resolve` se llama
+	# en el mismo tick que detecta la resolucion, `get_current_threshold()`
+	# devuelve el valor decaido apropiado para escalar la dominancia.
+	var effective_threshold := get_current_threshold()
+	var attacker_won := marker >= effective_threshold
 
 	# La presión acumulada recibida determina las bajas
 	# El bando que recibió más presión pierde mayor porcentaje
@@ -356,7 +410,7 @@ func calculate_casualties() -> Dictionary:
 	var winner_loss_ratio: float
 	var loser_loss_ratio: float
 
-	var dominance := absf(marker) / threshold  # 1.0 = justo en el umbral, >1 = aplastante
+	var dominance := absf(marker) / effective_threshold  # 1.0 = justo en el umbral, >1 = aplastante
 	loser_loss_ratio = clampf(0.6 + dominance * 0.2, 0.6, 1.0)
 	winner_loss_ratio = clampf(0.5 - dominance * 0.15, 0.2, 0.5)
 
@@ -376,7 +430,10 @@ func calculate_casualties() -> Dictionary:
 
 func _resolve() -> void:
 	is_resolved = true
-	var attacker_won := marker >= threshold
+	# Mismo criterio que can_resolve: ganador determinado por el signo del
+	# marker contra el umbral efectivo del turno. Con threshold decaido, un
+	# marker positivo cualquiera >= umbral hace ganar al atacante.
+	var attacker_won := marker >= get_current_threshold()
 	_active_instances.erase(self)
 	front_resolved.emit(self, attacker_won)
 
@@ -391,42 +448,72 @@ func _tick_bonuses(bonuses: Array[Dictionary]) -> void:
 		i -= 1
 
 
-## Placeholder: bonus de ataque por bioma. Valores por definir durante balance.
-func _get_biome_attack(tile: Tile) -> float:
+## Multiplicador que aplica al ATK efectivo del bando que ATACA esta tile.
+##
+## Se interpreta como "lo difícil que es asaltar el terreno": un bosque o una
+## montaña frenan al asaltante, una pradera o un desierto facilitan el avance.
+## Coherente con el modificador de bioma que usan las cartas tácticas
+## (atributo "atacar a la tile contraria").
+##
+## Rango ~[0.6, 1.2]. Multiplicadores conservadores; el balance fino se hará
+## jugando partidas reales.
+func _get_biome_attack_multiplier(tile: Tile) -> float:
+	if tile == null or tile.mesh_data == null:
+		return 1.0
 	match tile.mesh_data.type:
-		Tile.biome_type.Desert:
-			return 2.0
 		Tile.biome_type.Grassland:
-			return 1.5
+			return 1.20
+		Tile.biome_type.Desert:
+			return 1.10
 		Tile.biome_type.Tundra:
-			return 1.0
+			return 0.95
 		Tile.biome_type.Forest:
-			return 0.5
+			return 0.80
 		Tile.biome_type.Swamp:
-			return 0.5
+			return 0.70
 		Tile.biome_type.Mountain:
-			return 0.0
+			return 0.60
+		Tile.biome_type.Ocean:
+			return 1.00
 		_:
-			return 0.0
+			return 1.00
 
 
-## Placeholder: bonus de defensa por bioma.
-func _get_biome_defense(tile: Tile) -> float:
+## Multiplicador que aplica a la DEF de las tropas del bando que DEFIENDE en
+## esta tile. Bioma "fortaleza natural" → >1.0; bioma abierto → <1.0.
+##
+## Rango ~[0.85, 1.5]. Las montañas son la mejor posición defensiva; los
+## desiertos y praderas, las peores. Tundra queda neutra.
+func _get_biome_defense_multiplier(tile: Tile) -> float:
+	if tile == null or tile.mesh_data == null:
+		return 1.0
 	match tile.mesh_data.type:
 		Tile.biome_type.Mountain:
-			return 3.0
+			return 1.50
 		Tile.biome_type.Forest:
-			return 2.0
+			return 1.25
 		Tile.biome_type.Swamp:
-			return 1.5
+			return 1.20
 		Tile.biome_type.Tundra:
-			return 1.0
+			return 1.00
 		Tile.biome_type.Grassland:
-			return 0.5
+			return 0.90
 		Tile.biome_type.Desert:
-			return 0.0
+			return 0.85
+		Tile.biome_type.Ocean:
+			return 1.00
 		_:
-			return 0.0
+			return 1.00
+
+
+## Devuelve el `combat_multiplier` del imperio del bando indicado.
+## Si por algun motivo el empire es null (tests aislados, frente
+## construido a mano sin imperio), devolvemos 1.0 — sin penalizacion.
+func _get_side_combat_multiplier(side: StringName) -> float:
+	var empire: Empire = attacker_empire if side == &"attacker" else defender_empire
+	if empire == null:
+		return 1.0
+	return empire.combat_multiplier
 
 
 ## Placeholder: bonus de ataque por edificios militares.

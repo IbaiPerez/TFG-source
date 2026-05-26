@@ -5,8 +5,29 @@ extends Node
 @export_category("Dependencies")
 @export var tile_parent : Node3D
 
+## Si es true (default), `_ready()` dispara init_seed + generate_world
+## automaticamente al entrar al arbol. Es lo que necesita la escena de
+## juego real (`map.tscn`), donde el WorldGenerator es un nodo declarado
+## y queremos que arranque solo.
+##
+## Los harnesses headless (p.ej. `tests/simulation/game_sim_harness.gd`)
+## deben ponerlo a false antes de `add_child(generator)`: el harness
+## conduce manualmente init_seed + generate_world para controlar el
+## seeding y evitar la doble generacion. Si quedara a true, `_ready`
+## generaria un mapa, el harness generaria otro encima, y `EmpireCreator`
+## se ejecutaria dos veces sobre WorldMaps distintos: si el segundo
+## falla por mapa degenerado, un imperio queda colocado en el primer
+## mapa (huerfano) y el otro acaba con 0 tiles.
+@export var auto_generate_on_ready : bool = true
+
 ## Starting point: Generate a random seed, create the tiles, place POI's
 func _ready() -> void:
+	if not auto_generate_on_ready:
+		return
+	# Si hay un snapshot pendiente, no generamos nada: Map._ready() se
+	# encargará de reconstruir el mundo desde el save tras nosotros.
+	if not GameSaveManager.pending_snapshot.is_empty():
+		return
 	init_seed()
 	generate_world()
 

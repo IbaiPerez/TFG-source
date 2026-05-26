@@ -43,7 +43,7 @@ const NEIGHBOR_WORLD_OFFSET = [
 ]
 
 
-func set_map(all_tiles):
+func set_map(all_tiles:Array[Tile]):
 	map = all_tiles
 	for t in all_tiles:
 		map_as_dict[Vector2(t.pos_data.grid_position.x, t.pos_data.grid_position.y)] = t

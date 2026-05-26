@@ -15,6 +15,7 @@ corner_radius_bottom_right = 24
 corner_radius_bottom_left = 24
 
 [node name="TurnEventPanel" type="PanelContainer"]
+process_mode = 3
 custom_minimum_size = Vector2(420, 520)
 anchors_preset = 8
 anchor_left = 0.5

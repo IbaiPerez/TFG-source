@@ -16,6 +16,11 @@ class_name BuildingCardUI
 @onready var demolish_button: Button = $PanelContainer/Overlay/DemolishButton
 
 @export var building:Building:set = _set_building
+## Stats del imperio que mira esta card. Lo asigna el padre (BuildingSlot
+## o BuildingPanel) antes de asignar `building`. Si es null, el tooltip
+## mostrara el coste raw del .tres — util como preview en herramientas
+## de debug o tests aislados.
+@export var stats:Stats
 ## Cuando es true y hay un building asignado, muestra un botón rojo
 ## que al pulsarse emite `demolish_requested(building)`.
 ## El padre que instancia este slot decide si activar la demolición
@@ -54,7 +59,9 @@ func _set_building(value:Building) -> void:
 
 	building_image.texture = value.image
 	name_label.text = value.name
-	cost_value_label.text = str(value.construction_cost)
+	# Coste efectivo (descuento de Banca Florentina, eventos). Si stats
+	# es null, get_effective_construction_cost devuelve el raw.
+	cost_value_label.text = str(value.get_effective_construction_cost(stats))
 	gold_production_label.text = str(value.gold_produced)
 	food_production_label.text = str(value.food_produced)
 	if not building.allowed_location_type.is_empty():

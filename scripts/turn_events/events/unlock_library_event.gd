@@ -10,6 +10,8 @@ const BUILD_LIBRARY_CARD = preload("res://resources/cards/build_library_card.tre
 
 
 func _init():
+	category = EventCategory.Type.OPTIONAL_PROGRESSION
+
 	conditions = [
 		# Al menos 1 Town (location_type = 2)
 		ControlledTilesCondition.new(1, Comparison.Type.GREATER_EQUAL, null, -1, 2),

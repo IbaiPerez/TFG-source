@@ -61,6 +61,13 @@ size_flags_horizontal = 4
 text = "Play"
 theme_override_font_sizes/font_size = 24
 
+[node name="LoadButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 0)
+size_flags_horizontal = 4
+text = "Load"
+theme_override_font_sizes/font_size = 24
+
 [node name="ExitButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(200, 0)
@@ -69,4 +76,5 @@ text = "Exit"
 theme_override_font_sizes/font_size = 24
 
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/ExitButton" to="." method="_on_exit_button_pressed"]

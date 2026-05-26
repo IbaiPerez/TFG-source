@@ -25,6 +25,24 @@ func start_turn() -> void:
 	var effective_cards := _get_effective_cards_per_turn()
 	draw_cards_animated(effective_cards)
 
+## Reanuda el turno del jugador despues de cargar un save.
+##
+## El snapshot ya restauro:
+##   - La mano (CardUIs creadas en `_restore_player_hand`).
+##   - Las stats con `turn_number`, `gold_per_turn`, `food`, `total_gold`
+##     resultado del `_process_turn_start` del turno guardado.
+##   - El contador `cards_played_this_turn` de la mano.
+##
+## Por tanto, NO debemos volver a llamar a `_process_turn_start`
+## (incrementaria `turn_number` y duplicaria la produccion) ni a
+## `draw_cards_animated` (intentaria robar de un draw_pile que ya pudo
+## quedarse vacio tras el robo previo, lo que provocaria null cards).
+##
+## Solo hace falta reactivar el input del jugador, igual que hace la
+## animacion de robo al terminar.
+func resume_turn() -> void:
+	Events.player_hand_drawn.emit()
+
 func end_turn() -> void:
 	if hand.get_children().size() == 0:
 		Events.player_hand_discarded.emit()
@@ -46,26 +64,46 @@ func _on_turn_event_resolved() -> void:
 	_awaiting_event_resolution = false
 	turn_finished.emit(self)
 
-func _on_card_played(card:Card) -> void:
+func _on_card_played(card:Card, owner_stats:Stats) -> void:
+	# Solo reaccionar a cartas jugadas por nosotros (filtrar IA).
+	if owner_stats != stats:
+		return
 	_handle_card_played(card)
 
-func _on_card_returned_to_hand(card:Card) -> void:
+func _on_card_returned_to_hand(card:Card, owner_stats:Stats) -> void:
+	# Solo añadir a la mano del jugador si la carta es nuestra.
+	if owner_stats != stats:
+		return
 	hand.add_card(card)
 
 ## --- Animaciones de mano (exclusivas del jugador) ---
 
 func draw_cards_animated(amount:int) -> void:
+	# Bloqueamos interaccion con la mano hasta que termine la animacion.
+	# Bug previo: si el jugador agarraba una carta mientras aun se estaban
+	# repartiendo, el conteo "cartas en mano vs. objetivo" se descuadraba
+	# (la carta arrastrada sale temporalmente del HBoxContainer y se
+	# repartia una de mas para "compensar"). Con la mano no-interactiva
+	# durante el reparto no se puede iniciar el arrastre.
+	hand.set_interactive(false)
 	var tween := create_tween()
 	for i in range(amount):
 		tween.tween_callback(_draw_card_to_hand)
 		tween.tween_interval(HAND_DRAW_INTERVAL)
 
 	tween.finished.connect(
-		func(): Events.player_hand_drawn.emit()
+		func():
+			hand.set_interactive(true)
+			Events.player_hand_drawn.emit()
 	)
 
 func _draw_card_to_hand() -> void:
 	var card := _draw_single_card()
+	if card == null:
+		# Las dos pilas (draw + discard) estan agotadas. Saltamos sin
+		# intentar instanciar CardUI con carta null (eso reventaria al
+		# acceder a `card.icon` en `CardUI._set_card`).
+		return
 	hand.add_card(card)
 
 func _discard_cards_animated() -> void:

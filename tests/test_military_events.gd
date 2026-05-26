@@ -388,58 +388,74 @@ func test_unlock_open_front_card_added_is_a_copy() -> void:
 
 # ============================================================
 #  HasRecruitedTroopOfTypeCondition
+#
+#  La condicion lee `stats.types_ever_recruited` (contador historico
+#  incrementado en `Stats.recruit_troop`), no `stats.troop_pool`. Esto
+#  desacopla "tengo este tipo AHORA" de "he reclutado este tipo alguna
+#  vez", que es lo que las doctrinas tacticas necesitan.
 # ============================================================
 
-func test_has_recruited_troop_of_type_true_when_pool_contains_type() -> void:
+func test_has_recruited_troop_of_type_true_when_counter_has_type() -> void:
 	var stats := _make_stats()
-	stats.troop_pool = [_make_troop("Cab", 6, 1, Troop.TroopType.CABALLERIA)]
+	stats.types_ever_recruited = { Troop.TroopType.CABALLERIA: 1 }
 
 	var ctx := _make_context(stats)
 	var cond := HasRecruitedTroopOfTypeCondition.new(Troop.TroopType.CABALLERIA, 1)
-	assert_true(cond.is_met(ctx), "Debe cumplirse con 1 caballería en el pool")
+	assert_true(cond.is_met(ctx), "Debe cumplirse con 1 caballería en el contador")
 
 
 func test_has_recruited_troop_of_type_false_when_no_match() -> void:
 	var stats := _make_stats()
-	stats.troop_pool = [_make_troop("Lig", 3, 3, Troop.TroopType.INFANTERIA_LIGERA)]
+	stats.types_ever_recruited = { Troop.TroopType.INFANTERIA_LIGERA: 3 }
 
 	var ctx := _make_context(stats)
 	var cond := HasRecruitedTroopOfTypeCondition.new(Troop.TroopType.CABALLERIA, 1)
-	assert_false(cond.is_met(ctx), "No debe cumplirse si no hay tropas del tipo requerido")
+	assert_false(cond.is_met(ctx), "No debe cumplirse si nunca se reclutó ese tipo")
 
 
-func test_has_recruited_troop_of_type_false_with_empty_pool() -> void:
+func test_has_recruited_troop_of_type_false_with_empty_counter() -> void:
 	var stats := _make_stats()
-	stats.troop_pool = []
+	stats.types_ever_recruited = {}
 
 	var ctx := _make_context(stats)
 	var cond := HasRecruitedTroopOfTypeCondition.new(Troop.TroopType.PIQUEROS, 1)
-	assert_false(cond.is_met(ctx), "Pool vacío nunca cumple")
+	assert_false(cond.is_met(ctx), "Contador vacío nunca cumple")
 
 
 func test_has_recruited_troop_of_type_respects_min_count() -> void:
 	var stats := _make_stats()
-	stats.troop_pool = [
-		_make_troop("Cab1", 6, 1, Troop.TroopType.CABALLERIA),
-		_make_troop("Lig", 3, 3, Troop.TroopType.INFANTERIA_LIGERA),
-	]
+	stats.types_ever_recruited = { Troop.TroopType.CABALLERIA: 1 }
 
 	var ctx := _make_context(stats)
 	var cond := HasRecruitedTroopOfTypeCondition.new(Troop.TroopType.CABALLERIA, 2)
-	assert_false(cond.is_met(ctx), "Sólo hay 1 cab, requisito 2 → falla")
+	assert_false(cond.is_met(ctx), "Sólo se reclutó 1 cab, requisito 2 → falla")
 
-	stats.troop_pool.append(_make_troop("Cab2", 6, 1, Troop.TroopType.CABALLERIA))
+	stats.types_ever_recruited[Troop.TroopType.CABALLERIA] = 2
 	var ctx2 := _make_context(stats)
-	assert_true(cond.is_met(ctx2), "Ya hay 2 cabs → cumple")
+	assert_true(cond.is_met(ctx2), "Ya se reclutaron 2 cabs → cumple")
 
 
 func test_has_recruited_troop_of_type_invalid_type_returns_false() -> void:
 	var stats := _make_stats()
-	stats.troop_pool = [_make_troop("Lig", 3, 3, Troop.TroopType.INFANTERIA_LIGERA)]
+	stats.types_ever_recruited = { Troop.TroopType.INFANTERIA_LIGERA: 1 }
 
 	var ctx := _make_context(stats)
 	var cond := HasRecruitedTroopOfTypeCondition.new(-1, 1)
 	assert_false(cond.is_met(ctx), "Tipo inválido (-1) nunca cumple")
+
+
+func test_has_recruited_troop_of_type_independent_from_pool() -> void:
+	# Regresion del bug original: la tropa se reclutó pero el AIController la
+	# asignó inmediatamente a un frente, dejando el pool vacío. La condicion
+	# debe seguir cumpliéndose porque lee el contador historico, no el pool.
+	var stats := _make_stats()
+	stats.troop_pool = []  # Pool vacío (todo asignado a frentes).
+	stats.types_ever_recruited = { Troop.TroopType.CABALLERIA: 1 }
+
+	var ctx := _make_context(stats)
+	var cond := HasRecruitedTroopOfTypeCondition.new(Troop.TroopType.CABALLERIA, 1)
+	assert_true(cond.is_met(ctx),
+		"La condicion debe cumplirse aunque la tropa ya no esté en el pool")
 
 
 # ============================================================
@@ -451,6 +467,11 @@ func _make_full_ctx_with_troop(troop_type: int) -> EventContext:
 	stats.empire.controlled_tiles = []
 	stats.possible_buildings = []
 	stats.used_unique_events = ["unlock_open_front"]
+	# La condicion HasRecruitedTroopOfTypeCondition lee el contador historico,
+	# asi que populamos `types_ever_recruited`. Mantenemos tambien el pool
+	# poblado para reflejar el estado normal del juego (la tropa acaba de
+	# reclutarse y aun no esta asignada a un frente).
+	stats.types_ever_recruited = { troop_type: 1 }
 	stats.troop_pool = [_make_troop("X", 3, 3, troop_type)]
 	return _make_context(stats)
 
@@ -470,8 +491,8 @@ func test_unlock_cavalry_charge_requires_open_front_and_cavalry() -> void:
 	assert_false(event.is_available(ctx_no_troop),
 		"Con evento previo pero sin caballería no debe activarse")
 
-	# Ahora con caballería en el pool
-	stats.troop_pool = [_make_troop("Cab", 6, 1, Troop.TroopType.CABALLERIA)]
+	# Ahora con caballería reclutada (en el contador historico)
+	stats.types_ever_recruited = { Troop.TroopType.CABALLERIA: 1 }
 	var ctx_ok := _make_context(stats)
 	assert_true(event.is_available(ctx_ok),
 		"Con evento previo + caballería debe activarse")
@@ -481,8 +502,8 @@ func test_unlock_cavalry_charge_does_not_trigger_with_other_troop_type() -> void
 	var stats := _make_stats()
 	stats.empire.controlled_tiles = []
 	stats.used_unique_events = ["unlock_open_front"]
-	# Sólo piqueros, no caballería
-	stats.troop_pool = [_make_troop("Piq", 1, 6, Troop.TroopType.PIQUEROS)]
+	# Sólo piqueros reclutados, no caballería.
+	stats.types_ever_recruited = { Troop.TroopType.PIQUEROS: 1 }
 
 	var ctx := _make_context(stats)
 	var event := UnlockCavalryChargeEvent.new()
@@ -506,14 +527,14 @@ func test_unlock_phalanx_requires_pikemen() -> void:
 	var stats := _make_stats()
 	stats.empire.controlled_tiles = []
 	stats.used_unique_events = ["unlock_open_front"]
-	stats.troop_pool = [_make_troop("Cab", 6, 1, Troop.TroopType.CABALLERIA)]
+	stats.types_ever_recruited = { Troop.TroopType.CABALLERIA: 1 }
 
 	var ctx_no_piq := _make_context(stats)
 	var event := UnlockPhalanxEvent.new()
 	assert_false(event.is_available(ctx_no_piq),
 		"Sin piqueros no debe activarse la doctrina de falange")
 
-	stats.troop_pool.append(_make_troop("Piq", 1, 6, Troop.TroopType.PIQUEROS))
+	stats.types_ever_recruited[Troop.TroopType.PIQUEROS] = 1
 	var ctx_ok := _make_context(stats)
 	assert_true(event.is_available(ctx_ok))
 
@@ -522,13 +543,13 @@ func test_unlock_arrow_rain_requires_ranged() -> void:
 	var stats := _make_stats()
 	stats.empire.controlled_tiles = []
 	stats.used_unique_events = ["unlock_open_front"]
-	stats.troop_pool = [_make_troop("Lig", 3, 3, Troop.TroopType.INFANTERIA_LIGERA)]
+	stats.types_ever_recruited = { Troop.TroopType.INFANTERIA_LIGERA: 1 }
 
 	var ctx_no_dis := _make_context(stats)
 	var event := UnlockArrowRainEvent.new()
 	assert_false(event.is_available(ctx_no_dis))
 
-	stats.troop_pool.append(_make_troop("Dis", 5, 1, Troop.TroopType.A_DISTANCIA))
+	stats.types_ever_recruited[Troop.TroopType.A_DISTANCIA] = 1
 	var ctx_ok := _make_context(stats)
 	assert_true(event.is_available(ctx_ok))
 
@@ -537,13 +558,13 @@ func test_unlock_ambush_requires_light_infantry() -> void:
 	var stats := _make_stats()
 	stats.empire.controlled_tiles = []
 	stats.used_unique_events = ["unlock_open_front"]
-	stats.troop_pool = [_make_troop("Cab", 6, 1, Troop.TroopType.CABALLERIA)]
+	stats.types_ever_recruited = { Troop.TroopType.CABALLERIA: 1 }
 
 	var ctx_no_lig := _make_context(stats)
 	var event := UnlockAmbushEvent.new()
 	assert_false(event.is_available(ctx_no_lig))
 
-	stats.troop_pool.append(_make_troop("Lig", 3, 3, Troop.TroopType.INFANTERIA_LIGERA))
+	stats.types_ever_recruited[Troop.TroopType.INFANTERIA_LIGERA] = 1
 	var ctx_ok := _make_context(stats)
 	assert_true(event.is_available(ctx_ok))
 
@@ -552,13 +573,13 @@ func test_unlock_frontal_assault_requires_heavy_infantry() -> void:
 	var stats := _make_stats()
 	stats.empire.controlled_tiles = []
 	stats.used_unique_events = ["unlock_open_front"]
-	stats.troop_pool = [_make_troop("Lig", 3, 3, Troop.TroopType.INFANTERIA_LIGERA)]
+	stats.types_ever_recruited = { Troop.TroopType.INFANTERIA_LIGERA: 1 }
 
 	var ctx_no_pes := _make_context(stats)
 	var event := UnlockFrontalAssaultEvent.new()
 	assert_false(event.is_available(ctx_no_pes))
 
-	stats.troop_pool.append(_make_troop("Pes", 4, 5, Troop.TroopType.INFANTERIA_PESADA))
+	stats.types_ever_recruited[Troop.TroopType.INFANTERIA_PESADA] = 1
 	var ctx_ok := _make_context(stats)
 	assert_true(event.is_available(ctx_ok))
 

@@ -17,6 +17,8 @@ const HUERTOS_URBANOS = preload("res://resources/buildings/huertos_urbanos.tres"
 
 
 func _init():
+	category = EventCategory.Type.CORE_PROGRESSION
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		# 8+ edificios construidos en total (después de unlock_upgrade)

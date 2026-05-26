@@ -23,3 +23,10 @@ func remove_effect(_tile: Tile, _stats: Stats) -> void:
 	if _active_modifier:
 		Events.request_remove_modifier.emit(_active_modifier)
 		_active_modifier = null
+
+
+## Este efecto produce un modifier persistente. Al cargar una partida,
+## el modifier ya viene restaurado desde el snapshot, así que no debemos
+## reaplicar el efecto (causaría duplicado).
+func should_reapply_on_load() -> bool:
+	return false

@@ -20,9 +20,16 @@ func _ready() -> void:
 	Events.upgrade_building_card_confirm_started.connect(_on_upgrade_building_card_confirm_started)
 	Events.recover_card_confirm_started.connect(_on_recover_card_confirm_started)
 	Events.turn_event_triggered.connect(_on_turn_event_triggered)
+	Events.turn_event_resolved.connect(_on_event_resolved)
+	Events.shop_event_resolved.connect(_on_event_resolved)
 	Events.recruit_card_confirm_started.connect(_on_recruit_card_confirm_started)
 	Events.open_front_card_confirm_started.connect(_on_open_front_card_confirm_started)
 	Events.battle_front_selected.connect(_on_battle_front_selected)
+
+	# Cuando GameSaveManager prepara un snapshot, navegamos al mapa para que
+	# Map._ready() lo aplique. La instancia del initial_stats es solo una
+	# plantilla — los Stats reales vienen del propio snapshot.
+	GameSaveManager.load_requested.connect(_on_load_requested)
 
 
 func _change_scene(new_scene: Node) -> void:
@@ -59,6 +66,35 @@ func _on_events_generate_world(settings: GenerationSettings, stats: Stats) -> vo
 
 	_change_scene(new_scene)
 
+
+## Navega al mapa con un snapshot ya cargado en GameSaveManager. El
+## snapshot contiene su propia referencia a generation_settings y stats,
+## así que solo necesitamos instanciar la escena: Map._ready() lo aplicará.
+func _on_load_requested(snapshot: Dictionary) -> void:
+	if snapshot.is_empty():
+		return
+
+	var new_scene = MAP.instantiate()
+
+	# Si el snapshot trae la ruta del GenerationSettings, la fijamos para
+	# que cualquier sistema que la consulte (p.ej. _create_ai_controllers
+	# en el flujo nuevo, que no se ejecuta en carga, pero por si acaso) la
+	# tenga disponible.
+	var settings_path:String = snapshot.get("generation_settings", "")
+	if settings_path != "" and ResourceLoader.exists(settings_path):
+		var settings:GenerationSettings = load(settings_path) as GenerationSettings
+		new_scene.generation_settings = settings
+		var wg:Node = new_scene.get_node_or_null("%WorldGenerator")
+		if wg:
+			wg.settings = settings
+
+	# El campo `stats` de Map se usa solo en el flujo nuevo. En carga, las
+	# Stats reales se reconstruyen desde el snapshot. Pasamos la plantilla
+	# por si algún consumidor del árbol la necesita antes de la carga.
+	new_scene.stats = load("res://resources/stats/initial_stats.tres") as Stats
+
+	_change_scene(new_scene)
+
 func _on_build_card_confirm_started(card:BuildCard,targets:Array[Node],stats:Stats):
 	card.menu = BUILDING_PANEL.instantiate()
 	for t in targets:
@@ -85,9 +121,21 @@ func _on_recover_card_confirm_started(card:RecoverCard, stats:Stats) -> void:
 	card.menu.card_pile = stats.played_pile
 	get_tree().get_first_node_in_group("ui_layer").add_child(card.menu)
 
+## Mientras hay un menú de evento abierto pausamos el árbol para que el
+## jugador no pueda seguir interactuando con el resto del juego (otras
+## tiles, fin de turno, paneles colaterales). Los nodos que SÍ deben
+## seguir respondiendo durante la pausa (las propias scenes de evento,
+## InteractionTracker para selección de tiles, EventTileSelector y la
+## cámara) llevan process_mode = PROCESS_MODE_ALWAYS.
+##
+## El unpause se dispara desde turn_event_resolved / shop_event_resolved
+## (los emite la propia scene de evento al cerrarse), via
+## `_on_event_resolved`.
 func _on_turn_event_triggered(event:TurnEvent, context:EventContext) -> void:
 	var ui_layer := get_tree().get_first_node_in_group("ui_layer")
 	var player_handler:PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+
+	get_tree().paused = true
 
 	if event is ShopEvent:
 		var shop_event := event as ShopEvent
@@ -107,6 +155,13 @@ func _on_turn_event_triggered(event:TurnEvent, context:EventContext) -> void:
 		var panel:TurnEventPanel = TURN_EVENT_PANEL.instantiate()
 		ui_layer.add_child(panel)
 		panel.setup(event, context, player_handler.turn_event_manager)
+
+
+## Conectado tanto a turn_event_resolved como a shop_event_resolved
+## porque ambos cierran un menú de evento. Idempotente: si ya estaba
+## sin pausar (p.ej. tests headless donde nunca se pausó) no rompe nada.
+func _on_event_resolved() -> void:
+	get_tree().paused = false
 
 
 func _on_recruit_card_confirm_started(card: RecruitCard, stats: Stats) -> void:

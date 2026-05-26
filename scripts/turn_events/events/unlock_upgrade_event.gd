@@ -10,6 +10,8 @@ const UPGRADE_CARD = preload("res://resources/cards/upgrade_building_card.tres")
 
 
 func _init():
+	category = EventCategory.Type.CORE_PROGRESSION
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		BuildingCountCondition.new(4, Comparison.Type.GREATER_EQUAL),

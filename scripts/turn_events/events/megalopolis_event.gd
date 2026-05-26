@@ -8,6 +8,8 @@ class_name MegalopolisEvent
 
 
 func _init():
+	category = EventCategory.Type.DECISION
+
 	conditions = [
 		# Al menos 1 Town con 3+ edificios
 		TownWithBuildingsCondition.new(3, Comparison.Type.GREATER_EQUAL),

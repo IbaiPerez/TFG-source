@@ -289,3 +289,118 @@ func test_recalculate_modifiers_includes_buildings():
 	tile.buildings.append(b)
 	tile.recalculate_modifiers()
 	assert_eq(tile.gold_production, tile.natural_resource.gold_produced + 10)
+
+
+# --- Building.get_effective_construction_cost ---
+#
+# El descuento de construccion (BuildCostModifier de Banca Florentina,
+# eventos como material_crisis, etc.) lo aplica este helper. Antes de su
+# existencia, los descuentos eran codigo muerto: BuildCostModifier se
+# almacenaba en active_modifiers, ModifierManager.get_build_cost_multiplier
+# tenia tests, pero `tile.build()` y `tile.upgrade()` deducian
+# construction_cost crudo. Estos tests bloquean esa regresion.
+
+
+func _make_stats_with_manager(p_gold: int = 200) -> Stats:
+	# Stats con un ModifierManager realmente operativo, para verificar que
+	# get_effective_construction_cost lee modifiers correctamente.
+	var s := Stats.new()
+	s.total_gold = p_gold
+	s.gold_per_turn = 0
+	s.food = 0
+	s.draw_pile = CardPile.new()
+	s.discard_pile = CardPile.new()
+	s.played_pile = CardPile.new()
+	s.empire = Empire.new()
+	var mm := ModifierManager.new()
+	add_child_autofree(mm)
+	s.modifier_manager = mm
+	return s
+
+
+func test_effective_cost_without_manager_returns_raw():
+	var b := _make_building("Mine", 100)
+	var stats := _make_stats(200)
+	# _make_stats no crea modifier_manager → fallback a coste raw.
+	assert_eq(b.get_effective_construction_cost(stats), 100)
+
+
+func test_effective_cost_with_null_stats_returns_raw():
+	var b := _make_building("Mine", 100)
+	# Defensivo: pasar null no debe crashear.
+	assert_eq(b.get_effective_construction_cost(null), 100)
+
+
+func test_effective_cost_applies_discount():
+	# Banca Florentina (BuildCostModifier 20% descuento) → 100 * 0.8 = 80.
+	var stats := _make_stats_with_manager(200)
+	stats.modifier_manager.add_modifier(
+		BuildCostModifier.new("banking", "Banca", 20.0, -1), stats)
+	var b := _make_building("Mine", 100)
+	assert_eq(b.get_effective_construction_cost(stats), 80,
+		"Con -20% descuento, coste 100 debe quedar en 80")
+
+
+func test_effective_cost_clamps_to_20_percent_floor():
+	# Apilar 4 descuentos de 30% (= 120% total) → sin clamp el multiplier
+	# seria -0.20 y daria coste negativo. Con clamp queda en 20% del raw.
+	var stats := _make_stats_with_manager(200)
+	for i in 4:
+		stats.modifier_manager.add_modifier(
+			BuildCostModifier.new("d%d" % i, "D%d" % i, 30.0, -1), stats)
+	var b := _make_building("Mine", 100)
+	assert_eq(b.get_effective_construction_cost(stats), 20,
+		"Con descuentos apilados, el coste no puede bajar de 20% (regla del juego)")
+
+
+func test_effective_cost_surcharges_apply_above_one():
+	# Encarecimiento (percent negativo en BuildCostModifier) sube el coste
+	# sin tope superior.
+	var stats := _make_stats_with_manager(200)
+	stats.modifier_manager.add_modifier(
+		BuildCostModifier.new("crisis", "Material Crisis", -50.0, -1), stats)
+	var b := _make_building("Mine", 100)
+	assert_eq(b.get_effective_construction_cost(stats), 150,
+		"Con +50% encarecimiento, coste 100 debe quedar en 150")
+
+
+# --- Bug latente: descuento se APLICA al construir/mejorar ---
+
+func test_build_deducts_discounted_cost():
+	# Regresion del bug donde tile.build deducia raw cost. Con descuento
+	# del 20%, una mina de 100 debe quedar en 80 oro deducidos.
+	var tile := _make_tile()
+	var b := _make_building("Mine", 100, 3, 0)
+	var stats := _make_stats_with_manager(200)
+	stats.modifier_manager.add_modifier(
+		BuildCostModifier.new("banking", "Banca", 20.0, -1), stats)
+	tile.build(b, stats)
+	assert_eq(stats.total_gold, 120,
+		"200 - (100*0.8) = 120, no 200-100=100 que daria el raw")
+
+
+func test_upgrade_deducts_discounted_cost():
+	var old_b := _make_building("Mine", 50, 3, 0)
+	var new_b := _make_building("Better Mine", 100, 8, 0)
+	old_b.upgrades_to = [new_b]
+	var tile := _make_tile()
+	tile.buildings.append(old_b)
+	var stats := _make_stats_with_manager(200)
+	stats.modifier_manager.add_modifier(
+		BuildCostModifier.new("banking", "Banca", 20.0, -1), stats)
+	tile.upgrade(old_b, new_b, stats)
+	assert_eq(stats.total_gold, 120,
+		"Upgrade tambien aplica descuento: 200 - (100*0.8) = 120")
+
+
+func test_can_be_upgraded_uses_effective_cost():
+	# Con descuento, un edificio de coste raw 100 que normalmente seria
+	# inalcanzable con 90 oro, pasa a ser asequible (coste efectivo 80).
+	var upgrade := _make_building("Better Mine", 100)
+	var building := _make_building("Mine", 50)
+	building.upgrades_to = [upgrade]
+	var stats := _make_stats_with_manager(90)
+	stats.modifier_manager.add_modifier(
+		BuildCostModifier.new("banking", "Banca", 20.0, -1), stats)
+	assert_true(building.can_be_upgraded(stats),
+		"Con 90 oro y -20% descuento, 100 baja a 80 y SI es afford")

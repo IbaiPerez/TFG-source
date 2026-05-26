@@ -35,7 +35,10 @@ func deactivate() -> void:
 	super.deactivate()
 
 
-func _on_card_played(card:Card) -> void:
+func _on_card_played(card:Card, owner_stats:Stats) -> void:
+	# Solo aplicar el bonus al dueño del modifier (el imperio que lo activó).
+	if owner_stats != stats:
+		return
 	if card.id == card_id:
 		stats.total_gold += gold_amount
 

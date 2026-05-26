@@ -198,10 +198,14 @@ func _update_visual() -> void:
 	attacker_color = battle_front.attacker_empire.color if battle_front.attacker_empire else Color.RED
 	defender_color = battle_front.defender_empire.color if battle_front.defender_empire else Color.BLUE
 
-	# Interpolar color según marcador (normalizado al umbral)
+	# Interpolar color según marcador (normalizado al umbral EFECTIVO del
+	# turno, no al inicial: como el umbral decae con turns_elapsed la barra
+	# debe acompañar el avance, si no parecería que el marker se "salta" el
+	# umbral cuando en realidad se ha bajado el listón).
 	var t: float = 0.5
-	if battle_front.threshold > 0.0:
-		t = clampf((battle_front.marker / battle_front.threshold + 1.0) / 2.0, 0.0, 1.0)
+	var effective_threshold: float = battle_front.get_current_threshold()
+	if effective_threshold > 0.0:
+		t = clampf((battle_front.marker / effective_threshold + 1.0) / 2.0, 0.0, 1.0)
 	# t=1 → atacante domina, t=0 → defensor domina, t=0.5 → equilibrio
 	bar_material.albedo_color = defender_color.lerp(attacker_color, t)
 

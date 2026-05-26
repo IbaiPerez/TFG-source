@@ -22,3 +22,9 @@ func remove_effect(_tile: Tile, _stats: Stats) -> void:
 	if _active_modifier:
 		Events.request_remove_modifier.emit(_active_modifier)
 		_active_modifier = null
+
+
+## Igual que AddStatModifierEffect: el modifier ya viene restaurado del
+## snapshot en una carga, así que NO se reaplica aquí.
+func should_reapply_on_load() -> bool:
+	return false

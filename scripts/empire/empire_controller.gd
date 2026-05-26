@@ -27,6 +27,10 @@ func _init_managers() -> void:
 
 func start_game(new_stats:Stats) -> void:
 	stats = new_stats
+	# Back-reference para que cartas que necesiten consultar bonuses (p.ej.
+	# RecruitCard leyendo `get_troops_per_recruit_bonus`) puedan hacerlo
+	# sin lookups en el scene tree.
+	stats.modifier_manager = modifier_manager
 	stats.draw_pile = stats.deck.duplicate(true)
 	stats.draw_pile.shuffle()
 	stats.discard_pile = CardPile.new()
@@ -36,6 +40,36 @@ func start_game(new_stats:Stats) -> void:
 	turn_event_manager.stats = stats
 	battle_front_manager.stats = stats
 	_apply_empire_ability()
+
+
+## Variante de start_game para cuando estamos cargando una partida.
+##
+## A diferencia de start_game(), aquí:
+## - NO se reshufflea el deck (las pilas vienen ya restauradas con el
+##   orden literal que tenían en el save).
+## - NO se reaplica la ability del imperio (sus modifiers y buildings
+##   exclusivos ya están en el snapshot, restaurarlos otra vez los
+##   duplicaría).
+## - Se conectan las mismas señales que start_game() para que los
+##   handlers de turno funcionen igual a partir de aquí.
+func restore_from_save(restored_stats:Stats) -> void:
+	stats = restored_stats
+	stats.modifier_manager = modifier_manager
+	if stats.empire != null:
+		if not stats.empire.tile_conquered.is_connected(_on_tile_conquered):
+			stats.empire.tile_conquered.connect(_on_tile_conquered)
+		if not stats.empire.tile_lost.is_connected(_on_tile_lost):
+			stats.empire.tile_lost.connect(_on_tile_lost)
+	turn_event_manager.stats = stats
+	battle_front_manager.stats = stats
+
+	# Reconectar señales de buildings de cada tile controlado, igual que
+	# hace _process_turn_start() de forma defensiva.
+	for t in stats.empire.controlled_tiles:
+		if not t.building_completed.is_connected(_on_building_completed):
+			t.building_completed.connect(_on_building_completed)
+		if not t.building_demolished.is_connected(_on_building_demolished):
+			t.building_demolished.connect(_on_building_demolished)
 
 func _apply_empire_ability() -> void:
 	var ability := stats.empire.ability
@@ -79,11 +113,27 @@ func _process_turn_start() -> void:
 	var final_gold := int(gold_positive * (1.0 + modifier_manager.get_percent_gold() / 100.0)) + gold_negative
 	var final_food := int(food_positive * (1.0 + modifier_manager.get_percent_food() / 100.0)) + food_negative
 
-	# Mantenimiento de tropas (se resta despues de los % para que no se amplifique)
-	final_gold -= stats.get_troop_maintenance_gold()
-	final_food -= stats.get_troop_maintenance_food()
+	# Mantenimiento de tropas (se resta despues de los % de produccion para
+	# que no se amplifique). Aplicamos el descuento de edificios tipo
+	# Academia Militar y delegamos en `ModifierManager.clamp_cost_multiplier`
+	# para que comparta el clamp con el resto de descuentos del juego
+	# (construccion, futuros). MIN_COST_MULTIPLIER vive en ModifierManager.
+	#
+	# El recargo escalado por frente (siguiente bucle) NO se ve afectado:
+	# es un coste plano cuyo escalado se rompe si lo descontaramos.
+	var maint_multiplier := ModifierManager.clamp_cost_multiplier(
+			1.0 + modifier_manager.get_troop_maintenance_percent() / 100.0)
+	var base_troop_gold := int(stats.get_troop_maintenance_gold() * maint_multiplier)
+	var base_troop_food := int(stats.get_troop_maintenance_food() * maint_multiplier)
+	final_gold -= base_troop_gold
+	final_food -= base_troop_food
 
-	# Mantenimiento extra por tropas asignadas a frentes (escalado progresivo)
+	# Mantenimiento extra por tropas asignadas a frentes (escalado progresivo).
+	# Lo acumulamos aparte para el calculo de penalizacion economica de
+	# `_update_combat_multiplier` — la penalizacion mira el deficit relativo
+	# al mantenimiento total (base + recargo de frentes).
+	var front_surcharge_gold := 0
+	var front_surcharge_food := 0
 	for front in battle_front_manager.active_fronts:
 		var side: StringName
 		if front.attacker_empire == stats.empire:
@@ -91,12 +141,49 @@ func _process_turn_start() -> void:
 		else:
 			side = &"defender"
 		var maint := front.get_front_maintenance(side)
-		final_gold -= maint["gold"]
-		final_food -= maint["food"]
+		front_surcharge_gold += maint["gold"]
+		front_surcharge_food += maint["food"]
+	final_gold -= front_surcharge_gold
+	final_food -= front_surcharge_food
 
 	stats.gold_per_turn = final_gold
 	stats.food = final_food
 	stats.total_gold += stats.gold_per_turn
+
+	# Penalizacion de combate por economia en deficit (Opcion 3).
+	# Tras fijar gpt/food del turno, derivamos el combat_multiplier del
+	# imperio segun cuanto del mantenimiento total no estamos cubriendo.
+	var total_troop_maint := base_troop_gold + base_troop_food \
+			+ front_surcharge_gold + front_surcharge_food
+	_update_combat_multiplier(total_troop_maint)
+
+## Actualiza `stats.empire.combat_multiplier` segun el deficit economico.
+##
+## Idea: si la produccion de oro o comida cae en negativo, parte del
+## mantenimiento de las tropas no esta cubierto. Calculamos cuanto del
+## mantenimiento total se queda sin cubrir como ratio:
+##   penalty = (max(0,-gpt) + max(0,-food)) / total_troop_maint
+## y aplicamos `multiplier = 1 - penalty` clampeado a [0.1, 1.0]. El
+## multiplier afecta al ataque/defensa de las tropas en BattleFront pero
+## NUNCA llega a 0 — incluso en colapso absoluto las tropas conservan el
+## 10% de sus stats.
+##
+## Si el imperio no tiene tropas (`total_troop_maint == 0`), no hay nada
+## que penalizar y devolvemos a 1.0 explicitamente (cubre el caso de que
+## el multiplier hubiera quedado bajo de un turno con tropas y luego
+## todas se hayan resuelto/muerto).
+func _update_combat_multiplier(total_troop_maint: int) -> void:
+	if stats == null or stats.empire == null:
+		return
+	if total_troop_maint <= 0:
+		stats.empire.combat_multiplier = 1.0
+		return
+	var deficit_gold := maxi(0, -stats.gold_per_turn)
+	var deficit_food := maxi(0, -stats.food)
+	var total_deficit := deficit_gold + deficit_food
+	var penalty_ratio := float(total_deficit) / float(total_troop_maint)
+	stats.empire.combat_multiplier = clampf(1.0 - penalty_ratio, 0.1, 1.0)
+
 
 ## Devuelve el numero efectivo de cartas por turno con bonuses.
 func _get_effective_cards_per_turn() -> int:
@@ -130,7 +217,7 @@ func _evaluate_end_of_turn() -> bool:
 ## Procesa una carta jugada (descarte, devolucion a mano, o uso unico).
 func _handle_card_played(card:Card) -> void:
 	if modifier_manager.should_return_to_hand(card):
-		Events.card_returned_to_hand.emit(card)
+		Events.card_returned_to_hand.emit(card, stats)
 	elif card.is_single_use():
 		stats.played_pile.add_card(card)
 	else:
@@ -176,3 +263,14 @@ func start_turn() -> void:
 ## Metodo abstracto: fin de turno.
 func end_turn() -> void:
 	pass
+
+## Llamado por el TurnManager cuando se reanuda una partida desde un save
+## y este controller es el que tenia el turno activo.
+##
+## Por defecto reanuda como un start_turn normal (caso conservador: si el
+## controller no diferencia, simplemente volvera a empezar el turno).
+## Las subclases que persisten estado intra-turno (mano, recursos ya
+## calculados, etc.) deben sobreescribir este metodo para NO repetir
+## la logica de inicio.
+func resume_turn() -> void:
+	start_turn()

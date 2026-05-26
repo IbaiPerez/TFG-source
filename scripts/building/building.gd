@@ -16,6 +16,26 @@ class_name Building
 
 func can_be_upgraded(stats:Stats) -> bool:
 	for building in upgrades_to:
-		if building.construction_cost <= stats.total_gold:
+		if building.get_effective_construction_cost(stats) <= stats.total_gold:
 			return true
 	return false
+
+
+## Devuelve el coste de construccion despues de aplicar los modificadores
+## activos del jugador (BuildCostModifier de Banca Florentina, eventos de
+## crisis, etc.) topado por ModifierManager.MIN_COST_MULTIPLIER (20% del
+## coste base como minimo).
+##
+## Si `stats == null` o `stats.modifier_manager == null` (caso normal en
+## tests unitarios que no pasan por EmpireController), devuelve el coste
+## crudo — sin modifiers no hay descuento que aplicar.
+##
+## Todos los consumers del coste (deduccion al construir/mejorar, filtros
+## de affordability en la IA, UI que muestra el precio) deben usar este
+## metodo en lugar de `construction_cost` directamente, para que cualquier
+## descuento del juego se aplique de forma consistente.
+func get_effective_construction_cost(stats:Stats) -> int:
+	if stats == null or stats.modifier_manager == null:
+		return construction_cost
+	var multiplier:float = stats.modifier_manager.get_build_cost_multiplier()
+	return int(construction_cost * multiplier)

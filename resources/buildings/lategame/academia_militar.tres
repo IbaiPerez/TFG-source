@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="Building" load_steps=12 format=3 uid="uid://de0en55aiemgh"]
+
+[ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
+[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="2_mega"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_bld"]
+[ext_resource type="Texture2D" uid="uid://cvyqwqag8b2ss" path="res://assets/buildings/lategame/cuartel_expansion.svg" id="4_img"]
+[ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="5_beff"]
+[ext_resource type="Script" uid="uid://dy7ew041vlors" path="res://scripts/building/effect/add_stat_modifier_effect.gd" id="6_statmod"]
+[ext_resource type="Script" uid="uid://bep412pwthtmf" path="res://scripts/building/effect/add_card_to_deck_effect.gd" id="7_addcard"]
+[ext_resource type="Resource" path="res://resources/cards/recruit_card.tres" id="8_recruit"]
+
+[sub_resource type="Resource" id="eff_academia_troops_per_recruit"]
+script = ExtResource("6_statmod")
+modifier_id = "academia_troops_per_recruit"
+modifier_name = "Academia Militar: Reclutamiento extra"
+stat_type = 8
+value = 1.0
+tooltipe_text = "+1 tropa adicional por cada uso de Reclutar (acumula con el Cuartel base)"
+
+[sub_resource type="Resource" id="eff_academia_maintenance"]
+script = ExtResource("6_statmod")
+modifier_id = "academia_maintenance_discount"
+modifier_name = "Academia Militar: Mantenimiento eficiente"
+stat_type = 9
+value = -20.0
+tooltipe_text = "-20% al mantenimiento base de tropas"
+
+[sub_resource type="Resource" id="eff_academia_add_recruit_card"]
+script = ExtResource("7_addcard")
+card = ExtResource("8_recruit")
+first_only = true
+tooltipe_text = "Al mejorar al PRIMER edificio a Academia Militar, añade una carta de Reclutar al descarte"
+
+[resource]
+script = ExtResource("3_bld")
+name = "Academia Militar"
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_mega")])
+image = ExtResource("4_img")
+construction_cost = 350
+gold_produced = -10
+effects = Array[ExtResource("5_beff")]([SubResource("eff_academia_troops_per_recruit"), SubResource("eff_academia_maintenance"), SubResource("eff_academia_add_recruit_card")])
+metadata/_custom_type_script = "uid://2ce384crr8i0"

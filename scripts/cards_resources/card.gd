@@ -36,7 +36,7 @@ func _build_tooltip() -> String:
 	return ""
 
 func play(targets:Array[Node], stats:Stats) -> void:
-	Events.card_played.emit(self)
+	Events.card_played.emit(self, stats)
 	apply_effects(targets,stats)
 
 func apply_effects(_targets:Array[Node],_stats:Stats) -> void:

@@ -10,6 +10,11 @@ class_name TurnEvent
 @export var unique:bool = false
 @export var choices:Array[TurnEventChoice] = []
 
+## Categoría a la que pertenece el evento. La asigna cada subclase en
+## su _init(). Determina la pool en la que compite el evento dentro del
+## TurnEventManager (ver EventCategoryWeights).
+@export var category:EventCategory.Type = EventCategory.Type.FLAVOUR
+
 var conditions:Array[TurnEventCondition] = []
 
 

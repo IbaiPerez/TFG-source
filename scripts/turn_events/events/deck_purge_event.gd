@@ -9,6 +9,8 @@ class_name DeckPurgeEvent
 
 
 func _init():
+	category = EventCategory.Type.DECK
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 	]

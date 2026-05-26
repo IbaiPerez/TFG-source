@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EventCategoryWeights" load_steps=2 format=3 uid="uid://dl6ih2p518tw"]
+
+[ext_resource type="Script" path="res://scripts/turn_events/event_category_weights.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+core_progression_fallback = 3.0
+optional_progression_fallback = 4.0
+flavour_fallback = 4.0
+deck_fallback = 2.5
+shop_fallback = 2.5
+spirit_fallback = 2.0
+decision_fallback = 1.0
+core_priority_chance = 0.9

@@ -8,6 +8,8 @@ const COLONIZE_CARD = preload("res://resources/cards/colonize_card.tres")
 
 
 func _init():
+	category = EventCategory.Type.FLAVOUR
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		TurnNumberCondition.new(12, Comparison.Type.GREATER_EQUAL),

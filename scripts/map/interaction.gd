@@ -18,7 +18,13 @@ func _ready() -> void:
 	deselect()
 
 
-func _input(event: InputEvent) -> void:
+## Usamos `_unhandled_input` (no `_input`) para que los clicks que la UI
+## ya ha consumido (p. ej. el botón de demoler en TilePanel, las cartas
+## en la mano, popups, etc.) no se reinterpreten aquí como clicks en el
+## mundo. De lo contrario el raycast atravesaba la UI, golpeaba la tile
+## detrás del panel y disparaba `tile_selected`, reconstruyendo el
+## TilePanel y matando el botón que se acababa de pulsar.
+func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_pos = get_viewport().get_mouse_position()
 		var origin = main_camera.project_ray_origin(mouse_pos)

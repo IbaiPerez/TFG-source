@@ -13,6 +13,8 @@ var buildings:Array[Building] = []
 
 var neighbors = []
 
+var province_name: String = ""
+
 var debug_label : Label3D
 var material:StandardMaterial3D
 var highlight_material: StandardMaterial3D
@@ -97,12 +99,15 @@ func get_valid_buildings(options:Array[Building]) -> Array[Building]:
 func build(building:Building, stats:Stats) -> void:
 	if not can_build(building):
 		return
-	
+
 	var instance := building.duplicate(true)
 	buildings.append(instance)
 	for e in instance.effects:
 		e.apply_effect(self,stats)
-	stats.total_gold -= building.construction_cost
+	# Coste efectivo: aplica BuildCostModifier (Banca Florentina, eventos
+	# de crisis, etc.) con clamp MIN_COST_MULTIPLIER. Si stats no tiene
+	# modifier_manager (tests aislados), el helper devuelve el coste raw.
+	stats.total_gold -= building.get_effective_construction_cost(stats)
 	recalculate_modifiers()
 	building_completed.emit(building)
 
@@ -155,7 +160,8 @@ func upgrade(old_building: Building, new_building: Building, stats: Stats) -> vo
 	buildings.insert(old_index, instance)
 	for e in instance.effects:
 		e.apply_effect(self, stats)
-	stats.total_gold -= new_building.construction_cost
+	# Coste efectivo (con descuento de Banca Florentina, eventos, etc.).
+	stats.total_gold -= new_building.get_effective_construction_cost(stats)
 	recalculate_modifiers()
 	building_demolished.emit(old_building)
 	building_completed.emit(new_building)

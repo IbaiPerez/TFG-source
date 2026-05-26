@@ -22,6 +22,12 @@ func _create_troop(troop_name: String, atk: int = 3, def: int = 3,
 func before_each() -> void:
 	stats = Stats.new()
 	stats.total_gold = 1000
+	# gpt y food positivos: el nuevo `can_afford_troop` (Opcion 3b)
+	# bloquea recruit si gpt o food no cubren el mantenimiento de la
+	# nueva tropa. Estos tests son de UI del panel, no del gating, asi
+	# que damos margen amplio. Los tests que ESPECIFICAMENTE quieren
+	# bloquear afford bajan estos valores localmente.
+	stats.gold_per_turn = 100
 	stats.food = 100
 	stats.troop_pool = []
 

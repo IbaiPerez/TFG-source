@@ -23,6 +23,27 @@ func start_first_round() -> void:
 	round_started.emit(round_number)
 	_start_current_controller_turn()
 
+
+## Reanuda la ronda y el turno actual desde el estado en que están las
+## variables `round_number` y `current_index`. Pensado para flujos de carga
+## desde save, donde no queremos llamar a `start_first_round` (que reinicia
+## a la ronda 1) sino continuar exactamente donde quedó la partida.
+func resume_turn() -> void:
+	if controllers.is_empty():
+		push_warning("[TurnManager] resume_turn sin controllers")
+		return
+	current_index = clampi(current_index, 0, controllers.size() - 1)
+	print("[TurnManager] === REANUDANDO RONDA %d (turno %d) ===" % [round_number, current_index])
+	round_started.emit(round_number)
+	_resume_current_controller_turn()
+
+
+func _resume_current_controller_turn() -> void:
+	var controller := controllers[current_index]
+	var empire_name := controller.stats.empire.name if controller.stats and controller.stats.empire else "???"
+	print("[TurnManager] Reanudando turno de: %s (indice %d)" % [empire_name, current_index])
+	controller.resume_turn()
+
 ## Llamado cuando el jugador pulsa "Fin de turno"
 func on_player_turn_ended() -> void:
 	if current_index != 0:

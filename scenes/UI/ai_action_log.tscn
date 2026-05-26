@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://daiactionlog1"]
+
+[ext_resource type="Script" uid="uid://dswuuvjlnahea" path="res://scripts/ui/ai_action_log.gd" id="1_ailog"]
+
+[node name="AIActionLog" type="PanelContainer"]
+clip_contents = true
+script = ExtResource("1_ailog")
+
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Log IA"
+
+[node name="ToggleButton" type="Button" parent="Layout/Header"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+flat = true
+text = "▾"
+
+[node name="Lines" type="VBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 4

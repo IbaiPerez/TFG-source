@@ -1,0 +1,472 @@
+extends RefCounted
+class_name GameSimHarness
+
+## Harness de simulacion headless: monta una partida usando el
+## WorldGenerator real (con tiles, biomas, recursos, agua y montañas
+## reales) y dos AIControllers (sin jugador humano). Corre N rondas, captura
+## un snapshot por imperio y por turno. Sin UI 3D ni paneles, pero
+## reutilizando toda la logica de generacion y de turno del juego.
+##
+## Uso:
+##   var sim := GameSimHarness.new()
+##   sim.num_rounds = 100
+##   sim.run_id = 0
+##   sim.attach_to(gut_test)
+##   await sim.run()
+##   var snapshots := sim.snapshots
+##
+## Diseño:
+##   - Sin TurnManager: orquestamos manualmente `await ai.start_turn()`.
+##   - Tiles: TileFactory real → cada tile es Node3D con mesh y collider.
+##   - WorldMap, TilesTracker, BattleFront se limpian al inicio y final.
+##   - Cada run randomiza (dentro de rangos definidos):
+##       * radius del mapa
+##       * mountain_treshold y ocean_treshold
+##       * imperios del bando A y bando B (distintos entre si)
+##       * seeds de los noises (map_seed=0 → init_seed los randomiza)
+
+
+# --- Config por run --------------------------------------------------------
+
+var num_rounds: int = 100
+var run_id: int = 0
+var rng_master: RandomNumberGenerator        ## Para randomizar settings de run
+
+# Rangos de randomizacion (puedes ajustarlos)
+var radius_range := Vector2i(5, 10)
+var mountain_range := Vector2(0.5, 0.8)
+var ocean_range := Vector2(0.5, 0.7)
+
+
+# --- Recursos -------------------------------------------------------------
+
+const DEFAULT_SETTINGS := preload("res://resources/world_settings/Default.tres")
+const INITIAL_STATS := preload("res://resources/stats/initial_stats.tres")
+const TILES_TRACKER_SCRIPT := preload("res://scripts/tile/tiles_tracker.gd")
+
+
+# --- Estado interno --------------------------------------------------------
+
+var _gut_test
+var _settings: GenerationSettings
+var _tile_parent: Node3D
+var _tiles_tracker: Node
+var _run_root: Node                          ## Padre de TODOS los nodos de esta run
+var ai_a: AIController
+var ai_b: AIController
+var stats_a: Stats
+var stats_b: Stats
+var snapshots: Array = []
+var run_seed_meta: Dictionary = {}
+## Historial de frentes resueltos, contadores por empire.name. Cada empire
+## tiene { won_as_atk, won_as_def, lost_as_atk, lost_as_def, total_resolved }.
+## El harness escucha `Events.battle_front_resolved` y agrega aquí; los
+## snapshots incorporan estos contadores en `military.resolved`. Sin esto,
+## en el snapshot solo se ven los frentes ACTIVOS — los frentes que se han
+## resuelto desaparecen del registro global y quedan invisibles.
+var _battle_history: Dictionary = {}
+
+
+# --- API publica -----------------------------------------------------------
+
+func attach_to(gut_test) -> void:
+	_gut_test = gut_test
+
+
+func run() -> void:
+	BattleFront.clear_active_instances()
+	WorldMap.map = []
+	WorldMap.map_as_dict = {}
+
+	# Un raiz por run: todos los nodos (tiles, generator, AIs, tracker)
+	# cuelgan de aqui y se liberan en bloque al final. Sin esto, las AIs
+	# de la run anterior siguen vivas en el arbol del test (autofree solo
+	# libera al terminar el test entero) y `ai.name = "AI_A"` colisiona,
+	# por lo que Godot le asigna nombre fallback (@Node@1234...) y la
+	# agregacion del MultiRunSimulator deja de casar las runs.
+	_run_root = Node.new()
+	_run_root.name = "SimRunRoot_%d" % run_id
+	_gut_test.add_child(_run_root)
+
+	_spawn_tiles_tracker()
+	_randomize_settings()
+	_run_world_generator()
+	_wire_stats_to_generated_empires()
+	_spawn_ai_controllers()
+
+	# Suscripcion al bus global: cada vez que cualquier frente se resuelve,
+	# acumulamos en `_battle_history` para tener el conteo final de la run.
+	# Se conecta tras spawnar las AIs (ya tenemos sus stats/empires) y se
+	# desconecta al final del run() para no fugar entre runs.
+	_battle_history = {}
+	if not Events.battle_front_resolved.is_connected(_on_battle_front_resolved):
+		Events.battle_front_resolved.connect(_on_battle_front_resolved)
+
+	snapshots.append(_capture_snapshot(0, ai_a))
+	snapshots.append(_capture_snapshot(0, ai_b))
+
+	for round_num in num_rounds:
+		await ai_a.start_turn()
+		snapshots.append(_capture_snapshot(round_num + 1, ai_a))
+
+		await ai_b.start_turn()
+		snapshots.append(_capture_snapshot(round_num + 1, ai_b))
+
+		# Yield al motor entre rondas: cada ronda procesa muchas señales
+		# y entradas; sin esto, 100 rondas en un solo frame producen
+		# warnings de "frame too long" y bloquean el heartbeat de GUT.
+		await _gut_test.get_tree().process_frame
+
+	# Cleanup obligatorio antes de devolver: liberamos el raiz para que
+	# la siguiente run pueda registrar `AI_A` / `AI_B` sin colision.
+	# Los `snapshots` ya estan poblados (dicts puros), no dependen de los
+	# nodos vivos. Esperamos un frame para que queue_free se procese.
+	if Events.battle_front_resolved.is_connected(_on_battle_front_resolved):
+		Events.battle_front_resolved.disconnect(_on_battle_front_resolved)
+	_run_root.queue_free()
+	_run_root = null
+	ai_a = null
+	ai_b = null
+	_tile_parent = null
+	_tiles_tracker = null
+	await _gut_test.get_tree().process_frame
+
+
+# --- Bootstrap -------------------------------------------------------------
+
+func _spawn_tiles_tracker() -> void:
+	# TilesTracker es Node hijo del Map en el juego real. Lo necesitamos
+	# porque EmpireCreator emite `change_tile_controller` y el tracker es
+	# quien llama a empire.add_tile() y dispara location_changed → Village.
+	_tiles_tracker = Node.new()
+	_tiles_tracker.set_script(TILES_TRACKER_SCRIPT)
+	_run_root.add_child(_tiles_tracker)
+
+
+func _randomize_settings() -> void:
+	# Duplicar a fondo (deep=true) para no mutar el Default.tres global
+	# entre runs.
+	_settings = DEFAULT_SETTINGS.duplicate(true) as GenerationSettings
+
+	# map_seed=0 → WorldGenerator.init_seed() randomiza biome/mountain/ocean
+	# noises con randi() del global RNG. Para reproducibilidad usamos
+	# rng_master.seed previo a esta llamada.
+	_settings.map_seed = 0
+
+	_settings.radius = rng_master.randi_range(radius_range.x, radius_range.y)
+	_settings.mountain_treshold = rng_master.randf_range(mountain_range.x, mountain_range.y)
+	_settings.ocean_treshold = rng_master.randf_range(ocean_range.x, ocean_range.y)
+
+	# Empires aleatorios: cogemos los 3 disponibles del Default.tres,
+	# barajamos, primero al bando A, segundo al bando B.
+	var all_empires: Array[Empire] = []
+	all_empires.append(_settings.player_empire)
+	for e in _settings.empires:
+		if e != _settings.player_empire:
+			all_empires.append(e)
+	all_empires.shuffle()
+
+	_settings.player_empire = all_empires[0]
+	# `empires` es la lista de candidatos a IA. El EmpireCreator hara
+	# pick_random sobre esa lista — para forzar al bando B fijamos solo
+	# uno candidato.
+	var enemy_list: Array[Empire] = []
+	enemy_list.append(all_empires[1])
+	_settings.empires = enemy_list
+
+	run_seed_meta = {
+		"radius": _settings.radius,
+		"mountain_treshold": _settings.mountain_treshold,
+		"ocean_treshold": _settings.ocean_treshold,
+		"empire_a": _settings.player_empire.name,
+		"empire_b": all_empires[1].name,
+	}
+
+
+func _run_world_generator() -> void:
+	_tile_parent = Node3D.new()
+	_tile_parent.name = "TileParent"
+	_run_root.add_child(_tile_parent)
+
+	var generator := preload("res://scripts/world_gen/world_generator.gd").new()
+	# Conducimos init_seed + generate_world a mano, asi que apagamos la
+	# auto-generacion de `_ready()`. Sin esto, `add_child(generator)`
+	# disparaba _ready, que ya invocaba init_seed + generate_world por su
+	# cuenta, y luego el harness lo volvia a invocar abajo: dos mundos
+	# distintos, EmpireCreator corriendo dos veces sobre WorldMaps
+	# distintos, y un imperio acabando con 0 tiles si el segundo intento
+	# caia en un mapa degenerado.
+	generator.auto_generate_on_ready = false
+	generator.settings = _settings
+	generator.tile_parent = _tile_parent
+	# WorldGenerator es Node, lo añadimos al arbol antes de generar para
+	# que get_tree() funcione si lo necesita internamente.
+	_run_root.add_child(generator)
+	generator.init_seed()
+	generator.generate_world()
+
+
+func _wire_stats_to_generated_empires() -> void:
+	# Despues de generate_world, settings.player_empire y settings.empires[0]
+	# tienen sus controlled_tiles asignadas via EmpireCreator → TilesTracker.
+	var empire_a: Empire = _settings.player_empire
+	var empire_b: Empire = _settings.empires[0]
+
+	stats_a = INITIAL_STATS.create_instance() as Stats
+	stats_b = INITIAL_STATS.create_instance() as Stats
+	stats_a.empire = empire_a
+	stats_b.empire = empire_b
+
+	stats_a.available_events = _load_turn_events()
+	stats_b.available_events = _load_turn_events()
+
+
+func _spawn_ai_controllers() -> void:
+	# Seeds derivados del rng_master para reproducibilidad de la run
+	# completa: misma seed_master → misma sim entera (mapa + decisiones).
+	ai_a = _spawn_ai(stats_a, rng_master.randi(), "AI_A")
+	ai_b = _spawn_ai(stats_b, rng_master.randi(), "AI_B")
+
+
+func _spawn_ai(stats: Stats, seed_value: int, name: String) -> AIController:
+	var ai := AIController.new()
+	ai.name = name
+	ai.action_delay = 0.0
+	ai.turn_end_delay = 0.0
+	ai.rng_seed = seed_value
+	ai.max_iterations = 20
+	_run_root.add_child(ai)
+	ai.start_game(stats)
+	return ai
+
+
+func _load_turn_events() -> Array[TurnEvent]:
+	var events: Array[TurnEvent] = []
+	var dir := DirAccess.open("res://resources/turn_events/")
+	if dir == null:
+		return events
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		if file_name.ends_with(".tres"):
+			var event := load("res://resources/turn_events/" + file_name) as TurnEvent
+			if event:
+				events.append(event)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	return events
+
+
+# --- Captura de metricas ---------------------------------------------------
+
+func _capture_snapshot(round_num: int, ai: AIController) -> Dictionary:
+	var stats := ai.stats
+	var empire := stats.empire
+	return {
+		"run_id": run_id,
+		"round": round_num,
+		"empire": empire.name if empire else "",
+		"ai_label": ai.name,
+		"turn_number": stats.turn_number,
+		"economy": _capture_economy(stats),
+		"deck": _capture_deck(stats, ai),
+		"map": _capture_map(empire),
+		"military": _capture_military(stats, ai),
+		"modifiers": _capture_modifiers(ai.modifier_manager),
+	}
+
+
+func _capture_economy(stats: Stats) -> Dictionary:
+	# `combat_multiplier` vive en el Empire y lo recalcula `EmpireController`
+	# cada turno segun el deficit relativo de oro+comida (Opcion 3). Lo
+	# exponemos para poder ver, post-mortem, cuantos snapshots estuvieron en
+	# penalizacion economica (mult < 1.0) y cuanto tiempo.
+	var combat_mult: float = 1.0
+	if stats.empire != null:
+		combat_mult = stats.empire.combat_multiplier
+	return {
+		"total_gold": stats.total_gold,
+		"gold_per_turn": stats.gold_per_turn,
+		"food": stats.food,
+		"total_purges_done": stats.total_purges_done,
+		"combat_multiplier": combat_mult,
+	}
+
+
+func _capture_deck(stats: Stats, ai: AIController) -> Dictionary:
+	# `stats.cards_per_turn` es el valor BASE (siempre 2 con el deck inicial).
+	# La mano real que la IA roba es el efectivo: base + bonus de modifiers
+	# (Horde Ability, Library, Observatorio, Gran Biblioteca, Palacio, Wise
+	# Travelers, Spirit Susurros…). Capturamos los tres para poder distinguir
+	# cuanto de cada partida es base, ability y construido.
+	var bonus := 0
+	if ai and ai.modifier_manager:
+		bonus = ai.modifier_manager.get_cards_per_turn_bonus()
+	# `deck_total_size` (Stats.deck) refleja el `starting_deck` y NUNCA cambia
+	# durante la partida; las cartas reales viven en draw/discard/played, asi
+	# que esa metrica por si sola es engañosa (en la primera simulacion el
+	# valor se quedo en 4 las 100 rondas). Añadimos `deck_total_real` que
+	# suma las tres pilas para tener el tamaño dinamico de mazo.
+	var draw_n: int = stats.draw_pile.cards.size() if stats.draw_pile else 0
+	var disc_n: int = stats.discard_pile.cards.size() if stats.discard_pile else 0
+	var play_n: int = stats.played_pile.cards.size() if stats.played_pile else 0
+	return {
+		"draw_pile": draw_n,
+		"discard_pile": disc_n,
+		"played_pile": play_n,
+		"deck_total_size": stats.deck.cards.size() if stats.deck else 0,
+		"deck_total_real": draw_n + disc_n + play_n,
+		"cards_per_turn_base": stats.cards_per_turn,
+		"cards_per_turn_bonus": bonus,
+		"cards_per_turn": clampi(stats.cards_per_turn + bonus, 1, 20),
+		"unlocked_pool_size": stats.unlocked_card_pool.size(),
+		"unlocked_card_ids": _list_unlocked_card_ids(stats),
+	}
+
+
+func _list_unlocked_card_ids(stats: Stats) -> Array:
+	var ids := []
+	for entry in stats.unlocked_card_pool:
+		if entry and entry.card:
+			ids.append(entry.card.id)
+	return ids
+
+
+func _capture_map(empire: Empire) -> Dictionary:
+	var by_loc := {}
+	var by_biome := {}
+	var by_resource := {}
+	var buildings_total := 0
+	var buildings_by_name := {}
+	# Filtramos tiles invalidas (`previously freed`) por si quedaran refs
+	# colgantes en empire.controlled_tiles de runs anteriores. Hoy
+	# EmpireCreator hace reset defensivo al inicio, pero esto es defensa
+	# en profundidad: si en el futuro otro flujo deja refs stale, el
+	# snapshot ya no crashea — solo las omite del conteo.
+	var valid_tiles: Array[Tile] = []
+	for t in empire.controlled_tiles:
+		if t != null and is_instance_valid(t):
+			valid_tiles.append(t)
+	for t in valid_tiles:
+		var loc_name: String = ""
+		if t.location:
+			loc_name = Tile.location_type.keys()[t.location.type]
+		by_loc[loc_name] = by_loc.get(loc_name, 0) + 1
+		var biome_name: String = t.biome if t.biome else ""
+		by_biome[biome_name] = by_biome.get(biome_name, 0) + 1
+		var res_name: String = t.natural_resource.name if t.natural_resource else ""
+		by_resource[res_name] = by_resource.get(res_name, 0) + 1
+		for b in t.buildings:
+			buildings_total += 1
+			buildings_by_name[b.name] = buildings_by_name.get(b.name, 0) + 1
+	return {
+		# Reportamos el tamaño REAL (tiles vivas), no el de la lista
+		# bruta, para que un eventual error de bookkeeping se vea en
+		# los datos en lugar de inflar contadores con tiles fantasma.
+		"controlled_tiles": valid_tiles.size(),
+		"tiles_by_location": by_loc,
+		"tiles_by_biome": by_biome,
+		"tiles_by_resource": by_resource,
+		"buildings_total": buildings_total,
+		"buildings_by_name": buildings_by_name,
+	}
+
+
+func _capture_military(stats: Stats, ai: AIController) -> Dictionary:
+	var by_type := {}
+	for troop in stats.troop_pool:
+		if troop == null:
+			continue
+		# La propiedad en Troop es `type` (enum Troop.TroopType), no
+		# `troop_type`. Usamos la etiqueta legible para que el JSON sea
+		# directamente inspeccionable.
+		var key: String = troop.get_type_label()
+		by_type[key] = by_type.get(key, 0) + 1
+
+	var fronts_as_atk := 0
+	var fronts_as_def := 0
+	var markers := []
+	for front in BattleFront.get_active_instances():
+		if front.attacker_empire == stats.empire:
+			fronts_as_atk += 1
+		if front.defender_empire == stats.empire:
+			fronts_as_def += 1
+		if front.attacker_empire == stats.empire or front.defender_empire == stats.empire:
+			markers.append({
+				"marker": front.marker,
+				"turns_elapsed": front.turns_elapsed,
+				"atk_troops": front.attacker_troops.size(),
+				"def_troops": front.defender_troops.size(),
+				"i_am_attacker": front.attacker_empire == stats.empire,
+			})
+
+	# Historial acumulado de frentes resueltos para este imperio (puede estar
+	# vacio si nunca cierra un frente). Defaults a 0 para que el dict tenga
+	# siempre las mismas claves y los agregados no fallen.
+	var emp_name: String = stats.empire.name if stats.empire else ""
+	var resolved: Dictionary = _battle_history.get(emp_name, {
+		"won_as_attacker": 0,
+		"won_as_defender": 0,
+		"lost_as_attacker": 0,
+		"lost_as_defender": 0,
+		"total_resolved": 0,
+	})
+
+	return {
+		"troop_pool_size": stats.troop_pool.size(),
+		"troops_by_type": by_type,
+		"fronts_as_attacker": fronts_as_atk,
+		"fronts_as_defender": fronts_as_def,
+		"front_markers": markers,
+		"troop_maintenance_gold": stats.get_troop_maintenance_gold(),
+		"troop_maintenance_food": stats.get_troop_maintenance_food(),
+		"fronts_in_manager": ai.battle_front_manager.active_fronts.size() if ai.battle_front_manager else 0,
+		"resolved": resolved,
+	}
+
+
+## Listener de `Events.battle_front_resolved`. Acumula el resultado del frente
+## en `_battle_history` para AMBOS bandos (atacante y defensor). El snapshot
+## de `_capture_military` lee de aqui, asi que los counters se "congelan" en
+## la foto del turno y permiten reconstruir cuantos frentes gano cada imperio
+## a lo largo de la partida.
+func _on_battle_front_resolved(front: BattleFront, attacker_won: bool) -> void:
+	if front == null:
+		return
+	for empire in [front.attacker_empire, front.defender_empire]:
+		if empire == null:
+			continue
+		var key: String = empire.name
+		var entry: Dictionary = _battle_history.get(key, {
+			"won_as_attacker": 0,
+			"won_as_defender": 0,
+			"lost_as_attacker": 0,
+			"lost_as_defender": 0,
+			"total_resolved": 0,
+		})
+		var is_attacker: bool = empire == front.attacker_empire
+		if is_attacker:
+			if attacker_won:
+				entry["won_as_attacker"] += 1
+			else:
+				entry["lost_as_attacker"] += 1
+		else:
+			if attacker_won:
+				entry["lost_as_defender"] += 1
+			else:
+				entry["won_as_defender"] += 1
+		entry["total_resolved"] += 1
+		_battle_history[key] = entry
+
+
+func _capture_modifiers(mm: ModifierManager) -> Array:
+	var out := []
+	if mm == null:
+		return out
+	for m in mm.active_modifiers:
+		out.append({
+			"id": m.id,
+			"name": m.name,
+			"duration": m.duration,
+		})
+	return out

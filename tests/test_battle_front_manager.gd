@@ -203,6 +203,76 @@ func test_assign_troop_to_resolved_front() -> void:
 	assert_false(success, "No debe asignar a frente resuelto")
 
 
+func test_assign_as_defender_to_external_front_works() -> void:
+	# Frente abierto por un atacante con OTRO manager. Aqui simulamos al
+	# defensor: stats.empire es def_empire, el manager local NO contiene el
+	# frente en active_fronts, pero el imperio sigue siendo el defensor
+	# legitimo y debe poder reforzar.
+	#
+	# Reseteamos el manager local para que stats.empire = def_empire, asi
+	# probamos exactamente el caso del defensor.
+	BattleFront.clear_active_instances()
+	var def_stats := Stats.new()
+	def_stats.troop_pool = []
+	def_stats.empire = def_empire
+	var def_manager := BattleFrontManager.new()
+	def_manager.stats = def_stats
+	add_child_autofree(def_manager)
+
+	# Frente externo: creado por el atacante, no esta en def_manager.active_fronts.
+	var external_front := BattleFront.new(atk_tile, def_tile, atk_empire, def_empire)
+	# Por contrato, este es el escenario de produccion: solo el atacante lo
+	# tiene en su active_fronts (aqui ni siquiera lo añadimos). El defensor
+	# lo descubre via BattleFront.get_active_instances().
+
+	var troop := _create_troop()
+	def_stats.troop_pool.append(troop)
+
+	var success := def_manager.assign_troop_to_front(external_front, troop, &"defender")
+	assert_true(success,
+		"Defensor legitimo debe poder asignar a frente externo (no en su manager)")
+	assert_eq(external_front.defender_troops.size(), 1)
+	assert_eq(def_stats.troop_pool.size(), 0, "Tropa debe salir del pool del defensor")
+	BattleFront.clear_active_instances()
+
+
+func test_assign_rejects_wrong_side_for_participant() -> void:
+	# El atacante intenta meter tropas en el bando defensor: rechazo. La
+	# coherencia empire ↔ side evita que un manager "robe" el otro bando.
+	var front := manager.open_front(atk_tile, def_tile)
+	var troop := _create_troop()
+	stats.troop_pool.append(troop)
+
+	var success := manager.assign_troop_to_front(front, troop, &"defender")
+	assert_false(success,
+		"Atacante no puede asignar tropas como defensor de su propio frente")
+	assert_eq(front.defender_troops.size(), 0)
+	assert_eq(stats.troop_pool.size(), 1, "Pool debe quedar intacto")
+
+
+func test_assign_rejects_non_participant() -> void:
+	# Imperio totalmente ajeno al frente: rechazo en cualquier side.
+	var third_empire := Empire.new()
+	third_empire.name = "Third"
+	var third_stats := Stats.new()
+	third_stats.troop_pool = []
+	third_stats.empire = third_empire
+	var third_manager := BattleFrontManager.new()
+	third_manager.stats = third_stats
+	add_child_autofree(third_manager)
+
+	var front := BattleFront.new(atk_tile, def_tile, atk_empire, def_empire)
+	var troop := _create_troop()
+	third_stats.troop_pool.append(troop)
+
+	assert_false(third_manager.assign_troop_to_front(front, troop, &"attacker"),
+		"Un imperio ajeno no debe poder asignar como atacante")
+	assert_false(third_manager.assign_troop_to_front(front, troop, &"defender"),
+		"Un imperio ajeno no debe poder asignar como defensor")
+	assert_eq(third_stats.troop_pool.size(), 1)
+	BattleFront.clear_active_instances()
+
+
 # --- Tests de búsqueda ---
 
 func test_get_front_for_tile() -> void:
@@ -215,3 +285,91 @@ func test_get_front_for_tile() -> void:
 func test_get_front_for_tile_not_found() -> void:
 	var found := manager.get_front_for_tile(isolated_tile)
 	assert_null(found)
+
+
+# --- Retorno de supervivientes al pool del defensor (bus global) ---
+#
+# Regresion del bug "tropas defensoras supervivientes desaparecen": el
+# callback directo _on_front_resolved solo se conectaba al manager del
+# atacante (en `open_front`). Dentro de _return_surviving_troops el
+# filtro `defender_empire == stats.empire` siempre era falso (stats =
+# atacante), asi que las defensoras supervivientes se evaporaban. El
+# fix conecta cada BFM al bus global Events.battle_front_resolved en
+# `_ready` y el handler `_on_global_front_resolved` solo procesa el
+# caso "soy el defensor" para devolver mis supervivientes.
+
+func test_defender_pool_receives_survivors_via_global_bus() -> void:
+	BattleFront.clear_active_instances()
+	var def_stats := Stats.new()
+	def_stats.troop_pool = []
+	def_stats.empire = def_empire
+	var def_manager := BattleFrontManager.new()
+	def_manager.stats = def_stats
+	add_child_autofree(def_manager)
+
+	# Frente con 10 atacantes y 10 defensores. Manipulamos los arrays
+	# directamente para aislar el handler bajo prueba.
+	#
+	# Eleccion numerica: con marker = threshold (dominance = 1.0 exacto)
+	# la formula de calculate_casualties da `loser_loss_ratio = 0.8`.
+	# Con 10 defensoras → ceilf(10 * 0.8) = 8 bajas → 2 supervivientes.
+	# Usar 10 nos da margen frente a posibles ajustes futuros en la
+	# formula sin tener que retocar el test.
+	var front := BattleFront.new(atk_tile, def_tile, atk_empire, def_empire)
+	for i in 10:
+		front.attacker_troops.append(_create_troop())
+		front.defender_troops.append(_create_troop())
+
+	front.is_resolved = true
+	front.marker = front.threshold  # dominance = 1.0 exacto
+
+	# Disparo del bus global, replicando lo que hace el callback directo
+	# del atacante al final de su _on_front_resolved.
+	Events.battle_front_resolved.emit(front, true)
+
+	assert_gt(def_stats.troop_pool.size(), 0,
+		"Tropas defensoras supervivientes deben volver al pool del defensor")
+	BattleFront.clear_active_instances()
+
+
+func test_attacker_does_not_double_receive_on_global_bus() -> void:
+	# El atacante recibe el bus global al emitirlo el mismo en su callback
+	# directo. El handler global debe early-return para no duplicar el
+	# return de tropas (ya hecho por _on_front_resolved directo).
+	BattleFront.clear_active_instances()
+	var front := BattleFront.new(atk_tile, def_tile, atk_empire, def_empire)
+	manager.active_fronts.append(front)
+	for i in 5:
+		front.attacker_troops.append(_create_troop())
+	front.is_resolved = true
+	front.marker = front.threshold + 0.001
+
+	var pool_before: int = stats.troop_pool.size()
+	Events.battle_front_resolved.emit(front, true)
+
+	assert_eq(stats.troop_pool.size(), pool_before,
+		"El handler del bus global no debe añadir tropas al pool del atacante")
+	BattleFront.clear_active_instances()
+
+
+func test_third_party_manager_ignores_global_bus() -> void:
+	# Manager de un imperio sin participacion en el frente: el handler
+	# global debe ignorar el evento sin tocar su pool.
+	BattleFront.clear_active_instances()
+	var third := Empire.new()
+	third.name = "Tercero"
+	var third_stats := Stats.new()
+	third_stats.troop_pool = []
+	third_stats.empire = third
+	var third_manager := BattleFrontManager.new()
+	third_manager.stats = third_stats
+	add_child_autofree(third_manager)
+
+	var front := BattleFront.new(atk_tile, def_tile, atk_empire, def_empire)
+	front.is_resolved = true
+	front.marker = front.threshold + 0.001
+	Events.battle_front_resolved.emit(front, true)
+
+	assert_eq(third_stats.troop_pool.size(), 0,
+		"Manager de un imperio ajeno no debe recibir tropas del frente")
+	BattleFront.clear_active_instances()

@@ -9,6 +9,8 @@ const BUILD_SANTUARIO_CARD = preload("res://resources/cards/build_santuario_card
 
 
 func _init():
+	category = EventCategory.Type.OPTIONAL_PROGRESSION
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		ControlledTilesCondition.new(3, Comparison.Type.GREATER_EQUAL, null, 1)

@@ -6,6 +6,8 @@ class_name AbundantHarvestEvent
 
 
 func _init():
+	category = EventCategory.Type.FLAVOUR
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		TurnNumberCondition.new(5, Comparison.Type.GREATER_EQUAL),

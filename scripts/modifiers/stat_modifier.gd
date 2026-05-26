@@ -10,6 +10,17 @@ enum StatType {
 	TILE_RESOURCE_FOOD,
 	CARDS_PER_TURN,
 	CARD_DRAW_BONUS,
+	## Suma plana al numero de tropas reclutadas por play de RecruitCard.
+	## El total efectivo es `card.base_troops_per_play + sum(este modifier)`.
+	## El bonus se gasta entero por play; si el oro no alcanza, se reclutan
+	## las que se puedan y el resto se descarta.
+	TROOPS_PER_RECRUIT,
+	## Descuento porcentual al mantenimiento BASE de tropas (oro y comida).
+	## Se suma con otros descuentos y se clampa a [-80, 0] para evitar que
+	## el mantenimiento llegue a 0 con muchos edificios. NO afecta al
+	## recargo escalado por tropas asignadas a frentes (ese coste plano
+	## queda intencionadamente sin descuento para preservar la subida).
+	TROOP_MAINTENANCE_PERCENT,
 }
 
 ## Iconos precargados por tipo/signo

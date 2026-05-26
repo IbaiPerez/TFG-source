@@ -13,6 +13,8 @@ var _selected_card:Card = null
 
 
 func _init():
+	category = EventCategory.Type.DECK
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 	]

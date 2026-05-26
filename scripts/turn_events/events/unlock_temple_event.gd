@@ -10,6 +10,8 @@ const BUILD_TEMPLE_CARD = preload("res://resources/cards/build_temple_card.tres"
 
 
 func _init():
+	category = EventCategory.Type.OPTIONAL_PROGRESSION
+
 	conditions = [
 		# Al menos 1 Town (location_type = 2)
 		ControlledTilesCondition.new(1, Comparison.Type.GREATER_EQUAL, null, -1, 2),

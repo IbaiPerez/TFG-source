@@ -10,6 +10,8 @@ const BUILD_COLISEO_CARD = preload("res://resources/cards/lategame/build_coliseo
 
 
 func _init():
+	category = EventCategory.Type.OPTIONAL_PROGRESSION
+
 	conditions = [
 		# Al menos 1 Megalopolis (location_type = 3)
 		ControlledTilesCondition.new(1, Comparison.Type.GREATER_EQUAL, null, -1, 3),

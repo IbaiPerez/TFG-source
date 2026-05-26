@@ -6,6 +6,8 @@ class_name SpiritBendicionEvent
 
 
 func _init():
+	category = EventCategory.Type.SPIRIT
+
 	conditions = [
 		HasBuildingCondition.new("Santuario del Bosque")
 	]

@@ -18,10 +18,11 @@
 
 [resource]
 script = ExtResource("1_c8cpc")
-initial_gold = 1000
+initial_gold = 100
 initial_gold_per_turn = 10
 starting_deck = ExtResource("2_dcygl")
 cards_per_turn = 2
 possible_buildings = Array[ExtResource("3_bldg")]([ExtResource("4_crops"), ExtResource("5_fish"), ExtResource("6_gold"), ExtResource("7_hunt"), ExtResource("8_iron"), ExtResource("9_live"), ExtResource("10_log"), ExtResource("11_qry"), ExtResource("12_salt"), ExtResource("13_sand")])
 empire = ExtResource("1_1iik2")
+event_chance = 0.9
 metadata/_custom_type_script = "uid://cwtwyeoabj3wv"

@@ -14,6 +14,10 @@ corner_radius_top_right = 24
 corner_radius_bottom_right = 24
 corner_radius_bottom_left = 24
 
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 26
+font_color = Color(0.15, 0.1, 0.08, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tug_bg"]
 bg_color = Color(0.24313726, 0.15294118, 0.13725491, 1)
 corner_radius_top_left = 6
@@ -21,12 +25,7 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
-[sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 26
-font_color = Color(0.15, 0.1, 0.08, 1)
-
 [sub_resource type="LabelSettings" id="LabelSettings_info"]
-font_size = 16
 font_color = Color(0.15, 0.1, 0.08, 1)
 
 [node name="BattleFrontPanel" type="PanelContainer"]
@@ -103,7 +102,6 @@ offset_top = 5.0
 offset_right = 4.0
 offset_bottom = 35.0
 mouse_filter = 2
-color = Color(1, 1, 1, 1)
 
 [node name="InfoHBox" type="HBoxContainer" parent="MarginContainer/MainVBox"]
 layout_mode = 2

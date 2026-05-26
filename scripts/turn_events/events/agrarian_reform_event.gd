@@ -6,6 +6,8 @@ class_name AgrarianReformEvent
 
 
 func _init():
+	category = EventCategory.Type.FLAVOUR
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		TurnNumberCondition.new(10, Comparison.Type.GREATER_EQUAL),

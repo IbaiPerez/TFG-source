@@ -83,7 +83,7 @@ func test_troop_type_bonus_attack_scales_with_matching_troops() -> void:
 	})
 
 	var boosted_atk := front.get_total_attack(&"attacker")
-	assert_eq(boosted_atk - base_atk, 6.0, "Bonus ATK plano debe escalar con el número de tropas del tipo")
+	assert_almost_eq(boosted_atk - base_atk, 6.0, 0.01, "Bonus ATK plano debe escalar con el número de tropas del tipo")
 
 
 func test_troop_type_bonus_defense_scales_with_matching_troops() -> void:
@@ -99,7 +99,7 @@ func test_troop_type_bonus_defense_scales_with_matching_troops() -> void:
 	})
 
 	var boosted_def := front.get_total_defense(&"defender")
-	assert_eq(boosted_def - base_def, 6.0, "Bonus DEF plano debe escalar con el número de tropas del tipo")
+	assert_almost_eq(boosted_def - base_def, 6.0, 0.01, "Bonus DEF plano debe escalar con el número de tropas del tipo")
 
 
 func test_troop_type_bonus_ignores_other_troop_types() -> void:
@@ -116,7 +116,7 @@ func test_troop_type_bonus_ignores_other_troop_types() -> void:
 	})
 
 	var boosted_atk := front.get_total_attack(&"attacker")
-	assert_eq(boosted_atk - base_atk, 4.0, "Bonus solo debe afectar a tropas del tipo indicado")
+	assert_almost_eq(boosted_atk - base_atk, 4.0, 0.01, "Bonus solo debe afectar a tropas del tipo indicado")
 
 
 func test_troop_type_bonus_zero_matching_troops() -> void:
@@ -168,7 +168,7 @@ func test_multiple_troop_type_bonuses_stack() -> void:
 	})
 
 	var boosted_atk := front.get_total_attack(&"attacker")
-	assert_eq(boosted_atk - base_atk, 6.0, "Múltiples bonus del mismo tipo deben apilarse")
+	assert_almost_eq(boosted_atk - base_atk, 6.0, 0.01, "Múltiples bonus del mismo tipo deben apilarse")
 
 
 func test_count_troops_by_name() -> void:
@@ -214,7 +214,7 @@ func test_bonus_targets_troops_by_type() -> void:
 	})
 
 	var boosted_atk := front.get_total_attack(&"attacker")
-	assert_eq(boosted_atk - base_atk, 6.0,
+	assert_almost_eq(boosted_atk - base_atk, 6.0, 0.01,
 		"El bonus por tipo debe afectar a todas las tropas de ese tipo, sin importar el nombre")
 
 
@@ -230,7 +230,7 @@ func test_bonus_by_type_ignores_other_types() -> void:
 	})
 
 	var boosted_def := front.get_total_defense(&"attacker")
-	assert_eq(boosted_def - base_def, 4.0)
+	assert_almost_eq(boosted_def - base_def, 4.0, 0.01)
 
 
 func test_bonus_with_troop_types_array_takes_precedence_over_singular() -> void:
@@ -247,7 +247,7 @@ func test_bonus_with_troop_types_array_takes_precedence_over_singular() -> void:
 		"attack_per_troop": 5.0,
 	})
 	var boosted_atk := front.get_total_attack(&"attacker")
-	assert_eq(boosted_atk - base_atk, 10.0,
+	assert_almost_eq(boosted_atk - base_atk, 10.0, 0.01,
 		"troop_types (array) debe ganar a troop_type y a troop_name")
 
 
@@ -279,7 +279,7 @@ func test_bonus_with_multiple_types_affects_all_listed() -> void:
 	})
 	var boosted_def := front.get_total_defense(&"defender")
 	# 2 tropas afectadas (PIQ + LIG) × 2 DEF = +4. La caballería no cuenta.
-	assert_eq(boosted_def - base_def, 4.0,
+	assert_almost_eq(boosted_def - base_def, 4.0, 0.01,
 		"Bonus multi-tipo debe afectar a todas las tropas listadas")
 
 

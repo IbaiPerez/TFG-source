@@ -1,27 +1,38 @@
-[gd_resource type="Resource" script_class="Building" load_steps=10 format=3 uid="uid://dmtg1hc3f33dd"]
+[gd_resource type="Resource" script_class="Building" load_steps=14 format=3 uid="uid://dmtg1hc3f33dd"]
 
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
-[ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="2_town"]
-[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="3_mega"]
-[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
-[ext_resource type="Texture2D" uid="uid://cvyqwqag8b2ss" path="res://assets/buildings/lategame/cuartel_expansion.svg" id="5_img"]
-[ext_resource type="Script" uid="uid://cg55hrg21np3q" path="res://scripts/building/effect/gold_on_card.gd" id="6_goc"]
+[ext_resource type="Resource" uid="uid://dg0go8h0lbyaw" path="res://resources/location_type/village.tres" id="2_village"]
+[ext_resource type="Resource" uid="uid://ds43pvf8s117e" path="res://resources/location_type/town.tres" id="3_town"]
+[ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="4_mega"]
+[ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="5_bld"]
+[ext_resource type="Texture2D" uid="uid://cvyqwqag8b2ss" path="res://assets/buildings/lategame/cuartel_expansion.svg" id="6_img"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="7_beff"]
-[ext_resource type="Resource" uid="uid://c0etbihgrwnb0" path="res://resources/cards/colonize_card.tres" id="8_colonize"]
+[ext_resource type="Script" uid="uid://dy7ew041vlors" path="res://scripts/building/effect/add_stat_modifier_effect.gd" id="8_statmod"]
+[ext_resource type="Script" uid="uid://bep412pwthtmf" path="res://scripts/building/effect/add_card_to_deck_effect.gd" id="9_addcard"]
+[ext_resource type="Resource" path="res://resources/cards/recruit_card.tres" id="10_recruit"]
+[ext_resource type="Resource" uid="uid://de0en55aiemgh" path="res://resources/buildings/lategame/academia_militar.tres" id="11_academia"]
 
-[sub_resource type="Resource" id="eff_colonize_gold"]
-script = ExtResource("6_goc")
-required_card = ExtResource("8_colonize")
-gold_reward = 20
-tooltipe_text = "+20 oro al jugar Colonize"
+[sub_resource type="Resource" id="eff_troops_per_recruit"]
+script = ExtResource("8_statmod")
+modifier_id = "cuartel_troops_per_recruit"
+modifier_name = "Cuartel: Reclutamiento extra"
+stat_type = 8
+value = 1.0
+tooltipe_text = "+1 tropa por cada uso de Reclutar"
+
+[sub_resource type="Resource" id="eff_add_recruit_card"]
+script = ExtResource("9_addcard")
+card = ExtResource("10_recruit")
+first_only = true
+tooltipe_text = "Al construir el PRIMER Cuartel, añade una carta de Reclutar al descarte"
 
 [resource]
-script = ExtResource("4_bld")
-name = "Cuartel de Expansión"
-allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
-image = ExtResource("5_img")
-construction_cost = 300
-gold_produced = 6
-food_produced = 3
-effects = Array[ExtResource("7_beff")]([SubResource("eff_colonize_gold")])
+script = ExtResource("5_bld")
+name = "Cuartel"
+allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_village"), ExtResource("3_town"), ExtResource("4_mega")])
+image = ExtResource("6_img")
+construction_cost = 150
+gold_produced = -5
+effects = Array[ExtResource("7_beff")]([SubResource("eff_troops_per_recruit"), SubResource("eff_add_recruit_card")])
+upgrades_to = Array[ExtResource("5_bld")]([ExtResource("11_academia")])
 metadata/_custom_type_script = "uid://2ce384crr8i0"

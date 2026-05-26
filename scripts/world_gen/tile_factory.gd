@@ -1,5 +1,11 @@
-extends Node
+extends RefCounted
 class_name TileFactory
+
+## Constructor stateless de tiles. No necesita estar en el SceneTree: solo
+## opera sobre nodos hijos (collider y label se añaden al tile, no a sí
+## mismo). Lo mantenemos como RefCounted para que se autolibere al salir
+## del scope de `WorldGenerator.generate_world()` y no dejar nodos
+## huérfanos.
 
 const TILE_SCRIPT = preload("uid://dasqw0u0jgxcf")
 const HEX_TILE_COLLIDER = preload("uid://4061dgx0wwr5")
@@ -107,6 +113,11 @@ func init_tile(tile : Tile, position : PositionData):
 	tile.natural_resource = settings.natural_resources.filter(func(natural_resource:NaturalResource)->bool: 
 		return natural_resource.biomes[tile.mesh_data.type] <= treshold ).pick_random()
 	tile.set_parameters()
+	_assign_province_name(tile)
+
+
+func _assign_province_name(tile: Tile) -> void:
+	tile.province_name = ProvinceNameGenerator.generate(tile.biome, tile.pos_data.grid_position)
 
 
 func calculate_biome_weights() -> Array[float]:

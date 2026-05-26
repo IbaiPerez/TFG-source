@@ -16,6 +16,7 @@ func _init():
 	weight = 80.0
 	unique = true
 	allow_skip = true
+	category = EventCategory.Type.OPTIONAL_PROGRESSION
 
 	conditions = [
 		UniqueEventOccurredCondition.new("unlock_open_front"),

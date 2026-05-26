@@ -6,6 +6,8 @@ class_name MerchantCaravanEvent
 
 
 func _init():
+	category = EventCategory.Type.FLAVOUR
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		TurnNumberCondition.new(3, Comparison.Type.GREATER_EQUAL),

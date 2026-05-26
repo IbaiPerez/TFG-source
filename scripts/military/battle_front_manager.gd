@@ -13,6 +13,25 @@ var extra_max_fronts: int = 0
 var tiles_per_extra_front: int = 5
 
 
+func _ready() -> void:
+	# Suscripcion al bus global: cuando CUALQUIER frente se resuelve, este
+	# manager comprueba si su imperio era el DEFENSOR y, en ese caso,
+	# devuelve las tropas defensoras supervivientes a su pool. La
+	# conexion directa `front.front_resolved.connect(_on_front_resolved)`
+	# que se hace en `open_front` solo cubre al atacante: el defensor
+	# nunca abrio el frente, asi que sin esta suscripcion sus tropas
+	# supervivientes se evaporaban (el `if defender_empire == stats.empire`
+	# dentro de `_return_surviving_troops` jamas se cumplia porque `stats`
+	# era el del atacante).
+	if not Events.battle_front_resolved.is_connected(_on_global_front_resolved):
+		Events.battle_front_resolved.connect(_on_global_front_resolved)
+
+
+func _exit_tree() -> void:
+	if Events.battle_front_resolved.is_connected(_on_global_front_resolved):
+		Events.battle_front_resolved.disconnect(_on_global_front_resolved)
+
+
 ## Número máximo de frentes que este imperio puede tener abiertos.
 func get_max_fronts() -> int:
 	var from_tiles := int(stats.empire.controlled_tiles.size() / tiles_per_extra_front)
@@ -66,10 +85,25 @@ func tick_all_fronts() -> void:
 
 
 ## Asigna una tropa del pool a un frente.
+##
+## Acepta tanto frentes propios (los abiertos por este imperio, presentes
+## en `active_fronts`) como ajenos donde este imperio actua de defensor.
+## Los frentes se registran solo en el manager del atacante, asi que el
+## defensor llega aqui con `front not in active_fronts` aunque legitima-
+## mente participe. Para admitir ambos casos validamos por participacion
+## y por coherencia `empire ↔ side`.
 func assign_troop_to_front(front: BattleFront, troop: Troop, side: StringName) -> bool:
 	if front.is_resolved:
 		return false
-	if front not in active_fronts:
+
+	# Coherencia: el imperio del manager debe ser el bando que se le pide
+	# rellenar. Esto bloquea, p.ej., a un atacante que intentara meter
+	# tropas como `defender` en un frente donde es el agresor.
+	var is_valid_participant: bool = (
+		(side == &"attacker" and front.attacker_empire == stats.empire)
+		or (side == &"defender" and front.defender_empire == stats.empire)
+	)
+	if not is_valid_participant:
 		return false
 
 	# Verificar que la tropa está en el pool
@@ -146,6 +180,32 @@ func _on_front_resolved(front: BattleFront, attacker_won: bool) -> void:
 
 func _on_marker_changed(front: BattleFront, new_value: float) -> void:
 	Events.battle_front_marker_changed.emit(front, new_value)
+
+
+## Handler del bus global de resolucion. Responsable de recuperar las
+## tropas supervivientes del DEFENSOR; el atacante ya las recupera por
+## su propio callback directo (`_on_front_resolved`).
+##
+## Filtro en tres pasos:
+##   1. Si soy el atacante, early return: el callback directo ya hizo
+##      conquista + erase + return de mis supervivientes + emit global.
+##   2. Si no soy ni atacante ni defensor, early return: frente ajeno.
+##   3. En otro caso soy el defensor: recalculo casualties (determinista
+##      sobre el frente ya resuelto) y reuso `_return_surviving_troops`
+##      que filtra por `defender_empire == stats.empire` para meter mis
+##      defensoras en mi pool.
+func _on_global_front_resolved(front: BattleFront, _attacker_won: bool) -> void:
+	if stats == null or stats.empire == null:
+		return
+	if front == null:
+		return
+	if front.attacker_empire == stats.empire:
+		return  # Atacante: ya gestionado por callback directo
+	if front.defender_empire != stats.empire:
+		return  # Ni atacante ni defensor: frente ajeno
+
+	var casualties := front.calculate_casualties()
+	_return_surviving_troops(front, casualties)
 
 
 ## Aplica la conquista de una tile: cambio de controlador + destrucción de edificios.

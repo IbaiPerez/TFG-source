@@ -3,6 +3,7 @@ class_name TilePanel
 
 const BUILDING_CARD_UI = preload("uid://bxjlofssmvuwu")
 
+@onready var province_name_label: Label = $MarginContainer/VBoxContainer/ProvinceNameLabel
 @onready var biome_label: Label = $MarginContainer/VBoxContainer/BiomeLabel
 @onready var resource_color_rect: ColorRect = $MarginContainer/VBoxContainer/NaturalResourceContainer/ResourceColorRect
 @onready var resource_image: TextureRect = $MarginContainer/VBoxContainer/NaturalResourceContainer/ResourceImage
@@ -26,6 +27,7 @@ var tile:Tile:set = setup
 
 func setup(value:Tile) -> void:
 	tile = value
+	province_name_label.text = tile.province_name
 	biome_label.text = tile.biome
 	
 	if tile.natural_resource:

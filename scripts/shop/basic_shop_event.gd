@@ -7,6 +7,7 @@ class_name BasicShopEvent
 
 
 func _init():
+	category = EventCategory.Type.SHOP
 	shop_type = ShopType.BASIC
 	conditions = [
 		TurnNumberCondition.new(8, Comparison.Type.GREATER_EQUAL),

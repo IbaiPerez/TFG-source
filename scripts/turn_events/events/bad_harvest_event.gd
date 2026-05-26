@@ -7,6 +7,8 @@ class_name BadHarvestEvent
 
 
 func _init():
+	category = EventCategory.Type.FLAVOUR
+
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		TurnNumberCondition.new(4, Comparison.Type.GREATER_EQUAL),

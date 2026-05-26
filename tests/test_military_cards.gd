@@ -83,6 +83,77 @@ func test_recruit_card_is_basic_type() -> void:
 	assert_false(card.is_single_use(), "Carta BASIC no es single use")
 
 
+# --- Tests RecruitCard con base_troops_per_play y bonus ---
+
+func test_recruit_card_default_base_is_one() -> void:
+	var card := RecruitCard.new()
+	assert_eq(card.base_troops_per_play, 1,
+		"Default base_troops_per_play debe ser 1 (mantiene comportamiento previo)")
+
+
+func test_recruit_card_recruits_base_times_when_no_modifier_manager() -> void:
+	# stats.modifier_manager null → bonus = 0; con base=2 recluta 2.
+	stats.modifier_manager = null
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 2
+	var troop := _create_troop(3, 3, 20)
+	card.chosen = troop
+
+	card.apply_effects([], stats)
+	assert_eq(stats.troop_pool.size(), 2,
+		"Con base=2 y sin manager, debe reclutar 2 tropas")
+	assert_eq(stats.total_gold, 60, "100 - 2*20 = 60")
+
+
+func test_recruit_card_applies_modifier_bonus_to_count() -> void:
+	# Simulamos un Cuartel: modifier de TROOPS_PER_RECRUIT +1.
+	var mm := ModifierManager.new()
+	add_child_autofree(mm)
+	mm.add_modifier(StatModifier.new("cuartel", "Cuartel",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1), stats)
+	stats.modifier_manager = mm
+
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 1
+	var troop := _create_troop(3, 3, 20)
+	card.chosen = troop
+
+	card.apply_effects([], stats)
+	assert_eq(stats.troop_pool.size(), 2,
+		"Con Cuartel (+1) y base=1, debe reclutar 2 tropas")
+	assert_eq(stats.total_gold, 60, "100 - 2*20 = 60")
+
+
+func test_recruit_card_stops_when_gold_runs_out() -> void:
+	# Con 50 oro y troops de 20 cada una, intentamos reclutar 3 → solo
+	# entran 2 (40 oro) y la tercera (60 oro) falla. El bucle corta.
+	stats.total_gold = 50
+	var mm := ModifierManager.new()
+	add_child_autofree(mm)
+	mm.add_modifier(StatModifier.new("ac", "Academia",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 2.0, -1), stats)
+	stats.modifier_manager = mm
+
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 1  # +2 bonus → total 3
+	var troop := _create_troop(3, 3, 20)
+	card.chosen = troop
+
+	card.apply_effects([], stats)
+	assert_eq(stats.troop_pool.size(), 2,
+		"Solo deberia haber reclutado las 2 que se pueden pagar")
+	assert_eq(stats.total_gold, 10, "50 - 2*20 = 10")
+
+
+func test_recruit_card_effective_total_clamps_to_min_one() -> void:
+	# Aunque el base sea 0 y no haya bonus (negativos imposibles hoy pero
+	# defensivo), get_effective_troops_per_play nunca devuelve menos de 1.
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 0
+	assert_eq(card.get_effective_troops_per_play(stats), 1,
+		"Defensivo: minimo 1 tropa por play, base=0 lo clampa")
+
+
 # --- Tests OpenFrontCard ---
 
 func test_open_front_card_valid_targets() -> void:

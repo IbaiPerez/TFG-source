@@ -31,6 +31,17 @@ func on_input(event:InputEvent) -> void:
 		transition_requested.emit(self,CardState.State.BASE)
 	elif minimum_drag_time_elapsed and confirm:
 		get_viewport().set_input_as_handled()
+		# Si la carta requiere target (tile o frente) pero no se solto
+		# sobre ninguno valido, no tiene sentido entrar a CONFIRMING:
+		# `card.confirm()` rechazaria por targets invalidos y dejaria
+		# `card.menu` sin crear, lo que provocaria un crash al intentar
+		# conectar la señal en CardConfirmingState.enter (o, si la carta
+		# se uso antes, accederiamos a un menu previously freed).
+		var requires_target := single_targeted
+		var has_targets := card_ui.targets.size() > 0
+		if requires_target and not has_targets:
+			transition_requested.emit(self, CardState.State.BASE)
+			return
 		if card_ui.card.needs_confirmation:
 			transition_requested.emit(self,CardState.State.CONFIRMING)
 		else:
