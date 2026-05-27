@@ -31,15 +31,15 @@ func _unhandled_input(event:InputEvent) -> void:
 		match event.keycode:
 			KEY_F5:
 				if save_current_game(SaveConstants.QUICKSAVE_SLOT):
-					Logger.info("[GameSaveManager] Quicksave guardado")
+					GameLogger.info("[GameSaveManager] Quicksave guardado")
 				else:
-					Logger.warn("[GameSaveManager] No se pudo guardar (¿estás en partida?)")
+					GameLogger.warn("[GameSaveManager] No se pudo guardar (¿estás en partida?)")
 				get_viewport().set_input_as_handled()
 			KEY_F9:
 				if load_game(SaveConstants.QUICKSAVE_SLOT):
-					Logger.info("[GameSaveManager] Quickload solicitado")
+					GameLogger.info("[GameSaveManager] Quickload solicitado")
 				else:
-					Logger.warn("[GameSaveManager] No hay quicksave disponible")
+					GameLogger.warn("[GameSaveManager] No hay quicksave disponible")
 				get_viewport().set_input_as_handled()
 
 
@@ -50,7 +50,7 @@ func _unhandled_input(event:InputEvent) -> void:
 func save_current_game(slot_name:String) -> bool:
 	var snapshot := GameStateSerializer.build_snapshot()
 	if snapshot.is_empty():
-		Logger.warn("[GameSaveManager] No hay partida activa para guardar")
+		GameLogger.warn("[GameSaveManager] No hay partida activa para guardar")
 		return false
 
 	var path := SaveConstants.user_slot_path(slot_name)
@@ -126,14 +126,14 @@ func _load_from_path(path:String) -> bool:
 	# warnings como errores inesperados de test.
 	if not FileAccess.file_exists(path):
 		var msg := "Archivo no encontrado: %s" % path
-		Logger.warn("[GameSaveManager] %s" % msg)
+		GameLogger.warn("[GameSaveManager] %s" % msg)
 		load_failed.emit(msg)
 		return false
 
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		var err_msg := "No se pudo abrir el archivo: %s" % path
-		Logger.error("[GameSaveManager] %s" % err_msg)
+		GameLogger.error("[GameSaveManager] %s" % err_msg)
 		load_failed.emit(err_msg)
 		return false
 
@@ -143,7 +143,7 @@ func _load_from_path(path:String) -> bool:
 	var parsed:Variant = JSON.parse_string(text)
 	if not (parsed is Dictionary):
 		var parse_msg := "JSON inválido en %s" % path
-		Logger.error("[GameSaveManager] %s" % parse_msg)
+		GameLogger.error("[GameSaveManager] %s" % parse_msg)
 		load_failed.emit(parse_msg)
 		return false
 
@@ -151,7 +151,7 @@ func _load_from_path(path:String) -> bool:
 	var version:int = int(snapshot.get("version", -1))
 	if version != SaveConstants.SAVE_FORMAT_VERSION:
 		var ver_msg := "Versión incompatible: %d (esperada %d)" % [version, SaveConstants.SAVE_FORMAT_VERSION]
-		Logger.warn("[GameSaveManager] %s" % ver_msg)
+		GameLogger.warn("[GameSaveManager] %s" % ver_msg)
 		load_failed.emit(ver_msg)
 		return false
 

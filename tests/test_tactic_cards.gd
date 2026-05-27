@@ -261,7 +261,7 @@ func test_count_bonus_targets_with_array_of_types() -> void:
 	front.assign_troop(_create_troop("Cab", 6, 1, Troop.TroopType.CABALLERIA), &"attacker")
 
 	# Falange-style: PIQ + LIG.
-	var bonus := {"troop_types": [Troop.TroopType.PIQUEROS, Troop.TroopType.INFANTERIA_LIGERA]}
+	var bonus := TacticBonus.from_dict({"troop_types": [Troop.TroopType.PIQUEROS, Troop.TroopType.INFANTERIA_LIGERA]})
 	assert_eq(front._count_bonus_targets(front.attacker_troops, bonus), 2,
 		"Debe contar tropas que coincidan con alguno de los tipos del array")
 
@@ -482,7 +482,7 @@ func test_apply_effects_adds_bonus_to_attacker_side_with_correct_data() -> void:
 
 	assert_eq(front.attacker_bonuses.size(), 1, "Debe añadir bonus al bando atacante")
 	assert_eq(front.defender_bonuses.size(), 0, "No debe afectar al bando defensor")
-	var bonus := front.attacker_bonuses[0]
+	var bonus: TacticBonus = front.attacker_bonuses[0]
 	assert_eq(bonus["tactic_name"], "Carga")
 	assert_eq(bonus["attack_percent_per_type"], 30.0)
 	# Tile contraria (def_tile) es Grassland → mod ×1.5 capturado.
@@ -517,7 +517,7 @@ func test_apply_effects_uses_own_tile_for_defense_biome() -> void:
 	card.apply_effects(targets, stats)
 
 	assert_eq(front.defender_bonuses.size(), 1)
-	var bonus := front.defender_bonuses[0]
+	var bonus: TacticBonus = front.defender_bonuses[0]
 	# El jugador es defensor → tile propia es def_tile (Forest, ×1.3).
 	assert_eq(bonus["defense_biome_modifier"], 1.3,
 		"El biome_modifier de DEF debe leer el bioma de la tile PROPIA")

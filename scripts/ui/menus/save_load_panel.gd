@@ -125,7 +125,7 @@ func _on_save_pressed() -> void:
 		return
 	var slot_name := _slot_input.text.strip_edges()
 	if slot_name.is_empty():
-		Logger.warn("[SaveLoadPanel] Nombre de slot vacío")
+		GameLogger.warn("[SaveLoadPanel] Nombre de slot vacío")
 		return
 	if GameSaveManager.save_current_game(slot_name):
 		_refresh_slots()
@@ -134,7 +134,7 @@ func _on_save_pressed() -> void:
 func _on_load_pressed() -> void:
 	var slot_name := _selected_slot_name()
 	if slot_name.is_empty():
-		Logger.warn("[SaveLoadPanel] Ningún slot seleccionado")
+		GameLogger.warn("[SaveLoadPanel] Ningún slot seleccionado")
 		return
 	if GameSaveManager.load_game(slot_name):
 		queue_free()

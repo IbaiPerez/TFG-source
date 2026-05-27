@@ -280,15 +280,15 @@ func _on_generation_button_pressed() -> void:
 	# Solo 1 imperio IA: elegir uno aleatorio y descartar el resto
 	var ai_empire:Empire = settings.empires.pick_random()
 	settings.empires = [ai_empire]
-	Logger.info("=== GENERANDO MAPA ===")
-	Logger.info("Seed: " + str(settings.map_seed))
-	Logger.info("Noise: " + str(settings.biome_noise.noise_type))
-	Logger.info("Radio: " + str(settings.radius))
-	Logger.info("Forma: " + str(settings.map_shape))
-	Logger.info("Biomas activos: " + str(settings.biome_weights))
-	Logger.info("Montañas: " + str(settings.create_mountains) + " - Umbral: " + str(settings.mountain_threshold))
-	Logger.info("Océano: " + str(settings.create_water) + " - Umbral: " + str(settings.ocean_threshold))
-	Logger.info("Buffers: Ext:" + str(settings.outer_buffer) + " Int:" + str(settings.inner_buffer))
+	GameLogger.info("=== GENERANDO MAPA ===")
+	GameLogger.info("Seed: " + str(settings.map_seed))
+	GameLogger.info("Noise: " + str(settings.biome_noise.noise_type))
+	GameLogger.info("Radio: " + str(settings.radius))
+	GameLogger.info("Forma: " + str(settings.map_shape))
+	GameLogger.info("Biomas activos: " + str(settings.biome_weights))
+	GameLogger.info("Montañas: " + str(settings.create_mountains) + " - Umbral: " + str(settings.mountain_threshold))
+	GameLogger.info("Océano: " + str(settings.create_water) + " - Umbral: " + str(settings.ocean_threshold))
+	GameLogger.info("Buffers: Ext:" + str(settings.outer_buffer) + " Int:" + str(settings.inner_buffer))
 	# Prepare stats with the selected empire
 	var stats_template:Stats = INITIAL_STATS.duplicate()
 	stats_template.empire = settings.player_empire

@@ -79,7 +79,7 @@ func start_turn() -> void:
 ## turn_finished al acabar.
 func _run_turn() -> void:
 	var empire_name := stats.empire.name if stats.empire else "IA"
-	Logger.debug("[IA] === TURNO DE %s (turno %d) ===" % [empire_name, stats.turn_number + 1])
+	GameLogger.debug("[IA] === TURNO DE %s (turno %d) ===" % [empire_name, stats.turn_number + 1])
 
 	# Señal de inicio para la capa de presentación (log, banner, etc.).
 	Events.ai_turn_started.emit(self)
@@ -94,7 +94,7 @@ func _run_turn() -> void:
 	# de "decisiones de este turno" (reclutar / abrir frente / tacticas).
 	_assign_troops_to_fronts()
 
-	Logger.debug("[IA] Oro: %d (+%d/turno) | Comida: %d | Tiles: %d" % [
+	GameLogger.debug("[IA] Oro: %d (+%d/turno) | Comida: %d | Tiles: %d" % [
 		stats.total_gold, stats.gold_per_turn, stats.food,
 		stats.empire.controlled_tiles.size()
 	])
@@ -106,7 +106,7 @@ func _run_turn() -> void:
 		var c := _draw_single_card()
 		if c != null:
 			_drawn_cards.append(c)
-	Logger.debug("[IA] %s robó %d cartas" % [empire_name, _drawn_cards.size()])
+	GameLogger.debug("[IA] %s robó %d cartas" % [empire_name, _drawn_cards.size()])
 
 	# Bucle decisorio
 	var ctx := AITurnContext.create(self, _rng)
@@ -119,10 +119,10 @@ func _run_turn() -> void:
 
 		var chosen := _pick_random_option(options)
 		if chosen == null or chosen.is_pass:
-			Logger.debug("[IA] %s decide pasar (iter %d)" % [empire_name, iterations])
+			GameLogger.debug("[IA] %s decide pasar (iter %d)" % [empire_name, iterations])
 			break
 
-		Logger.debug("[IA] %s juega %s" % [empire_name, chosen.describe()])
+		GameLogger.debug("[IA] %s juega %s" % [empire_name, chosen.describe()])
 		var played_card := chosen.execute(ctx)
 		if played_card != null:
 			ctx.drawn_cards.erase(played_card)
@@ -139,7 +139,7 @@ func _run_turn() -> void:
 	for leftover in ctx.drawn_cards:
 		stats.discard_pile.add_card(leftover)
 	if not ctx.drawn_cards.is_empty():
-		Logger.debug("[IA] %s descarta %d cartas no jugadas" % [empire_name, ctx.drawn_cards.size()])
+		GameLogger.debug("[IA] %s descarta %d cartas no jugadas" % [empire_name, ctx.drawn_cards.size()])
 	ctx.drawn_cards = []
 	_drawn_cards = []
 
@@ -171,7 +171,7 @@ func _evaluate_and_resolve_event(empire_name: String) -> void:
 	var event: TurnEvent = turn_event_manager.evaluate(context)
 	if event == null:
 		return
-	Logger.debug("[IA] %s recibe evento: %s" % [empire_name, event.title])
+	GameLogger.debug("[IA] %s recibe evento: %s" % [empire_name, event.title])
 	AIEventResolver.resolve(event, context, _rng, turn_event_manager)
 
 
@@ -222,7 +222,7 @@ func _wait(delay: float) -> void:
 
 func _finish_turn() -> void:
 	var empire_name := stats.empire.name if stats.empire else "IA"
-	Logger.debug("[IA] === FIN TURNO DE %s ===" % empire_name)
+	GameLogger.debug("[IA] === FIN TURNO DE %s ===" % empire_name)
 	turn_finished.emit(self)
 
 

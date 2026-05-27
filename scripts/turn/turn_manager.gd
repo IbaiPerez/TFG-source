@@ -19,7 +19,7 @@ func register_controller(controller:EmpireController) -> void:
 func start_first_round() -> void:
 	round_number = 1
 	current_index = 0
-	Logger.info("[TurnManager] === RONDA %d ===" % round_number)
+	GameLogger.info("[TurnManager] === RONDA %d ===" % round_number)
 	round_started.emit(round_number)
 	_start_current_controller_turn()
 
@@ -33,7 +33,7 @@ func resume_turn() -> void:
 		push_warning("[TurnManager] resume_turn sin controllers")
 		return
 	current_index = clampi(current_index, 0, controllers.size() - 1)
-	Logger.info("[TurnManager] === REANUDANDO RONDA %d (turno %d) ===" % [round_number, current_index])
+	GameLogger.info("[TurnManager] === REANUDANDO RONDA %d (turno %d) ===" % [round_number, current_index])
 	round_started.emit(round_number)
 	_resume_current_controller_turn()
 
@@ -41,7 +41,7 @@ func resume_turn() -> void:
 func _resume_current_controller_turn() -> void:
 	var controller := controllers[current_index]
 	var empire_name := controller.stats.empire.name if controller.stats and controller.stats.empire else "???"
-	Logger.info("[TurnManager] Reanudando turno de: %s (indice %d)" % [empire_name, current_index])
+	GameLogger.info("[TurnManager] Reanudando turno de: %s (indice %d)" % [empire_name, current_index])
 	controller.resume_turn()
 
 ## Llamado cuando el jugador pulsa "Fin de turno"
@@ -68,11 +68,11 @@ func _advance_to_next() -> void:
 
 	if current_index >= controllers.size():
 		# Todos han jugado -> nueva ronda
-		Logger.info("[TurnManager] === FIN RONDA %d ===" % round_number)
+		GameLogger.info("[TurnManager] === FIN RONDA %d ===" % round_number)
 		round_ended.emit(round_number)
 		round_number += 1
 		current_index = 0
-		Logger.info("[TurnManager] === RONDA %d ===" % round_number)
+		GameLogger.info("[TurnManager] === RONDA %d ===" % round_number)
 		round_started.emit(round_number)
 
 	_start_current_controller_turn()
@@ -80,5 +80,5 @@ func _advance_to_next() -> void:
 func _start_current_controller_turn() -> void:
 	var controller := controllers[current_index]
 	var empire_name := controller.stats.empire.name if controller.stats and controller.stats.empire else "???"
-	Logger.info("[TurnManager] Turno de: %s (indice %d)" % [empire_name, current_index])
+	GameLogger.info("[TurnManager] Turno de: %s (indice %d)" % [empire_name, current_index])
 	controller.start_turn()

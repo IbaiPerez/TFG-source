@@ -113,19 +113,9 @@ func has(key: String) -> bool:
 
 
 ## Versión tipada de get() con fallback, imitando Dictionary.get().
-## Nombre alternativo para evitar conflicto con Object.get().
+## NOTA: No se puede sobrecarga Object.get() nativamente en Godot 4.5.
+## Esta función proporciona la funcionalidad de fallback para tests y código.
 func get_value(key: String, default: Variant = null) -> Variant:
-	var val: Variant = _get(key)
-	if val == null:
-		return default
-	return val
-
-
-## Sobrecarga de Object.get() para aceptar un valor por defecto.
-## Permite usar `bonus.get("attack", 0.0)` al igual que con Dictionary.
-## Los campos siempre existen en TacticBonus, así que el default raramente
-## se usa — solo actúa cuando `key` no corresponde a ningún campo.
-func get(key: StringName, default: Variant = null) -> Variant:
 	var val: Variant = _get(key)
 	if val == null:
 		return default

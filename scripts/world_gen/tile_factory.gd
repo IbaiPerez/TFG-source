@@ -45,7 +45,7 @@ func create_map(map_data : MappingData) -> Array[Tile]:
 		new_map.append(new_tile)
 		debug_tile(new_tile, pos)
 	
-	Logger.info("Tiles placed: " + str(new_map.size()))
+	GameLogger.info("Tiles placed: " + str(new_map.size()))
 	return new_map
 
 ## Function to select a biome based on weighted probabilities

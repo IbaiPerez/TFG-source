@@ -17,7 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Logger="*res://scripts/logger.gd"
+GameLogger="*res://scripts/logger.gd"
 Events="*res://scripts/events.gd"
 MapEvents="*res://scripts/map_events.gd"
 CardEvents="*res://scripts/card_events.gd"

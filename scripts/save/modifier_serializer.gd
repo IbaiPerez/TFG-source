@@ -110,7 +110,7 @@ static func from_dict(data:Dictionary) -> Modifier:
 			# `print` y no `push_warning`: este caso aparece cuando un save
 			# antiguo trae un kind retirado o cuando los tests verifican
 			# explícitamente el manejo de un kind desconocido.
-			Logger.warn("[ModifierSerializer] kind desconocido: %d" % kind)
+			GameLogger.warn("[ModifierSerializer] kind desconocido: %d" % kind)
 			return null
 
 

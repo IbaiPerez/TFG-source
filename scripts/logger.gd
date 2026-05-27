@@ -4,11 +4,11 @@ class_name AppLogger
 ## Centralized logging autoload.
 ##
 ## Usage:
-##   Logger.debug("message")
-##   Logger.info("message")
-##   Logger.warn("message")
-##   Logger.error("message")
-##   Logger.set_level(Logger.Level.WARN)  # suppress debug/info in release
+##   GameLogger.debug("message")
+##   GameLogger.info("message")
+##   GameLogger.warn("message")
+##   GameLogger.error("message")
+##   GameLogger.set_level(GameLogger.Level.WARN)  # suppress debug/info in release
 
 enum Level { DEBUG = 0, INFO = 1, WARN = 2, ERROR = 3 }
 

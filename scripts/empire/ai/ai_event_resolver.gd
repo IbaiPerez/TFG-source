@@ -34,7 +34,7 @@ static func resolve(event: TurnEvent, context: EventContext,
 	if event is ShopEvent:
 		_resolve_shop_event(event as ShopEvent, context.stats, rng)
 		_mark_unique_if_applicable(event, context.stats)
-		Logger.debug("    [IA-Event] resuelto ShopEvent '%s'%s" % [event.id,
+		GameLogger.debug("    [IA-Event] resuelto ShopEvent '%s'%s" % [event.id,
 			" (marcado unique)" if event.unique else ""])
 		return
 
@@ -74,17 +74,17 @@ static func _resolve_turn_event(event: TurnEvent, context: EventContext,
 	# 5. Despachar según el tipo de input que requiera.
 	if picked.needs_tile_input():
 		_execute_choice_with_tile_input(event, picked, context, rng)
-		Logger.debug("    [IA-Event] '%s' → choice '%s' (tile input)%s" % [event.id,
+		GameLogger.debug("    [IA-Event] '%s' → choice '%s' (tile input)%s" % [event.id,
 			choice_label, " | marcado unique" if event.unique else ""])
 	elif picked.needs_player_input():
 		_execute_choice_with_card_input(event, picked, context, rng)
-		Logger.debug("    [IA-Event] '%s' → choice '%s' (card input)%s" % [event.id,
+		GameLogger.debug("    [IA-Event] '%s' → choice '%s' (card input)%s" % [event.id,
 			choice_label, " | marcado unique" if event.unique else ""])
 	else:
 		# Camino normal (incluye skip, que tampoco tiene effects):
 		# turn_event_manager.resolve hace pay + execute + marca unique.
 		manager.resolve(event, picked, context)
-		Logger.debug("    [IA-Event] '%s' → choice '%s'%s" % [event.id, choice_label,
+		GameLogger.debug("    [IA-Event] '%s' → choice '%s'%s" % [event.id, choice_label,
 			" | marcado unique" if event.unique else ""])
 
 
