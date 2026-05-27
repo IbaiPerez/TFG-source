@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://bdc8ttqwuh7kc"]
 
-[ext_resource type="Texture2D" uid="uid://dykb6kpwrtmcj" path="res://assets/natural_resources/Livestock.png" id="1_g0afx"]
+[ext_resource type="Texture2D" uid="uid://dykb6kpwrtmcj" path="res://assets/natural_resources/Livestock.svg" id="1_g0afx"]
 [ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="1_wvna7"]
 
 [resource]

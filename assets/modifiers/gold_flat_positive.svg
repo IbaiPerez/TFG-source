@@ -5,7 +5,9 @@
   <!-- Central gold coin -->
   <circle cx="60" cy="68" r="26" fill="#FFD700" stroke="#B8860B" stroke-width="2.5"/>
   <circle cx="60" cy="68" r="20" fill="none" stroke="#DAA520" stroke-width="1.5"/>
-  <text x="60" y="76" text-anchor="middle" font-size="24" font-weight="bold" fill="#8B6914" font-family="serif">$</text>
+  <!-- Crown symbol (replaces $ — medieval strategy game) -->
+  <path d="M50,76 L50,72 L53,62 L57,68 L60,58 L63,68 L67,62 L70,72 L70,76 Z" fill="#8B6914" stroke="#6B5010" stroke-width="0.8" stroke-linejoin="round"/>
+  <rect x="50" y="73" width="20" height="3" rx="1" fill="#6B5010"/>
 
   <!-- Green arrow UP (top-right corner) -->
   <g transform="translate(98, 28)">

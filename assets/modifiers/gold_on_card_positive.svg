@@ -12,7 +12,9 @@
   <!-- Gold coin (right side, slightly overlapping) -->
   <circle cx="80" cy="72" r="20" fill="#FFD700" stroke="#B8860B" stroke-width="2.5"/>
   <circle cx="80" cy="72" r="15" fill="none" stroke="#DAA520" stroke-width="1.5"/>
-  <text x="80" y="79" text-anchor="middle" font-size="18" font-weight="bold" fill="#8B6914" font-family="serif">$</text>
+  <!-- Crown symbol (replaces $) -->
+  <path d="M70,79 L70,75 L73,66 L76,71 L80,63 L84,71 L87,66 L90,75 L90,79 Z" fill="#8B6914" stroke="#6B5010" stroke-width="0.8" stroke-linejoin="round"/>
+  <rect x="70" y="76" width="20" height="3" rx="1" fill="#6B5010"/>
 
   <!-- Green arrow UP (top-right corner) -->
   <g transform="translate(98, 28)">

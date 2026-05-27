@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://qm6yeu6t77kn"]
 
 [ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="1_v6fut"]
-[ext_resource type="Texture2D" uid="uid://4dlwn50ek0xd" path="res://assets/natural_resources/Wood.png" id="1_wk3sq"]
+[ext_resource type="Texture2D" uid="uid://4dlwn50ek0xd" path="res://assets/natural_resources/Wood.svg" id="1_wk3sq"]
 
 [resource]
 script = ExtResource("1_v6fut")

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://d24re8efjrw3"]
 
 [ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="1_g06xf"]
-[ext_resource type="Texture2D" uid="uid://c7uxawoaqhxlk" path="res://assets/natural_resources/Wheat.png" id="1_sj7ll"]
+[ext_resource type="Texture2D" uid="uid://c7uxawoaqhxlk" path="res://assets/natural_resources/Wheat.svg" id="1_sj7ll"]
 
 [resource]
 script = ExtResource("1_g06xf")

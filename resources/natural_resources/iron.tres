@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://c2jvo50o3o5gh"]
 
-[ext_resource type="Texture2D" uid="uid://ba8wrk1pptg2d" path="res://assets/natural_resources/Iron.png" id="1_f04w3"]
+[ext_resource type="Texture2D" uid="uid://ba8wrk1pptg2d" path="res://assets/natural_resources/Iron.svg" id="1_f04w3"]
 [ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="2_aes6y"]
 
 [resource]

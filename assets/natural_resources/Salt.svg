@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#EEF4FA" stroke="#6A8090" stroke-width="3"/>
+
+  <!-- Ground shadow -->
+  <ellipse cx="64" cy="104" rx="42" ry="5" fill="#6A8090" opacity="0.18"/>
+
+  <!-- Back-left crystal (smaller) -->
+  <!-- Top face -->
+  <path d="M28,72 L38,60 L52,64 L42,76 Z" fill="#D8EAF4" stroke="#6A8090" stroke-width="1.5"/>
+  <!-- Left face -->
+  <path d="M28,72 L42,76 L42,92 L28,88 Z" fill="#B8D4EA" stroke="#6A8090" stroke-width="1.5"/>
+  <!-- Right face -->
+  <path d="M42,76 L52,64 L52,80 L42,92 Z" fill="#CCDFF0" stroke="#6A8090" stroke-width="1.5"/>
+
+  <!-- Back-right crystal (medium) -->
+  <!-- Top face -->
+  <path d="M74,60 L88,46 L104,52 L90,66 Z" fill="#D8EAF4" stroke="#6A8090" stroke-width="1.5"/>
+  <!-- Left face -->
+  <path d="M74,60 L90,66 L90,86 L74,80 Z" fill="#B8D4EA" stroke="#6A8090" stroke-width="1.5"/>
+  <!-- Right face -->
+  <path d="M90,66 L104,52 L104,72 L90,86 Z" fill="#CCDFF0" stroke="#6A8090" stroke-width="1.5"/>
+
+  <!-- Front large crystal (center) -->
+  <!-- Top face -->
+  <path d="M42,84 L58,66 L80,74 L64,92 Z" fill="#E4F0F8" stroke="#6A8090" stroke-width="2"/>
+  <!-- Left face -->
+  <path d="M42,84 L64,92 L64,110 L42,102 Z" fill="#B8D4EA" stroke="#6A8090" stroke-width="2"/>
+  <!-- Right face -->
+  <path d="M64,92 L80,74 L80,94 L64,110 Z" fill="#CCDFF0" stroke="#6A8090" stroke-width="2"/>
+
+  <!-- Sparkle glints on crystals -->
+  <line x1="58" y1="68" x2="58" y2="62" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <line x1="55" y1="65" x2="61" y2="65" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <line x1="88" y1="48" x2="88" y2="44" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <line x1="86" y1="46" x2="90" y2="46" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+</svg>

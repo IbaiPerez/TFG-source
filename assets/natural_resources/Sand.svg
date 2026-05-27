@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F5EDD0" stroke="#A08050" stroke-width="3"/>
+
+  <!-- Sky/background tint at top -->
+  <ellipse cx="64" cy="30" rx="50" ry="22" fill="#F0E4B8" opacity="0.4"/>
+
+  <!-- Back dune (left, darker) -->
+  <path d="M8,100 Q20,48 58,52 Q84,54 106,100 Z"
+        fill="#C8A468" stroke="#A08050" stroke-width="1.5"/>
+  <!-- Back dune crest highlight -->
+  <path d="M8,100 Q20,48 58,52" fill="none" stroke="#DEC080" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Front dune (right, lighter, overlapping) -->
+  <path d="M20,106 Q38,50 72,46 Q102,44 120,106 Z"
+        fill="#D4B47C" stroke="#A08050" stroke-width="1.5"/>
+  <!-- Front dune crest highlight -->
+  <path d="M20,106 Q38,50 72,46" fill="none" stroke="#E8CC96" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Ground base -->
+  <ellipse cx="64" cy="106" rx="54" ry="7" fill="#B89860" opacity="0.35"/>
+
+  <!-- Wind ripple lines on front dune -->
+  <path d="M48,82 Q60,78 72,82" fill="none" stroke="#B89060" stroke-width="1" opacity="0.5"/>
+  <path d="M44,90 Q58,86 72,90" fill="none" stroke="#B89060" stroke-width="1" opacity="0.4"/>
+
+  <!-- A few sand grain dots -->
+  <circle cx="80" cy="70" r="1.5" fill="#A08050" opacity="0.35"/>
+  <circle cx="54" cy="76" r="1" fill="#A08050" opacity="0.3"/>
+  <circle cx="92" cy="78" r="1" fill="#A08050" opacity="0.3"/>
+</svg>

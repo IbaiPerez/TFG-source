@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://cmixmuy45uhbr"]
 
-[ext_resource type="Texture2D" uid="uid://dja37jyxk7a6g" path="res://assets/natural_resources/Sand.png" id="1_py4c8"]
+[ext_resource type="Texture2D" uid="uid://dja37jyxk7a6g" path="res://assets/natural_resources/Sand.svg" id="1_py4c8"]
 [ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="2_w8pek"]
 
 [resource]

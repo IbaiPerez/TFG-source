@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#D8D8E0" stroke="#4A4A5A" stroke-width="3"/>
+
+  <!-- Ground shadow -->
+  <ellipse cx="64" cy="100" rx="44" ry="5" fill="#3A3A4A" opacity="0.2"/>
+
+  <!-- Back-center ore chunk (largest) -->
+  <path d="M38,88 L32,70 L42,52 L62,44 L80,48 L92,62 L90,82 L76,94 L54,98 Z"
+        fill="#626272" stroke="#3A3A4A" stroke-width="2"/>
+  <!-- Metallic highlight crack -->
+  <path d="M44,60 Q56,48 72,52" fill="none" stroke="#9898A8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M54,72 Q64,64 74,70" fill="none" stroke="#888898" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Left foreground chunk -->
+  <path d="M14,96 L10,78 L20,64 L36,60 L50,66 L54,82 L44,96 L28,100 Z"
+        fill="#545464" stroke="#3A3A4A" stroke-width="1.5"/>
+  <path d="M18,72 Q28,62 44,66" fill="none" stroke="#888898" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Right foreground chunk (small) -->
+  <path d="M80,94 L78,78 L88,68 L104,66 L114,74 L112,90 L100,98 L84,98 Z"
+        fill="#545464" stroke="#3A3A4A" stroke-width="1.5"/>
+  <path d="M84,74 Q94,66 108,70" fill="none" stroke="#888898" stroke-width="2" stroke-linecap="round"/>
+</svg>

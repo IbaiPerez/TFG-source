@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#D4EEF8" stroke="#1A6B8A" stroke-width="3"/>
+
+  <!-- Tail fin -->
+  <path d="M28,64 L12,50 L18,64 L12,78 Z"
+        fill="#2A80A8" stroke="#1A6B8A" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- Fish body -->
+  <path d="M28,64 Q36,46 62,44 Q88,44 100,64 Q88,84 62,84 Q36,82 28,64 Z"
+        fill="#3A9CC0" stroke="#1A6B8A" stroke-width="2"/>
+
+  <!-- Belly highlight -->
+  <path d="M40,70 Q62,80 84,72" fill="none" stroke="#6ECCE8" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Dorsal fin -->
+  <path d="M54,44 Q58,30 70,36 Q66,40 62,44 Z"
+        fill="#2A80A8" stroke="#1A6B8A" stroke-width="1.5"/>
+
+  <!-- Pectoral fin -->
+  <path d="M76,60 Q84,70 80,78" fill="none" stroke="#2A80A8" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Scale arcs -->
+  <path d="M64,52 Q72,46 80,52" fill="none" stroke="#8CD8EC" stroke-width="1.5"/>
+  <path d="M56,57 Q66,49 76,57" fill="none" stroke="#8CD8EC" stroke-width="1.5"/>
+  <path d="M50,64 Q62,55 74,64" fill="none" stroke="#8CD8EC" stroke-width="1.2"/>
+
+  <!-- Gill line -->
+  <path d="M82,50 Q86,64 82,78" fill="none" stroke="#1A6B8A" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Eye -->
+  <circle cx="92" cy="60" r="5.5" fill="white" stroke="#1A6B8A" stroke-width="1"/>
+  <circle cx="92.5" cy="60" r="3" fill="#0A2030"/>
+  <circle cx="93.5" cy="58.5" r="1" fill="white"/>
+
+  <!-- Mouth -->
+  <path d="M100,64 Q104,62 100,66" fill="none" stroke="#1A6B8A" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

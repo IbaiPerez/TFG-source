@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="NaturalResource" load_steps=3 format=3 uid="uid://b54xf0rwim6kw"]
 
-[ext_resource type="Texture2D" uid="uid://cw67pboy8x1h2" path="res://assets/natural_resources/Gold.png" id="1_cu2ab"]
+[ext_resource type="Texture2D" uid="uid://cw67pboy8x1h2" path="res://assets/natural_resources/Gold.svg" id="1_cu2ab"]
 [ext_resource type="Script" uid="uid://c8skfi2so6egl" path="res://scripts/tile/natural_resource.gd" id="1_dsexj"]
 
 [resource]

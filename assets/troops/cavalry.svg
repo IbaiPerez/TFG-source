@@ -1,21 +1,73 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <circle cx="64" cy="64" r="60" fill="#F5E0E0" stroke="#8B1A1A" stroke-width="3"/>
 
-  <!-- Horse body -->
-  <ellipse cx="62" cy="78" rx="28" ry="16" fill="#6B3A2A" stroke="#4A2A1A" stroke-width="2"/>
-  <!-- Horse legs -->
-  <line x1="42" y1="90" x2="38" y2="108" stroke="#4A2A1A" stroke-width="3" stroke-linecap="round"/>
-  <line x1="52" y1="92" x2="50" y2="108" stroke="#4A2A1A" stroke-width="3" stroke-linecap="round"/>
-  <line x1="72" y1="92" x2="74" y2="108" stroke="#4A2A1A" stroke-width="3" stroke-linecap="round"/>
-  <line x1="82" y1="90" x2="86" y2="108" stroke="#4A2A1A" stroke-width="3" stroke-linecap="round"/>
-  <!-- Horse neck and head -->
-  <path d="M86 72 Q92 52 88 42" fill="none" stroke="#6B3A2A" stroke-width="8" stroke-linecap="round"/>
-  <ellipse cx="90" cy="40" rx="8" ry="6" fill="#6B3A2A" stroke="#4A2A1A" stroke-width="1.5"/>
-  <circle cx="94" cy="38" r="2" fill="#222"/>
-  <!-- Rider torso -->
-  <line x1="68" y1="64" x2="68" y2="44" stroke="#555" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="68" cy="38" r="6" fill="#DDB99B" stroke="#555" stroke-width="1.5"/>
-  <!-- Sword -->
-  <line x1="58" y1="42" x2="48" y2="24" stroke="#B0B0B0" stroke-width="3" stroke-linecap="round"/>
-  <line x1="54" y1="44" x2="62" y2="40" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Tail (drawn first so it appears behind body) -->
+  <path d="M30,80 Q18,82 14,94 Q12,104 20,110" fill="none" stroke="#3A1A0A" stroke-width="4" stroke-linecap="round"/>
+  <path d="M30,82 Q20,86 16,98 Q14,106 22,112" fill="none" stroke="#4A2A1A" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Horse body (shaped path with haunches and chest) -->
+  <path d="M28,78 Q30,62 44,58 Q56,56 68,60 Q82,58 90,66 Q96,72 94,84 Q92,94 78,98 Q62,102 46,98 Q32,94 26,86 Q22,82 28,78 Z"
+        fill="#6B3A2A" stroke="#4A2A1A" stroke-width="2"/>
+  <!-- Belly highlight -->
+  <path d="M44,94 Q62,98 78,94" fill="none" stroke="#7A4535" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- Back legs (bent at knee) -->
+  <path d="M36,96 Q34,104 32,110" stroke="#4A2A1A" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M46,98 Q45,106 44,110" stroke="#4A2A1A" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- Back hooves -->
+  <ellipse cx="32" cy="111" rx="5.5" ry="2.5" fill="#2A1A0A"/>
+  <ellipse cx="44" cy="111" rx="5.5" ry="2.5" fill="#2A1A0A"/>
+
+  <!-- Horse neck -->
+  <path d="M84,70 Q90,56 88,44 Q87,40 84,36" fill="none" stroke="#6B3A2A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M84,70 Q90,58 90,46" fill="none" stroke="#5A2A1A" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Mane along neck -->
+  <path d="M86,38 Q82,48 82,58 Q80,66 82,72" fill="none" stroke="#2A0E00" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Horse head -->
+  <path d="M80,34 Q86,28 94,32 Q100,36 98,46 Q96,54 88,54 Q80,52 78,46 Q76,38 80,34 Z"
+        fill="#6B3A2A" stroke="#4A2A1A" stroke-width="1.5"/>
+  <!-- Muzzle -->
+  <path d="M88,50 Q94,48 96,52 Q94,56 88,54" fill="#5A2A1A" stroke="#4A2A1A" stroke-width="1"/>
+  <!-- Eye -->
+  <circle cx="82" cy="38" r="2.5" fill="#1A0A00"/>
+  <circle cx="81.5" cy="37.5" r="1" fill="white"/>
+  <!-- Nostril -->
+  <ellipse cx="93" cy="52" rx="1.5" ry="1" fill="#3A1A0A"/>
+  <!-- Ear -->
+  <path d="M80,32 Q78,26 82,24 Q86,26 86,32" fill="#5A2A1A" stroke="#4A2A1A" stroke-width="1"/>
+
+  <!-- Front legs (slightly bent) -->
+  <path d="M74,94 Q72,102 70,110" stroke="#4A2A1A" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M84,92 Q84,100 84,110" stroke="#4A2A1A" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- Front hooves -->
+  <ellipse cx="70" cy="111" rx="5.5" ry="2.5" fill="#2A1A0A"/>
+  <ellipse cx="84" cy="111" rx="5.5" ry="2.5" fill="#2A1A0A"/>
+
+  <!-- Saddle -->
+  <ellipse cx="62" cy="62" rx="13" ry="6" fill="#7B3A10" stroke="#5B2A08" stroke-width="1.5"/>
+  <path d="M54,60 Q62,56 70,60" fill="none" stroke="#9B5A30" stroke-width="1" opacity="0.6"/>
+
+  <!-- Rider torso (armored breastplate) -->
+  <rect x="58" y="40" width="12" height="22" rx="3" fill="#7A8A96" stroke="#4A5A6A" stroke-width="1.5"/>
+  <!-- Armor line detail -->
+  <path d="M60,50 Q64,48 68,50" fill="none" stroke="#9AABB5" stroke-width="1"/>
+  <path d="M60,56 Q64,54 68,56" fill="none" stroke="#9AABB5" stroke-width="0.8"/>
+
+  <!-- Rider arm + sword raised (right arm) -->
+  <path d="M70,46 Q78,42 82,38" fill="none" stroke="#7A8A96" stroke-width="4" stroke-linecap="round"/>
+  <!-- Sword blade -->
+  <line x1="82" y1="38" x2="98" y2="16" stroke="#C8C8C8" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Sword crossguard -->
+  <line x1="79" y1="41" x2="89" y2="35" stroke="#B8860B" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Rider helmet -->
+  <path d="M57,38 Q57,24 64,22 Q71,24 71,38 Q67,36 64,36 Q61,36 57,38 Z" fill="#7A8A96" stroke="#4A5A6A" stroke-width="1.5"/>
+  <!-- Helmet visor line -->
+  <path d="M57,38 L71,38" fill="none" stroke="#4A5A6A" stroke-width="1.5"/>
+  <!-- Eye slit -->
+  <rect x="59" y="36" width="8" height="3" rx="1" fill="#4A5A6A" opacity="0.8"/>
+  <!-- Red plume -->
+  <path d="M64,22 Q66,14 70,10 Q68,14 72,16 Q68,18 66,22 Z" fill="#8B1A1A" stroke="#6B0A0A" stroke-width="0.5"/>
 </svg>
