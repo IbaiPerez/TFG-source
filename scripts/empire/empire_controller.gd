@@ -85,77 +85,35 @@ func _apply_empire_ability() -> void:
 
 ## Calcula produccion y avanza el turno. Las subclases llaman a esto
 ## al inicio de su turno.
+##
+## El calculo numerico (tiles, modifiers, mantenimiento, recargos de
+## frente) se delega en `ProductionCalculator` (refactor H2). Aqui solo
+## quedan los efectos secundarios: tick de modifiers, reconexion de
+## señales de building, escritura en `stats` y actualizacion del
+## `combat_multiplier` segun el deficit resultante.
 func _process_turn_start() -> void:
 	stats.turn_number += 1
 	modifier_manager.tick()
 
-	var base_gold := 0
-	var base_food := 0
+	# Aseguramos las señales de building en los tiles controlados antes
+	# de calcular (mismo comportamiento defensivo que en el codigo previo).
 	for t in stats.empire.controlled_tiles:
-		base_gold += t.gold_production + modifier_manager.get_tile_gold_bonus(t)
-		base_food += t.food_production + modifier_manager.get_tile_food_bonus(t)
-		# Asegurar que las señales de building estan conectadas
 		if not t.building_completed.is_connected(_on_building_completed):
 			t.building_completed.connect(_on_building_completed)
 		if not t.building_demolished.is_connected(_on_building_demolished):
 			t.building_demolished.connect(_on_building_demolished)
 
-	base_gold += modifier_manager.get_flat_gold()
-	base_food += modifier_manager.get_flat_food()
+	var calc := ProductionCalculator.new(stats, modifier_manager, battle_front_manager)
+	var result := calc.calculate_turn()
 
-	# Los modificadores porcentuales solo afectan a la produccion positiva,
-	# no a los costes de mantenimiento (produccion negativa).
-	var gold_positive := maxi(base_gold, 0)
-	var gold_negative := mini(base_gold, 0)
-	var food_positive := maxi(base_food, 0)
-	var food_negative := mini(base_food, 0)
-
-	var final_gold := int(gold_positive * (1.0 + modifier_manager.get_percent_gold() / 100.0)) + gold_negative
-	var final_food := int(food_positive * (1.0 + modifier_manager.get_percent_food() / 100.0)) + food_negative
-
-	# Mantenimiento de tropas (se resta despues de los % de produccion para
-	# que no se amplifique). Aplicamos el descuento de edificios tipo
-	# Academia Militar y delegamos en `ModifierManager.clamp_cost_multiplier`
-	# para que comparta el clamp con el resto de descuentos del juego
-	# (construccion, futuros). MIN_COST_MULTIPLIER vive en ModifierManager.
-	#
-	# El recargo escalado por frente (siguiente bucle) NO se ve afectado:
-	# es un coste plano cuyo escalado se rompe si lo descontaramos.
-	var maint_multiplier := ModifierManager.clamp_cost_multiplier(
-			1.0 + modifier_manager.get_troop_maintenance_percent() / 100.0)
-	var base_troop_gold := int(stats.get_troop_maintenance_gold() * maint_multiplier)
-	var base_troop_food := int(stats.get_troop_maintenance_food() * maint_multiplier)
-	final_gold -= base_troop_gold
-	final_food -= base_troop_food
-
-	# Mantenimiento extra por tropas asignadas a frentes (escalado progresivo).
-	# Lo acumulamos aparte para el calculo de penalizacion economica de
-	# `_update_combat_multiplier` — la penalizacion mira el deficit relativo
-	# al mantenimiento total (base + recargo de frentes).
-	var front_surcharge_gold := 0
-	var front_surcharge_food := 0
-	for front in battle_front_manager.active_fronts:
-		var side: StringName
-		if front.attacker_empire == stats.empire:
-			side = &"attacker"
-		else:
-			side = &"defender"
-		var maint := front.get_front_maintenance(side)
-		front_surcharge_gold += maint["gold"]
-		front_surcharge_food += maint["food"]
-	final_gold -= front_surcharge_gold
-	final_food -= front_surcharge_food
-
-	stats.gold_per_turn = final_gold
-	stats.food = final_food
+	stats.gold_per_turn = result["gold"]
+	stats.food = result["food"]
 	stats.total_gold += stats.gold_per_turn
 
 	# Penalizacion de combate por economia en deficit (Opcion 3).
 	# Tras fijar gpt/food del turno, derivamos el combat_multiplier del
 	# imperio segun cuanto del mantenimiento total no estamos cubriendo.
-	var total_troop_maint := base_troop_gold + base_troop_food \
-			+ front_surcharge_gold + front_surcharge_food
-	_update_combat_multiplier(total_troop_maint)
+	_update_combat_multiplier(result["total_troop_maint"])
 
 ## Actualiza `stats.empire.combat_multiplier` segun el deficit economico.
 ##
@@ -230,7 +188,7 @@ func _on_tile_conquered(tile:Tile):
 	tile.building_demolished.connect(_on_building_demolished)
 
 func _on_tile_lost(tile:Tile):
-	stats.gold_per_turn += tile.natural_resource.gold_produced
+	stats.gold_per_turn -= tile.natural_resource.gold_produced
 	stats.food -= tile.natural_resource.food_produced
 	tile.building_completed.disconnect(_on_building_completed)
 	tile.building_demolished.disconnect(_on_building_demolished)

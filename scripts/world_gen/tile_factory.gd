@@ -45,7 +45,7 @@ func create_map(map_data : MappingData) -> Array[Tile]:
 		new_map.append(new_tile)
 		debug_tile(new_tile, pos)
 	
-	print("Tiles placed: " + str(new_map.size()))
+	Logger.info("Tiles placed: " + str(new_map.size()))
 	return new_map
 
 ## Function to select a biome based on weighted probabilities
@@ -109,9 +109,9 @@ func init_tile(tile : Tile, position : PositionData):
 	tile.pos_data = position
 	tile.biome = Tile.biome_type.find_key(tile.mesh_data.type)
 	tile.location = UNCOLONIZED
-	var treshold:float = randf()
+	var threshold:float = randf()
 	tile.natural_resource = settings.natural_resources.filter(func(natural_resource:NaturalResource)->bool: 
-		return natural_resource.biomes[tile.mesh_data.type] <= treshold ).pick_random()
+		return natural_resource.biomes[tile.mesh_data.type] <= threshold ).pick_random()
 	tile.set_parameters()
 	_assign_province_name(tile)
 

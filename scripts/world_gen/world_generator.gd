@@ -35,7 +35,7 @@ func _ready() -> void:
 # Randomize if no seed has been set
 func init_seed():
 	if settings.map_seed == 0 or settings.map_seed == null:
-		print("Randomizing seed")
+		Logger.debug("Randomizing seed")
 		settings.biome_noise.seed = randi() #New map_seed for this generation
 		settings.mountain_noise.seed = randi()
 		settings.ocean_noise.seed = randi()
@@ -79,23 +79,23 @@ func set_neighbors():
 
 ## This mess of a function loops through the timing results of generate_world and prints them
 func print_generation_results(start : float, dict : Dictionary):
-	print("\n")
+	Logger.debug("\n")
 	var last_val = start
 	var total = 0
 	for key in dict:
 		var val = dict[key]
 		if val == start:
-			print(key)
+			Logger.debug(key)
 			continue
 		var passed = val - last_val
-		print(key, str(passed) + "ms")
+		Logger.debug(key + str(passed) + "ms")
 		last_val = val
 		total += passed
 	var s = "ms"
 	if total > 999: 
 		s = "s"
 		total *= 0.001
-	print("Total completion time: ", total, s)
+	Logger.info("Total completion time: " + str(total) + s)
 
 
 

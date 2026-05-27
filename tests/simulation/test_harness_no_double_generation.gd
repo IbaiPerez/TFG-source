@@ -8,7 +8,7 @@ extends GutTest
 ## Resultado: dos mapas distintos creados de forma secuencial,
 ## `EmpireCreator.create_empires()` corriendo dos veces sobre WorldMaps
 ## diferentes. Si el segundo intento caia en un mapa degenerado (radius
-## pequeno + ocean_treshold alto, etc.), uno de los imperios acababa
+## pequeno + ocean_threshold alto, etc.), uno de los imperios acababa
 ## con 0 tiles sin que ningun assert saltara — solo un push_error en
 ## consola.
 ##

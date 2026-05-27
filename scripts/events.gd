@@ -1,5 +1,32 @@
 extends Node
 
+## Bus de eventos global del juego (canonico).
+##
+## NOTA arquitectonica (refactor H1): este archivo concentra historicamente
+## todas las señales del juego (god-object con 40+ señales y ~46 ficheros
+## dependientes). Para reducir el acoplamiento sin romper el codigo
+## existente se han añadido buses tematicos como autoloads paralelos:
+##
+##   - `MapEvents`       (tiles, posicion, map mode)
+##   - `CardEvents`      (cartas: aim, play, return, seleccion)
+##   - `MilitaryEvents`  (frentes de batalla, tropas, cartas militares)
+##   - `TurnEvents`      (turno, eventos de turno/tienda, feedback IA)
+##   - `UIEvents`        (navegacion entre escenas/menus)
+##   - `GameEvents`      (generacion de mundo, modifiers globales)
+##
+## Cada bus tematico se suscribe en su `_ready()` a las señales relevantes
+## de este `Events` y las re-emite. Asi:
+##
+##   - El codigo existente sigue funcionando: `Events.tile_selected.emit(...)`
+##     y `Events.tile_selected.connect(...)` no cambian.
+##   - El codigo nuevo puede usar el bus tematico:
+##     `MapEvents.tile_selected.connect(...)` — recibe los eventos emitidos
+##     desde `Events` igualmente.
+##   - La migracion puede hacerse fichero a fichero sin big-bang.
+##
+## Las constantes `StringName` de cada bus tematico (e.g. MapEvents.TILE_SELECTED)
+## evitan typos en .connect/.emit cuando se opera por nombre.
+
 signal generate_world(settings:GenerationSettings, stats:Stats)
 
 signal navigate_to_empire_selection

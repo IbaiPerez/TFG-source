@@ -21,7 +21,7 @@ class_name GameSimHarness
 ##   - WorldMap, TilesTracker, BattleFront se limpian al inicio y final.
 ##   - Cada run randomiza (dentro de rangos definidos):
 ##       * radius del mapa
-##       * mountain_treshold y ocean_treshold
+##       * mountain_threshold y ocean_threshold
 ##       * imperios del bando A y bando B (distintos entre si)
 ##       * seeds de los noises (map_seed=0 → init_seed los randomiza)
 
@@ -154,8 +154,8 @@ func _randomize_settings() -> void:
 	_settings.map_seed = 0
 
 	_settings.radius = rng_master.randi_range(radius_range.x, radius_range.y)
-	_settings.mountain_treshold = rng_master.randf_range(mountain_range.x, mountain_range.y)
-	_settings.ocean_treshold = rng_master.randf_range(ocean_range.x, ocean_range.y)
+	_settings.mountain_threshold = rng_master.randf_range(mountain_range.x, mountain_range.y)
+	_settings.ocean_threshold = rng_master.randf_range(ocean_range.x, ocean_range.y)
 
 	# Empires aleatorios: cogemos los 3 disponibles del Default.tres,
 	# barajamos, primero al bando A, segundo al bando B.
@@ -176,8 +176,8 @@ func _randomize_settings() -> void:
 
 	run_seed_meta = {
 		"radius": _settings.radius,
-		"mountain_treshold": _settings.mountain_treshold,
-		"ocean_treshold": _settings.ocean_treshold,
+		"mountain_threshold": _settings.mountain_threshold,
+		"ocean_threshold": _settings.ocean_threshold,
 		"empire_a": _settings.player_empire.name,
 		"empire_b": all_empires[1].name,
 	}

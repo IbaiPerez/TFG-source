@@ -18,7 +18,7 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export_group("Hills")
 @export var create_mountains = true
 @export var mountain_tile:TileMeshData
-@export_range(0.0, 1.0) var mountain_treshold = 0.6
+@export_range(0.0, 1.0) var mountain_threshold = 0.6
 @export var mountain_noise : FastNoiseLite
 
 @export_group("Water/Ocean")
@@ -27,7 +27,7 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export var outer_buffer:int = 1
 @export var inner_buffer:int = 4
 @export var ocean_noise:FastNoiseLite
-@export_range(.0,1) var ocean_treshold = .6
+@export_range(.0,1) var ocean_threshold = .6
 
 @export_group("Empires")
 @export var player_empire:Empire

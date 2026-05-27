@@ -45,18 +45,22 @@ const THRESHOLD_DECAY_TURNS: int = 30
 var attacker_troops: Array[Troop] = []
 var defender_troops: Array[Troop] = []
 
-## Bonus temporales de cartas tácticas activas
-## Cada entrada: { "attack": float, "defense": float, "duration": int }
-var attacker_bonuses: Array[Dictionary] = []
-var defender_bonuses: Array[Dictionary] = []
+## Bonus temporales de cartas tácticas activas.
+## Contienen instancias TacticBonus; `add_bonus` convierte Dictionaries legacy.
+## Declarados como Array sin tipo para compatibilidad con código que asigna
+## arrays de Dictionaries directamente (p.ej. el serializador al cargar).
+## Internamente, _as_tactic_bonus() garantiza acceso tipado en cada operación.
+var attacker_bonuses: Array = []
+var defender_bonuses: Array = []
 
 ## Estado
 var is_resolved: bool = false
 
-## Registro global de frentes activos (sin resolver). Permite consultas
-## entre imperios sin acoplar el manager local con managers ajenos.
-## Se autoalimenta en _init y se limpia en _resolve.
-static var _active_instances: Array[BattleFront] = []
+## Bajas calculadas al resolver (snapshot inmutable)
+var _calculated_casualties: Dictionary = {}
+
+## Configuración de multiplicadores de bioma (instanciada una sola vez).
+var biome_config: BiomeConfig = BiomeConfig.new()
 
 
 func _init(p_atk_tile: Tile, p_def_tile: Tile, p_atk_empire: Empire, p_def_empire: Empire) -> void:
@@ -64,27 +68,24 @@ func _init(p_atk_tile: Tile, p_def_tile: Tile, p_atk_empire: Empire, p_def_empir
 	defender_tile = p_def_tile
 	attacker_empire = p_atk_empire
 	defender_empire = p_def_empire
-	_active_instances.append(self)
+	BattleFrontRegistry.register(self)
 
 
 ## Comprueba si una tile está participando ahora mismo en algún frente
 ## activo (atacante o defensora, en cualquier imperio).
 static func is_tile_in_active_front(tile: Tile) -> bool:
-	for front in _active_instances:
-		if front.attacker_tile == tile or front.defender_tile == tile:
-			return true
-	return false
+	return BattleFrontRegistry.is_tile_in_active_front(tile)
 
 
 ## Devuelve una copia de la lista global de frentes activos.
 static func get_active_instances() -> Array[BattleFront]:
-	return _active_instances.duplicate()
+	return BattleFrontRegistry.get_active_instances()
 
 
 ## Vacía el registro global. Pensado para limpiar entre tests o al cerrar
 ## la partida; en juego, los frentes se desregistran solos al resolverse.
 static func clear_active_instances() -> void:
-	_active_instances.clear()
+	BattleFrontRegistry.clear()
 
 
 ## Calcula el ataque total de un bando (tropas + bioma + edificios + bonuses de cartas).
@@ -97,12 +98,11 @@ static func clear_active_instances() -> void:
 ## bioma base — los bonuses tienen su propio modificador capturado al jugar
 ## la carta.
 func get_total_attack(side: StringName) -> float:
-	var total: float = 0.0
 	var own_tile: Tile
 	var enemy_tile: Tile
 	var troops: Array[Troop]
 	var enemy_troops: Array[Troop]
-	var bonuses: Array[Dictionary]
+	var bonuses: Array
 
 	if side == &"attacker":
 		own_tile = attacker_tile
@@ -117,6 +117,8 @@ func get_total_attack(side: StringName) -> float:
 		enemy_troops = attacker_troops
 		bonuses = defender_bonuses
 
+	var total: float = 0.0
+
 	# Bonus de edificios militares (en la tile propia)
 	total += _get_building_attack(own_tile)
 
@@ -127,24 +129,26 @@ func get_total_attack(side: StringName) -> float:
 	# bonuses tacticos NO se ven afectados por la penalizacion economica.
 	var troops_attack := TroopEffectiveness.get_effective_attack(troops, enemy_troops)
 	var combat_mult := _get_side_combat_multiplier(side)
-	total += troops_attack * _get_biome_attack_multiplier(enemy_tile) * combat_mult
+	var biome_atk_mult := _get_biome_attack_multiplier(enemy_tile)
+	total += troops_attack * biome_atk_mult * combat_mult
 
 	# Bonuses de cartas tácticas
 	var flat_bonus: float = 0.0
 	var percent_bonus: float = 0.0
-	for bonus in bonuses:
-		flat_bonus += bonus.get("attack", 0.0)
-		percent_bonus += bonus.get("attack_percent", 0.0)
+	for raw_bonus in bonuses:
+		var bonus := _as_tactic_bonus(raw_bonus)
+		flat_bonus += bonus.attack
+		percent_bonus += bonus.attack_percent
 		# Bonus plano por tipo de tropa: attack_per_troop × tropas afectadas (NO pasa por matriz).
-		if bonus.has("attack_per_troop"):
+		if bonus.attack_per_troop != 0.0:
 			var count := _count_bonus_targets(troops, bonus)
-			flat_bonus += bonus["attack_per_troop"] * count
+			flat_bonus += bonus.attack_per_troop * count
 		# Bonus porcentual por tipo de tropa: % aplicado al ATAQUE EFECTIVO de las
 		# tropas afectadas (sí pasa por la matriz piedra-papel-tijera). El modificador
 		# de bioma capturado al jugar la carta escala el resultado.
-		if bonus.has("attack_percent_per_type"):
-			var pct: float = bonus["attack_percent_per_type"] / 100.0
-			var biome_mod: float = bonus.get("attack_biome_modifier", 1.0)
+		if bonus.attack_percent_per_type != 0.0:
+			var pct: float = bonus.attack_percent_per_type / 100.0
+			var biome_mod: float = bonus.attack_biome_modifier
 			var affected_eff_atk := _sum_effective_attack_of_targeted(troops, enemy_troops, bonus)
 			flat_bonus += affected_eff_atk * pct * biome_mod
 
@@ -162,10 +166,9 @@ func get_total_attack(side: StringName) -> float:
 ## pradera/desierto las debilita). Los edificios y bonuses tácticos no pasan
 ## por este multiplicador — los bonuses tienen su propio modificador de bioma.
 func get_total_defense(side: StringName) -> float:
-	var total: float = 0.0
 	var own_tile: Tile
 	var troops: Array[Troop]
-	var bonuses: Array[Dictionary]
+	var bonuses: Array
 
 	if side == &"attacker":
 		own_tile = attacker_tile
@@ -175,6 +178,8 @@ func get_total_defense(side: StringName) -> float:
 		own_tile = defender_tile
 		troops = defender_troops
 		bonuses = defender_bonuses
+
+	var total: float = 0.0
 
 	# Bonus de edificios militares (en la tile propia)
 	total += _get_building_defense(own_tile)
@@ -187,24 +192,26 @@ func get_total_defense(side: StringName) -> float:
 	for troop in troops:
 		troops_defense += troop.defense
 	var combat_mult := _get_side_combat_multiplier(side)
-	total += troops_defense * _get_biome_defense_multiplier(own_tile) * combat_mult
+	var biome_def_mult := _get_biome_defense_multiplier(own_tile)
+	total += troops_defense * biome_def_mult * combat_mult
 
 	# Bonuses de cartas tácticas
 	var flat_bonus: float = 0.0
 	var percent_bonus: float = 0.0
-	for bonus in bonuses:
-		flat_bonus += bonus.get("defense", 0.0)
-		percent_bonus += bonus.get("defense_percent", 0.0)
+	for raw_bonus in bonuses:
+		var bonus := _as_tactic_bonus(raw_bonus)
+		flat_bonus += bonus.defense
+		percent_bonus += bonus.defense_percent
 		# Bonus plano por tipo de tropa.
-		if bonus.has("defense_per_troop"):
+		if bonus.defense_per_troop != 0.0:
 			var count := _count_bonus_targets(troops, bonus)
-			flat_bonus += bonus["defense_per_troop"] * count
+			flat_bonus += bonus.defense_per_troop * count
 		# Bonus porcentual por tipo de tropa: % aplicado a la DEFENSA BASE de
 		# las tropas afectadas. El modificador de bioma capturado al jugar la
 		# carta escala el resultado.
-		if bonus.has("defense_percent_per_type"):
-			var pct: float = bonus["defense_percent_per_type"] / 100.0
-			var biome_mod: float = bonus.get("defense_biome_modifier", 1.0)
+		if bonus.defense_percent_per_type != 0.0:
+			var pct: float = bonus.defense_percent_per_type / 100.0
+			var biome_mod: float = bonus.defense_biome_modifier
 			var affected_def := _sum_defense_of_targeted(troops, bonus)
 			flat_bonus += affected_def * pct * biome_mod
 
@@ -312,16 +319,23 @@ func assign_troop(troop: Troop, side: StringName) -> void:
 
 
 ## Añade un bonus a un bando (de carta táctica, evento, edificio, etc.).
+## Acepta un TacticBonus o un Dictionary (compatibilidad legacy para tests y
+## código existente). Los Dictionaries se convierten internamente a TacticBonus.
 ## Emite `bonuses_changed` para que UI y visuales puedan refrescar.
-func add_bonus(side: StringName, bonus: Dictionary) -> void:
-	if side == &"attacker":
-		attacker_bonuses.append(bonus)
+func add_bonus(side: StringName, bonus: Variant) -> void:
+	var typed_bonus: TacticBonus
+	if bonus is TacticBonus:
+		typed_bonus = bonus
 	else:
-		defender_bonuses.append(bonus)
+		typed_bonus = TacticBonus.from_dict(bonus as Dictionary)
+	if side == &"attacker":
+		attacker_bonuses.append(typed_bonus)
+	else:
+		defender_bonuses.append(typed_bonus)
 	bonuses_changed.emit(side)
 
 
-## Elimina todas las tácticas activas (bonuses con clave `tactic_name`) de
+## Elimina todas las tácticas activas (bonuses con tactic_name no vacío) de
 ## un bando. NO toca otros bonuses (planos manuales, eventos, edificios).
 ##
 ## Política de diseño: cada frente sólo puede tener UNA táctica activa por
@@ -331,11 +345,12 @@ func add_bonus(side: StringName, bonus: Dictionary) -> void:
 ## Devuelve cuántas tácticas se eliminaron (0 si no había). Sólo emite
 ## `bonuses_changed` si hubo cambios reales.
 func clear_tactics_for_side(side: StringName) -> int:
-	var bonuses: Array[Dictionary] = attacker_bonuses if side == &"attacker" else defender_bonuses
+	var bonuses: Array = attacker_bonuses if side == &"attacker" else defender_bonuses
 	var removed: int = 0
 	var i := bonuses.size() - 1
 	while i >= 0:
-		if bonuses[i].has("tactic_name"):
+		var b := _as_tactic_bonus(bonuses[i])
+		if b.tactic_name != "":
 			bonuses.remove_at(i)
 			removed += 1
 		i -= 1
@@ -344,11 +359,12 @@ func clear_tactics_for_side(side: StringName) -> int:
 	return removed
 
 
-## Indica si el bando tiene alguna táctica activa (bonus con `tactic_name`).
+## Indica si el bando tiene alguna táctica activa (bonus con tactic_name no vacío).
 func has_active_tactic_on_side(side: StringName) -> bool:
-	var bonuses: Array[Dictionary] = attacker_bonuses if side == &"attacker" else defender_bonuses
-	for b in bonuses:
-		if b.has("tactic_name"):
+	var bonuses: Array = attacker_bonuses if side == &"attacker" else defender_bonuses
+	for raw_b in bonuses:
+		var b := _as_tactic_bonus(raw_b)
+		if b.tactic_name != "":
 			return true
 	return false
 
@@ -379,6 +395,12 @@ func get_front_maintenance(side: StringName) -> Dictionary:
 
 
 ## Calcula las bajas proporcionales tras resolución.
+## Devuelve las bajas calculadas al resolver (snapshot inmutable).
+## Solo disponible después de _resolve().
+func get_resolved_casualties() -> Dictionary:
+	return _calculated_casualties
+
+
 ## Retorna { "attacker_losses": int, "defender_losses": int } (indices a eliminar).
 func calculate_casualties() -> Dictionary:
 	if not is_resolved:
@@ -434,76 +456,54 @@ func _resolve() -> void:
 	# marker contra el umbral efectivo del turno. Con threshold decaido, un
 	# marker positivo cualquiera >= umbral hace ganar al atacante.
 	var attacker_won := marker >= get_current_threshold()
-	_active_instances.erase(self)
+	# Calcular bajas una sola vez, antes de emitir la señal
+	_calculated_casualties = calculate_casualties()
+	BattleFrontRegistry.unregister(self)
 	front_resolved.emit(self, attacker_won)
 
 
-func _tick_bonuses(bonuses: Array[Dictionary]) -> void:
+func _tick_bonuses(bonuses: Array) -> void:
 	var i := bonuses.size() - 1
 	while i >= 0:
-		if bonuses[i].has("duration"):
-			bonuses[i]["duration"] -= 1
-			if bonuses[i]["duration"] <= 0:
-				bonuses.remove_at(i)
+		var raw := bonuses[i]
+		if raw is TacticBonus:
+			var b := raw as TacticBonus
+			if b.duration >= 0:
+				b.duration -= 1
+				if b.duration <= 0:
+					bonuses.remove_at(i)
+		elif raw is Dictionary:
+			# Compatibilidad legacy: bonuses asignados directamente como Dictionary.
+			var d := raw as Dictionary
+			if d.has("duration"):
+				d["duration"] = int(d["duration"]) - 1
+				if int(d["duration"]) <= 0:
+					bonuses.remove_at(i)
 		i -= 1
 
 
+## Convierte un bonus (TacticBonus o Dictionary) en TacticBonus tipado.
+## Llamada en cada acceso para mantener compatibilidad con ambos formatos.
+func _as_tactic_bonus(raw: Variant) -> TacticBonus:
+	if raw is TacticBonus:
+		return raw as TacticBonus
+	return TacticBonus.from_dict(raw as Dictionary)
+
+
 ## Multiplicador que aplica al ATK efectivo del bando que ATACA esta tile.
-##
-## Se interpreta como "lo difícil que es asaltar el terreno": un bosque o una
-## montaña frenan al asaltante, una pradera o un desierto facilitan el avance.
-## Coherente con el modificador de bioma que usan las cartas tácticas
-## (atributo "atacar a la tile contraria").
-##
-## Rango ~[0.6, 1.2]. Multiplicadores conservadores; el balance fino se hará
-## jugando partidas reales.
+## Delega en BiomeConfig para evitar duplicación con otras partes del código.
 func _get_biome_attack_multiplier(tile: Tile) -> float:
 	if tile == null or tile.mesh_data == null:
 		return 1.0
-	match tile.mesh_data.type:
-		Tile.biome_type.Grassland:
-			return 1.20
-		Tile.biome_type.Desert:
-			return 1.10
-		Tile.biome_type.Tundra:
-			return 0.95
-		Tile.biome_type.Forest:
-			return 0.80
-		Tile.biome_type.Swamp:
-			return 0.70
-		Tile.biome_type.Mountain:
-			return 0.60
-		Tile.biome_type.Ocean:
-			return 1.00
-		_:
-			return 1.00
+	return biome_config.get_attack_multiplier(tile.mesh_data.type)
 
 
 ## Multiplicador que aplica a la DEF de las tropas del bando que DEFIENDE en
-## esta tile. Bioma "fortaleza natural" → >1.0; bioma abierto → <1.0.
-##
-## Rango ~[0.85, 1.5]. Las montañas son la mejor posición defensiva; los
-## desiertos y praderas, las peores. Tundra queda neutra.
+## esta tile. Delega en BiomeConfig.
 func _get_biome_defense_multiplier(tile: Tile) -> float:
 	if tile == null or tile.mesh_data == null:
 		return 1.0
-	match tile.mesh_data.type:
-		Tile.biome_type.Mountain:
-			return 1.50
-		Tile.biome_type.Forest:
-			return 1.25
-		Tile.biome_type.Swamp:
-			return 1.20
-		Tile.biome_type.Tundra:
-			return 1.00
-		Tile.biome_type.Grassland:
-			return 0.90
-		Tile.biome_type.Desert:
-			return 0.85
-		Tile.biome_type.Ocean:
-			return 1.00
-		_:
-			return 1.00
+	return biome_config.get_defense_multiplier(tile.mesh_data.type)
 
 
 ## Devuelve el `combat_multiplier` del imperio del bando indicado.
@@ -547,47 +547,42 @@ func _count_troops_by_type(troops: Array[Troop], troop_type: int) -> int:
 
 
 ## Devuelve cuántas tropas del bando son afectadas por un bonus dirigido.
-## Acepta tres formas en el diccionario (orden de precedencia):
-##   - "troop_types": Array[int]  → lista de Troop.TroopType (cartas multi-tipo, p. ej. Falange).
-##   - "troop_type":  int         → un único Troop.TroopType.
-##   - "troop_name":  String      → nombre cosmético (legacy).
-## Si el bonus no especifica ninguno, devuelve 0 — los bonuses por unidad
-## requieren un objetivo explícito; un bonus genérico debería usar las claves
-## planas "attack" / "defense" en su lugar.
-func _count_bonus_targets(troops: Array[Troop], bonus: Dictionary) -> int:
-	if bonus.has("troop_types"):
+## Acepta tres formas (orden de precedencia):
+##   - troop_types (array no vacío) → lista de Troop.TroopType.
+##   - troop_type  (>= 0)           → un único Troop.TroopType.
+##   - troop_name  (no vacío)       → nombre cosmético (legacy).
+## Si el bonus no especifica ninguno, devuelve 0.
+func _count_bonus_targets(troops: Array[Troop], bonus: TacticBonus) -> int:
+	if not bonus.troop_types.is_empty():
 		var count := 0
-		var allowed: Array = bonus["troop_types"]
+		var allowed: Array[int] = bonus.troop_types
 		for troop in troops:
 			if troop.type in allowed:
 				count += 1
 		return count
-	if bonus.has("troop_type"):
-		return _count_troops_by_type(troops, int(bonus["troop_type"]))
-	if bonus.has("troop_name"):
-		return _count_troops_by_name(troops, String(bonus["troop_name"]))
+	if bonus.troop_type >= 0:
+		return _count_troops_by_type(troops, bonus.troop_type)
+	if bonus.troop_name != "":
+		return _count_troops_by_name(troops, bonus.troop_name)
 	return 0
 
 
-## Indica si una tropa concreta es objetivo del bonus dado, siguiendo la
-## misma precedencia que `_count_bonus_targets`.
-func _is_troop_targeted_by_bonus(troop: Troop, bonus: Dictionary) -> bool:
-	if bonus.has("troop_types"):
-		var allowed: Array = bonus["troop_types"]
-		return troop.type in allowed
-	if bonus.has("troop_type"):
-		return troop.type == int(bonus["troop_type"])
-	if bonus.has("troop_name"):
-		return troop.name == String(bonus["troop_name"])
+## Indica si una tropa concreta es objetivo del bonus dado.
+func _is_troop_targeted_by_bonus(troop: Troop, bonus: TacticBonus) -> bool:
+	if not bonus.troop_types.is_empty():
+		return troop.type in bonus.troop_types
+	if bonus.troop_type >= 0:
+		return troop.type == bonus.troop_type
+	if bonus.troop_name != "":
+		return troop.name == bonus.troop_name
 	return false
 
 
 ## Suma el ataque efectivo (después de aplicar la matriz de efectividad
 ## contra la composición enemiga) de las tropas del bando que son objetivo
-## del bonus. Útil para aplicar bonuses porcentuales por tipo que sí deben
-## verse afectados por los matchups piedra-papel-tijera.
+## del bonus.
 func _sum_effective_attack_of_targeted(troops: Array[Troop],
-		enemy_troops: Array[Troop], bonus: Dictionary) -> float:
+		enemy_troops: Array[Troop], bonus: TacticBonus) -> float:
 	var total: float = 0.0
 	for troop in troops:
 		if _is_troop_targeted_by_bonus(troop, bonus):
@@ -596,8 +591,7 @@ func _sum_effective_attack_of_targeted(troops: Array[Troop],
 
 
 ## Suma la defensa base de las tropas del bando que son objetivo del bonus.
-## La defensa no pasa por la matriz de efectividad (sólo el ataque la usa).
-func _sum_defense_of_targeted(troops: Array[Troop], bonus: Dictionary) -> float:
+func _sum_defense_of_targeted(troops: Array[Troop], bonus: TacticBonus) -> float:
 	var total: float = 0.0
 	for troop in troops:
 		if _is_troop_targeted_by_bonus(troop, bonus):

@@ -54,9 +54,9 @@ func modify_position(pos : PositionData, buffer_filter):
 	var c = pos.grid_position.x
 	var r = pos.grid_position.y
 	pos.noise = noise_at_tile(c, r, settings.biome_noise)
-	if settings.create_water and (buffer_filter.call(c,r,settings.radius-settings.outer_buffer) or (buffer_filter.call(c,r,settings.radius-settings.inner_buffer) and noise_at_tile(c,r,settings.ocean_noise) > settings.ocean_treshold)):
+	if settings.create_water and (buffer_filter.call(c,r,settings.radius-settings.outer_buffer) or (buffer_filter.call(c,r,settings.radius-settings.inner_buffer) and noise_at_tile(c,r,settings.ocean_noise) > settings.ocean_threshold)):
 		pos.water = true
-	elif settings.create_mountains and (noise_at_tile(c, r, settings.mountain_noise) > settings.mountain_treshold):
+	elif settings.create_mountains and (noise_at_tile(c, r, settings.mountain_noise) > settings.mountain_threshold):
 		pos.mountain = true
 	
 	if !buffer_filter.call(c,r,settings.radius-settings.outer_buffer) and buffer_filter.call(c,r,settings.radius-settings.inner_buffer):

@@ -63,6 +63,7 @@ const INITIAL_STATS = preload("uid://cwfokudqrj6s1")
 
 var settings:GenerationSettings
 var selected_empire:Empire
+var biome_ui_map: Dictionary
 
 
 
@@ -110,8 +111,16 @@ func _ready() -> void:
 	else:
 		settings.player_empire = MONGOL
 
+	biome_ui_map = {
+		"grassland": {"resource": GRASSLAND, "check": grassland_check, "density": grassland_density, "density_value": grassland_density_value},
+		"forest":    {"resource": FOREST,    "check": forest_check,    "density": forest_density,    "density_value": forest_density_value},
+		"desert":    {"resource": DESERT,    "check": desert_check,    "density": desert_density,    "density_value": desert_density_value},
+		"swamp":     {"resource": SWAMP,     "check": swamp_check,     "density": swamp_density,     "density_value": swamp_density_value},
+		"tundra":    {"resource": TUNDRA,    "check": tundra_check,    "density": tundra_density,    "density_value": tundra_density_value},
+	}
+
 	setup_shape_options()
-	
+
 	load_settings_to_ui()
 	
 
@@ -128,49 +137,16 @@ func load_settings_to_ui():
 	shape_option_button.selected = settings.map_shape
 	
 	
-	grassland_check.button_pressed = settings.tiles.find(GRASSLAND) != -1
-	if grassland_check.button_pressed:
-		grassland_density.value = settings.biome_weights.get(settings.tiles.find(GRASSLAND))
-		grassland_density_value.text = "%.2f" % grassland_density.value
-	else:
-		grassland_density.value = 0.5
-		grassland_density_value.text = "%.2f" % 0.5
-	forest_check.button_pressed = settings.tiles.find(FOREST) != -1
-	if forest_check.button_pressed:
-		forest_density.value = settings.biome_weights.get(settings.tiles.find(FOREST))
-		forest_density_value.text = "%.2f" % forest_density.value
-	else:
-		forest_density.value = 0.5
-		forest_density_value.text = "%.2f" % 0.5
-	desert_check.button_pressed = settings.tiles.find(DESERT) != -1
-	if desert_check.button_pressed:
-		desert_density.value = settings.biome_weights.get(settings.tiles.find(DESERT))
-		desert_density_value.text = "%.2f" % desert_density.value
-	else:
-		desert_density.value = 0.5
-		desert_density_value.text = "%.2f" % 0.5
-	swamp_check.button_pressed = settings.tiles.find(SWAMP) != -1
-	if swamp_check.button_pressed:
-		swamp_density.value = settings.biome_weights.get(settings.tiles.find(SWAMP))
-		swamp_density_value.text = "%.2f" % swamp_density.value
-	else:
-		swamp_density.value = 0.5
-		swamp_density_value.text = "%.2f" % 0.5
-	tundra_check.button_pressed = settings.tiles.find(TUNDRA) != -1
-	if tundra_check.button_pressed:
-		tundra_density.value = settings.biome_weights.get(settings.tiles.find(TUNDRA))
-		tundra_density_value.text = "%.2f" % tundra_density.value
-	else:
-		tundra_density.value = 0.5
-		tundra_density_value.text = "%.2f" % 0.5
+	for biome_key in biome_ui_map:
+		_setup_biome_ui(biome_key)
 	
 	mountain_check.button_pressed = settings.create_mountains
-	mountain_density.value = settings.mountain_treshold
-	mountain_density_value.text = "%.2f" % settings.mountain_treshold
+	mountain_density.value = settings.mountain_threshold
+	mountain_density_value.text = "%.2f" % settings.mountain_threshold
 	
 	ocean_check.button_pressed = settings.create_water
-	ocean_density.value = settings.ocean_treshold
-	ocean_density_value.text = "%.2f" % settings.ocean_treshold
+	ocean_density.value = settings.ocean_threshold
+	ocean_density_value.text = "%.2f" % settings.ocean_threshold
 	
 	# Buffers
 	outer_buffer_spin_box.value = settings.outer_buffer
@@ -178,6 +154,36 @@ func load_settings_to_ui():
 	inner_buffer_spin_box.max_value = settings.radius
 	outer_buffer_spin_box.max_value = settings.inner_buffer
 
+
+
+func _setup_biome_ui(biome_key: String) -> void:
+	var d = biome_ui_map[biome_key]
+	var idx: int = settings.tiles.find(d["resource"])
+	var is_selected: bool = idx != -1
+	d["check"].button_pressed = is_selected
+	if is_selected:
+		d["density"].value = settings.biome_weights.get(idx)
+		d["density_value"].text = "%.2f" % d["density"].value
+	else:
+		d["density"].value = 0.5
+		d["density_value"].text = "%.2f" % 0.5
+
+
+func _on_biome_check_toggled(biome_key: String, toggled_on: bool) -> void:
+	var d = biome_ui_map[biome_key]
+	d["density"].editable = toggled_on
+	if toggled_on:
+		settings.tiles.append(d["resource"])
+		_update_biome_weight(settings.tiles.find(d["resource"]), d["density"].value)
+	else:
+		settings.biome_weights.pop_at(settings.tiles.find(d["resource"]))
+		settings.tiles.erase(d["resource"])
+
+
+func _on_biome_density_value_changed(biome_key: String, value: float) -> void:
+	var d = biome_ui_map[biome_key]
+	d["density_value"].text = "%.2f" % value
+	_update_biome_weight(settings.tiles.find(d["resource"]), value)
 
 
 func _update_biome_weight(index: int, value: float):
@@ -213,72 +219,34 @@ func _on_shape_option_button_item_selected(index: int) -> void:
 	settings.map_shape = shape_option_button.get_item_id(index)
 
 func _on_grassland_check_toggled(toggled_on: bool) -> void:
-	grassland_density.editable = toggled_on
-	if toggled_on:
-		settings.tiles.append(GRASSLAND)
-		_update_biome_weight(settings.tiles.find(GRASSLAND), grassland_density.value)
-	else:
-		settings.biome_weights.pop_at(settings.tiles.find(GRASSLAND))
-		settings.tiles.erase(GRASSLAND)
+	_on_biome_check_toggled("grassland", toggled_on)
 
 func _on_grassland_density_value_changed(value: float) -> void:
-	grassland_density_value.text = "%.2f" % value
-	_update_biome_weight(settings.tiles.find(GRASSLAND), value)
+	_on_biome_density_value_changed("grassland", value)
 
 func _on_forest_check_toggled(toggled_on: bool) -> void:
-	forest_density.editable = toggled_on
-	if toggled_on:
-		settings.tiles.append(FOREST)
-		_update_biome_weight(settings.tiles.find(FOREST), forest_density.value)
-	else:
-		settings.biome_weights.pop_at(settings.tiles.find(FOREST))
-		settings.tiles.erase(FOREST)
-
+	_on_biome_check_toggled("forest", toggled_on)
 
 func _on_forest_density_value_changed(value: float) -> void:
-	forest_density_value.text = "%.2f" % value
-	_update_biome_weight(settings.tiles.find(FOREST), value)
+	_on_biome_density_value_changed("forest", value)
 
 func _on_desert_check_toggled(toggled_on: bool) -> void:
-	desert_density.editable = toggled_on
-	if toggled_on:
-		settings.tiles.append(DESERT)
-		_update_biome_weight(settings.tiles.find(DESERT), desert_density.value)
-	else:
-		settings.biome_weights.pop_at(settings.tiles.find(DESERT))
-		settings.tiles.erase(DESERT)
+	_on_biome_check_toggled("desert", toggled_on)
 
 func _on_desert_density_value_changed(value: float) -> void:
-	desert_density_value.text = "%.2f" % value
-	_update_biome_weight(settings.tiles.find(DESERT), value)
-
+	_on_biome_density_value_changed("desert", value)
 
 func _on_swamp_check_toggled(toggled_on: bool) -> void:
-	swamp_density.editable = toggled_on
-	if toggled_on:
-		settings.tiles.append(SWAMP)
-		_update_biome_weight(settings.tiles.find(SWAMP), swamp_density.value)
-	else:
-		settings.biome_weights.pop_at(settings.tiles.find(SWAMP))
-		settings.tiles.erase(SWAMP)
-
+	_on_biome_check_toggled("swamp", toggled_on)
 
 func _on_swamp_density_value_changed(value: float) -> void:
-	swamp_density_value.text = "%.2f" % value
-	_update_biome_weight(settings.tiles.find(SWAMP), value)
+	_on_biome_density_value_changed("swamp", value)
 
 func _on_tundra_check_toggled(toggled_on: bool) -> void:
-	tundra_density.editable = toggled_on
-	if toggled_on:
-		settings.tiles.append(TUNDRA)
-		_update_biome_weight(settings.tiles.find(TUNDRA), tundra_density.value)
-	else:
-		settings.biome_weights.pop_at(settings.tiles.find(TUNDRA))
-		settings.tiles.erase(TUNDRA)
+	_on_biome_check_toggled("tundra", toggled_on)
 
 func _on_tundra_density_value_changed(value: float) -> void:
-	tundra_density_value.text = "%.2f" % value
-	_update_biome_weight(settings.tiles.find(TUNDRA), value)
+	_on_biome_density_value_changed("tundra", value)
 
 func _on_ocean_check_toggled(toggled_on: bool) -> void:
 	settings.create_water = toggled_on
@@ -286,7 +254,7 @@ func _on_ocean_check_toggled(toggled_on: bool) -> void:
 
 func _on_ocean_density_value_changed(value: float) -> void:
 	ocean_density_value.text = "%.2f" % value
-	settings.ocean_treshold = 0.7 - value * 0.2
+	settings.ocean_threshold = 0.7 - value * 0.2
 
 func _on_mountain_check_toggled(toggled_on: bool) -> void:
 	settings.create_mountains = toggled_on
@@ -294,7 +262,7 @@ func _on_mountain_check_toggled(toggled_on: bool) -> void:
 
 func _on_mountain_density_value_changed(value: float) -> void:
 	mountain_density_value.text = "%.2f" % value
-	settings.mountain_treshold = 0.7 - value * 0.2
+	settings.mountain_threshold = 0.7 - value * 0.2
 
 func _on_outer_buffer_spin_box_value_changed(value: float) -> void:
 	settings.outer_buffer = int(value)
@@ -312,15 +280,15 @@ func _on_generation_button_pressed() -> void:
 	# Solo 1 imperio IA: elegir uno aleatorio y descartar el resto
 	var ai_empire:Empire = settings.empires.pick_random()
 	settings.empires = [ai_empire]
-	print("=== GENERANDO MAPA ===")
-	print("Seed: ", settings.map_seed)
-	print("Noise: ", settings.biome_noise.noise_type)
-	print("Radio: ", settings.radius)
-	print("Forma: ", settings.map_shape)
-	print("Biomas activos: ", settings.biome_weights)
-	print("Montañas: ", settings.create_mountains, " - Umbral: ", settings.mountain_treshold)
-	print("Océano: ", settings.create_water, " - Umbral: ", settings.ocean_treshold)
-	print("Buffers: Ext:", settings.outer_buffer, " Int:", settings.inner_buffer)
+	Logger.info("=== GENERANDO MAPA ===")
+	Logger.info("Seed: " + str(settings.map_seed))
+	Logger.info("Noise: " + str(settings.biome_noise.noise_type))
+	Logger.info("Radio: " + str(settings.radius))
+	Logger.info("Forma: " + str(settings.map_shape))
+	Logger.info("Biomas activos: " + str(settings.biome_weights))
+	Logger.info("Montañas: " + str(settings.create_mountains) + " - Umbral: " + str(settings.mountain_threshold))
+	Logger.info("Océano: " + str(settings.create_water) + " - Umbral: " + str(settings.ocean_threshold))
+	Logger.info("Buffers: Ext:" + str(settings.outer_buffer) + " Int:" + str(settings.inner_buffer))
 	# Prepare stats with the selected empire
 	var stats_template:Stats = INITIAL_STATS.duplicate()
 	stats_template.empire = settings.player_empire

@@ -92,9 +92,9 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 		var tile:Tile = WorldMap.map_as_dict.get(pos)
 		if tile == null:
 			continue
-		var controller_name:String = entry.get("controller", "")
-		if controller_name != "" and empires_by_name.has(controller_name):
-			var emp:Empire = empires_by_name[controller_name]
+		var controller_path:String = entry.get("controller_path", "")
+		if controller_path != "" and empires_by_name.has(controller_path):
+			var emp:Empire = empires_by_name[controller_path]
 			emp.add_tile(tile)
 
 	# 4) Reaplicar buildings (sin descontar coste; efectos se aplican luego).
@@ -110,8 +110,8 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 	var player_stats:Stats = null
 
 	for empire_entry in empires_data:
-		var emp_name:String = empire_entry.get("name", "")
-		var empire:Empire = empires_by_name.get(emp_name)
+		var emp_path:String = empire_entry.get("empire_path", "")
+		var empire:Empire = empires_by_name.get(emp_path)
 		if empire == null:
 			continue
 		var stats_data:Dictionary = empire_entry.get("stats", {})
@@ -252,10 +252,10 @@ static func _serialize_hand(hand:Hand) -> Array:
 
 
 static func _serialize_controller_order(turn_manager:TurnManager) -> Array:
-	var names:Array = []
+	var paths:Array = []
 	for ctrl in turn_manager.controllers:
-		names.append(ctrl.stats.empire.name if ctrl.stats and ctrl.stats.empire else "")
-	return names
+		paths.append(ctrl.stats.empire.resource_path if ctrl.stats and ctrl.stats.empire else "")
+	return paths
 
 
 static func _serialize_battle_fronts(_turn_manager:TurnManager) -> Array:
@@ -269,7 +269,7 @@ static func _serialize_battle_fronts(_turn_manager:TurnManager) -> Array:
 
 
 static func _instantiate_empires(empires_data:Array) -> Dictionary:
-	var by_name:Dictionary = {}
+	var by_path:Dictionary = {}
 	for entry in empires_data:
 		var path:String = entry.get("empire_path", "")
 		if path == "" or not ResourceLoader.exists(path):
@@ -278,8 +278,8 @@ static func _instantiate_empires(empires_data:Array) -> Dictionary:
 		if template == null:
 			continue
 		var fresh:Empire = template.create_instance()
-		by_name[fresh.name] = fresh
-	return by_name
+		by_path[path] = fresh
+	return by_path
 
 
 static func _setup_turn_manager(map_node:Node3D) -> TurnManager:

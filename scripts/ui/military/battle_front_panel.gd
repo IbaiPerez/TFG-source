@@ -163,33 +163,24 @@ func _update_side_stats(side: StringName, label: RichTextLabel) -> void:
 ## Cada línea muestra el nombre, los tipos afectados y los bonus efectivos
 ## (% y/o plano), incluyendo ya el modificador de bioma capturado.
 func _render_active_tactics(side: StringName) -> Array[String]:
-	var bonuses: Array[Dictionary] = battle_front.attacker_bonuses if side == &"attacker" else battle_front.defender_bonuses
+	var bonuses: Array = battle_front.attacker_bonuses if side == &"attacker" else battle_front.defender_bonuses
 	var lines: Array[String] = []
 	for bonus in bonuses:
-		if not bonus.has("tactic_name"):
+		if bonus.tactic_name == "":
 			continue  # No es una táctica con nombre — la ignoramos en este listado.
-		var tactic_name: String = String(bonus["tactic_name"])
-		if tactic_name == "":
-			continue
 		var parts: Array[String] = []
 		# Bonus efectivos (porcentaje × modificador de bioma capturado).
-		var atk_pct: float = float(bonus.get("attack_percent_per_type", 0.0))
-		var atk_mod: float = float(bonus.get("attack_biome_modifier", 1.0))
-		if atk_pct != 0.0:
-			parts.append("[color=#cc3333]+%.0f%% ATK (×%.2f)[/color]" % [atk_pct * atk_mod, atk_mod])
-		var def_pct: float = float(bonus.get("defense_percent_per_type", 0.0))
-		var def_mod: float = float(bonus.get("defense_biome_modifier", 1.0))
-		if def_pct != 0.0:
-			parts.append("[color=#3366cc]+%.0f%% DEF (×%.2f)[/color]" % [def_pct * def_mod, def_mod])
+		if bonus.attack_percent_per_type != 0.0:
+			parts.append("[color=#cc3333]+%.0f%% ATK (×%.2f)[/color]" % [bonus.attack_percent_per_type * bonus.attack_biome_modifier, bonus.attack_biome_modifier])
+		if bonus.defense_percent_per_type != 0.0:
+			parts.append("[color=#3366cc]+%.0f%% DEF (×%.2f)[/color]" % [bonus.defense_percent_per_type * bonus.defense_biome_modifier, bonus.defense_biome_modifier])
 		# Bonus planos (raros) — también escalados.
-		var atk_flat: float = float(bonus.get("attack_per_troop", 0.0))
-		if atk_flat != 0.0:
-			parts.append("[color=#cc3333]+%.1f ATK/tropa[/color]" % (atk_flat * atk_mod))
-		var def_flat: float = float(bonus.get("defense_per_troop", 0.0))
-		if def_flat != 0.0:
-			parts.append("[color=#3366cc]+%.1f DEF/tropa[/color]" % (def_flat * def_mod))
+		if bonus.attack_per_troop != 0.0:
+			parts.append("[color=#cc3333]+%.1f ATK/tropa[/color]" % (bonus.attack_per_troop * bonus.attack_biome_modifier))
+		if bonus.defense_per_troop != 0.0:
+			parts.append("[color=#3366cc]+%.1f DEF/tropa[/color]" % (bonus.defense_per_troop * bonus.defense_biome_modifier))
 		var detail: String = " · ".join(parts) if not parts.is_empty() else "(sin efecto)"
-		lines.append("• %s — %s" % [tactic_name, detail])
+		lines.append("• %s — %s" % [bonus.tactic_name, detail])
 	return lines
 
 

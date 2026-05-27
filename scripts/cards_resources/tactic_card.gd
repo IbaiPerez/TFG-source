@@ -144,16 +144,15 @@ func apply_effects(targets: Array[Node], stats: Stats) -> void:
 
 	# Bonus dinámico: el frente lo evalúa cada tick contra las tropas que
 	# haya en ese momento, así que tropas asignadas más tarde se benefician.
-	var bonus := {
-		"tactic_name": tactic_name,
-		"troop_types": affected_troop_types.duplicate(),
-		"attack_percent_per_type": attack_percent_per_type,
-		"defense_percent_per_type": defense_percent_per_type,
-		"attack_per_troop": attack_per_troop,
-		"defense_per_troop": defense_per_troop,
-		"attack_biome_modifier": atk_biome_mod,
-		"defense_biome_modifier": def_biome_mod,
-	}
+	var bonus := TacticBonus.new()
+	bonus.tactic_name              = tactic_name
+	bonus.troop_types              = affected_troop_types.duplicate()
+	bonus.attack_percent_per_type  = attack_percent_per_type
+	bonus.defense_percent_per_type = defense_percent_per_type
+	bonus.attack_per_troop         = attack_per_troop
+	bonus.defense_per_troop        = defense_per_troop
+	bonus.attack_biome_modifier    = atk_biome_mod
+	bonus.defense_biome_modifier   = def_biome_mod
 	front.add_bonus(side, bonus)
 
 	# Notificar al bus global para que la UI refresque al instante. Las cartas

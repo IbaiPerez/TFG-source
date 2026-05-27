@@ -26,7 +26,7 @@ static func to_dict(tile:Tile) -> Dictionary:
 		"natural_resource": _path_of(tile.natural_resource),
 		"biome": tile.biome,
 		"location": _path_of(tile.location),
-		"controller": tile.controller.name if tile.controller else "",
+		"controller_path": tile.controller.resource_path if tile.controller else "",
 		"buffer": tile.pos_data.buffer if tile.pos_data else false,
 		"water": tile.pos_data.water if tile.pos_data else false,
 		"mountain": tile.pos_data.mountain if tile.pos_data else false,

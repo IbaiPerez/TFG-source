@@ -120,7 +120,8 @@ func assign_troop_to_front(front: BattleFront, troop: Troop, side: StringName) -
 
 
 ## Aplica un bonus de carta táctica a un frente.
-func apply_bonus_to_front(front: BattleFront, side: StringName, bonus: Dictionary) -> void:
+## Acepta un TacticBonus o un Dictionary (compatibilidad legacy).
+func apply_bonus_to_front(front: BattleFront, side: StringName, bonus: Variant) -> void:
 	if front.is_resolved:
 		return
 	front.add_bonus(side, bonus)
@@ -161,8 +162,8 @@ func get_fronts_as(side: StringName) -> Array[BattleFront]:
 ## --- Callbacks ---
 
 func _on_front_resolved(front: BattleFront, attacker_won: bool) -> void:
-	# Calcular bajas
-	var casualties := front.calculate_casualties()
+	# Usar las bajas calculadas al resolver (snapshot inmutable)
+	var casualties := front.get_resolved_casualties()
 
 	# Aplicar conquista
 	if attacker_won:
@@ -204,7 +205,7 @@ func _on_global_front_resolved(front: BattleFront, _attacker_won: bool) -> void:
 	if front.defender_empire != stats.empire:
 		return  # Ni atacante ni defensor: frente ajeno
 
-	var casualties := front.calculate_casualties()
+	var casualties := front.get_resolved_casualties()
 	_return_surviving_troops(front, casualties)
 
 

@@ -20,8 +20,8 @@ func _make_settings(p_radius: int = 4, p_shape: GenerationSettings.shape = Gener
 	s.biome_noise = FastNoiseLite.new()
 	s.ocean_noise = FastNoiseLite.new()
 	s.mountain_noise = FastNoiseLite.new()
-	s.mountain_treshold = 0.6
-	s.ocean_treshold = 0.6
+	s.mountain_threshold = 0.6
+	s.ocean_threshold = 0.6
 	s.tiles = []
 	s.biome_weights = []
 	s.natural_resources = []

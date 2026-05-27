@@ -66,7 +66,7 @@ func highlight_tile(tile):
 	move_cursor(tile_cursor, tile.global_position)
 	tile_cursor.visible = true
 	animate_cursor(tile_cursor)
-	print(tile.biome)
+	Logger.debug(str(tile.biome))
 
 
 ## move cursor with optional height difference

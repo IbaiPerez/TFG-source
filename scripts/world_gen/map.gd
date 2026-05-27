@@ -99,7 +99,7 @@ func _create_ai_controllers() -> void:
 		turn_manager.register_controller(ai)
 		ai_controllers.append(ai)
 
-		print("[Map] IA registrada: %s" % empire.name)
+		Logger.info("[Map] IA registrada: %s" % empire.name)
 
 
 ## --- Flujo de carga desde save -----------------------------------------

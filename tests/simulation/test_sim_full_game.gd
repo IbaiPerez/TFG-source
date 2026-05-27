@@ -5,8 +5,8 @@ extends GutTest
 ## Configuracion:
 ##  - 5 runs independientes.
 ##  - 100 turnos por run.
-##  - Cada run usa WorldGenerator real con radius / mountain_treshold /
-##    ocean_treshold / empires del jugador y rival randomizados.
+##  - Cada run usa WorldGenerator real con radius / mountain_threshold /
+##    ocean_threshold / empires del jugador y rival randomizados.
 ##  - Ambos imperios son AIController (sin jugador humano). El "rol" de
 ##    primer turno es de AI_A.
 ##  - Deck inicial real (sin inyeccion de cartas militares).
@@ -107,8 +107,8 @@ func _print_summary(multi) -> void:
 			r["seed_meta"].get("empire_a", "?"),
 			r["seed_meta"].get("empire_b", "?"),
 			r["seed_meta"].get("radius", 0),
-			r["seed_meta"].get("mountain_treshold", 0.0),
-			r["seed_meta"].get("ocean_treshold", 0.0),
+			r["seed_meta"].get("mountain_threshold", 0.0),
+			r["seed_meta"].get("ocean_threshold", 0.0),
 		])
 
 	# Para cada AI, comparar metricas en turnos clave (inicio, mitad, fin).

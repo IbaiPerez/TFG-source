@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="BiomeConfig" load_steps=2 format=3 uid="uid://biome_config_default"]
+
+[ext_resource type="Script" path="res://scripts/config/biome_config.gd" id="1_biome_cfg"]
+
+[resource]
+script = ExtResource("1_biome_cfg")
