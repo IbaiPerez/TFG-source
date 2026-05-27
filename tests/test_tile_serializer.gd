@@ -95,7 +95,7 @@ func test_to_dict_records_buildings_by_path():
 func test_to_dict_no_controller_serializes_empty_string():
 	var tile := _make_minimal_tile()
 	var d := TileSerializer.to_dict(tile)
-	assert_eq(d["controller"], "")
+	assert_eq(d["controller_path"], "")
 
 
 # --- province_name -------------------------------------------------------

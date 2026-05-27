@@ -585,7 +585,7 @@ func test_clear_tactics_removes_only_entries_with_tactic_name() -> void:
 	assert_eq(removed, 2, "Debe eliminar las 2 tácticas, no el bonus plano")
 	assert_eq(front.attacker_bonuses.size(), 1,
 		"Sólo debe quedar el bonus plano sin tactic_name")
-	assert_eq(front.attacker_bonuses[0].get("attack", 0.0), 5.0)
+	assert_eq(front.attacker_bonuses[0].get_value("attack", 0.0), 5.0)
 
 
 func test_clear_tactics_does_not_touch_opposite_side() -> void:

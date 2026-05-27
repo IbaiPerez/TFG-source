@@ -323,6 +323,9 @@ func test_defender_pool_receives_survivors_via_global_bus() -> void:
 	front.is_resolved = true
 	front.marker = front.threshold  # dominance = 1.0 exacto
 
+	# Calcular las bayas (normalamente done en _resolve())
+	front._calculated_casualties = front.calculate_casualties()
+
 	# Disparo del bus global, replicando lo que hace el callback directo
 	# del atacante al final de su _on_front_resolved.
 	Events.battle_front_resolved.emit(front, true)
