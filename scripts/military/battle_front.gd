@@ -465,7 +465,7 @@ func _resolve() -> void:
 func _tick_bonuses(bonuses: Array) -> void:
 	var i := bonuses.size() - 1
 	while i >= 0:
-		var raw := bonuses[i]
+		var raw: Variant = bonuses[i]
 		if raw is TacticBonus:
 			var b := raw as TacticBonus
 			if b.duration >= 0:
