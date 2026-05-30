@@ -29,6 +29,7 @@ WorldMap="*res://scripts/world_gen/world.gd"
 SceneManager="*res://scripts/scene_manager.gd"
 GameSaveManager="*res://scripts/save/game_save_manager.gd"
 BattleFrontRegistry="*res://scripts/military/battle_front_registry.gd"
+UIState="*res://scripts/ui_state.gd"
 
 [display]
 

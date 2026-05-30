@@ -29,6 +29,7 @@ func _create_tile(biome: Tile.biome_type, ctrl: Empire) -> Tile:
 
 
 func before_each() -> void:
+	BattleFront.clear_active_instances()
 	empire = Empire.new()
 	empire.name = "Player"
 	enemy_empire = Empire.new()
@@ -39,6 +40,10 @@ func before_each() -> void:
 	stats.food = 50
 	stats.troop_pool = []
 	stats.empire = empire
+
+
+func after_each() -> void:
+	BattleFront.clear_active_instances()
 
 
 # --- Tests RecruitCard ---
@@ -281,3 +286,95 @@ func test_enemy_adjacent_condition_ignores_uncontrolled() -> void:
 
 	own_tile.free()
 	empty_tile.free()
+
+
+func test_enemy_adjacent_condition_excludes_own_tile_in_active_front() -> void:
+	# Si la tile propia ya está en un frente activo, NO puede ser origen de
+	# otro ataque. valid_targets() debe devolver 0 candidatos.
+	var own_tile := _create_tile(Tile.biome_type.Grassland, empire)
+	var enemy_tile := _create_tile(Tile.biome_type.Grassland, enemy_empire)
+	var enemy_tile2 := _create_tile(Tile.biome_type.Grassland, enemy_empire)
+	own_tile.neighbors = [enemy_tile, enemy_tile2]
+	enemy_tile.neighbors = [own_tile]
+	enemy_tile2.neighbors = [own_tile]
+	empire.controlled_tiles = [own_tile]
+
+	var manager := BattleFrontManager.new()
+	manager.stats = stats
+	add_child(manager)
+	manager.open_front(own_tile, enemy_tile)  # own_tile ya comprometida
+
+	var condition := EnemyAdjacentCondition.new()
+	condition.empire = empire
+
+	# Con own_tile ya en frente, ningún vecino enemigo es atacable desde ella
+	var targets := condition.valid_targets()
+	assert_eq(targets.size(), 0,
+		"Una tile propia ya en un frente no puede originar otro ataque")
+
+	own_tile.free()
+	enemy_tile.free()
+	enemy_tile2.free()
+	manager.queue_free()
+
+
+func test_enemy_adjacent_condition_excludes_tile_in_front_as_defender() -> void:
+	# Regresión: antes usaba battle_front_manager.get_front_for_tile() que
+	# solo buscaba en los frentes del ATACANTE. Ahora usa el registro global
+	# BattleFront.is_tile_in_active_front() que detecta también frentes donde
+	# la tile es DEFENSORA de otro imperio.
+	var own_tile := _create_tile(Tile.biome_type.Grassland, empire)
+	var enemy_tile := _create_tile(Tile.biome_type.Grassland, enemy_empire)
+	var third_empire := Empire.new()
+	third_empire.name = "Third"
+	var third_tile := _create_tile(Tile.biome_type.Grassland, third_empire)
+	own_tile.neighbors = [enemy_tile]
+	enemy_tile.neighbors = [own_tile, third_tile]
+	third_tile.neighbors = [enemy_tile]
+	empire.controlled_tiles = [own_tile]
+
+	# Un tercer imperio abre un frente donde enemy_tile es DEFENSORA.
+	var third_stats := Stats.new()
+	third_stats.empire = third_empire
+	third_stats.troop_pool = []
+	var third_manager := BattleFrontManager.new()
+	third_manager.stats = third_stats
+	add_child(third_manager)
+	third_manager.open_front(third_tile, enemy_tile)
+
+	var condition := EnemyAdjacentCondition.new()
+	condition.empire = empire
+
+	# enemy_tile está en el registro como defensora → no debe ser target
+	assert_false(condition.is_valid_target(enemy_tile),
+		"Tile defensora en frente de otro imperio no debe ser target")
+
+	own_tile.free()
+	enemy_tile.free()
+	third_tile.free()
+	third_manager.queue_free()
+
+
+func test_open_front_card_apply_effects_null_bfm() -> void:
+	# Si battle_front_manager no se inyectó (es null), apply_effects no debe
+	# crashear ni abrir ningún frente.
+	var own_tile := _create_tile(Tile.biome_type.Grassland, empire)
+	var enemy_tile := _create_tile(Tile.biome_type.Grassland, enemy_empire)
+	own_tile.neighbors = [enemy_tile]
+	enemy_tile.neighbors = [own_tile]
+
+	var card := OpenFrontCard.new()
+	card.target = Card.Target.TILE
+	card.battle_front_manager = null   # inyección ausente (bug previo del jugador)
+	card.target_enemy_tile = enemy_tile
+	card.source_own_tile = own_tile
+
+	# No debe crashear
+	card.apply_effects([enemy_tile], stats)
+
+	# No se ha abierto ningún frente (el guard de null retorna sin hacer nada)
+	assert_eq(BattleFront.get_active_instances().size(), 0,
+		"Sin battle_front_manager no debe abrirse ningún frente")
+
+	own_tile.free()
+	enemy_tile.free()

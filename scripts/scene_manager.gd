@@ -173,6 +173,15 @@ func _on_recruit_card_confirm_started(card: RecruitCard, stats: Stats) -> void:
 
 
 func _on_open_front_card_confirm_started(card: OpenFrontCard, _target_tile: Tile, own_tiles: Array[Tile], _stats: Stats) -> void:
+	# OpenFrontCard es un Resource y no puede acceder al árbol de escenas por sí
+	# mismo. Inyectamos battle_front_manager desde el PlayerHandler para que
+	# apply_effects() pueda llamar a open_front() cuando la carta se juegue.
+	# Sin esta inyección apply_effects() retorna en el null-check y nunca se
+	# crea el frente ni su visual.
+	var player_handler: PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+	if player_handler != null:
+		card.battle_front_manager = player_handler.battle_front_manager
+
 	var panel := OpenFrontPanel.new()
 	card.menu = panel
 	panel.setup(card, own_tiles)
@@ -184,6 +193,10 @@ func _on_battle_front_selected(front: BattleFront) -> void:
 	var player_handler: PlayerHandler = get_tree().get_first_node_in_group("player_handler")
 	if player_handler == null:
 		return
+
+	var existing := ui_layer.get_node_or_null("BattleFrontPanel")
+	if existing != null:
+		existing.queue_free()
 
 	var panel: BattleFrontPanel = BATTLE_FRONT_PANEL.instantiate()
 	panel.setup(front, player_handler.stats.empire)

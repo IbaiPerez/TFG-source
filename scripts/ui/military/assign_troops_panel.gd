@@ -37,6 +37,8 @@ func _ready() -> void:
 		queue_free()
 		return
 
+	if UIState:
+		UIState.register_menu()
 	custom_minimum_size = Vector2(450, 300)
 	anchors_preset = PRESET_CENTER
 	_build_ui()
@@ -183,3 +185,8 @@ func _on_troop_slot_pressed(troop: Troop) -> void:
 func _on_close_pressed() -> void:
 	panel_closed.emit()
 	queue_free()
+
+
+func _exit_tree() -> void:
+	if UIState:
+		UIState.unregister_menu()

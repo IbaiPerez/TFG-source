@@ -14,6 +14,8 @@ var troops_grid: GridContainer
 
 
 func _ready() -> void:
+	if UIState:
+		UIState.register_menu()
 	# Tamaño y estilo visual (consistente con BuildingPanel)
 	custom_minimum_size = Vector2(460, 380)
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -105,3 +107,8 @@ func _populate_grid() -> void:
 
 func _on_troop_selected(troop: Troop) -> void:
 	card_confirmed.emit(troop)
+
+
+func _exit_tree() -> void:
+	if UIState:
+		UIState.unregister_menu()

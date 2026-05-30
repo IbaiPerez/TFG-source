@@ -26,6 +26,11 @@ var stats:Stats
 var _current_mode:Mode = Mode.BUY
 
 
+func _ready() -> void:
+	if UIState:
+		UIState.register_menu()
+
+
 func setup(p_shop_config:ShopConfig, p_stats:Stats, event_title:String,
 		event_description:String) -> void:
 	if not is_node_ready():
@@ -220,3 +225,8 @@ func _input(event:InputEvent) -> void:
 			card_tooltip_popup.hide_tooltip()
 		else:
 			_on_close_pressed()
+
+
+func _exit_tree() -> void:
+	if UIState:
+		UIState.unregister_menu()

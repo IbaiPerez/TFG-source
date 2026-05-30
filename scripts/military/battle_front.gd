@@ -516,15 +516,18 @@ func _get_side_combat_multiplier(side: StringName) -> float:
 	return empire.combat_multiplier
 
 
-## Placeholder: bonus de ataque por edificios militares.
+## Suma el flat_defense_bonus de todos los edificios militares de la tile.
+func _get_building_defense(tile: Tile) -> float:
+	if tile == null:
+		return 0.0
+	var total: float = 0.0
+	for building in tile.buildings:
+		total += float(building.flat_defense_bonus)
+	return total
+
+
+## Reservado para futuros edificios con bonus de ataque.
 func _get_building_attack(_tile: Tile) -> float:
-	# TODO: recorrer buildings y sumar bonus de ataque de edificios militares
-	return 0.0
-
-
-## Placeholder: bonus de defensa por edificios militares.
-func _get_building_defense(_tile: Tile) -> float:
-	# TODO: recorrer buildings y sumar bonus de defensa de edificios militares
 	return 0.0
 
 

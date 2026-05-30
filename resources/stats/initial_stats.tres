@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Stats" load_steps=16 format=3 uid="uid://cwfokudqrj6s1"]
+[gd_resource type="Resource" script_class="Stats" load_steps=17 format=3 uid="uid://cwfokudqrj6s1"]
 
 [ext_resource type="Resource" uid="uid://b4mhfidkmt6ag" path="res://resources/empires/mongol.tres" id="1_1iik2"]
 [ext_resource type="Script" uid="uid://cyevp7dau37e6" path="res://scripts/turn_events/turn_event.gd" id="1_724wx"]
@@ -15,6 +15,7 @@
 [ext_resource type="Resource" uid="uid://bww68w6ccgty4" path="res://resources/buildings/basic/quarry.tres" id="11_qry"]
 [ext_resource type="Resource" uid="uid://bwycs1wi7yoqk" path="res://resources/buildings/basic/salt_mine.tres" id="12_salt"]
 [ext_resource type="Resource" uid="uid://beh4anbgf3362" path="res://resources/buildings/basic/sand_pit.tres" id="13_sand"]
+[ext_resource type="Resource" path="res://resources/buildings/fortaleza.tres" id="14_fort"]
 
 [resource]
 script = ExtResource("1_c8cpc")
@@ -22,7 +23,7 @@ initial_gold = 100
 initial_gold_per_turn = 10
 starting_deck = ExtResource("2_dcygl")
 cards_per_turn = 2
-possible_buildings = Array[ExtResource("3_bldg")]([ExtResource("4_crops"), ExtResource("5_fish"), ExtResource("6_gold"), ExtResource("7_hunt"), ExtResource("8_iron"), ExtResource("9_live"), ExtResource("10_log"), ExtResource("11_qry"), ExtResource("12_salt"), ExtResource("13_sand")])
+possible_buildings = Array[ExtResource("3_bldg")]([ExtResource("4_crops"), ExtResource("5_fish"), ExtResource("6_gold"), ExtResource("7_hunt"), ExtResource("8_iron"), ExtResource("9_live"), ExtResource("10_log"), ExtResource("11_qry"), ExtResource("12_salt"), ExtResource("13_sand"), ExtResource("14_fort")])
 empire = ExtResource("1_1iik2")
 event_chance = 0.9
 metadata/_custom_type_script = "uid://cwtwyeoabj3wv"

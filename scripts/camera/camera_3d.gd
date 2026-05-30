@@ -45,6 +45,11 @@ func move_camera(delta):
 func _input(event: InputEvent) -> void:
 	# Check for mouse wheel scrolling
 	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			# Bloquear scroll si hay menús abiertos
+			if UIState and UIState.is_any_menu_open():
+				return
+
 		change_fov(event.button_index)
 		adjust_height()
 		adjust_rotation()

@@ -14,6 +14,7 @@ const WAREHOUSE = preload("res://resources/buildings/warehouse.tres")
 const PORT = preload("res://resources/buildings/port.tres")
 const GREMIO_MERCADERES = preload("res://resources/buildings/gremio_mercaderes.tres")
 const HUERTOS_URBANOS = preload("res://resources/buildings/huertos_urbanos.tres")
+const ANFITEATRO = preload("res://resources/buildings/anfiteatro.tres")
 
 
 func _init():
@@ -36,5 +37,6 @@ func _init():
 		UnlockBuildingEffect.new(PORT),
 		UnlockBuildingEffect.new(GREMIO_MERCADERES),
 		UnlockBuildingEffect.new(HUERTOS_URBANOS),
+		UnlockBuildingEffect.new(ANFITEATRO),
 	]
 	choices = [choice]

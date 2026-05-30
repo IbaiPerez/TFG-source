@@ -23,8 +23,10 @@ func before_each() -> void:
 
 	atk_emp = Empire.new()
 	atk_emp.name = "Mongol"
+	atk_emp.resource_path = "res://test/mongol.tres"
 	def_emp = Empire.new()
 	def_emp.name = "Babylonian"
+	def_emp.resource_path = "res://test/babylonian.tres"
 
 	troop_a = Troop.new()
 	troop_a.name = "Soldier A"
@@ -63,8 +65,8 @@ func test_to_dict_captures_positions_and_empires():
 	var d := BattleFrontSerializer.to_dict(front)
 	assert_eq(d["attacker_pos"], [1, 0])
 	assert_eq(d["defender_pos"], [2, 0])
-	assert_eq(d["attacker_empire"], "Mongol")
-	assert_eq(d["defender_empire"], "Babylonian")
+	assert_eq(d["attacker_empire"], "res://test/mongol.tres")
+	assert_eq(d["defender_empire"], "res://test/babylonian.tres")
 	assert_eq(d["marker"], 7.5)
 	assert_eq(d["turns_elapsed"], 4)
 
@@ -102,10 +104,10 @@ func test_from_dict_returns_null_when_tiles_not_in_world():
 	var data := {
 		"attacker_pos": [99, 99],
 		"defender_pos": [100, 100],
-		"attacker_empire": "Mongol",
-		"defender_empire": "Babylonian",
+		"attacker_empire": "res://test/mongol.tres",
+		"defender_empire": "res://test/babylonian.tres",
 	}
-	var restored := BattleFrontSerializer.from_dict(data, { "Mongol": atk_emp, "Babylonian": def_emp })
+	var restored := BattleFrontSerializer.from_dict(data, { "res://test/mongol.tres": atk_emp, "res://test/babylonian.tres": def_emp })
 	assert_null(restored)
 
 
@@ -117,8 +119,8 @@ func test_from_dict_rebuilds_with_world_and_empires():
 	var data := {
 		"attacker_pos": [1, 0],
 		"defender_pos": [2, 0],
-		"attacker_empire": "Mongol",
-		"defender_empire": "Babylonian",
+		"attacker_empire": "res://test/mongol.tres",
+		"defender_empire": "res://test/babylonian.tres",
 		"marker": 4.0,
 		"turns_elapsed": 2,
 		"min_duration": 3,
@@ -128,7 +130,7 @@ func test_from_dict_rebuilds_with_world_and_empires():
 		"attacker_bonuses": [],
 		"defender_bonuses": [],
 	}
-	var empires_by_name := { "Mongol": atk_emp, "Babylonian": def_emp }
+	var empires_by_name := { "res://test/mongol.tres": atk_emp, "res://test/babylonian.tres": def_emp }
 	var front := BattleFrontSerializer.from_dict(data, empires_by_name)
 	assert_not_null(front)
 	assert_eq(front.attacker_empire.name, "Mongol")

@@ -24,7 +24,12 @@ func _ready() -> void:
 ## mundo. De lo contrario el raycast atravesaba la UI, golpeaba la tile
 ## detrás del panel y disparaba `tile_selected`, reconstruyendo el
 ## TilePanel y matando el botón que se acababa de pulsar.
+##
+## Además, bloqueamos clics cuando hay menús abiertos (mediante UIState)
+## para evitar seleccionar tiles mientras se confirma una carta o evento.
 func _unhandled_input(event: InputEvent) -> void:
+	if UIState and UIState.is_any_menu_open():
+		return
 	if event is InputEventMouseButton:
 		var mouse_pos = get_viewport().get_mouse_position()
 		var origin = main_camera.project_ray_origin(mouse_pos)
@@ -39,14 +44,28 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func raycast_at_mouse(origin, end) -> Node3D:
-		var query = PhysicsRayQueryParameters3D.create(origin, end)
-		var collision = get_world_3d().direct_space_state.intersect_ray(query)
-		if collision and collision.has("collider"):
-			var hit = collision.collider.get_parent().get_parent()
-			return hit
-		else:
-			deselect()
-			return null
+		var space := get_world_3d().direct_space_state
+
+		# 1er raycast: solo cuerpos físicos (tiles). Comportamiento original sin cambios.
+		var body_query := PhysicsRayQueryParameters3D.create(origin, end)
+		var body_hit := space.intersect_ray(body_query)
+		if body_hit and body_hit.has("collider"):
+			return body_hit.collider.get_parent().get_parent() as Node3D
+
+		# 2do raycast: solo áreas de layer 3 (BattleFrontVisual, mask = bit 2 = 4).
+		# Separado para que las áreas de targeting de cartas (layers 1-2) no interfieran.
+		var area_query := PhysicsRayQueryParameters3D.create(origin, end)
+		area_query.collision_mask = 4
+		area_query.collide_with_areas = true
+		area_query.collide_with_bodies = false
+		var area_hit := space.intersect_ray(area_query)
+		if area_hit and area_hit.has("collider"):
+			var parent := area_hit.collider.get_parent() as Node3D
+			if parent and parent.is_in_group("battle_front_visuals"):
+				return parent
+
+		deselect()
+		return null
 
 
 func deselect():
@@ -60,6 +79,10 @@ func attempt_select(hit):
 	if hit.is_in_group("tiles"):
 		highlight_tile(hit)
 		Events.tile_selected.emit(hit)
+	elif hit.is_in_group("battle_front_visuals"):
+		var visual := hit as BattleFrontVisual
+		if visual and visual.battle_front:
+			Events.battle_front_selected.emit(visual.battle_front)
 
 func highlight_tile(tile):
 	selected_tile = tile

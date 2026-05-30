@@ -25,6 +25,12 @@ var _building_to_demolish:Building = null
 
 var tile:Tile:set = setup
 
+
+func _ready() -> void:
+	# tile_panel no bloquea la cámara, así que no se registra
+	pass
+
+
 func setup(value:Tile) -> void:
 	tile = value
 	province_name_label.text = tile.province_name
@@ -126,3 +132,8 @@ func _perform_demolish() -> void:
 	_building_to_demolish = null
 	# Refrescar la UI tras la demolición (recalcula labels y libera el slot)
 	setup(tile)
+
+
+func _exit_tree() -> void:
+	# tile_panel no se registra, así que no necesita unregistrarse
+	pass

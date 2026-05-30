@@ -19,6 +19,11 @@ var _pending_tile_choice:TurnEventChoice = null
 var _pending_card_choice:TurnEventChoice = null
 
 
+func _ready() -> void:
+	if UIState:
+		UIState.register_menu()
+
+
 func setup(p_event:TurnEvent, p_context:EventContext,
 		p_manager:TurnEventManager) -> void:
 	if not is_node_ready():
@@ -198,3 +203,8 @@ func _on_card_selection_cancelled() -> void:
 
 	_pending_card_choice = null
 	visible = true
+
+
+func _exit_tree() -> void:
+	if UIState:
+		UIState.unregister_menu()

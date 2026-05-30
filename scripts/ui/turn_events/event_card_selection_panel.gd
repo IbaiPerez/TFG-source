@@ -23,6 +23,7 @@ func _ready() -> void:
 	card_tooltip_popup.hide_tooltip()
 
 	Events.request_card_selection.connect(_on_request)
+	visibility_changed.connect(_on_visibility_changed)
 
 
 func _input(event: InputEvent) -> void:
@@ -54,3 +55,12 @@ func _on_card_selected(card:Card) -> void:
 func _on_cancel() -> void:
 	hide()
 	Events.card_selection_cancelled.emit()
+
+
+func _on_visibility_changed() -> void:
+	if not UIState:
+		return
+	if visible:
+		UIState.register_menu()
+	else:
+		UIState.unregister_menu()

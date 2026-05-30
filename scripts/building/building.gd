@@ -12,6 +12,11 @@ class_name Building
 @export var food_produced:int
 @export var effects:Array[BuildingEffect]
 @export var upgrades_to: Array[Building] = []
+## Bonus plano de defensa que este edificio aporta al frente de batalla
+## cuando está construido en la tile defensora. Solo relevante para
+## edificios militares (Fortaleza, etc.). El BattleFront lee esta
+## propiedad en _get_building_defense.
+@export var flat_defense_bonus: int = 0
 
 
 func can_be_upgraded(stats:Stats) -> bool:

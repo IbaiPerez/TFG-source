@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#F2E8D4" stroke="#8B7340" stroke-width="3"/>
+
+  <!-- Amphitheater outer oval -->
+  <ellipse cx="64" cy="74" rx="46" ry="26" fill="none" stroke="#A08040" stroke-width="3"/>
+
+  <!-- Tier 1 (outermost) -->
+  <ellipse cx="64" cy="74" rx="46" ry="26" fill="#D4B870" opacity="0.3"/>
+
+  <!-- Tier 2 -->
+  <ellipse cx="64" cy="74" rx="36" ry="19" fill="#C4A858" opacity="0.4" stroke="#9A7830" stroke-width="1.5"/>
+
+  <!-- Tier 3 -->
+  <ellipse cx="64" cy="74" rx="26" ry="13" fill="#B49848" opacity="0.5" stroke="#8A6820" stroke-width="1.5"/>
+
+  <!-- Stage / orchestra pit (center ellipse) -->
+  <ellipse cx="64" cy="74" rx="16" ry="7" fill="#8B6020" stroke="#5C3A10" stroke-width="1.5"/>
+
+  <!-- Outer arched entrances (decorative) -->
+  <path d="M18,72 Q18,60 24,60 Q30,60 30,72" fill="none" stroke="#8B7340" stroke-width="2"/>
+  <path d="M98,72 Q98,60 104,60 Q110,60 110,72" fill="none" stroke="#8B7340" stroke-width="2"/>
+
+  <!-- Stage curtain marks -->
+  <line x1="52" y1="74" x2="54" y2="68" stroke="#5C3A10" stroke-width="1.5"/>
+  <line x1="64" y1="67" x2="64" y2="72" stroke="#5C3A10" stroke-width="1.5"/>
+  <line x1="76" y1="74" x2="74" y2="68" stroke="#5C3A10" stroke-width="1.5"/>
+
+  <!-- Columns top section (decorative) -->
+  <rect x="36" y="40" width="5" height="20" fill="#D4C090" stroke="#9A7830" stroke-width="1"/>
+  <rect x="36" y="37" width="7" height="5" rx="1" fill="#BCA060" stroke="#9A7830" stroke-width="1"/>
+
+  <rect x="58" y="32" width="5" height="26" fill="#D4C090" stroke="#9A7830" stroke-width="1"/>
+  <rect x="58" y="29" width="7" height="5" rx="1" fill="#BCA060" stroke="#9A7830" stroke-width="1"/>
+
+  <rect x="87" y="40" width="5" height="20" fill="#D4C090" stroke="#9A7830" stroke-width="1"/>
+  <rect x="87" y="37" width="7" height="5" rx="1" fill="#BCA060" stroke="#9A7830" stroke-width="1"/>
+
+  <!-- Drama masks (comedy/tragedy) -->
+  <circle cx="47" cy="52" r="5" fill="#F0D080" stroke="#8B6020" stroke-width="1"/>
+  <path d="M44,54 Q47,57 50,54" fill="none" stroke="#8B6020" stroke-width="1"/>
+
+  <circle cx="81" cy="52" r="5" fill="#C08860" stroke="#5C3010" stroke-width="1"/>
+  <path d="M78,55 Q81,52 84,55" fill="none" stroke="#5C3010" stroke-width="1"/>
+
+  <!-- Ground line -->
+  <line x1="16" y1="100" x2="112" y2="100" stroke="#8B7340" stroke-width="2"/>
+</svg>

@@ -20,8 +20,8 @@ static func to_dict(front:BattleFront) -> Dictionary:
 	return {
 		"attacker_pos": _grid_pos_of(front.attacker_tile),
 		"defender_pos": _grid_pos_of(front.defender_tile),
-		"attacker_empire": front.attacker_empire.name if front.attacker_empire else "",
-		"defender_empire": front.defender_empire.name if front.defender_empire else "",
+		"attacker_empire": front.attacker_empire.resource_path if front.attacker_empire else "",
+		"defender_empire": front.defender_empire.resource_path if front.defender_empire else "",
 		"marker": front.marker,
 		"turns_elapsed": front.turns_elapsed,
 		"min_duration": front.min_duration,

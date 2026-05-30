@@ -43,6 +43,9 @@ func _ready() -> void:
 		queue_free()
 		return
 
+	if UIState:
+		UIState.register_menu()
+
 	attacker_color = battle_front.attacker_empire.color if battle_front.attacker_empire else Color.RED
 	defender_color = battle_front.defender_empire.color if battle_front.defender_empire else Color.BLUE
 
@@ -74,7 +77,8 @@ func _update_display() -> void:
 
 	# Marcador y turnos
 	var marker_sign := "+" if battle_front.marker >= 0 else ""
-	marker_label.text = "Marcador: %s%.1f / %.1f" % [marker_sign, battle_front.marker, battle_front.threshold]
+	var effective_threshold := battle_front.get_current_threshold()
+	marker_label.text = "Marcador: %s%.1f / %.1f" % [marker_sign, battle_front.marker, effective_threshold]
 
 	var turns_remaining := maxi(battle_front.min_duration - battle_front.turns_elapsed, 0)
 	turns_label.text = "Turno %d (mín. %d restantes)" % [battle_front.turns_elapsed, turns_remaining]
@@ -102,8 +106,9 @@ func _update_tug_bar() -> void:
 	# marker = -threshold → t=0 (extremo defensor)
 	# marker = +threshold → t=1 (extremo atacante)
 	var t: float = 0.5
-	if battle_front.threshold > 0.0:
-		t = clampf((battle_front.marker / battle_front.threshold + 1.0) / 2.0, 0.0, 1.0)
+	var effective_threshold_bar := battle_front.get_current_threshold()
+	if effective_threshold_bar > 0.0:
+		t = clampf((battle_front.marker / effective_threshold_bar + 1.0) / 2.0, 0.0, 1.0)
 
 	# Colorear la barra interpolando entre los colores de los imperios
 	tug_bar.color = defender_color.lerp(attacker_color, t).darkened(0.2)
@@ -282,6 +287,8 @@ func _on_close_pressed() -> void:
 
 
 func _exit_tree() -> void:
+	if UIState:
+		UIState.unregister_menu()
 	if Events.battle_front_marker_changed.is_connected(_on_marker_changed):
 		Events.battle_front_marker_changed.disconnect(_on_marker_changed)
 	if Events.troop_assigned_to_front.is_connected(_on_troop_assigned):

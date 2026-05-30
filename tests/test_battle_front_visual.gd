@@ -54,10 +54,11 @@ func test_visual_positions_at_midpoint() -> void:
 	var visual := BattleFrontVisual.new(front)
 	add_child(visual)
 
-	# Debe estar en el punto medio entre las dos tiles
-	var expected_mid := Vector3(1, 0.1, 0)
-	assert_almost_eq(visual.global_position.x, expected_mid.x, 0.01, "X debe ser punto medio")
-	assert_almost_eq(visual.global_position.z, expected_mid.z, 0.01, "Z debe ser punto medio")
+	# X y Z deben ser el punto medio exacto entre las dos tiles
+	assert_almost_eq(visual.global_position.x, 1.0, 0.01, "X debe ser punto medio")
+	assert_almost_eq(visual.global_position.z, 0.0, 0.01, "Z debe ser punto medio")
+	# Y debe estar elevado sobre el suelo (fallback: tile.global_y + 0.30 + FRONT_Y_MARGIN)
+	assert_gt(visual.global_position.y, 0.0, "Y debe estar elevado sobre el suelo")
 
 	tile_a.free()
 	tile_b.free()
@@ -95,10 +96,14 @@ func test_visual_set_highlight() -> void:
 	add_child(visual)
 
 	visual.set_highlight(true)
-	assert_not_null(visual.bar_mesh.material_overlay, "Highlight activo debe tener material_overlay")
+	assert_true(visual.front_line_material.emission_enabled,
+		"Highlight activo debe activar emisión en front_line_material")
+	assert_almost_eq(visual.front_line_material.emission.r, 1.0, 0.01,
+		"Highlight activo: componente roja del color de emisión debe ser 1 (amarillo)")
 
 	visual.set_highlight(false)
-	assert_null(visual.bar_mesh.material_overlay, "Highlight inactivo debe quitar material_overlay")
+	assert_false(visual.front_line_material.emission_enabled,
+		"Highlight inactivo debe desactivar la emisión")
 
 	tile_a.free()
 	tile_b.free()
@@ -115,15 +120,37 @@ func test_visual_updates_color_on_marker_change() -> void:
 	var visual := BattleFrontVisual.new(front)
 	add_child(visual)
 
-	var initial_color: Color = visual.bar_material.albedo_color
+	var initial_color: Color = visual.front_line_material.albedo_color
 
 	# Mover marcador a favor del atacante
 	front.marker = front.threshold * 0.8
 	front.marker_changed.emit(front, front.marker)
 
-	var new_color: Color = visual.bar_material.albedo_color
-	# El color debe haber cambiado hacia el color del atacante
+	var new_color: Color = visual.front_line_material.albedo_color
+	# El color debe haber cambiado hacia el color del atacante (rojo)
 	assert_ne(initial_color, new_color, "El color debe cambiar con el marcador")
+
+	tile_a.free()
+	tile_b.free()
+	visual.queue_free()
+
+
+func test_visual_y_uses_fallback_when_tiles_have_no_mesh() -> void:
+	# Tiles sin MeshInstance3D usan el fallback: global_position.y + 0.30.
+	# El visual debe quedar a max(fallback_a, fallback_b) + FRONT_Y_MARGIN.
+	var tile_a := _create_tile(Tile.biome_type.Grassland, empire_a, Vector3(0, 0, 0))
+	var tile_b := _create_tile(Tile.biome_type.Grassland, empire_b, Vector3(2, 0, 0))
+	add_child(tile_a)
+	add_child(tile_b)
+
+	var front := BattleFront.new(tile_a, tile_b, empire_a, empire_b)
+	var visual := BattleFrontVisual.new(front)
+	add_child(visual)
+
+	# fallback = 0.30, margin = 0.06 → esperamos ≈ 0.36
+	var expected_y := 0.30 + BattleFrontVisual.FRONT_Y_MARGIN
+	assert_almost_eq(visual.global_position.y, expected_y, 0.01,
+		"Sin MeshInstance3D el visual debe usar el fallback y=0.30 + FRONT_Y_MARGIN")
 
 	tile_a.free()
 	tile_b.free()

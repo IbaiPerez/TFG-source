@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <circle cx="64" cy="64" r="60" fill="#D6EAF5" stroke="#2E6E9E" stroke-width="3"/>
+
+  <!-- Water -->
+  <ellipse cx="64" cy="96" rx="52" ry="14" fill="#4A9CC8" opacity="0.5"/>
+  <path d="M12,92 Q30,88 48,92 Q66,96 84,92 Q102,88 116,92" fill="none" stroke="#2E6E9E" stroke-width="1.5" opacity="0.7"/>
+
+  <!-- Dock / pier -->
+  <rect x="30" y="80" width="68" height="8" fill="#8B6914" stroke="#5C4A10" stroke-width="1.5"/>
+  <rect x="36" y="72" width="6" height="10" fill="#7A5C0A"/>
+  <rect x="52" y="72" width="6" height="10" fill="#7A5C0A"/>
+  <rect x="68" y="72" width="6" height="10" fill="#7A5C0A"/>
+  <rect x="84" y="72" width="6" height="10" fill="#7A5C0A"/>
+
+  <!-- Main warehouse building -->
+  <rect x="34" y="46" width="60" height="28" fill="#C8A060" stroke="#8B6914" stroke-width="1.5"/>
+  <rect x="34" y="40" width="60" height="8" fill="#B89050" stroke="#8B6914" stroke-width="1.5"/>
+  <!-- Warehouse windows -->
+  <rect x="40" y="52" width="10" height="8" rx="1" fill="#3A5C7A"/>
+  <rect x="58" y="52" width="10" height="8" rx="1" fill="#3A5C7A"/>
+  <rect x="76" y="52" width="10" height="8" rx="1" fill="#3A5C7A"/>
+  <!-- Warehouse door -->
+  <rect x="56" y="62" width="16" height="12" rx="1" fill="#4A3010"/>
+
+  <!-- Crane (left) -->
+  <line x1="36" y1="40" x2="36" y2="20" stroke="#5C5C5C" stroke-width="3" stroke-linecap="round"/>
+  <line x1="36" y1="20" x2="56" y2="20" stroke="#5C5C5C" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="56" y1="20" x2="56" y2="34" stroke="#7A7A7A" stroke-width="1.5" stroke-dasharray="2,2"/>
+  <!-- Crane hook -->
+  <path d="M54,34 Q56,38 58,34" fill="none" stroke="#7A7A7A" stroke-width="1.5"/>
+
+  <!-- Crane (right) -->
+  <line x1="92" y1="40" x2="92" y2="24" stroke="#5C5C5C" stroke-width="3" stroke-linecap="round"/>
+  <line x1="92" y1="24" x2="74" y2="24" stroke="#5C5C5C" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="74" y1="24" x2="74" y2="36" stroke="#7A7A7A" stroke-width="1.5" stroke-dasharray="2,2"/>
+  <path d="M72,36 Q74,40 76,36" fill="none" stroke="#7A7A7A" stroke-width="1.5"/>
+
+  <!-- Ship mast in water -->
+  <line x1="50" y1="88" x2="50" y2="68" stroke="#5C3A10" stroke-width="2"/>
+  <polygon points="50,68 50,78 64,73" fill="#E8D080" stroke="#8B6914" stroke-width="1"/>
+
+  <!-- Trade flag on mast -->
+  <rect x="50" y="64" width="10" height="6" fill="#C8382A"/>
+
+  <!-- Seagulls -->
+  <path d="M20,30 Q23,27 26,30" fill="none" stroke="#2E6E9E" stroke-width="1.5"/>
+  <path d="M100,26 Q103,23 106,26" fill="none" stroke="#2E6E9E" stroke-width="1.5"/>
+</svg>

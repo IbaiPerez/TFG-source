@@ -17,6 +17,11 @@ signal card_confirmed(building:Building)
 signal building_to_upgrade_selected(building:Building)
 
 
+func _ready() -> void:
+	if UIState:
+		UIState.register_menu()
+
+
 func set_buildings(value:Array[Building]) -> void:
 	if not is_node_ready():
 		await ready
@@ -97,3 +102,8 @@ func _on_building_to_upgrade_selected(building:Building) -> void:
 	building_to_upgrade_selected.emit(building)
 	action = possible_action.UPGRADE
 	buildings = tile.get_valid_upgrades(building)
+
+
+func _exit_tree() -> void:
+	if UIState:
+		UIState.unregister_menu()

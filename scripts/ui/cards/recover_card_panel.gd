@@ -18,6 +18,8 @@ signal card_confirmed(card:Card)
 
 
 func _ready() -> void:
+	if UIState:
+		UIState.register_menu()
 	back_button.pressed.connect(_on_cancel)
 	title.text = "Select a card to recover"
 
@@ -54,3 +56,8 @@ func _on_card_selected(card:Card) -> void:
 
 func _on_cancel() -> void:
 	card_confirmed.emit(null)
+
+
+func _exit_tree() -> void:
+	if UIState:
+		UIState.unregister_menu()
