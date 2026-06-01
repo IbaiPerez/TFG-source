@@ -41,6 +41,9 @@ var preview_label: Label
 # VARIABLES DE ESTADO
 # ============================================================================
 
+var selected_empire: Resource = null
+var settings: GenerationSettings = null
+
 var current_seed: int = 0
 var map_width: int = 100
 var map_height: int = 100
@@ -56,6 +59,7 @@ var num_spawn_points: int = 4
 var border_buffer_size: int = 5
 
 var is_generating: bool = false
+var biome_ui_map: Dictionary = {}
 
 # ============================================================================
 # CICLO DE VIDA
