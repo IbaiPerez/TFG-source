@@ -1,40 +1,40 @@
 extends Control
 class_name GenerationUI
 
-@onready var seed_spin_box: SpinBox = %SeedSpinBox
-@onready var random_seed_button: Button = %RandomSeedButton
-@onready var radius_value: Label = %RadiusValue
-@onready var radius_slider: HSlider = %RadiusSlider
-@onready var shape_option_button: OptionButton = %ShapeOptionButton
+var seed_spin_box: SpinBox
+var random_seed_button: Button
+var radius_value: Label
+var radius_slider: HSlider
+var shape_option_button: OptionButton
 
-@onready var grassland_check: CheckBox = %GrasslandCheck
-@onready var grassland_density: HSlider = %GrasslandDensity
-@onready var grassland_density_value: Label = %GrasslandDensityValue
-@onready var forest_check: CheckBox = %ForestCheck
-@onready var forest_density: HSlider = %ForestDensity
-@onready var forest_density_value: Label = %ForestDensityValue
-@onready var desert_check: CheckBox = %DesertCheck
-@onready var desert_density: HSlider = %DesertDensity
-@onready var desert_density_value: Label = %DesertDensityValue
-@onready var swamp_check: CheckBox = %SwampCheck
-@onready var swamp_density: HSlider = %SwampDensity
-@onready var swamp_density_value: Label = %SwampDensityValue
-@onready var tundra_check: CheckBox = %TundraCheck
-@onready var tundra_density: HSlider = %TundraDensity
-@onready var tundra_density_value: Label = %TundraDensityValue
+var grassland_check: CheckBox
+var grassland_density: HSlider
+var grassland_density_value: Label
+var forest_check: CheckBox
+var forest_density: HSlider
+var forest_density_value: Label
+var desert_check: CheckBox
+var desert_density: HSlider
+var desert_density_value: Label
+var swamp_check: CheckBox
+var swamp_density: HSlider
+var swamp_density_value: Label
+var tundra_check: CheckBox
+var tundra_density: HSlider
+var tundra_density_value: Label
 
-@onready var ocean_check: CheckBox = %OceanCheck
-@onready var ocean_density: HSlider = %OceanDensity
-@onready var ocean_density_value: Label = %OceanDensityValue
+var ocean_check: CheckBox
+var ocean_density: HSlider
+var ocean_density_value: Label
 
-@onready var mountain_check: CheckBox = %MountainCheck
-@onready var mountain_density: HSlider = %MountainDensity
-@onready var mountain_density_value: Label = %MountainDensityValue
+var mountain_check: CheckBox
+var mountain_density: HSlider
+var mountain_density_value: Label
 
-@onready var outer_buffer_spin_box: SpinBox = %OuterBufferSpinBox
-@onready var inner_buffer_spin_box: SpinBox = %InnerBufferSpinBox
+var outer_buffer_spin_box: SpinBox
+var inner_buffer_spin_box: SpinBox
 
-@onready var generate_button: Button = %GenerationButton
+var generate_button: Button
 
 const DESERT = preload("uid://fdtmsxpg31sc")
 const FOREST = preload("uid://d37byfwefsudv")
@@ -68,28 +68,31 @@ var biome_ui_map: Dictionary
 
 
 func _ready() -> void:
+	_setup_theme()
+	_initialize_references()
+
 	settings = GenerationSettings.new()
 	settings.tiles = []
 	var biome_noise = FastNoiseLite.new()
 	biome_noise.noise_type = 5
 	biome_noise.frequency = 0.1555
 	settings.biome_noise = biome_noise
-	
+
 	settings.ocean_tile = OCEAN
 	var ocean_noise = FastNoiseLite.new()
 	ocean_noise.noise_type = 3
 	ocean_noise.frequency = 0.11111
 	settings.ocean_noise = ocean_noise
-	
+
 	settings.mountain_tile = MOUNTAIN
 	var mountain_noise = FastNoiseLite.new()
 	mountain_noise.noise_type = 1
 	mountain_noise.frequency = 0.121212
 	settings.mountain_noise = mountain_noise
-	
+
 	settings.tiles = [GRASSLAND,DESERT,FOREST, SWAMP, TUNDRA]
 	settings.biome_weights = [0.5, 0.3, 0.2, 0.4, 0.1]
-	
+
 
 	settings.natural_resources = []
 	settings.natural_resources.append(FISH)
@@ -102,7 +105,7 @@ func _ready() -> void:
 	settings.natural_resources.append(WHEAT)
 	settings.natural_resources.append(WILD_GAME)
 	settings.natural_resources.append(WOOD)
-	
+
 	settings.empires.append(MONGOL)
 	settings.empires.append(MEDICI)
 	settings.empires.append(BABYLONIAN)
@@ -123,6 +126,113 @@ func _ready() -> void:
 
 	load_settings_to_ui()
 	
+
+func _initialize_references() -> void:
+	seed_spin_box = %SeedSpinBox
+	random_seed_button = %RandomSeedButton
+	radius_value = %RadiusValue
+	radius_slider = %RadiusSlider
+	shape_option_button = %ShapeOptionButton
+
+	grassland_check = %GrasslandCheck
+	grassland_density = %GrasslandDensity
+	grassland_density_value = %GrasslandDensityValue
+	forest_check = %ForestCheck
+	forest_density = %ForestDensity
+	forest_density_value = %ForestDensityValue
+	desert_check = %DesertCheck
+	desert_density = %DesertDensity
+	desert_density_value = %DesertDensityValue
+	swamp_check = %SwampCheck
+	swamp_density = %SwampDensity
+	swamp_density_value = %SwampDensityValue
+	tundra_check = %TundraCheck
+	tundra_density = %TundraDensity
+	tundra_density_value = %TundraDensityValue
+
+	ocean_check = %OceanCheck
+	ocean_density = %OceanDensity
+	ocean_density_value = %OceanDensityValue
+
+	mountain_check = %MountainCheck
+	mountain_density = %MountainDensity
+	mountain_density_value = %MountainDensityValue
+
+	outer_buffer_spin_box = %OuterBufferSpinBox
+	inner_buffer_spin_box = %InnerBufferSpinBox
+
+	generate_button = %GenerationButton
+
+
+func _setup_theme() -> void:
+	var theme = Theme.new()
+
+	var panel_bg = Color(0.15, 0.15, 0.2, 0.9)
+	var panel_border = Color(0.3, 0.4, 0.5, 0.8)
+	var accent_color = Color(0.4, 0.6, 0.9, 1.0)
+	var text_color = Color(0.85, 0.9, 0.95, 1.0)
+
+	var panel_stylebox = StyleBoxFlat.new()
+	panel_stylebox.bg_color = panel_bg
+	panel_stylebox.border_color = panel_border
+	panel_stylebox.border_width_left = 1
+	panel_stylebox.border_width_top = 1
+	panel_stylebox.border_width_right = 1
+	panel_stylebox.border_width_bottom = 1
+	panel_stylebox.corner_radius_top_left = 4
+	panel_stylebox.corner_radius_top_right = 4
+	panel_stylebox.corner_radius_bottom_right = 4
+	panel_stylebox.corner_radius_bottom_left = 4
+	panel_stylebox.content_margin_left = 12
+	panel_stylebox.content_margin_top = 12
+	panel_stylebox.content_margin_right = 12
+	panel_stylebox.content_margin_bottom = 12
+
+	theme.set_stylebox("panel", "PanelContainer", panel_stylebox)
+	theme.set_color("font_color", "Label", text_color)
+	theme.set_color("font_color", "Button", text_color)
+	theme.set_color("font_focus_color", "Button", accent_color)
+	theme.set_font_size("font_size", "Label", 14)
+	theme.set_font_size("font_size", "Button", 14)
+
+	var button_bg = StyleBoxFlat.new()
+	button_bg.bg_color = accent_color
+	button_bg.corner_radius_top_left = 4
+	button_bg.corner_radius_top_right = 4
+	button_bg.corner_radius_bottom_right = 4
+	button_bg.corner_radius_bottom_left = 4
+	button_bg.content_margin_left = 8
+	button_bg.content_margin_top = 8
+	button_bg.content_margin_right = 8
+	button_bg.content_margin_bottom = 8
+	theme.set_stylebox("normal", "Button", button_bg)
+
+	var button_hover = StyleBoxFlat.new()
+	button_hover.bg_color = Color(0.5, 0.7, 1.0, 1.0)
+	button_hover.corner_radius_top_left = 4
+	button_hover.corner_radius_top_right = 4
+	button_hover.corner_radius_bottom_right = 4
+	button_hover.corner_radius_bottom_left = 4
+	button_hover.content_margin_left = 8
+	button_hover.content_margin_top = 8
+	button_hover.content_margin_right = 8
+	button_hover.content_margin_bottom = 8
+	theme.set_stylebox("hover", "Button", button_hover)
+
+	var button_pressed = StyleBoxFlat.new()
+	button_pressed.bg_color = Color(0.3, 0.5, 0.8, 1.0)
+	button_pressed.corner_radius_top_left = 4
+	button_pressed.corner_radius_top_right = 4
+	button_pressed.corner_radius_bottom_right = 4
+	button_pressed.corner_radius_bottom_left = 4
+	button_pressed.content_margin_left = 8
+	button_pressed.content_margin_top = 8
+	button_pressed.content_margin_right = 8
+	button_pressed.content_margin_bottom = 8
+	theme.set_stylebox("pressed", "Button", button_pressed)
+
+	%GenerationSettings.theme = theme
+
 
 func setup_shape_options() -> void:
 	shape_option_button.clear()

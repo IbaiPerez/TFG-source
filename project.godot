@@ -35,6 +35,8 @@ UIState="*res://scripts/ui_state.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+window/size/mode=0
+window/size/resizable=false
 window/stretch/mode="canvas_items"
 
 [editor_plugins]

@@ -15,3 +15,7 @@ func _on_load_button_pressed() -> void:
 	var panel := SaveLoadPanel.new()
 	panel.mode = SaveLoadPanel.Mode.LOAD_ONLY
 	add_child(panel)
+
+
+func _on_options_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/UI/menus/options_menu.tscn")
