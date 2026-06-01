@@ -1,4 +1,4 @@
-﻿extends Control
+extends Control
 ## UI para la generación de mapas con opciones de personalización
 ## Gestiona la interfaz de dos columnas: configuración izquierda, vista previa derecha
 
