@@ -165,11 +165,12 @@ func test_fallback_when_no_tile_meets_distance_threshold() -> void:
 # ============================================================
 
 func test_empty_possible_tiles_does_not_emit_and_errors() -> void:
-	# Todas las tiles son ocean o sin food → ninguna candidata.
+	# Mapa completamente vacio o solo agua → ninguna candidata terrestre.
+	# Con los fallbacks, esto solo ocurre si TODAS las tiles son Ocean/Water.
 	var tiles:Array[Tile] = [
 		_make_tile(0, 0, true, "Ocean", 0),
-		_make_tile(1, 0, true, "Grassland", 0),  # no food
-		_make_tile(2, 0, false, "Grassland", 1),  # no buffer
+		_make_tile(1, 0, true, "Water", 0),
+		_make_tile(2, 0, true, "Ocean", 1),
 	]
 	WorldMap.set_map(tiles)
 
@@ -185,7 +186,7 @@ func test_empty_possible_tiles_does_not_emit_and_errors() -> void:
 	_drop_listener(listener)
 
 	assert_eq(listener.calls.size(), 0,
-		"sin candidatas no se debe emitir ningun change_tile_controller")
+		"sin candidatas terrestres no se debe emitir ningun change_tile_controller")
 	# Consumir el push_error esperado para que GUT no marque "Unexpected".
 	assert_push_error("possible_tiles vacio")
 

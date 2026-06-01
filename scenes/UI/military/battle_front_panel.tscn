@@ -79,18 +79,19 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_tug_bg")
 
-[node name="TugBar" type="ColorRect" parent="MarginContainer/MainVBox/TugContainer"]
+[node name="TugBarDefender" type="ColorRect" parent="MarginContainer/MainVBox/TugContainer"]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 2.0
+layout_mode = 0
 offset_top = 7.0
-offset_right = -2.0
-offset_bottom = -7.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_bottom = 33.0
+mouse_filter = 2
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="TugBarAttacker" type="ColorRect" parent="MarginContainer/MainVBox/TugContainer"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 7.0
+offset_bottom = 33.0
 mouse_filter = 2
 color = Color(0.4, 0.4, 0.4, 1)
 

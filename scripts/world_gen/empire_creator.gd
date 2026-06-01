@@ -42,12 +42,34 @@ func create_empires():
 
 	# Tiles candidatas: del anillo "buffer" (cinturón intermedio del mapa),
 	# no oceanicas y con produccion de comida positiva.
+	# Usa estrategia de fallback si los criterios estrictos no tienen suficientes tiles.
 	for tile in WorldMap.map:
 		if tile.pos_data.buffer and tile.biome != "Ocean" and tile.food_production > 0:
 			possible_tiles.append(tile)
 
+	# Fallback 1: relajar food_production (permitir >= 0)
+	if possible_tiles.size() < 2:
+		possible_tiles.clear()
+		for tile in WorldMap.map:
+			if tile.pos_data.buffer and tile.biome != "Ocean":
+				possible_tiles.append(tile)
+
+	# Fallback 2: remover requisito de buffer
+	if possible_tiles.size() < 2:
+		possible_tiles.clear()
+		for tile in WorldMap.map:
+			if tile.biome != "Ocean":
+				possible_tiles.append(tile)
+
+	# Fallback 3: permitir cualquier tile terrestre (incluso sin verificar bioma)
+	if possible_tiles.size() < 2:
+		possible_tiles.clear()
+		for tile in WorldMap.map:
+			if tile.biome != "Ocean" and tile.biome != "Water":
+				possible_tiles.append(tile)
+
 	if possible_tiles.is_empty():
-		push_error("[EmpireCreator] possible_tiles vacio: el mapa no tiene tiles buffer terrestres con food_production > 0. No se colocan imperios.")
+		push_error("[EmpireCreator] possible_tiles vacio: el mapa no tiene tiles terrestres disponibles.")
 		return
 
 	# Buscamos un par (player, ia) que cumpla `ring_distance > radius`.
@@ -57,7 +79,7 @@ func create_empires():
 	# emitir nada — los imperios ya estan reseteados por la pasada de arriba.
 	var pair := _find_placement_pair()
 	if pair.is_empty():
-		push_error("[EmpireCreator] No se pudo elegir un par (player, ia) valido: %d candidata(s), radius=%d. No se colocan imperios." % [
+		push_error("[EmpireCreator] No se pudo elegir un par (player, ia) valido: %d candidata(s), radius=%d." % [
 			possible_tiles.size(), settings.radius
 		])
 		return

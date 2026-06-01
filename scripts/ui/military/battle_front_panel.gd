@@ -15,7 +15,8 @@ var player_empire: Empire  ## Para saber qué bando es el jugador
 ## Nodos de la escena (asignados via unique_name_in_owner)
 @onready var title_label: Label = %TitleLabel
 @onready var tug_container: Control = %TugContainer
-@onready var tug_bar: ColorRect = %TugBar
+@onready var tug_bar_defender: ColorRect = %TugBarDefender
+@onready var tug_bar_attacker: ColorRect = %TugBarAttacker
 @onready var tug_indicator: ColorRect = %TugIndicator
 @onready var marker_label: Label = %MarkerLabel
 @onready var turns_label: Label = %TurnsLabel
@@ -99,7 +100,7 @@ func _update_display() -> void:
 
 
 func _update_tug_bar() -> void:
-	if tug_bar == null or tug_indicator == null:
+	if tug_bar_defender == null or tug_bar_attacker == null or tug_indicator == null:
 		return
 
 	# Normalizar posición del marcador al rango [0, 1]
@@ -110,16 +111,26 @@ func _update_tug_bar() -> void:
 	if effective_threshold_bar > 0.0:
 		t = clampf((battle_front.marker / effective_threshold_bar + 1.0) / 2.0, 0.0, 1.0)
 
-	# Colorear la barra interpolando entre los colores de los imperios
-	tug_bar.color = defender_color.lerp(attacker_color, t).darkened(0.2)
+	# Colorear cada barra con su color de imperio
+	tug_bar_defender.color = defender_color.darkened(0.2)
+	tug_bar_attacker.color = attacker_color.darkened(0.2)
 
-	# Posicionar indicador (necesita esperar al layout)
+	# Posicionar barras según el marcador (necesita esperar al layout)
 	await get_tree().process_frame
 	if not is_instance_valid(tug_container):
 		return
 	var bar_width: float = tug_container.size.x
 	if bar_width > 0:
-		tug_indicator.position.x = t * (bar_width - tug_indicator.size.x)
+		# Defensor: de 0 a t
+		tug_bar_defender.position.x = 2.0
+		tug_bar_defender.size.x = t * (bar_width - 4.0)
+
+		# Atacante: de t a 1
+		tug_bar_attacker.position.x = 2.0 + t * (bar_width - 4.0)
+		tug_bar_attacker.size.x = (1.0 - t) * (bar_width - 4.0)
+
+		# Indicador en la división
+		tug_indicator.position.x = 2.0 + t * (bar_width - 4.0) - tug_indicator.size.x / 2.0
 
 
 func _update_side_stats(side: StringName, label: RichTextLabel) -> void:
