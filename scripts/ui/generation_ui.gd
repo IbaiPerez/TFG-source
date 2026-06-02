@@ -7,30 +7,6 @@ class_name GenerationUI
 @onready var radius_slider: HSlider = %RadiusSlider
 @onready var shape_option_button: OptionButton = %ShapeOptionButton
 
-@onready var grassland_check: CheckBox = %GrasslandCheck
-@onready var grassland_density: HSlider = %GrasslandDensity
-@onready var grassland_density_value: Label = %GrasslandDensityValue
-@onready var forest_check: CheckBox = %ForestCheck
-@onready var forest_density: HSlider = %ForestDensity
-@onready var forest_density_value: Label = %ForestDensityValue
-@onready var desert_check: CheckBox = %DesertCheck
-@onready var desert_density: HSlider = %DesertDensity
-@onready var desert_density_value: Label = %DesertDensityValue
-@onready var swamp_check: CheckBox = %SwampCheck
-@onready var swamp_density: HSlider = %SwampDensity
-@onready var swamp_density_value: Label = %SwampDensityValue
-@onready var tundra_check: CheckBox = %TundraCheck
-@onready var tundra_density: HSlider = %TundraDensity
-@onready var tundra_density_value: Label = %TundraDensityValue
-
-@onready var ocean_check: CheckBox = %OceanCheck
-@onready var ocean_density: HSlider = %OceanDensity
-@onready var ocean_density_value: Label = %OceanDensityValue
-
-@onready var mountain_check: CheckBox = %MountainCheck
-@onready var mountain_density: HSlider = %MountainDensity
-@onready var mountain_density_value: Label = %MountainDensityValue
-
 @onready var outer_buffer_spin_box: SpinBox = %OuterBufferSpinBox
 @onready var inner_buffer_spin_box: SpinBox = %InnerBufferSpinBox
 
@@ -112,16 +88,16 @@ func _ready() -> void:
 		settings.player_empire = MONGOL
 
 	biome_ui_map = {
-		"grassland": {"resource": GRASSLAND, "check": grassland_check, "density": grassland_density, "density_value": grassland_density_value},
-		"forest":    {"resource": FOREST,    "check": forest_check,    "density": forest_density,    "density_value": forest_density_value},
-		"desert":    {"resource": DESERT,    "check": desert_check,    "density": desert_density,    "density_value": desert_density_value},
-		"swamp":     {"resource": SWAMP,     "check": swamp_check,     "density": swamp_density,     "density_value": swamp_density_value},
-		"tundra":    {"resource": TUNDRA,    "check": tundra_check,    "density": tundra_density,    "density_value": tundra_density_value},
+		"grassland": {"resource": GRASSLAND, "check": %GrasslandCheck, "density": %GrasslandDensity, "density_value": %GrasslandDensityValue},
+		"forest":    {"resource": FOREST,    "check": %ForestCheck,    "density": %ForestDensity,    "density_value": %ForestDensityValue},
+		"desert":    {"resource": DESERT,    "check": %DesertCheck,    "density": %DesertDensity,    "density_value": %DesertDensityValue},
+		"swamp":     {"resource": SWAMP,     "check": %SwampCheck,     "density": %SwampDensity,     "density_value": %SwampDensityValue},
+		"tundra":    {"resource": TUNDRA,    "check": %TundraCheck,    "density": %TundraDensity,    "density_value": %TundraDensityValue},
 	}
 
 	setup_shape_options()
-
 	load_settings_to_ui()
+	generate_button.grab_focus()
 	
 
 func setup_shape_options() -> void:
@@ -140,13 +116,13 @@ func load_settings_to_ui():
 	for biome_key in biome_ui_map:
 		_setup_biome_ui(biome_key)
 	
-	mountain_check.button_pressed = settings.create_mountains
-	mountain_density.value = settings.mountain_threshold
-	mountain_density_value.text = "%.2f" % settings.mountain_threshold
-	
-	ocean_check.button_pressed = settings.create_water
-	ocean_density.value = settings.ocean_threshold
-	ocean_density_value.text = "%.2f" % settings.ocean_threshold
+	%MountainCheck.button_pressed = settings.create_mountains
+	%MountainDensity.value = settings.mountain_threshold
+	%MountainDensityValue.text = "%.2f" % settings.mountain_threshold
+
+	%OceanCheck.button_pressed = settings.create_water
+	%OceanDensity.value = settings.ocean_threshold
+	%OceanDensityValue.text = "%.2f" % settings.ocean_threshold
 	
 	# Buffers
 	outer_buffer_spin_box.value = settings.outer_buffer
@@ -250,18 +226,18 @@ func _on_tundra_density_value_changed(value: float) -> void:
 
 func _on_ocean_check_toggled(toggled_on: bool) -> void:
 	settings.create_water = toggled_on
-	ocean_density.editable = toggled_on
+	%OceanDensity.editable = toggled_on
 
 func _on_ocean_density_value_changed(value: float) -> void:
-	ocean_density_value.text = "%.2f" % value
+	%OceanDensityValue.text = "%.2f" % value
 	settings.ocean_threshold = 0.7 - value * 0.2
 
 func _on_mountain_check_toggled(toggled_on: bool) -> void:
 	settings.create_mountains = toggled_on
-	mountain_density.editable = toggled_on
+	%MountainDensity.editable = toggled_on
 
 func _on_mountain_density_value_changed(value: float) -> void:
-	mountain_density_value.text = "%.2f" % value
+	%MountainDensityValue.text = "%.2f" % value
 	settings.mountain_threshold = 0.7 - value * 0.2
 
 func _on_outer_buffer_spin_box_value_changed(value: float) -> void:

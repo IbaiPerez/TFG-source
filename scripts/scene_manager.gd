@@ -1,5 +1,7 @@
 extends Node
 
+var _transitioning := false
+
 const MAP = preload("uid://dxw5gc7xqbkqj")
 const BUILDING_PANEL = preload("uid://d4kc0x1wj7vrm")
 const TURN_EVENT_PANEL = preload("uid://dt9hturneventpnl")
@@ -33,38 +35,51 @@ func _ready() -> void:
 
 
 func _change_scene(new_scene: Node) -> void:
+	if _transitioning:
+		new_scene.queue_free()
+		return
+	_transitioning = true
+	await SceneTransition.fade_out()
 	var scene_to_remove = get_tree().current_scene
 	get_tree().root.add_child(new_scene)
 	get_tree().current_scene = new_scene
 	if scene_to_remove:
 		scene_to_remove.queue_free()
+	await SceneTransition.fade_in()
+	_transitioning = false
 
 
 func _on_navigate_to_main_menu() -> void:
 	var new_scene = MAIN_MENU.instantiate()
-	_change_scene(new_scene)
+	await _change_scene(new_scene)
 
 
 func _on_navigate_to_empire_selection() -> void:
 	var new_scene = EMPIRE_SELECTION.instantiate()
-	_change_scene(new_scene)
+	await _change_scene(new_scene)
 
 
 func _on_navigate_to_generation(empire: Empire) -> void:
 	var new_scene = GENERATION_UI.instantiate()
 	new_scene.selected_empire = empire
-	_change_scene(new_scene)
+	await _change_scene(new_scene)
 
 
 func _on_events_generate_world(settings: GenerationSettings, stats: Stats) -> void:
-	var new_scene = MAP.instantiate()
+	var loading := LoadingScreen.new()
+	loading.seed_value = settings.map_seed
+	await _change_scene(loading)
+	# La pantalla de carga ya es visible. Esperar 2 frames adicionales para que
+	# el jugador la vea antes de que WorldGenerator bloquee el hilo principal.
+	await get_tree().process_frame
+	await get_tree().process_frame
 
+	var new_scene = MAP.instantiate()
 	var world_generator = new_scene.get_node("%WorldGenerator")
 	world_generator.settings = settings
 	new_scene.stats = stats
 	new_scene.generation_settings = settings
-
-	_change_scene(new_scene)
+	await _change_scene(new_scene)
 
 
 ## Navega al mapa con un snapshot ya cargado en GameSaveManager. El
@@ -73,6 +88,11 @@ func _on_events_generate_world(settings: GenerationSettings, stats: Stats) -> vo
 func _on_load_requested(snapshot: Dictionary) -> void:
 	if snapshot.is_empty():
 		return
+
+	var loading := LoadingScreen.new()
+	await _change_scene(loading)
+	await get_tree().process_frame
+	await get_tree().process_frame
 
 	var new_scene = MAP.instantiate()
 
@@ -93,7 +113,7 @@ func _on_load_requested(snapshot: Dictionary) -> void:
 	# por si algún consumidor del árbol la necesita antes de la carga.
 	new_scene.stats = load("res://resources/stats/initial_stats.tres") as Stats
 
-	_change_scene(new_scene)
+	await _change_scene(new_scene)
 
 func _on_build_card_confirm_started(card:BuildCard,targets:Array[Node],stats:Stats):
 	card.menu = BUILDING_PANEL.instantiate()

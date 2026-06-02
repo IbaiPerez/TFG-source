@@ -46,8 +46,12 @@ func setup(p_event:TurnEvent, p_context:EventContext,
 	# Estilo especial para eventos unicos
 	if event.unique:
 		title_label.material = UNIQUE_TITLE_MATERIAL
-		title_label.add_theme_constant_override("outline_size", 8)
-		title_label.add_theme_color_override("font_outline_color", Color(0.15, 0.08, 0.0))
+		# font_color = blanco → luminancia alta → el shader aplica el gradiente dorado.
+		# outline_color = marrón oscuro → luminancia baja → el shader lo deja sin tocar,
+		# creando un borde visible que separa las letras entre sí.
+		title_label.add_theme_color_override("font_color", Color.WHITE)
+		title_label.add_theme_constant_override("outline_size", 10)
+		title_label.add_theme_color_override("font_outline_color", UITheme.BORDER_BROWN)
 	else:
 		title_label.material = null
 

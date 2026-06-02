@@ -13,6 +13,7 @@ corner_radius_bottom_right = 24
 
 [sub_resource type="LabelSettings" id="LabelSettings_province"]
 font_size = 18
+font_color = Color(0.243, 0.153, 0.137, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_aa2ea"]
 

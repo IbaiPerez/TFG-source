@@ -221,7 +221,7 @@ func _update_troops_display(troops: Array[Troop], container: VBoxContainer, colo
 		var empty_label := Label.new()
 		empty_label.text = "Sin tropas"
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
+		empty_label.add_theme_color_override("font_color", UITheme.DISABLED_MUTED)
 		container.add_child(empty_label)
 		return
 

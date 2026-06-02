@@ -17,11 +17,26 @@ const MODIFIER_ICON = preload("uid://mdfricon4tscn0")
 var modifier_manager:ModifierManager:set = _set_modifier_manager
 var page_offset:int = 0
 
+var _icon_pool: Array[ModifierIcon] = []
+var _placeholder_pool: Array[Control] = []
+
 
 func _ready() -> void:
 	left_button.pressed.connect(_on_left_pressed)
 	right_button.pressed.connect(_on_right_pressed)
+	_init_node_pool()
 	refresh()
+
+
+func _init_node_pool() -> void:
+	for i in range(visible_count):
+		var icon: ModifierIcon = MODIFIER_ICON.instantiate()
+		_icon_pool.append(icon)
+
+		var placeholder := Control.new()
+		placeholder.custom_minimum_size = Vector2(52, 52)
+		placeholder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_placeholder_pool.append(placeholder)
 
 
 func _set_modifier_manager(value:ModifierManager) -> void:
@@ -58,7 +73,7 @@ func refresh() -> void:
 		return
 
 	for child in slots.get_children():
-		child.queue_free()
+		slots.remove_child(child)
 
 	var mods:Array[Modifier] = []
 	if modifier_manager:
@@ -67,17 +82,12 @@ func refresh() -> void:
 	var total := mods.size()
 	var end := mini(page_offset + visible_count, total)
 
-	for i in range(page_offset, end):
-		var icon_instance:ModifierIcon = MODIFIER_ICON.instantiate()
-		slots.add_child(icon_instance)
-		icon_instance.modifier = mods[i]
-
-	## Rellenar huecos vacios para que el layout no se contraiga
-	for i in range(end - page_offset, visible_count):
-		var placeholder := Control.new()
-		placeholder.custom_minimum_size = Vector2(52, 52)
-		placeholder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		slots.add_child(placeholder)
+	for i in range(visible_count):
+		if i < end - page_offset:
+			_icon_pool[i].modifier = mods[page_offset + i]
+			slots.add_child(_icon_pool[i])
+		else:
+			slots.add_child(_placeholder_pool[i])
 
 	_update_nav_state(total)
 

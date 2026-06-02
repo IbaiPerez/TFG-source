@@ -11,17 +11,17 @@ class_name StatsUI
 func update_stats(stats: Stats) -> void:
 	if stats.gold_per_turn < 0:
 		gold_generation.text = str(stats.gold_per_turn)
-		gold_generation.label_settings.font_color = Color.DARK_RED
+		gold_generation.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
 	else:
 		gold_generation.text = "+" + str(stats.gold_per_turn)
-		gold_generation.label_settings.font_color = Color(0.10196079, 0.3882353, 0.10196079, 1)
+		gold_generation.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
 
 	if stats.food < 0:
 		food_generation.text = str(stats.food)
-		food_generation.label_settings.font_color = Color.DARK_RED
+		food_generation.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
 	else:
 		food_generation.text = "+" + str(stats.food)
-		food_generation.label_settings.font_color = Color(0.10196079, 0.3882353, 0.10196079, 1)
+		food_generation.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
 
 	gold.text = str(stats.total_gold)
 

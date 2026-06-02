@@ -74,9 +74,12 @@ func _format_line(card: Card, anchor_tile: Tile, empire: Empire,
 	var card_name := _describe_card(card, payload)
 
 	var location := ""
-	if anchor_tile != null and anchor_tile.pos_data != null:
-		var g: Vector2i = anchor_tile.pos_data.grid_position
-		location = " en (%d, %d)" % [g.x, g.y]
+	if anchor_tile != null:
+		if anchor_tile.province_name and not anchor_tile.province_name.is_empty():
+			location = " en %s" % anchor_tile.province_name
+		elif anchor_tile.pos_data != null:
+			var g: Vector2i = anchor_tile.pos_data.grid_position
+			location = " en (%d, %d)" % [g.x, g.y]
 
 	return "[%s] %s%s" % [empire_name, card_name, location]
 
@@ -104,7 +107,7 @@ func _append_line(text: String, color: Color) -> void:
 	label.text = text
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_constant_override("outline_size", 4)
-	label.add_theme_color_override("font_outline_color", Color(0.05, 0.05, 0.05))
+	label.add_theme_color_override("font_outline_color", UITheme.TEXT_OUTLINE)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_box.add_child(label)
 

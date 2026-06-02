@@ -20,18 +20,7 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(460, 380)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.97, 0.93, 0.85, 1.0)
-	style.border_width_left = 5
-	style.border_width_top = 5
-	style.border_width_right = 5
-	style.border_width_bottom = 5
-	style.border_color = Color(0.243, 0.153, 0.137, 1.0)
-	style.corner_radius_top_left = 24
-	style.corner_radius_top_right = 24
-	style.corner_radius_bottom_right = 24
-	style.corner_radius_bottom_left = 24
-	add_theme_stylebox_override("panel", style)
+	add_theme_stylebox_override("panel", UITheme.make_panel_style(UITheme.BORDER_BROWN, 5, 24))
 
 	_build_ui()
 

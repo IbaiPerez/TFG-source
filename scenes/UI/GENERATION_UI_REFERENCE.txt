@@ -1,0 +1,41 @@
+﻿MAPA DE RUTAS DE NODOS EN EL SCRIPT
+===================================
+
+PANELES PRINCIPALES:
+- basic_settings_panel = "VBoxContainer/HBoxContainer/LeftColumn/BasicSettingsPanel"
+- biomes_panel = "VBoxContainer/HBoxContainer/LeftColumn/BiomesPanel"
+- special_panel = "VBoxContainer/HBoxContainer/LeftColumn/SpecialPanel"
+- buffer_panel = "VBoxContainer/HBoxContainer/LeftColumn/BufferPanel"
+
+CONFIGURACIÓN BÁSICA:
+- seed_spin_box = "VBoxContainer/HBoxContainer/LeftColumn/BasicSettingsPanel/VBoxContainer/SeedHBox/SeedSpinBox"
+- seed_random_button = "VBoxContainer/HBoxContainer/LeftColumn/BasicSettingsPanel/VBoxContainer/SeedHBox/RandomButton"
+- width_spin_box = "VBoxContainer/HBoxContainer/LeftColumn/BasicSettingsPanel/VBoxContainer/DimensionsHBox/WidthSpinBox"
+- height_spin_box = "VBoxContainer/HBoxContainer/LeftColumn/BasicSettingsPanel/VBoxContainer/DimensionsHBox/HeightSpinBox"
+
+BIOMAS:
+- biome_forest_check = "VBoxContainer/HBoxContainer/LeftColumn/BiomesPanel/VBoxContainer/ForestCheckBox"
+- biome_desert_check = "VBoxContainer/HBoxContainer/LeftColumn/BiomesPanel/VBoxContainer/DesertCheckBox"
+- biome_mountain_check = "VBoxContainer/HBoxContainer/LeftColumn/BiomesPanel/VBoxContainer/MountainCheckBox"
+- biome_water_check = "VBoxContainer/HBoxContainer/LeftColumn/BiomesPanel/VBoxContainer/WaterCheckBox"
+
+DENSIDADES:
+- forest_density_slider = "VBoxContainer/HBoxContainer/LeftColumn/BiomesPanel/VBoxContainer/ForestDensityHBox/ForestDensitySlider"
+- desert_density_slider = "VBoxContainer/HBoxContainer/LeftColumn/BiomesPanel/VBoxContainer/DesertDensityHBox/DesertDensitySlider"
+- mountain_density_slider = "VBoxContainer/HBoxContainer/LeftColumn/BiomesPanel/VBoxContainer/MountainDensityHBox/MountainDensitySlider"
+
+PUNTOS DE APARICIÓN:
+- spawn_points_slider = "VBoxContainer/HBoxContainer/LeftColumn/SpecialPanel/VBoxContainer/SpawnPointsHBox/SpawnPointsSlider"
+- spawn_points_label = "VBoxContainer/HBoxContainer/LeftColumn/SpecialPanel/VBoxContainer/SpawnPointsHBox/SpawnPointsLabel"
+
+BUFFER:
+- border_size_slider = "VBoxContainer/HBoxContainer/LeftColumn/BufferPanel/VBoxContainer/BorderSizeHBox/BorderSizeSlider"
+- border_size_label = "VBoxContainer/HBoxContainer/LeftColumn/BufferPanel/VBoxContainer/BorderSizeHBox/BorderSizeLabel"
+
+ACCIONES:
+- generate_button = "VBoxContainer/HBoxContainer/LeftColumn/ActionHBox/GenerateButton"
+- cancel_button = "VBoxContainer/HBoxContainer/LeftColumn/ActionHBox/CancelButton"
+
+PREVIEW:
+- preview_texture_rect = "VBoxContainer/HBoxContainer/RightColumn/PreviewTextureRect"
+- preview_label = "VBoxContainer/HBoxContainer/RightColumn/PreviewLabel"

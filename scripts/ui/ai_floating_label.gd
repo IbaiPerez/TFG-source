@@ -26,7 +26,7 @@ func _ready() -> void:
 	_label.no_depth_test = true
 	_label.font_size = FONT_SIZE
 	_label.outline_size = OUTLINE_SIZE
-	_label.outline_modulate = Color(0.05, 0.05, 0.05, 1.0)
+	_label.outline_modulate = UITheme.TEXT_OUTLINE
 	_label.fixed_size = true
 	_label.pixel_size = PIXEL_SIZE
 	add_child(_label)

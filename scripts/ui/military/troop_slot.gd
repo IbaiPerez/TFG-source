@@ -46,7 +46,7 @@ func _build_ui() -> void:
 	# Tipo (efectividad)
 	type_label = Label.new()
 	type_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	type_label.add_theme_color_override("font_color", Color(0.30, 0.30, 0.50, 1.0))
+	type_label.add_theme_color_override("font_color", UITheme.TROOP_TYPE)
 	type_label.add_theme_font_size_override("font_size", 11)
 	add_child(type_label)
 
@@ -63,7 +63,7 @@ func _build_ui() -> void:
 	# Mantenimiento por turno (oro / comida)
 	maintenance_label = Label.new()
 	maintenance_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	maintenance_label.add_theme_color_override("font_color", Color(0.45, 0.30, 0.15, 1.0))
+	maintenance_label.add_theme_color_override("font_color", UITheme.TROOP_MAINTENANCE)
 	maintenance_label.add_theme_font_size_override("font_size", 11)
 	add_child(maintenance_label)
 

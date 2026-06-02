@@ -27,7 +27,6 @@ var tile:Tile:set = setup
 
 
 func _ready() -> void:
-	# tile_panel no bloquea la cámara, así que no se registra
 	pass
 
 
@@ -53,23 +52,23 @@ func setup(value:Tile) -> void:
 		controller_label.text = "No controller"
 	
 	if tile.gold_production < 0:
-		gold_produced.label_settings.font_color = Color.DARK_RED
+		gold_produced.add_theme_color_override("font_color", Color.DARK_RED)
 		gold_produced.text = "-" + str(tile.gold_production)
 	elif tile.gold_production == 0:
-		gold_produced.label_settings.font_color = Color.BLACK
+		gold_produced.add_theme_color_override("font_color", Color.BLACK)
 		gold_produced.text = str(tile.gold_production)
 	else:
-		gold_produced.label_settings.font_color = Color.DARK_GREEN
+		gold_produced.add_theme_color_override("font_color", Color.DARK_GREEN)
 		gold_produced.text = "+" + str(tile.gold_production)
-	
+
 	if tile.food_production < 0:
-		food_produced.label_settings.font_color = Color.DARK_RED
+		food_produced.add_theme_color_override("font_color", Color.DARK_RED)
 		food_produced.text = str(tile.food_production)
 	elif tile.food_production == 0:
-		food_produced.label_settings.font_color = Color.BLACK
+		food_produced.add_theme_color_override("font_color", Color.BLACK)
 		food_produced.text = str(tile.food_production)
 	else:
-		food_produced.label_settings.font_color = Color.DARK_GREEN
+		food_produced.add_theme_color_override("font_color", Color.DARK_GREEN)
 		food_produced.text = "+" + str(tile.food_production)
 	
 	location_label.text = Tile.location_type.find_key(tile.location.type)

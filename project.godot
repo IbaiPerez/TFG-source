@@ -30,12 +30,12 @@ SceneManager="*res://scripts/scene_manager.gd"
 GameSaveManager="*res://scripts/save/game_save_manager.gd"
 BattleFrontRegistry="*res://scripts/military/battle_front_registry.gd"
 UIState="*res://scripts/ui_state.gd"
+SceneTransition="*res://scripts/ui/scene_transition.gd"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
-window/size/mode=0
 window/size/resizable=false
 window/stretch/mode="canvas_items"
 

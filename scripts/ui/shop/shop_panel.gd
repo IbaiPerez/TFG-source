@@ -87,6 +87,7 @@ func _populate_items() -> void:
 func _add_shop_item_ui(item:ShopItem) -> void:
 	var container := VBoxContainer.new()
 	container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	container.set_meta("shop_item", item)
 
 	# Carta visual
 	var card_ui:CardMenuUi = CARD_MENU_UI.instantiate()
@@ -98,7 +99,7 @@ func _add_shop_item_ui(item:ShopItem) -> void:
 	var price_label := Label.new()
 	price_label.text = "%d oro" % item.price
 	price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	price_label.add_theme_color_override("font_color", Color(0.15, 0.1, 0.08))
+	price_label.add_theme_color_override("font_color", UITheme.TEXT_DARK)
 	price_label.add_theme_font_size_override("font_size", 14)
 	container.add_child(price_label)
 
@@ -107,7 +108,7 @@ func _add_shop_item_ui(item:ShopItem) -> void:
 		var stock_label := Label.new()
 		stock_label.text = "Stock: %d" % (item.stock - item._sold_count)
 		stock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		stock_label.add_theme_color_override("font_color", Color(0.4, 0.35, 0.3))
+		stock_label.add_theme_color_override("font_color", UITheme.TEXT_MUTED)
 		stock_label.add_theme_font_size_override("font_size", 12)
 		container.add_child(stock_label)
 
@@ -167,7 +168,7 @@ func _on_buy_pressed(item:ShopItem, button:Button, container:VBoxContainer) -> v
 
 	# Actualizar estado del boton y stock
 	if not item.is_available():
-		container.modulate = Color(0.5, 0.5, 0.5)
+		container.modulate = UITheme.DISABLED_MUTED
 		button.disabled = true
 		button.text = "Agotado"
 	else:
@@ -192,15 +193,14 @@ func _on_purge_pressed(card:Card) -> void:
 
 func _refresh_buy_buttons() -> void:
 	for container in items_container.get_children():
-		if container is VBoxContainer:
-			for child in container.get_children():
-				if child is Button:
-					# Buscar el item asociado
-					var idx := container.get_index()
-					if idx < shop_config.items.size():
-						var item := shop_config.items[idx]
-						if item.is_available():
-							child.disabled = not item.can_afford(stats.total_gold)
+		if not container is VBoxContainer:
+			continue
+		if not container.has_meta("shop_item"):
+			continue
+		var item: ShopItem = container.get_meta("shop_item")
+		for child in container.get_children():
+			if child is Button:
+				child.disabled = not item.is_available() or not item.can_afford(stats.total_gold)
 
 
 func _on_buy_tab_pressed() -> void:

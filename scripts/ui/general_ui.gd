@@ -60,6 +60,16 @@ func _setup_map_mode_buttons() -> void:
 	if first_button and first_button.button_group:
 		first_button.button_group.pressed.connect(_on_map_mode_button_pressed)
 
+	var tooltips := {
+		"PoliticalModeButton":         "Modo Político: muestra el control territorial de cada imperio",
+		"BiomesModeButton":            "Modo Biomas: muestra el tipo de terreno de cada tile",
+		"NaturalResourcesBiomeButton": "Modo Recursos: muestra los recursos naturales del mapa",
+		"LocationTypeModeButton":      "Modo Localizaciones: muestra el tipo de cada ubicación",
+	}
+	for button in map_modes_buttons.get_children():
+		if button is Button and tooltips.has(button.name):
+			button.tooltip_text = tooltips[button.name]
+
 
 func initialize_card_pile_ui() -> void:
 	draw_pile_button.card_pile = stats.draw_pile

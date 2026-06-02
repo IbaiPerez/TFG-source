@@ -115,7 +115,7 @@ func _populate_pool() -> void:
 		var empty_label := Label.new()
 		empty_label.text = "No hay tropas disponibles en la reserva"
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty_label.add_theme_color_override("font_color", Color(0.6, 0.4, 0.4))
+		empty_label.add_theme_color_override("font_color", UITheme.EMPTY_MUTED)
 		troops_grid.add_child(empty_label)
 		return
 
@@ -152,7 +152,7 @@ func _create_troop_slot(troop: Troop) -> PanelContainer:
 	var type_label := Label.new()
 	type_label.text = "[%s]" % troop.get_type_label()
 	type_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	type_label.add_theme_color_override("font_color", Color(0.30, 0.30, 0.50, 1.0))
+	type_label.add_theme_color_override("font_color", UITheme.TROOP_TYPE)
 	type_label.add_theme_font_size_override("font_size", 10)
 	vbox.add_child(type_label)
 
