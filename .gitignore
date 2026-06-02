@@ -18,3 +18,9 @@ test_output*.log
 
 # User data
 user://
+
+# Large binary installers/executables
+*.exe
+*.msi
+*.dmg
+*.pkg
