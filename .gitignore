@@ -24,3 +24,6 @@ user://
 *.msi
 *.dmg
 *.pkg
+
+# AI planning & research docs (local only, not for VCS)
+_ai_docs/

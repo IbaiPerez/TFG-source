@@ -29,6 +29,8 @@ func _on_exit_button_pressed() -> void:
 func _on_load_button_pressed() -> void:
 	var panel := SaveLoadPanel.new()
 	panel.mode = SaveLoadPanel.Mode.LOAD_ONLY
+	# SaveLoadPanel extiende CanvasLayer, así que se renderiza sobre todo
+	# el menú independientemente de dónde esté en el árbol.
 	add_child(panel)
 
 

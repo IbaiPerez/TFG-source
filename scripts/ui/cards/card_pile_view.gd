@@ -9,15 +9,23 @@ const CARD_MENU_UI = preload("uid://bt76i1liwhags")
 @onready var cards_container: GridContainer = %CardsContainer
 @onready var back_button: Button = %BackButton
 @onready var card_tooltip_popup: CardTooltipPopup = %CardTooltipPopup
+@onready var scroll_container: ScrollContainer = %ScrollContainer
+@onready var empty_state_container: CenterContainer = %EmptyStateContainer
+@onready var empty_panel: PanelContainer = %EmptyPanel
+@onready var empty_label: Label = %EmptyLabel
 
 
 func _ready() -> void:
 	back_button.pressed.connect(hide)
-	
+
 	for card:Node in cards_container.get_children():
 		card.queue_free()
-	
+
 	card_tooltip_popup.hide_tooltip()
+
+	empty_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style())
+	empty_label.add_theme_color_override("font_color", UITheme.TEXT_MUTED)
+	empty_label.add_theme_font_size_override("font_size", 18)
 
 
 func _input(event: InputEvent) -> void:
@@ -43,14 +51,11 @@ func _update_view(randomized:bool) -> void:
 		all_cards.shuffle()
 
 	if all_cards.is_empty():
-		var empty_label := Label.new()
-		empty_label.text = "No hay cartas"
-		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		empty_label.add_theme_color_override("font_color", UITheme.TEXT_MUTED)
-		empty_label.add_theme_font_size_override("font_size", 18)
-		cards_container.add_child(empty_label)
+		scroll_container.hide()
+		empty_state_container.show()
 	else:
+		empty_state_container.hide()
+		scroll_container.show()
 		for card:Card in all_cards:
 			var new_card := CARD_MENU_UI.instantiate() as CardMenuUi
 			cards_container.add_child(new_card)

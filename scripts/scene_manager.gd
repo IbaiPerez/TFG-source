@@ -69,37 +69,60 @@ func _on_events_generate_world(settings: GenerationSettings, stats: Stats) -> vo
 	var loading := LoadingScreen.new()
 	loading.seed_value = settings.map_seed
 	await _change_scene(loading)
-	# La pantalla de carga ya es visible. Esperar 2 frames adicionales para que
-	# el jugador la vea antes de que WorldGenerator bloquee el hilo principal.
+
+	# Bloquear nuevas transiciones mientras generamos + transicionamos.
+	_transitioning = true
+	# Esperar 2 frames para que el jugador vea la pantalla de carga antes de
+	# que WorldGenerator bloquee el hilo principal.
 	await get_tree().process_frame
 	await get_tree().process_frame
 
 	var new_scene = MAP.instantiate()
-	var world_generator = new_scene.get_node("%WorldGenerator")
+	var world_generator: Node = new_scene.get_node("%WorldGenerator")
 	world_generator.settings = settings
+	world_generator.auto_generate_on_ready = false
+	new_scene.auto_start_game = false
 	new_scene.stats = stats
 	new_scene.generation_settings = settings
-	await _change_scene(new_scene)
+
+	# Añadir el mapa al árbol SIN que genere ni inicie el juego todavía.
+	# LoadingScreen (layer 99) cubre todo el contenido del mapa.
+	get_tree().root.add_child(new_scene)
+
+	# Generar el mundo AHORA: el hilo bloquea pero la pantalla de carga
+	# fue el último frame renderizado, por lo que el jugador la ve.
+	world_generator.init_seed()
+	world_generator.generate_world()
+
+	# Transición visual: fade out → intercambiar escena → iniciar juego → fade in.
+	await SceneTransition.fade_out()
+	var old_scene := get_tree().current_scene
+	get_tree().current_scene = new_scene
+	if old_scene:
+		old_scene.queue_free()
+	new_scene.start_game()
+	await SceneTransition.fade_in()
+	_transitioning = false
 
 
 ## Navega al mapa con un snapshot ya cargado en GameSaveManager. El
 ## snapshot contiene su propia referencia a generation_settings y stats,
-## así que solo necesitamos instanciar la escena: Map._ready() lo aplicará.
+## así que solo necesitamos instanciar la escena: Map.start_game() lo aplicará.
 func _on_load_requested(snapshot: Dictionary) -> void:
 	if snapshot.is_empty():
 		return
 
 	var loading := LoadingScreen.new()
 	await _change_scene(loading)
+
+	_transitioning = true
 	await get_tree().process_frame
 	await get_tree().process_frame
 
 	var new_scene = MAP.instantiate()
 
 	# Si el snapshot trae la ruta del GenerationSettings, la fijamos para
-	# que cualquier sistema que la consulte (p.ej. _create_ai_controllers
-	# en el flujo nuevo, que no se ejecuta en carga, pero por si acaso) la
-	# tenga disponible.
+	# que cualquier sistema que la consulte la tenga disponible.
 	var settings_path:String = snapshot.get("generation_settings", "")
 	if settings_path != "" and ResourceLoader.exists(settings_path):
 		var settings:GenerationSettings = load(settings_path) as GenerationSettings
@@ -112,8 +135,21 @@ func _on_load_requested(snapshot: Dictionary) -> void:
 	# Stats reales se reconstruyen desde el snapshot. Pasamos la plantilla
 	# por si algún consumidor del árbol la necesita antes de la carga.
 	new_scene.stats = load("res://resources/stats/initial_stats.tres") as Stats
+	new_scene.auto_start_game = false
 
-	await _change_scene(new_scene)
+	# Añadir el mapa al árbol sin que arranque el juego todavía.
+	get_tree().root.add_child(new_scene)
+
+	# apply_snapshot reconstruye el mundo mientras la pantalla de carga es visible.
+	new_scene.start_game()
+
+	await SceneTransition.fade_out()
+	var old_scene := get_tree().current_scene
+	get_tree().current_scene = new_scene
+	if old_scene:
+		old_scene.queue_free()
+	await SceneTransition.fade_in()
+	_transitioning = false
 
 func _on_build_card_confirm_started(card:BuildCard,targets:Array[Node],stats:Stats):
 	card.menu = BUILDING_PANEL.instantiate()

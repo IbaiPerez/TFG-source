@@ -52,23 +52,23 @@ func setup(value:Tile) -> void:
 		controller_label.text = "No controller"
 	
 	if tile.gold_production < 0:
-		gold_produced.add_theme_color_override("font_color", Color.DARK_RED)
-		gold_produced.text = "-" + str(tile.gold_production)
+		gold_produced.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
+		gold_produced.text = str(tile.gold_production)
 	elif tile.gold_production == 0:
-		gold_produced.add_theme_color_override("font_color", Color.BLACK)
+		gold_produced.add_theme_color_override("font_color", UITheme.VALUE_NEUTRAL)
 		gold_produced.text = str(tile.gold_production)
 	else:
-		gold_produced.add_theme_color_override("font_color", Color.DARK_GREEN)
+		gold_produced.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
 		gold_produced.text = "+" + str(tile.gold_production)
 
 	if tile.food_production < 0:
-		food_produced.add_theme_color_override("font_color", Color.DARK_RED)
+		food_produced.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
 		food_produced.text = str(tile.food_production)
 	elif tile.food_production == 0:
-		food_produced.add_theme_color_override("font_color", Color.BLACK)
+		food_produced.add_theme_color_override("font_color", UITheme.VALUE_NEUTRAL)
 		food_produced.text = str(tile.food_production)
 	else:
-		food_produced.add_theme_color_override("font_color", Color.DARK_GREEN)
+		food_produced.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
 		food_produced.text = "+" + str(tile.food_production)
 	
 	location_label.text = Tile.location_type.find_key(tile.location.type)

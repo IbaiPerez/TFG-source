@@ -60,15 +60,54 @@ func _setup_map_mode_buttons() -> void:
 	if first_button and first_button.button_group:
 		first_button.button_group.pressed.connect(_on_map_mode_button_pressed)
 
-	var tooltips := {
+	var descriptions := {
 		"PoliticalModeButton":         "Modo Político: muestra el control territorial de cada imperio",
 		"BiomesModeButton":            "Modo Biomas: muestra el tipo de terreno de cada tile",
 		"NaturalResourcesBiomeButton": "Modo Recursos: muestra los recursos naturales del mapa",
 		"LocationTypeModeButton":      "Modo Localizaciones: muestra el tipo de cada ubicación",
 	}
+
+	# tooltip_text de Godot usa coordenadas físicas de pantalla, incompatibles
+	# con canvas_items stretch mode (viewport virtual 1280x720). Se usa un panel
+	# custom top_level=true que opera en coordenadas virtuales como el resto de la UI.
+	var tooltip_panel := PanelContainer.new()
+	tooltip_panel.visible = false
+	tooltip_panel.top_level = true
+	tooltip_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tooltip_panel.z_index = 100
+	tooltip_panel.custom_minimum_size = Vector2(200, 0)
+	tooltip_panel.add_theme_stylebox_override("panel", UITheme.make_panel_style())
+	var tooltip_margin := MarginContainer.new()
+	tooltip_margin.add_theme_constant_override("margin_left", 10)
+	tooltip_margin.add_theme_constant_override("margin_top", 8)
+	tooltip_margin.add_theme_constant_override("margin_right", 10)
+	tooltip_margin.add_theme_constant_override("margin_bottom", 8)
+	tooltip_panel.add_child(tooltip_margin)
+	var tooltip_label := Label.new()
+	tooltip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tooltip_label.add_theme_color_override("font_color", UITheme.TEXT_DARK)
+	tooltip_label.add_theme_font_size_override("font_size", 13)
+	tooltip_margin.add_child(tooltip_label)
+	add_child(tooltip_panel)
+
 	for button in map_modes_buttons.get_children():
-		if button is Button and tooltips.has(button.name):
-			button.tooltip_text = tooltips[button.name]
+		if not (button is Button) or not descriptions.has(button.name):
+			continue
+		var btn := button as Button
+		var desc: String = descriptions[btn.name]
+		btn.mouse_entered.connect(func() -> void:
+			tooltip_label.text = desc
+			tooltip_panel.show()
+			await get_tree().process_frame
+			var vp := get_viewport_rect().size
+			var pos := btn.global_position
+			var x := clampf(pos.x - tooltip_panel.size.x - 8, 0.0, vp.x - tooltip_panel.size.x)
+			var y := clampf(pos.y, 0.0, vp.y - tooltip_panel.size.y)
+			tooltip_panel.global_position = Vector2(x, y)
+		)
+		btn.mouse_exited.connect(func() -> void:
+			tooltip_panel.hide()
+		)
 
 
 func initialize_card_pile_ui() -> void:

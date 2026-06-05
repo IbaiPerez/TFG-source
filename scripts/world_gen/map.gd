@@ -4,6 +4,11 @@ extends Node3D
 
 var generation_settings:GenerationSettings
 
+## Si es false, _ready() solo limpia BattleFront y no inicia la partida.
+## SceneManager lo pone a false cuando necesita generar el mundo con la
+## pantalla de carga visible antes de que el juego arranque.
+var auto_start_game: bool = true
+
 @onready var ui_layer: UILayer = $Scene/UI_layer as UILayer
 @onready var player_handler: PlayerHandler = $Node/PlayerHandler as PlayerHandler
 
@@ -15,12 +20,25 @@ func _ready() -> void:
 	# de una partida anterior (cambio de escena → menú → nueva partida).
 	BattleFront.clear_active_instances()
 
+	if not auto_start_game:
+		return
+
 	# Si hay un snapshot pendiente, cargamos en lugar de generar.
 	var pending:Dictionary = GameSaveManager.consume_pending_snapshot()
 	if not pending.is_empty():
 		_start_from_save(pending)
 		return
 
+	_start_new_game()
+
+
+## Inicia la partida después de que el mundo ya ha sido generado/cargado.
+## Llamado por SceneManager cuando auto_start_game es false.
+func start_game() -> void:
+	var pending:Dictionary = GameSaveManager.consume_pending_snapshot()
+	if not pending.is_empty():
+		_start_from_save(pending)
+		return
 	_start_new_game()
 
 
