@@ -468,3 +468,235 @@ func test_get_troop_maintenance_percent_stacks():
 	# devuelve la suma cruda. Verificamos eso para que cualquier consumidor
 	# que necesite la suma cruda (UI de modifiers, debug) la reciba sin
 	# truncar.
+
+
+# ============================================================
+#  StatModifier.troop_type_filter y applies_to_troop
+# ============================================================
+
+func _make_troop(p_type: int = Troop.TroopType.INFANTERIA_LIGERA) -> Troop:
+	var t := Troop.new()
+	t.name = "T"
+	t.type = p_type
+	t.attack = 1
+	t.defense = 1
+	t.recruitment_cost_gold = 10
+	t.maintenance_gold = 2
+	t.maintenance_food = 1
+	return t
+
+
+func test_stat_modifier_troop_type_filter_defaults_to_minus_one():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1)
+	assert_eq(mod.troop_type_filter, -1,
+		"Sin pasar filtro, troop_type_filter debe ser -1 (todas las tropas)")
+
+
+func test_stat_modifier_troop_type_filter_set_to_cavalry():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA)
+	assert_eq(mod.troop_type_filter, Troop.TroopType.CABALLERIA)
+
+
+func test_stat_modifier_duplicate_preserves_filter():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
+		null, null, Troop.TroopType.CABALLERIA)
+	var dup := mod.duplicate_modifier() as StatModifier
+	assert_not_null(dup)
+	assert_eq(dup.troop_type_filter, Troop.TroopType.CABALLERIA,
+		"duplicate_modifier debe preservar troop_type_filter")
+
+
+func test_applies_to_troop_no_filter_accepts_any_troop():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1)
+	assert_true(mod.applies_to_troop(_make_troop(Troop.TroopType.INFANTERIA_LIGERA)))
+	assert_true(mod.applies_to_troop(_make_troop(Troop.TroopType.CABALLERIA)))
+	assert_true(mod.applies_to_troop(_make_troop(Troop.TroopType.PIQUEROS)))
+
+
+func test_applies_to_troop_no_filter_accepts_null():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1)
+	assert_true(mod.applies_to_troop(null),
+		"Sin filtro, null se acepta (comportamiento de consulta sin tropa concreta)")
+
+
+func test_applies_to_troop_cavalry_filter_accepts_cavalry():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA)
+	var cav := _make_troop(Troop.TroopType.CABALLERIA)
+	assert_true(mod.applies_to_troop(cav))
+
+
+func test_applies_to_troop_cavalry_filter_rejects_infantry():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA)
+	var inf := _make_troop(Troop.TroopType.INFANTERIA_LIGERA)
+	assert_false(mod.applies_to_troop(inf),
+		"Filtro de caballería no debe aplicar a infantería")
+
+
+func test_applies_to_troop_cavalry_filter_rejects_null():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA)
+	assert_false(mod.applies_to_troop(null),
+		"Filtro de caballería no debe aplicar cuando no hay tropa concreta")
+
+
+func test_stat_modifier_description_troops_per_recruit_unfiltered():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1)
+	assert_true(mod.description.contains("troop"),
+		"Descripción sin filtro debe mencionar 'troop'")
+
+
+func test_stat_modifier_description_troops_per_recruit_filtered():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA)
+	assert_true(mod.description.to_lower().contains("caball"),
+		"Descripción filtrada debe mencionar el tipo de tropa (caballería)")
+
+
+func test_stat_modifier_description_maintenance_filtered():
+	var mod := StatModifier.new("m", "M",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
+		null, null, Troop.TroopType.CABALLERIA)
+	assert_true(mod.description.to_lower().contains("caball"),
+		"Descripción filtrada de mantenimiento debe mencionar el tipo")
+	assert_true(mod.description.contains("-25%"),
+		"Descripción debe incluir el porcentaje")
+
+
+# ============================================================
+#  ModifierManager.get_troops_per_recruit_bonus con filtros
+# ============================================================
+
+func test_get_troops_per_recruit_bonus_unfiltered_no_troop_counts():
+	# Modifier sin filtro debe contar aunque no se pase tropa.
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("cuartel", "Cuartel",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1), stats)
+	assert_eq(manager.get_troops_per_recruit_bonus(), 1)
+
+
+func test_get_troops_per_recruit_bonus_filtered_with_matching_troop():
+	# Modifier filtrado a CABALLERIA solo cuenta cuando se pasa un jinete.
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	var cav := _make_troop(Troop.TroopType.CABALLERIA)
+	assert_eq(manager.get_troops_per_recruit_bonus(cav), 1,
+		"Filtro de caballería debe aplicar al pasar un jinete")
+
+
+func test_get_troops_per_recruit_bonus_filtered_with_non_matching_troop():
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	var inf := _make_troop(Troop.TroopType.INFANTERIA_LIGERA)
+	assert_eq(manager.get_troops_per_recruit_bonus(inf), 0,
+		"Filtro de caballería NO debe aplicar a infantería")
+
+
+func test_get_troops_per_recruit_bonus_filtered_with_no_troop():
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	assert_eq(manager.get_troops_per_recruit_bonus(), 0,
+		"Modifier filtrado no debe contar si no se especifica tropa")
+
+
+func test_get_troops_per_recruit_bonus_mixed_modifiers_cavalry():
+	# Cuartel (sin filtro) + Horda (filtro caballería): jinete recibe ambos.
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("cuartel", "Cuartel",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1), stats)
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	var cav := _make_troop(Troop.TroopType.CABALLERIA)
+	assert_eq(manager.get_troops_per_recruit_bonus(cav), 2,
+		"Jinete debe recibir Cuartel (+1) + Horda (+1) = +2")
+
+
+func test_get_troops_per_recruit_bonus_mixed_modifiers_infantry():
+	# Cuartel (sin filtro) + Horda (filtro caballería): infantería solo recibe Cuartel.
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("cuartel", "Cuartel",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1), stats)
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	var inf := _make_troop(Troop.TroopType.INFANTERIA_LIGERA)
+	assert_eq(manager.get_troops_per_recruit_bonus(inf), 1,
+		"Infantería solo recibe Cuartel (+1), Horda filtrada no aplica")
+
+
+# ============================================================
+#  ModifierManager.get_troop_maintenance_percent con filtros
+# ============================================================
+
+func test_get_troop_maintenance_percent_filtered_with_matching_troop():
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	var cav := _make_troop(Troop.TroopType.CABALLERIA)
+	assert_almost_eq(manager.get_troop_maintenance_percent(cav), -25.0, 0.001,
+		"Filtro de caballería debe aplicar al mantenimiento de un jinete")
+
+
+func test_get_troop_maintenance_percent_filtered_with_non_matching_troop():
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	var inf := _make_troop(Troop.TroopType.INFANTERIA_LIGERA)
+	assert_almost_eq(manager.get_troop_maintenance_percent(inf), 0.0, 0.001,
+		"Filtro de caballería NO debe aplicar al mantenimiento de infantería")
+
+
+func test_get_troop_maintenance_percent_filtered_with_no_troop():
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	assert_almost_eq(manager.get_troop_maintenance_percent(), 0.0, 0.001,
+		"Modifier filtrado no debe contar si no se especifica tropa")
+
+
+func test_get_troop_maintenance_percent_mixed_cavalry_gets_both():
+	# Academia (sin filtro, -20%) + Horda (caballería, -25%): jinete suma -45%.
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("ac", "Academia",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -20.0, -1), stats)
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	var cav := _make_troop(Troop.TroopType.CABALLERIA)
+	assert_almost_eq(manager.get_troop_maintenance_percent(cav), -45.0, 0.001,
+		"Jinete recibe Academia (-20%) + Horda (-25%) = -45%")
+
+
+func test_get_troop_maintenance_percent_mixed_infantry_gets_only_general():
+	# Academia (sin filtro) aplica a infantería; Horda (filtro cav) no.
+	var stats := _make_stats()
+	manager.add_modifier(StatModifier.new("ac", "Academia",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -20.0, -1), stats)
+	manager.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	var inf := _make_troop(Troop.TroopType.INFANTERIA_LIGERA)
+	assert_almost_eq(manager.get_troop_maintenance_percent(inf), -20.0, 0.001,
+		"Infantería solo recibe Academia (-20%), Horda filtrada no aplica")

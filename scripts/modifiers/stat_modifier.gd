@@ -12,14 +12,14 @@ enum StatType {
 	CARD_DRAW_BONUS,
 	## Suma plana al numero de tropas reclutadas por play de RecruitCard.
 	## El total efectivo es `card.base_troops_per_play + sum(este modifier)`.
-	## El bonus se gasta entero por play; si el oro no alcanza, se reclutan
-	## las que se puedan y el resto se descarta.
+	## Si `troop_type_filter >= 0`, solo se aplica cuando la tropa elegida
+	## coincide con ese Troop.TroopType; si es -1, afecta a todas las tropas.
 	TROOPS_PER_RECRUIT,
 	## Descuento porcentual al mantenimiento BASE de tropas (oro y comida).
-	## Se suma con otros descuentos y se clampa a [-80, 0] para evitar que
-	## el mantenimiento llegue a 0 con muchos edificios. NO afecta al
-	## recargo escalado por tropas asignadas a frentes (ese coste plano
-	## queda intencionadamente sin descuento para preservar la subida).
+	## Si `troop_type_filter >= 0`, solo se aplica al mantenimiento de las
+	## tropas de ese Troop.TroopType; si es -1, afecta a todas las tropas.
+	## Se clampa a [-80, 0] para evitar que el mantenimiento llegue a 0.
+	## NO afecta al recargo de frentes (coste plano sin descuento).
 	TROOP_MAINTENANCE_PERCENT,
 }
 
@@ -37,17 +37,22 @@ const ICONS := {
 	"cards_flat_negative": preload("res://assets/modifiers/cards_flat_negative.svg"),
 }
 
-var type:StatType
-var value:float
-var target_resource:NaturalResource  ## solo para TILE_RESOURCE_*
+var type: StatType
+var value: float
+var target_resource: NaturalResource  ## solo para TILE_RESOURCE_*
+## Troop.TroopType al que se limita este modifier, o -1 para todas las tropas.
+## Solo relevante para TROOPS_PER_RECRUIT y TROOP_MAINTENANCE_PERCENT.
+var troop_type_filter: int = -1
 
 
-func _init(p_id:String, p_name:String, p_type:StatType, p_value:float,
-		p_duration:int, p_icon:Texture2D = null, p_target_resource:NaturalResource = null):
+func _init(p_id: String, p_name: String, p_type: StatType, p_value: float,
+		p_duration: int, p_icon: Texture2D = null,
+		p_target_resource: NaturalResource = null, p_troop_type_filter: int = -1):
 	super(p_id, p_name, p_duration, p_icon)
 	type = p_type
 	value = p_value
 	target_resource = p_target_resource
+	troop_type_filter = p_troop_type_filter
 
 	# Asignar icono y descripcion automaticamente
 	if icon == null:
@@ -57,7 +62,12 @@ func _init(p_id:String, p_name:String, p_type:StatType, p_value:float,
 
 
 func duplicate_modifier() -> Modifier:
-	return StatModifier.new(id, name, type, value, duration, icon, target_resource)
+	return StatModifier.new(id, name, type, value, duration, icon, target_resource, troop_type_filter)
+
+
+## Devuelve true si este modifier aplica a la tropa dada (o a todas si filter == -1).
+func applies_to_troop(troop: Troop) -> bool:
+	return troop_type_filter < 0 or (troop != null and troop.type == troop_type_filter)
 
 
 func _resolve_icon() -> Texture2D:
@@ -66,8 +76,8 @@ func _resolve_icon() -> Texture2D:
 
 
 func _build_icon_key() -> String:
-	var resource_name:String
-	var modifier_type:String
+	var resource_name: String
+	var modifier_type: String
 	var signo := "positive" if value >= 0.0 else "negative"
 
 	match type:
@@ -94,7 +104,7 @@ func _build_icon_key() -> String:
 
 func _build_description() -> String:
 	var sign := "+" if value >= 0.0 else ""
-	var val_str:String
+	var val_str: String
 
 	match type:
 		StatType.FLAT_GOLD:
@@ -115,6 +125,13 @@ func _build_description() -> String:
 			val_str = "%s%d card%s per turn" % [sign, int(value), "" if absi(int(value)) == 1 else "s"]
 		StatType.CARD_DRAW_BONUS:
 			val_str = "%s%d extra card%s on draw" % [sign, int(value), "" if absi(int(value)) == 1 else "s"]
+		StatType.TROOPS_PER_RECRUIT:
+			var scope := Troop.type_label_for(troop_type_filter) if troop_type_filter >= 0 else "troop"
+			val_str = "%s%d extra %s%s per recruit" % [sign, int(value), scope.to_lower(),
+					"" if absi(int(value)) == 1 else "s"]
+		StatType.TROOP_MAINTENANCE_PERCENT:
+			var scope := Troop.type_label_for(troop_type_filter) if troop_type_filter >= 0 else "troop"
+			val_str = "%s%d%% %s maintenance" % [sign, int(value), scope.to_lower()]
 		_:
 			val_str = "%s%d" % [sign, int(value)]
 

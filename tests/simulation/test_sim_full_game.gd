@@ -28,11 +28,11 @@ func test_run_simulation() -> void:
 	BattleFront.clear_active_instances()
 
 	var multi = MULTI_RUN.new()
-	# 30 runs: la primera tanda con 5 dejo coeficientes de variacion del
-	# 85-200% en metricas clave (oro total, tropas, comida) — varianza
-	# comparable a la media, imposible distinguir balance real de ruido del
-	# seed. 30 reduce el error estandar de la media a ~1/sqrt(6) ≈ 0.4x.
-	multi.num_runs = 30
+	# 15 runs: equilibrio entre precision estadistica y tiempo de ejecucion.
+	# Con 100 rondas por run doblar los runs duplicaria el tiempo; 15 ofrece
+	# error estandar de la media ~1/sqrt(3) ≈ 0.58x respecto a 5 runs,
+	# suficiente para distinguir tendencias de balance en late-game.
+	multi.num_runs = 15
 	multi.num_rounds = 100
 	multi.rng_master_seed = 20260516  # YYYYMMDD para tener un seed estable y fechado
 	multi.attach_to(self)

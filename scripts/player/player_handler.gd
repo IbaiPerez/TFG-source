@@ -22,6 +22,7 @@ func start_game(new_stats:Stats) -> void:
 
 func start_turn() -> void:
 	_process_turn_start()
+	_process_battle_fronts()
 	var effective_cards := _get_effective_cards_per_turn()
 	draw_cards_animated(effective_cards)
 

@@ -127,27 +127,29 @@ func get_card_draw_bonus() -> int:
 	return total
 
 
-## Suma de modifiers activos del tipo TROOPS_PER_RECRUIT. Cada Cuartel
-## construido añade +1; el total se aplica como bonus al base_troops_per_play
-## de RecruitCard cuando se juega.
-func get_troops_per_recruit_bonus() -> int:
+## Suma de modifiers activos del tipo TROOPS_PER_RECRUIT que aplican a la
+## tropa dada. Modifiers sin filtro (troop_type_filter == -1) cuentan siempre;
+## modifiers con filtro solo cuentan si la tropa coincide.
+## Pasar troop=null equivale a pedir solo los modifiers sin filtro.
+func get_troops_per_recruit_bonus(troop: Troop = null) -> int:
 	var total := 0
 	for mod in active_modifiers:
 		if mod is StatModifier and mod.type == StatModifier.StatType.TROOPS_PER_RECRUIT:
-			total += int(mod.value)
+			if mod.applies_to_troop(troop):
+				total += int(mod.value)
 	return total
 
 
-## Suma porcentual de modifiers del tipo TROOP_MAINTENANCE_PERCENT (e.g.,
-## -20 + -20 = -40 → -40% al mantenimiento base). El consumer
-## (EmpireController) clampa este valor a [-80, 0] antes de aplicarlo para
-## que el mantenimiento no pueda llegar a 0; el clamp se hace alli porque
-## es regla de juego, no de agregacion de modifiers.
-func get_troop_maintenance_percent() -> float:
+## Suma porcentual de modifiers del tipo TROOP_MAINTENANCE_PERCENT que aplican
+## a la tropa dada. Modifiers sin filtro (troop_type_filter == -1) aplican a
+## todas; modifiers con filtro solo a tropas del tipo indicado.
+## Pasar troop=null equivale a pedir solo los modifiers sin filtro.
+func get_troop_maintenance_percent(troop: Troop = null) -> float:
 	var total := 0.0
 	for mod in active_modifiers:
 		if mod is StatModifier and mod.type == StatModifier.StatType.TROOP_MAINTENANCE_PERCENT:
-			total += mod.value
+			if mod.applies_to_troop(troop):
+				total += mod.value
 	return total
 
 

@@ -331,3 +331,303 @@ func test_open_front_scores_lower_for_mountain_than_grassland() -> void:
 	assert_true(score_grassland > score_mountain,
 		"Atacar pradera (biome_factor 1.20) debe puntuar más que atacar montaña (0.60)")
 	BattleFront.clear_active_instances()
+
+
+# ============================================================
+#  Helpers para tests de frontera y encierro
+# ============================================================
+
+func _make_colonize_option(tile: Tile) -> AIPlayOption:
+	var card := ColonizeCard.new()
+	card.id = "colonize"
+	card.target = Card.Target.TILE
+	return AIPlayOption.simple(card, [tile])
+
+
+## Crea un contexto con N tiles controladas y M colonizables para
+## testear _encirclement_pressure sin necesidad de un mapa real.
+func _make_ctx_with_colonizable(n_controlled: int,
+		n_colonizable: int) -> AITurnContext:
+	var stats := _make_stats()
+	for _i in n_controlled:
+		var t := _make_tile(stats.empire)
+		autofree(t)
+		stats.empire.controlled_tiles.append(t)
+	var ctx := _make_ctx(stats)
+	ctx.colonizable_tiles_count = n_colonizable
+	return ctx
+
+
+# ============================================================
+#  _frontier_value: tiles nuevas que abre colonizar una tile
+# ============================================================
+
+func test_frontier_value_zero_when_all_neighbors_controlled() -> void:
+	# T rodeada de tiles del propio imperio: no abre ninguna ruta nueva.
+	var stats := _make_stats()
+	var ctx := _make_ctx(stats)
+	var empire := stats.empire
+
+	var a := _make_tile(empire)
+	autofree(a)
+	var b := _make_tile(empire)
+	autofree(b)
+	var t := _make_tile()  # tile a evaluar, aún no controlada
+	autofree(t)
+
+	a.neighbors = [t]
+	b.neighbors = [t]
+	t.neighbors = [a, b]
+	empire.controlled_tiles = [a, b]
+
+	assert_eq(AIHeuristic._frontier_value(t, ctx), 0,
+		"Tile rodeada de territorio propio no debe abrir tiles nuevas")
+
+
+func test_frontier_value_counts_tiles_only_reachable_via_target() -> void:
+	# Imperio controla A. T es adyacente a A.
+	# B, C, D son libres y solo accesibles vía T (no adyacentes a A).
+	var stats := _make_stats()
+	var ctx := _make_ctx(stats)
+	var empire := stats.empire
+
+	var a := _make_tile(empire)
+	autofree(a)
+	var t := _make_tile()
+	autofree(t)
+	var b := _make_tile()
+	autofree(b)
+	var c := _make_tile()
+	autofree(c)
+	var d := _make_tile()
+	autofree(d)
+
+	a.neighbors = [t]
+	t.neighbors = [a, b, c, d]
+	b.neighbors = [t]
+	c.neighbors = [t]
+	d.neighbors = [t]
+	empire.controlled_tiles = [a]
+
+	assert_eq(AIHeuristic._frontier_value(t, ctx), 3,
+		"B, C y D son solo accesibles colonizando T: debe contar 3")
+
+
+func test_frontier_value_excludes_tiles_already_reachable() -> void:
+	# Imperio controla A y B. T es adyacente a A.
+	# C es libre pero también adyacente a B (ya reachable sin T).
+	# D es libre y solo accesible vía T.
+	# Resultado esperado: 1 (solo D).
+	var stats := _make_stats()
+	var ctx := _make_ctx(stats)
+	var empire := stats.empire
+
+	var a := _make_tile(empire)
+	autofree(a)
+	var b := _make_tile(empire)
+	autofree(b)
+	var t := _make_tile()
+	autofree(t)
+	var c := _make_tile()  # ya accesible vía B
+	autofree(c)
+	var d := _make_tile()  # solo accesible vía T
+	autofree(d)
+
+	a.neighbors = [t, b]
+	b.neighbors = [a, c]
+	t.neighbors = [a, c, d]
+	c.neighbors = [b, t]
+	d.neighbors = [t]
+	empire.controlled_tiles = [a, b]
+
+	assert_eq(AIHeuristic._frontier_value(t, ctx), 1,
+		"Solo D es nueva; C ya es accesible vía B")
+
+
+func test_frontier_value_ignores_controlled_neighbors() -> void:
+	# T tiene un vecino controlado por el imperio y uno libre nuevo.
+	# El controlado no cuenta; solo el libre nuevo.
+	var stats := _make_stats()
+	var ctx := _make_ctx(stats)
+	var empire := stats.empire
+
+	var a := _make_tile(empire)
+	autofree(a)
+	var e2 := _make_tile(empire)  # segundo tile controlado
+	autofree(e2)
+	var t := _make_tile()
+	autofree(t)
+	var b := _make_tile()  # libre, solo accesible vía T
+	autofree(b)
+
+	a.neighbors = [t]
+	e2.neighbors = [t]
+	t.neighbors = [a, e2, b]
+	b.neighbors = [t]
+	empire.controlled_tiles = [a, e2]
+
+	assert_eq(AIHeuristic._frontier_value(t, ctx), 1,
+		"Solo B debe contar; E2 es controlado y se ignora")
+
+
+func test_frontier_value_returns_zero_without_empire() -> void:
+	var stats := _make_stats()
+	stats.empire = null
+	var ctx := _make_ctx(stats)
+	var t := _make_tile()
+	autofree(t)
+
+	assert_eq(AIHeuristic._frontier_value(t, ctx), 0,
+		"Sin empire en el contexto, frontier_value debe devolver 0")
+
+
+# ============================================================
+#  _encirclement_pressure: multiplicador según grado de encierro
+# ============================================================
+
+func test_encirclement_pressure_minimum_when_ratio_above_2() -> void:
+	# 5 controladas, 15 colonizables → ratio=3.0 ≥ 2.0 → presión 1.5
+	var ctx := _make_ctx_with_colonizable(5, 15)
+	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 1.5, 0.01,
+		"Ratio ≥ 2.0 debe dar presión mínima 1.5 (mapa muy abierto)")
+
+
+func test_encirclement_pressure_medium_when_ratio_between_1_and_2() -> void:
+	# 10 controladas, 15 colonizables → ratio=1.5 → presión 2.5
+	var ctx := _make_ctx_with_colonizable(10, 15)
+	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 2.5, 0.01,
+		"Ratio entre 1.0 y 2.0 debe dar presión media 2.5")
+
+
+func test_encirclement_pressure_high_when_ratio_between_half_and_1() -> void:
+	# 10 controladas, 7 colonizables → ratio=0.7 → presión 4.0
+	var ctx := _make_ctx_with_colonizable(10, 7)
+	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 4.0, 0.01,
+		"Ratio entre 0.5 y 1.0 debe dar presión alta 4.0")
+
+
+func test_encirclement_pressure_maximum_when_nearly_enclosed() -> void:
+	# 10 controladas, 3 colonizables → ratio=0.3 < 0.5 → presión máxima 5.0
+	var ctx := _make_ctx_with_colonizable(10, 3)
+	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 5.0, 0.01,
+		"Ratio < 0.5 debe dar presión máxima 5.0 (casi encerrada)")
+
+
+func test_encirclement_pressure_neutral_when_colonizable_unknown() -> void:
+	# colonizable_tiles_count = -1 (tests sin mapa) → valor neutro 1.5
+	var stats := _make_stats()
+	var ctx := _make_ctx(stats)
+	ctx.colonizable_tiles_count = -1
+
+	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 1.5, 0.01,
+		"Colonizable desconocido (-1) debe devolver valor neutro 1.5")
+
+
+# ============================================================
+#  _score_colonize: integración frontier_bonus
+# ============================================================
+
+func test_colonize_frontier_tile_scores_higher_than_gap_tile() -> void:
+	# Dos tiles con recursos idénticos. T_frontier abre 3 rutas nuevas;
+	# T_gap no abre ninguna (su única vecina libre ya es adyacente al imperio).
+	# Con mapa abierto (presión mínima), T_frontier debe puntuar más.
+	var stats := _make_stats(100, 10, 500)
+	var empire := stats.empire
+
+	var own := _make_tile(empire)
+	add_child_autofree(own)
+	empire.controlled_tiles = [own]
+
+	# T_frontier: 3 vecinas libres solo accesibles vía ella
+	var t_frontier := _make_tile()
+	add_child_autofree(t_frontier)
+	t_frontier.gold_production = 2
+	t_frontier.food_production = 1
+	var f1 := _make_tile()
+	autofree(f1)
+	var f2 := _make_tile()
+	autofree(f2)
+	var f3 := _make_tile()
+	autofree(f3)
+	f1.neighbors = [t_frontier]
+	f2.neighbors = [t_frontier]
+	f3.neighbors = [t_frontier]
+	t_frontier.neighbors = [own, f1, f2, f3]
+
+	# T_gap: su única vecina libre (g1) ya es adyacente a own → no abre rutas nuevas
+	var t_gap := _make_tile()
+	add_child_autofree(t_gap)
+	t_gap.gold_production = 2
+	t_gap.food_production = 1
+	var g1 := _make_tile()
+	autofree(g1)
+	g1.neighbors = [own, t_gap]  # g1 ya es accesible directamente desde own
+	t_gap.neighbors = [own, g1]
+	own.neighbors = [t_frontier, t_gap, g1]
+
+	var ctx := _make_ctx(stats)
+	ctx.colonizable_tiles_count = 8  # mapa abierto → presión mínima 1.5
+
+	var score_frontier := AIHeuristic.score_option(_make_colonize_option(t_frontier), ctx)
+	var score_gap := AIHeuristic.score_option(_make_colonize_option(t_gap), ctx)
+
+	assert_true(score_frontier > score_gap,
+		"Tile frontera (abre 3 rutas) debe puntuar más que tile interior (no abre rutas)")
+
+
+func test_colonize_encirclement_amplifies_frontier_preference() -> void:
+	# Misma topología de tiles, dos contextos distintos:
+	#   A) mapa abierto → _encirclement_pressure=1.5 → diff pequeña
+	#   B) casi encerrada → _encirclement_pressure=5.0 → diff mayor
+	# La diferencia de scores (frontier - gap) en B debe superar la de A.
+	var stats := _make_stats(100, 10, 500)
+	var empire := stats.empire
+
+	var own := _make_tile(empire)
+	add_child_autofree(own)
+	# 10 tiles adicionales para tener territorio suficiente y que el ratio sea claro
+	for _i in 10:
+		var dummy := _make_tile(empire)
+		autofree(dummy)
+		empire.controlled_tiles.append(dummy)
+	empire.controlled_tiles.append(own)  # 11 tiles en total
+
+	var t_frontier := _make_tile()
+	add_child_autofree(t_frontier)
+	t_frontier.gold_production = 2
+	t_frontier.food_production = 1
+	var f1 := _make_tile()
+	autofree(f1)
+	var f2 := _make_tile()
+	autofree(f2)
+	var f3 := _make_tile()
+	autofree(f3)
+	f1.neighbors = [t_frontier]
+	f2.neighbors = [t_frontier]
+	f3.neighbors = [t_frontier]
+	t_frontier.neighbors = [own, f1, f2, f3]
+
+	var t_gap := _make_tile()
+	add_child_autofree(t_gap)
+	t_gap.gold_production = 2
+	t_gap.food_production = 1
+	var g1 := _make_tile()
+	autofree(g1)
+	g1.neighbors = [own, t_gap]
+	t_gap.neighbors = [own, g1]
+	own.neighbors = [t_frontier, t_gap, g1]
+
+	# Contexto A: ratio=25/11≈2.3 → presión 1.5
+	var ctx_open := _make_ctx(stats)
+	ctx_open.colonizable_tiles_count = 25
+	var diff_open := AIHeuristic.score_option(_make_colonize_option(t_frontier), ctx_open) \
+				  - AIHeuristic.score_option(_make_colonize_option(t_gap), ctx_open)
+
+	# Contexto B: ratio=2/11≈0.18 → presión 5.0
+	var ctx_enclosed := _make_ctx(stats)
+	ctx_enclosed.colonizable_tiles_count = 2
+	var diff_enclosed := AIHeuristic.score_option(_make_colonize_option(t_frontier), ctx_enclosed) \
+					  - AIHeuristic.score_option(_make_colonize_option(t_gap), ctx_enclosed)
+
+	assert_true(diff_enclosed > diff_open,
+		"El encierro debe amplificar la preferencia por tiles que abren nuevas rutas")

@@ -161,10 +161,11 @@ func test_banking_ability_has_build_cost_modifier():
 #  HordeAbility
 # ============================================================
 
-func test_horde_ability_creates_two_modifiers():
+func test_horde_ability_creates_four_modifiers():
+	# cards_per_turn + card_return + cavalry_recruit (filtrado) + cavalry_maintenance (filtrado)
 	var ability := HordeAbility.new()
 	var mods := ability.create_modifiers()
-	assert_eq(mods.size(), 2, "Horde should create cards_per_turn + card_return modifiers")
+	assert_eq(mods.size(), 4, "Horde should create 4 modifiers: cards, return, cavalry recruit, cavalry maintenance")
 
 
 func test_horde_ability_has_cards_per_turn_modifier():
@@ -190,23 +191,50 @@ func test_horde_ability_has_card_return_modifier():
 	assert_true(has_return, "Should have a CardReturnModifier for Colonize")
 
 
+func test_horde_ability_has_cavalry_recruit_modifier():
+	var ability := HordeAbility.new()
+	var mods := ability.create_modifiers()
+	var found := false
+	for mod in mods:
+		if mod is StatModifier and mod.type == StatModifier.StatType.TROOPS_PER_RECRUIT:
+			found = true
+			assert_eq(mod.value, 1.0)
+			assert_eq(mod.troop_type_filter, Troop.TroopType.CABALLERIA,
+				"El modifier de recluta debe estar filtrado a caballería")
+	assert_true(found, "Horde should have a TROOPS_PER_RECRUIT modifier filtered to cavalry")
+
+
+func test_horde_ability_has_cavalry_maintenance_modifier():
+	var ability := HordeAbility.new()
+	var mods := ability.create_modifiers()
+	var found := false
+	for mod in mods:
+		if mod is StatModifier and mod.type == StatModifier.StatType.TROOP_MAINTENANCE_PERCENT:
+			found = true
+			assert_almost_eq(mod.value, -25.0, 0.001)
+			assert_eq(mod.troop_type_filter, Troop.TroopType.CABALLERIA,
+				"El modifier de mantenimiento debe estar filtrado a caballería")
+	assert_true(found, "Horde should have a TROOP_MAINTENANCE_PERCENT modifier filtered to cavalry")
+
+
 # ============================================================
 #  GardensAbility
 # ============================================================
 
-func test_gardens_ability_without_wheat_creates_one_modifier():
+func test_gardens_ability_without_wheat_creates_two_modifiers():
+	# gold_on_card (Build Card) + PERCENT_GOLD (Rutas de Mesopotamia)
 	var ability := GardensAbility.new()
-	# No wheat_resource set
 	var mods := ability.create_modifiers()
-	assert_eq(mods.size(), 1, "Without wheat resource, only gold_on_card modifier")
+	assert_eq(mods.size(), 2, "Without wheat resource: gold_on_card + trade_gold modifiers")
 
 
-func test_gardens_ability_with_wheat_creates_two_modifiers():
+func test_gardens_ability_with_wheat_creates_three_modifiers():
+	# TILE_RESOURCE_FOOD (trigo) + gold_on_card + PERCENT_GOLD (comercio)
 	var ability := GardensAbility.new()
 	ability.wheat_resource = NaturalResource.new()
 	ability.wheat_resource.name = "Wheat"
 	var mods := ability.create_modifiers()
-	assert_eq(mods.size(), 2, "With wheat resource, food + gold_on_card modifiers")
+	assert_eq(mods.size(), 3, "With wheat resource: food + gold_on_card + trade_gold modifiers")
 
 
 func test_gardens_ability_has_gold_on_card_modifier():
@@ -234,3 +262,16 @@ func test_gardens_ability_wheat_food_modifier():
 			assert_eq(mod.value, 2.0)
 			assert_eq(mod.target_resource, wheat)
 	assert_true(has_food, "Should have a TILE_RESOURCE_FOOD modifier targeting wheat")
+
+
+func test_gardens_ability_has_trade_gold_modifier():
+	# Rutas de Mesopotamia: +10% producción de oro global (PERCENT_GOLD)
+	var ability := GardensAbility.new()
+	var mods := ability.create_modifiers()
+	var has_trade := false
+	for mod in mods:
+		if mod is StatModifier and mod.type == StatModifier.StatType.PERCENT_GOLD:
+			has_trade = true
+			assert_almost_eq(mod.value, 10.0, 0.001,
+				"Rutas de Mesopotamia debe dar +10% de oro")
+	assert_true(has_trade, "GardensAbility debe incluir un modifier PERCENT_GOLD")

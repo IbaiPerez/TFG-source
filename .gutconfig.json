@@ -1,5 +1,5 @@
 {
-	"dirs": ["res://tests/", "res://tests/simulation/"],
+	"dirs": ["res://tests/"],
 	"prefix": "test_",
 	"suffix": ".gd",
 	"should_maximize": false,

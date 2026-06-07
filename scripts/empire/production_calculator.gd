@@ -100,17 +100,17 @@ func _calculate_base_production() -> Dictionary:
 
 
 ## Paso 4: mantenimiento base de tropas con descuento clampeado.
+## Itera por-tropa para que los modifiers con troop_type_filter apliquen
+## solo a las tropas de ese tipo; los modifiers sin filtro aplican a todas.
 func _calculate_troop_maintenance() -> Dictionary:
-	# Mantenimiento de tropas (se resta despues de los % de produccion para
-	# que no se amplifique). Aplicamos el descuento de edificios tipo
-	# Academia Militar y delegamos en `ModifierManager.clamp_cost_multiplier`
-	# para que comparta el clamp con el resto de descuentos del juego
-	# (construccion, futuros). MIN_COST_MULTIPLIER vive en ModifierManager.
-	var maint_multiplier := ModifierManager.clamp_cost_multiplier(
-			1.0 + modifier_manager.get_troop_maintenance_percent() / 100.0)
-	var base_troop_gold := int(stats.get_troop_maintenance_gold() * maint_multiplier)
-	var base_troop_food := int(stats.get_troop_maintenance_food() * maint_multiplier)
-	return { "gold": base_troop_gold, "food": base_troop_food }
+	var total_gold := 0
+	var total_food := 0
+	for troop in stats.troop_pool:
+		var percent := modifier_manager.get_troop_maintenance_percent(troop)
+		var multiplier := ModifierManager.clamp_cost_multiplier(1.0 + percent / 100.0)
+		total_gold += int(troop.maintenance_gold * multiplier)
+		total_food += int(troop.maintenance_food * multiplier)
+	return { "gold": total_gold, "food": total_food }
 
 
 ## Paso 5: recargo escalado por tropas asignadas a frentes activos.

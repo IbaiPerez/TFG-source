@@ -159,6 +159,103 @@ func test_recruit_card_effective_total_clamps_to_min_one() -> void:
 		"Defensivo: minimo 1 tropa por play, base=0 lo clampa")
 
 
+# --- Tests RecruitCard con troop_type_filter (Horda Nomada) ---
+
+func _create_cavalry() -> Troop:
+	var t := _create_troop(6, 1, 40)
+	t.type = Troop.TroopType.CABALLERIA
+	t.maintenance_gold = 3
+	t.maintenance_food = 2
+	return t
+
+
+func _create_infantry() -> Troop:
+	var t := _create_troop(2, 2, 20)
+	t.type = Troop.TroopType.INFANTERIA_LIGERA
+	return t
+
+
+func _setup_manager_with_cavalry_filter() -> ModifierManager:
+	var mm := ModifierManager.new()
+	add_child_autofree(mm)
+	mm.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	stats.modifier_manager = mm
+	return mm
+
+
+func test_recruit_card_cavalry_filter_bonus_applies_to_cavalry() -> void:
+	_setup_manager_with_cavalry_filter()
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 1
+	var cav := _create_cavalry()
+	# Modifier filtrado a CABALLERIA + jinete → total 2
+	assert_eq(card.get_effective_troops_per_play(stats, cav), 2,
+		"Modifier de caballería debe sumar +1 al reclutar un jinete")
+
+
+func test_recruit_card_cavalry_filter_bonus_does_not_apply_to_infantry() -> void:
+	_setup_manager_with_cavalry_filter()
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 1
+	var inf := _create_infantry()
+	assert_eq(card.get_effective_troops_per_play(stats, inf), 1,
+		"Modifier filtrado a caballería NO debe sumar bonus a infantería")
+
+
+func test_recruit_card_apply_effects_recruits_bonus_cavalry() -> void:
+	# Con modifier de caballería +1, reclutar un jinete recluta 2 en total.
+	_setup_manager_with_cavalry_filter()
+	stats.total_gold = 100
+
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 1
+	var cav := _create_cavalry()
+	card.chosen = cav
+
+	card.apply_effects([], stats)
+	assert_eq(stats.troop_pool.size(), 2,
+		"Con modifier +1 caballería, deben reclutarse 2 jinetes")
+	assert_eq(stats.total_gold, 20,
+		"100 - 2*40 = 20 oro restante")
+
+
+func test_recruit_card_apply_effects_infantry_not_affected_by_cavalry_filter() -> void:
+	# Modifier de caballería no afecta al reclutar infantería.
+	_setup_manager_with_cavalry_filter()
+	stats.total_gold = 100
+
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 1
+	var inf := _create_infantry()
+	card.chosen = inf
+
+	card.apply_effects([], stats)
+	assert_eq(stats.troop_pool.size(), 1,
+		"Modifier de caballería no debe afectar al reclutar infantería")
+	assert_eq(stats.total_gold, 80,
+		"100 - 1*20 = 80 oro restante")
+
+
+func test_recruit_card_combined_filter_and_general_bonus_for_cavalry() -> void:
+	# Cuartel (sin filtro, +1) + Horda (filtro cav, +1): jinete recluta 3 total.
+	var mm := ModifierManager.new()
+	add_child_autofree(mm)
+	mm.add_modifier(StatModifier.new("cuartel", "Cuartel",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1), stats)
+	mm.add_modifier(StatModifier.new("horde", "Horda",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1,
+		null, null, Troop.TroopType.CABALLERIA), stats)
+	stats.modifier_manager = mm
+
+	var card := RecruitCard.new()
+	card.base_troops_per_play = 1
+	var cav := _create_cavalry()
+	assert_eq(card.get_effective_troops_per_play(stats, cav), 3,
+		"Base(1) + Cuartel(1) + Horda(1) = 3 jinetes por play")
+
+
 # --- Tests OpenFrontCard ---
 
 func test_open_front_card_valid_targets() -> void:

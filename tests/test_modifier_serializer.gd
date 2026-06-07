@@ -84,6 +84,39 @@ func test_serialize_manager_returns_array_with_all_modifiers():
 	assert_eq(data[1]["kind"], ModifierSerializer.Kind.BUILD_COST)
 
 
+func test_stat_modifier_round_trip_with_troop_type_filter():
+	# Un StatModifier con filtro de caballería debe sobrevivir el ciclo
+	# serialización → deserialización conservando troop_type_filter.
+	var mod := StatModifier.new("horde_maint", "Horda Mantenimiento",
+		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
+		null, null, Troop.TroopType.CABALLERIA)
+	assert_eq(mod.troop_type_filter, Troop.TroopType.CABALLERIA)
+
+	var d := ModifierSerializer.to_dict(mod)
+	assert_true(d.has("troop_type_filter"),
+		"El dict serializado debe incluir troop_type_filter")
+	assert_eq(int(d["troop_type_filter"]), int(Troop.TroopType.CABALLERIA))
+
+	var restored := ModifierSerializer.from_dict(d) as StatModifier
+	assert_not_null(restored)
+	assert_eq(restored.type, StatModifier.StatType.TROOP_MAINTENANCE_PERCENT)
+	assert_almost_eq(restored.value, -25.0, 0.001)
+	assert_eq(restored.troop_type_filter, Troop.TroopType.CABALLERIA,
+		"troop_type_filter debe preservarse tras la deserialización")
+
+
+func test_stat_modifier_round_trip_without_filter_defaults_to_minus_one():
+	# Modifier sin filtro (el caso habitual de Cuartel/Academia): el campo
+	# debe restaurarse a -1, no a 0 ni a otro valor.
+	var mod := StatModifier.new("cuartel", "Cuartel",
+		StatModifier.StatType.TROOPS_PER_RECRUIT, 1.0, -1)
+	var d := ModifierSerializer.to_dict(mod)
+	var restored := ModifierSerializer.from_dict(d) as StatModifier
+	assert_not_null(restored)
+	assert_eq(restored.troop_type_filter, -1,
+		"Modifier sin filtro debe restaurarse con troop_type_filter = -1")
+
+
 func test_apply_to_manager_restores_modifiers_in_order():
 	var source_manager := add_child_autofree(ModifierManager.new()) as ModifierManager
 	var stats := Stats.new()

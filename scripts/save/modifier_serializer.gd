@@ -48,6 +48,7 @@ static func to_dict(mod:Modifier) -> Dictionary:
 		d["type"] = int(sm.type)
 		d["value"] = sm.value
 		d["target_resource"] = sm.target_resource.resource_path if sm.target_resource else ""
+		d["troop_type_filter"] = sm.troop_type_filter
 	elif mod is BuildCostModifier:
 		var bcm:BuildCostModifier = mod
 		d["percent"] = bcm.percent
@@ -94,7 +95,8 @@ static func from_dict(data:Dictionary) -> Modifier:
 			var target:NaturalResource = null
 			if target_path != "" and ResourceLoader.exists(target_path):
 				target = load(target_path) as NaturalResource
-			return StatModifier.new(id, name, type, value, duration, null, target)
+			var ttf:int = int(data.get("troop_type_filter", -1))
+			return StatModifier.new(id, name, type, value, duration, null, target, ttf)
 		Kind.BUILD_COST:
 			var percent:float = float(data.get("percent", 0.0))
 			return BuildCostModifier.new(id, name, percent, duration, null)

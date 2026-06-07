@@ -129,7 +129,7 @@ func _aggregate_metrics(snapshots: Array) -> Dictionary:
 		"deck.draw_pile",
 		"deck.discard_pile",
 		"deck.played_pile",
-		"deck.deck_total_size",
+		"deck.deck_total_real",
 		"deck.cards_per_turn",
 		"deck.unlocked_pool_size",
 		"map.controlled_tiles",

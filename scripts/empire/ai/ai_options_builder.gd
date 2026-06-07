@@ -178,12 +178,12 @@ static func _add_recruit_options(card: RecruitCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
 	if card.available_troops.is_empty():
 		return
-	var per_play := card.get_effective_troops_per_play(ctx.stats)
 	for troop in card.available_troops:
 		if troop == null:
 			continue
 		if not ctx.stats.can_afford_troop(troop):
 			continue
+		var per_play := card.get_effective_troops_per_play(ctx.stats, troop)
 		var total_cost: int = troop.recruitment_cost_gold * per_play
 		if ctx.stats.total_gold < total_cost:
 			continue

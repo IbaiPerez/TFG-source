@@ -199,6 +199,26 @@ static func _type_saturation(card: Card, ctx: AITurnContext) -> float:
 	return clampf(1.0 / float(_card_type_count(card, ctx)), 0.25, 1.0)
 
 
+## Factor de excedente económico [1.0, 3.0].
+## Cuando el empire tiene oro y comida muy por encima de los umbrales cómodos
+## para su fase, el coste de oportunidad de reclutar o abrir frentes es mínimo
+## y estas acciones se potencian. Requiere food >= 5 (sin margen de comida no
+## se pueden sostener tropas aunque el oro sobre).
+static func _resource_surplus_factor(ctx: AITurnContext, phase: AIGamePhase.Phase) -> float:
+	if ctx.stats == null or ctx.stats.food < 5:
+		return 1.0
+	var gpt := ctx.stats.gold_per_turn
+	var comfortable_gpt: int
+	match phase:
+		AIGamePhase.Phase.EARLY: comfortable_gpt = 80
+		AIGamePhase.Phase.MID:   comfortable_gpt = 200
+		_:                       comfortable_gpt = 350  # LATE: alineado con el umbral de entrada a LATE
+	if gpt <= comfortable_gpt:
+		return 1.0
+	# 1.0 en el umbral → 3.0 cuando gpt duplica ese umbral
+	return lerpf(1.0, 3.0, clampf(float(gpt - comfortable_gpt) / float(comfortable_gpt), 0.0, 1.0))
+
+
 ## Factor de presión expansionista [0.0, 1.0] basado en tiles colonizables
 ## adyacentes al territorio actual. Independiente de la fase (turno).
 ## 1.0 = muchas tiles libres alrededor (expansión plena)
@@ -393,7 +413,8 @@ static func _score_recruit(option: AIRecruitOption, ctx: AITurnContext,
 	# Rendimiento decreciente: pool grande (sin frentes) reduce el valor de seguir reclutando.
 	# 0 tropas → ×1.0 | 25 tropas → ×0.5 | 50 tropas → ×0.33
 	var saturation := 1.0 / (1.0 + ctx.stats.troop_pool.size() * 0.04)
-	return float(option.troop.attack + option.troop.defense) * 3.0 * mu * comp * saturation
+	var surplus := _resource_surplus_factor(ctx, phase)
+	return float(option.troop.attack + option.troop.defense) * 3.0 * mu * comp * saturation * surplus
 
 
 ## Bonus de complementariedad: favorece tropas que equilibran el pool actual.
@@ -461,7 +482,8 @@ static func _score_open_front(option: AIOpenFrontOption, ctx: AITurnContext,
 				if gpt < 50 or food < 5: econ_safety = 0.5
 
 	var biome_factor := _attack_biome_factor(enemy)
-	return tile_val * econ_safety * mu * biome_factor * pool_factor
+	var surplus := _resource_surplus_factor(ctx, phase)
+	return tile_val * econ_safety * mu * biome_factor * pool_factor * surplus
 
 
 static func _score_tactic(option: AITacticOption, ctx: AITurnContext,
@@ -532,11 +554,58 @@ static func _score_colonize(option: AIPlayOption, ctx: AITurnContext,
 	# el bonus sigue siendo alto aunque el número de turno sea elevado.
 	# 0.0 cuando no hay tiles (PASS dominará); 3.0 cuando hay muchas (max bonus).
 	var expansion_bonus := _expansion_factor(ctx) * 3.0
+	# Bonus de frontera: cada tile nueva que esta colonización desbloquea
+	# puntúa extra, escalado por la presión de encierro. Las tiles que abren
+	# corredores hacia espacio libre dominan a las que solo rellenan huecos.
+	var frontier_bonus := float(_frontier_value(tile, ctx)) * _encirclement_pressure(ctx)
 	# food_production de una tile no colonizada = natural_resource.food_produced
 	# gold_production de una tile no colonizada = natural_resource.gold_produced
 	return tile.gold_production * 4.0 * gu \
 		 + tile.food_production * 5.0 * fu \
-		 + expansion_bonus
+		 + expansion_bonus \
+		 + frontier_bonus
+
+
+## Tiles nuevas que se volverían colonizables exclusivamente gracias a colonizar
+## `tile`. Una vecina libre cuenta como "nueva" solo si ningún otro tile del
+## territorio actual ya la hace accesible. Cuanto mayor, más abre esta tile
+## rutas de expansión hacia espacio libre (difícil de rodear).
+static func _frontier_value(tile: Tile, ctx: AITurnContext) -> int:
+	if ctx.stats == null or ctx.stats.empire == null:
+		return 0
+	var count := 0
+	for nb in tile.neighbors:
+		var t := nb as Tile
+		if t == null or t.controller != null:
+			continue
+		var already_reachable := false
+		for nn in t.neighbors:
+			var nt := nn as Tile
+			if nt == null or nt == tile:
+				continue
+			if nt.controller == ctx.stats.empire:
+				already_reachable = true
+				break
+		if not already_reachable:
+			count += 1
+	return count
+
+
+## Multiplicador del bonus de frontera según el grado de encierro.
+## Ratio = tiles_colonizables / tiles_controladas.
+## Ratio bajo → la IA está quedando rodeada → escalar el incentivo de escapar.
+static func _encirclement_pressure(ctx: AITurnContext) -> float:
+	if ctx.stats == null or ctx.stats.empire == null:
+		return 1.5
+	var avail := ctx.colonizable_tiles_count
+	if avail < 0:
+		return 1.5
+	var controlled := maxi(ctx.stats.empire.controlled_tiles.size(), 1)
+	var ratio := float(avail) / float(controlled)
+	if ratio >= 2.0: return 1.5
+	if ratio >= 1.0: return 2.5
+	if ratio >= 0.5: return 4.0
+	return 5.0
 
 
 ## Village→Town: +5 food_consumption y +2 building slots.
@@ -888,7 +957,6 @@ static func _score_stat_effect(effect: AddStatModifierEffect,
 		StatModifier.StatType.TROOPS_PER_RECRUIT:
 			return v * 6.0 * mu
 		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT:
-			# Ahorro proporcional al pool actual de tropas
 			return ctx.stats.troop_pool.size() * absf(v) * 0.3 * mu
 	return 0.0
 

@@ -216,18 +216,25 @@ func update_neighbors_borders() -> void:
 func update_borders() -> void:
 	if not border_mesh:
 		return
-	
+
 	if controller == null:
 		border_mesh.mesh = null
 		return
-	
+
 	var borders_to_draw = []
-	
+
+	# En mapas escalonados (rectangle/diamond/circle) las columnas impares
+	# tienen sus vecinos desplazados un paso respecto a los índices de arista
+	# del hexágono: neighbor[i] apunta geométricamente a edge[(i+1)%6].
+	var col = int(pos_data.grid_position.x)
+	var is_odd_staggered_col = WorldMap.is_map_staggered and (col % 2 + 2) % 2 == 1
+
 	for i in range(neighbors.size()):
 		var neighbor = neighbors[i]
 		if neighbor == null or neighbor.controller != controller:
-			borders_to_draw.append(i)
-	
+			var edge_index = (i + 1) % 6 if is_odd_staggered_col else i
+			borders_to_draw.append(edge_index)
+
 	if borders_to_draw.size() > 0:
 		create_border_mesh(borders_to_draw)
 	else:

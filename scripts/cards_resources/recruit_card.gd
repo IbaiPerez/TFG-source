@@ -6,10 +6,11 @@ class_name RecruitCard
 ## Si se cancela, la carta vuelve a la mano.
 ##
 ## La carta recluta `base_troops_per_play + modifier_bonus` tropas del tipo
-## elegido en cada jugada. El bonus viene de modifiers tipo
-## `StatModifier.StatType.TROOPS_PER_RECRUIT` (Cuartel = +1, Academia
-## Militar = +1 adicional). Si en mitad del reclutamiento se queda sin oro,
-## se reclutan las que se puedan y se descarta el resto silenciosamente.
+## elegido en cada jugada. El bonus viene de modifiers TROOPS_PER_RECRUIT:
+## los que no tienen filtro (troop_type_filter == -1) aplican siempre;
+## los que tienen filtro solo aplican si la tropa elegida coincide con ese tipo.
+## Si en mitad del reclutamiento se queda sin oro, se reclutan las que se
+## puedan y se descarta el resto silenciosamente.
 
 ## Tropas disponibles para reclutar (se configuran desde el recurso .tres)
 @export var available_troops: Array[Troop] = []
@@ -32,19 +33,20 @@ func confirm(_targets: Array[Node], stats: Stats) -> void:
 
 
 ## Calcula cuantas tropas se reclutarian con un play sobre este Stats.
-## Expuesto como helper publico para que el AIOptionsBuilder pueda filtrar
-## las opciones por oro suficiente para TODAS las tropas, no solo una.
-func get_effective_troops_per_play(stats: Stats) -> int:
+## Si se proporciona `troop` y es CABALLERIA, incluye el bonus especifico
+## de caballeria ademas del bonus general. Expuesto como helper publico
+## para que el AIOptionsBuilder pueda filtrar por oro suficiente.
+func get_effective_troops_per_play(stats: Stats, troop: Troop = null) -> int:
 	var bonus := 0
 	if stats != null and stats.modifier_manager != null:
-		bonus = stats.modifier_manager.get_troops_per_recruit_bonus()
+		bonus = stats.modifier_manager.get_troops_per_recruit_bonus(troop)
 	return maxi(1, base_troops_per_play + bonus)
 
 
 func apply_effects(_targets: Array[Node], stats: Stats) -> void:
 	if chosen == null:
 		return
-	var total := get_effective_troops_per_play(stats)
+	var total := get_effective_troops_per_play(stats, chosen)
 	for i in total:
 		# `recruit_troop` devuelve false si el oro no alcanza. Salimos del
 		# bucle para no intentar reclutar tropas gratis ni desperdiciar
