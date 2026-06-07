@@ -234,10 +234,13 @@ func test_card_input_choice_removes_random_candidate() -> void:
 
 func _populate_minimal_pool(stats: Stats) -> void:
 	# El generador de tienda necesita pools poblados para producir items.
+	# Se usan CardDrawCard (score 12.0 > umbral 8.0) para que la IA quiera comprar.
 	for i in range(3):
-		var c := Card.new()
+		var c := CardDrawCard.new()
 		c.id = "p%d" % i
 		c.type = Card.Type.BASIC
+		c.amount = 1
+		c.target = Card.Target.SELF
 		stats.unlocked_card_pool.append(UnlockedCardEntry.new(c, 5.0, 0.0, 1.0))
 
 

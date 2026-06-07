@@ -15,8 +15,7 @@ var _resolved: bool = false
 
 
 func _ready() -> void:
-	if UIState:
-		UIState.register_menu()
+	pass
 
 
 func setup(p_card: OpenFrontCard, p_own_tiles: Array[Tile]) -> void:
@@ -111,6 +110,4 @@ func _cleanup_highlights() -> void:
 
 
 func _exit_tree() -> void:
-	if UIState:
-		UIState.unregister_menu()
 	_cleanup_highlights()

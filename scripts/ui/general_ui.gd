@@ -2,9 +2,13 @@ extends Control
 class_name UI
 
 @export var stats:Stats:set = _set_stats
+## Stats del rival. Se asigna desde UILayer → map.gd después de crear la IA.
+## No usa @export: no hay valor por defecto sensato en el inspector.
+var rival_stats: Stats: set = _set_rival_stats
 
 @onready var end_turn_button: Button = %EndTurnButton
 @onready var stats_ui: StatsUI = $StatsUI as StatsUI
+@onready var rival_dropdown: RivalStatsUI = %RivalDropdown as RivalStatsUI
 @onready var tile_panel: TilePanel = $TilePanel
 @onready var ai_action_log: AIActionLog = %AIActionLog
 @onready var draw_pile_button: CardPileOpener = %DrawPileButton
@@ -40,6 +44,7 @@ func _ready() -> void:
 	Events.tile_selected.connect(_on_tile_selected)
 	Events.tile_deselected.connect(_on_tile_deselected)
 	Events.player_hand_drawn.connect(_on_player_hand_drawn)
+	stats_ui.rival_info_button.pressed.connect(_on_rival_info_button_pressed)
 	draw_pile_button.pressed.connect(draw_pile_view.show_current_view.bind("Draw Pile", true))
 	discard_pile_button.pressed.connect(discard_pile_view.show_current_view.bind("Discard Pile"))
 	played_pile_button.pressed.connect(played_pile_view.show_current_view.bind("Played Cards"))
@@ -129,6 +134,41 @@ func _set_stats(value:Stats) -> void:
 
 func _on_stats_changed() -> void:
 	stats_ui.update_stats(stats)
+
+
+func _set_rival_stats(value: Stats) -> void:
+	if rival_stats != null and rival_stats.stats_changed.is_connected(_on_rival_stats_changed):
+		rival_stats.stats_changed.disconnect(_on_rival_stats_changed)
+	rival_stats = value
+	if rival_stats == null:
+		return
+	rival_stats.stats_changed.connect(_on_rival_stats_changed)
+	if is_node_ready():
+		var empire_name := rival_stats.empire.name if rival_stats.empire else "Rival"
+		stats_ui.show_rival_toggle(empire_name)
+		rival_dropdown.update_stats(rival_stats)
+
+
+func _on_rival_stats_changed() -> void:
+	rival_dropdown.update_stats(rival_stats)
+
+
+func _on_rival_info_button_pressed() -> void:
+	if rival_dropdown.visible:
+		var t := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		t.tween_property(rival_dropdown, "modulate:a", 0.0, 0.15)
+		t.tween_callback(func() -> void: rival_dropdown.visible = false)
+		stats_ui.rival_info_button.text = (
+			rival_stats.empire.name if rival_stats and rival_stats.empire else "Rival"
+		) + " ▾"
+	else:
+		rival_dropdown.modulate.a = 0.0
+		rival_dropdown.visible = true
+		var t := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		t.tween_property(rival_dropdown, "modulate:a", 1.0, 0.18)
+		stats_ui.rival_info_button.text = (
+			rival_stats.empire.name if rival_stats and rival_stats.empire else "Rival"
+		) + " ▴"
 
 
 func _on_tile_selected(tile:Tile) -> void:

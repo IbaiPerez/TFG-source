@@ -1,0 +1,126 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/rival_stats_ui.gd" id="1_rival"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rival_bg"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.97, 0.93, 0.85, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.24313726, 0.15294118, 0.13725491, 1)
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="RivalStatsUI" type="PanelContainer"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_rival_bg")
+script = ExtResource("1_rival")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ColorIndicator" type="ColorRect" parent="Content/Header"]
+layout_mode = 2
+custom_minimum_size = Vector2(6, 0)
+size_flags_vertical = 3
+color = Color(0.5, 0.5, 0.5, 1)
+
+[node name="EmpireInfo" type="VBoxContainer" parent="Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="EmpireName" type="Label" parent="Content/Header/EmpireInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Empire"
+theme_override_font_sizes/font_size = 15
+
+[node name="TileCount" type="Label" parent="Content/Header/EmpireInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0 tiles"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.4, 0.3, 0.25, 1)
+
+[node name="HSeparator" type="HSeparator" parent="Content"]
+layout_mode = 2
+
+[node name="GoldRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="GoldLabel" type="Label" parent="Content/GoldRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+size_flags_horizontal = 0
+text = "Gold:"
+
+[node name="GoldSpacer" type="Control" parent="Content/GoldRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="GoldValue" type="Label" parent="Content/GoldRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(55, 0)
+text = "0"
+horizontal_alignment = 2
+
+[node name="GoldPerTurn" type="Label" parent="Content/GoldRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(58, 0)
+text = "+0/turn"
+horizontal_alignment = 2
+
+[node name="FoodRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="FoodLabel" type="Label" parent="Content/FoodRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+size_flags_horizontal = 0
+text = "Food:"
+
+[node name="FoodSpacer" type="Control" parent="Content/FoodRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FoodValue" type="Label" parent="Content/FoodRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(55, 0)
+text = "+0"
+horizontal_alignment = 2
+
+[node name="CardsRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="CardsLabel" type="Label" parent="Content/CardsRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+size_flags_horizontal = 0
+text = "Cards/turn:"
+
+[node name="CardsSpacer" type="Control" parent="Content/CardsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CardsValue" type="Label" parent="Content/CardsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(55, 0)
+text = "3"
+horizontal_alignment = 2

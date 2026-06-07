@@ -120,7 +120,17 @@ func apply_effects(targets: Array[Node], stats: Stats) -> void:
 	if visual == null:
 		return
 
-	var front := visual.battle_front
+	apply_to_front(visual.battle_front, stats)
+
+
+## Variante headless: aplica la táctica directamente sobre un BattleFront
+## sin necesitar BattleFrontVisual. La IA la usa cuando no existe el nodo
+## visual (simulación, tests, turno IA sin escena 3D activa).
+## El comportamiento es idéntico al de apply_effects con visual presente.
+func apply_to_front(front: BattleFront, stats: Stats) -> void:
+	if front == null or stats == null:
+		return
+
 	var side: StringName
 	var enemy_tile: Tile
 	var own_tile: Tile
@@ -133,17 +143,12 @@ func apply_effects(targets: Array[Node], stats: Stats) -> void:
 		enemy_tile = front.attacker_tile
 		own_tile = front.defender_tile
 
-	# Política exclusiva: en cada bando del frente sólo puede haber UNA táctica
-	# activa. Cualquier táctica anterior se descarta al jugar la nueva.
+	# Política exclusiva: sólo una táctica activa por bando en cada frente.
 	front.clear_tactics_for_side(side)
 
-	# Modificadores de bioma capturados al jugar (las tiles no cambian de bioma,
-	# así que congelarlos aquí evita re-cálculos en cada tick).
 	var atk_biome_mod := get_biome_modifier_for_tile(enemy_tile)
 	var def_biome_mod := get_biome_modifier_for_tile(own_tile)
 
-	# Bonus dinámico: el frente lo evalúa cada tick contra las tropas que
-	# haya en ese momento, así que tropas asignadas más tarde se benefician.
 	var bonus := TacticBonus.new()
 	bonus.tactic_name              = tactic_name
 	bonus.troop_types              = affected_troop_types.duplicate()
@@ -155,9 +160,6 @@ func apply_effects(targets: Array[Node], stats: Stats) -> void:
 	bonus.defense_biome_modifier   = def_biome_mod
 	front.add_bonus(side, bonus)
 
-	# Notificar al bus global para que la UI refresque al instante. Las cartas
-	# tácticas saltan el BattleFrontManager (que sí emite esta señal cuando
-	# añade bonuses él mismo), por eso lo emitimos aquí explícitamente.
 	Events.battle_front_bonus_applied.emit(front, side)
 
 

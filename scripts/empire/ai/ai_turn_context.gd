@@ -15,6 +15,11 @@ var stats: Stats                        ## Stats del controller
 var battle_front_manager: BattleFrontManager  ## BFM del controller
 var rng: RandomNumberGenerator          ## RNG con seed para determinismo
 var drawn_cards: Array[Card] = []       ## Cartas que la IA tiene "en mano" durante el turno
+var world_view: AIWorldView             ## Vista de información del turno (Fase A):
+                                        ## own_stats + vistas públicas de rivales.
+
+## Tiles sin controller adyacentes a tiles propias. -1 = desconocido (tests).
+var colonizable_tiles_count: int = -1
 
 
 static func create(p_controller: Node, p_rng: RandomNumberGenerator) -> AITurnContext:

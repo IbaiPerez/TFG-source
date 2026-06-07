@@ -351,34 +351,35 @@ func test_ai_can_recover_a_card_from_played_pile() -> void:
 	# Test integración Fase 3: RecoverCard de la IA recupera una carta
 	# de played_pile y la añade a drawn_cards (vía card_returned_to_hand
 	# listener) para que pueda ser jugada en otra iteración.
-	var recovered := false
-	for s in range(0, 30):
-		var stats := _make_stats()
-		stats.cards_per_turn = 1
+	#
+	# Con heurística determinista la IA siempre elige la mejor opción:
+	#   1. RecoverCard es la única carta → se juega (score deck_urgency > PASS).
+	#   2. La recoverable (GenerateGoldCard) entra en drawn_cards y se juega
+	#      también (score gold_urgency > PASS cuando total_gold = 0).
+	#   3. El oro aumenta → prueba que ambas cartas se ejecutaron correctamente.
+	# No se necesita iterar seeds: la heurística es determinista.
+	var stats := _make_stats()
+	stats.cards_per_turn = 1
 
-		var recoverable := _make_gold_card("recoverable", 25)
-		recoverable.type = Card.Type.SINGLE_USE  # se mantiene legítimamente en played_pile
-		stats.played_pile.add_card(recoverable)
+	var recoverable := _make_gold_card("recoverable", 25)
+	recoverable.type = Card.Type.SINGLE_USE  # se mantiene legítimamente en played_pile
+	stats.played_pile.add_card(recoverable)
 
-		var rc := RecoverCard.new()
-		rc.id = "recover"
-		rc.target = Card.Target.SELF
-		rc.type = Card.Type.SINGLE_USE
-		stats.draw_pile.add_card(rc)
-		stats.total_gold = 0
-		stats.turn_number = 0
+	var rc := RecoverCard.new()
+	rc.id = "recover"
+	rc.target = Card.Target.SELF
+	rc.type = Card.Type.SINGLE_USE
+	stats.draw_pile.add_card(rc)
+	stats.total_gold = 0
+	stats.turn_number = 0
 
-		var ai := _spawn_ai(stats, s)
-		await _run_ai_turn(ai)
+	var ai := _spawn_ai(stats)
+	await _run_ai_turn(ai)
 
-		# Si played_pile ya no contiene la recoverable, la RecoverCard
-		# se jugó y la carta fue recuperada.
-		if not (recoverable in stats.played_pile.cards):
-			recovered = true
-			break
-
-	assert_true(recovered,
-		"Algún seed debe llevar a la IA a jugar la RecoverCard y sacar la carta del played_pile")
+	# El oro aumentó en 25 → RecoverCard fue jugada (sacó recoverable de
+	# played_pile), y la recoverable (GenerateGoldCard) fue jugada después.
+	assert_true(stats.total_gold > 0,
+		"La IA jugó RecoverCard y la carta recuperada (GenerateGoldCard): oro debe ser > 0, fue %d" % stats.total_gold)
 
 
 func test_max_iterations_caps_loop() -> void:
@@ -511,8 +512,9 @@ func test_assign_is_noop_with_empty_pool() -> void:
 
 
 func test_assign_distributes_until_pool_exhausted_across_fronts() -> void:
-	# 5 tropas, 2 frentes propios -> primer frente come 3, al segundo le
-	# llegan solo 2 antes de que el pool se vacie.
+	# 5 tropas, 2 frentes propios en equilibrio: uno se llena (MIN=3) y el
+	# otro recibe el resto (2). Con urgencia igual, el orden no es determinista,
+	# así que solo verificamos el total y que ninguno supere MIN.
 	BattleFront.clear_active_instances()
 	var stats := _make_stats()
 	stats.troop_pool = []
@@ -525,10 +527,12 @@ func test_assign_distributes_until_pool_exhausted_across_fronts() -> void:
 
 	ai._assign_troops_to_fronts()
 
-	assert_eq(f1.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
-		"El primer frente debe llenarse al minimo")
-	assert_eq(f2.attacker_troops.size(), 2,
-		"El segundo recibe lo que queda en el pool (5 - 3 = 2)")
+	var total := f1.attacker_troops.size() + f2.attacker_troops.size()
+	assert_eq(total, 5, "Las 5 tropas deben repartirse entre los dos frentes")
+	assert_true(f1.attacker_troops.size() <= AIController.MIN_TROOPS_PER_FRONT,
+		"Ningún frente supera MIN en equilibrio (primera pasada)")
+	assert_true(f2.attacker_troops.size() <= AIController.MIN_TROOPS_PER_FRONT,
+		"Ningún frente supera MIN en equilibrio (primera pasada)")
 	assert_eq(stats.troop_pool.size(), 0, "Pool agotado")
 	BattleFront.clear_active_instances()
 
@@ -612,4 +616,127 @@ func test_assign_does_not_top_up_already_satisfied_front() -> void:
 		"No debe pasar del minimo si ya estaba lleno")
 	assert_eq(stats.troop_pool.size(), 1,
 		"La tropa sobrante se queda en el pool")
+	BattleFront.clear_active_instances()
+
+
+# ============================================================
+#  Heurística v2: urgencia y selección de tropa
+# ============================================================
+
+func test_assign_prioritizes_losing_front_when_pool_is_limited() -> void:
+	# Con solo MIN tropas en pool y dos frentes, el frente donde se pierde
+	# (marker negativo grave) debe llenarse antes que el frente en equilibrio.
+	BattleFront.clear_active_instances()
+	var stats := _make_stats()
+	stats.troop_pool = []
+	for i in range(AIController.MIN_TROOPS_PER_FRONT):
+		stats.troop_pool.append(_make_troop_for_assign("t%d" % i))
+	var ai := _spawn_ai(stats)
+	var enemy := _make_empire("Enemy")
+	var f_losing := _push_front_into_manager(ai, stats.empire, enemy)
+	f_losing.marker = -8.0  # perdiendo gravemente (base_urgency 3.0)
+	var f_balanced := _push_front_into_manager(ai, stats.empire, enemy)
+	f_balanced.marker = 0.0   # equilibrio (base_urgency 1.5)
+
+	ai._assign_troops_to_fronts()
+
+	assert_eq(f_losing.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
+		"Frente donde se pierde debe llenarse antes")
+	assert_eq(f_balanced.attacker_troops.size(), 0,
+		"Frente equilibrado no recibe tropas si el pool se agotó")
+	assert_eq(stats.troop_pool.size(), 0)
+	BattleFront.clear_active_instances()
+
+
+func test_assign_second_pass_reinforces_losing_front() -> void:
+	# Frente con marker negativo (base_urgency > 1.5): debe recibir hasta
+	# MIN + 2 tropas si el pool lo permite.
+	BattleFront.clear_active_instances()
+	var stats := _make_stats()
+	stats.troop_pool = []
+	for i in range(AIController.MIN_TROOPS_PER_FRONT + 2):
+		stats.troop_pool.append(_make_troop_for_assign("t%d" % i))
+	var ai := _spawn_ai(stats)
+	var enemy := _make_empire("Enemy")
+	var front := _push_front_into_manager(ai, stats.empire, enemy)
+	front.marker = -4.0  # perdiendo (base_urgency 2.0 > 1.5)
+
+	ai._assign_troops_to_fronts()
+
+	assert_eq(front.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT + 2,
+		"Frente donde se pierde debe recibir MIN + 2 con pool suficiente")
+	assert_eq(stats.troop_pool.size(), 0)
+	BattleFront.clear_active_instances()
+
+
+func test_assign_second_pass_does_not_reinforce_balanced_front() -> void:
+	# Frente en equilibrio (base_urgency = 1.5): no supera MIN aunque haya tropas.
+	BattleFront.clear_active_instances()
+	var stats := _make_stats()
+	stats.troop_pool = []
+	for i in range(AIController.MIN_TROOPS_PER_FRONT + 2):
+		stats.troop_pool.append(_make_troop_for_assign("t%d" % i))
+	var ai := _spawn_ai(stats)
+	var enemy := _make_empire("Enemy")
+	var front := _push_front_into_manager(ai, stats.empire, enemy)
+	front.marker = 0.0  # equilibrio (base_urgency 1.5, NOT > 1.5)
+
+	ai._assign_troops_to_fronts()
+
+	assert_eq(front.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
+		"Frente en equilibrio no se refuerza más allá de MIN")
+	assert_eq(stats.troop_pool.size(), 2,
+		"Las 2 tropas de refuerzo quedan sin usar en el pool")
+	BattleFront.clear_active_instances()
+
+
+func test_assign_selects_best_defense_troop_for_defender() -> void:
+	# Como defensor, se debe asignar primero la tropa con mayor defense.
+	BattleFront.clear_active_instances()
+	var stats := _make_stats()
+	var t_weak := Troop.new()
+	t_weak.name = "high_attack"
+	t_weak.attack = 9
+	t_weak.defense = 1
+	var t_tank := Troop.new()
+	t_tank.name = "high_defense"
+	t_tank.attack = 1
+	t_tank.defense = 9
+	stats.troop_pool = [t_weak, t_tank]
+
+	var ai := _spawn_ai(stats)
+	var enemy := _make_empire("Attacker")
+	var front := _push_front_into_manager(ai, enemy, stats.empire)  # ai es defensor
+
+	ai._assign_troops_to_fronts()
+
+	assert_true(front.defender_troops.size() > 0, "Debe haberse asignado al menos una tropa")
+	assert_eq(front.defender_troops[0].name, "high_defense",
+		"Defensor elige la tropa con mayor defense primero")
+	BattleFront.clear_active_instances()
+
+
+func test_assign_selects_best_attack_troop_for_attacker() -> void:
+	# Como atacante, se debe asignar primero la tropa con mayor attack.
+	BattleFront.clear_active_instances()
+	var stats := _make_stats()
+	var t_tank := Troop.new()
+	t_tank.name = "high_defense"
+	t_tank.attack = 1
+	t_tank.defense = 9
+	var t_striker := Troop.new()
+	t_striker.name = "high_attack"
+	t_striker.attack = 9
+	t_striker.defense = 1
+	stats.troop_pool = [t_tank, t_striker]
+
+	var ai := _spawn_ai(stats)
+	var enemy := _make_empire("Enemy")
+	var front := _push_front_into_manager(ai, stats.empire, enemy)  # ai es atacante
+
+	ai._assign_troops_to_fronts()
+
+	assert_true(front.attacker_troops.size() > 0, "Debe haberse asignado al menos una tropa")
+	assert_eq(front.attacker_troops[0].name, "high_attack",
+		"Atacante elige la tropa con mayor attack primero")
 	BattleFront.clear_active_instances()

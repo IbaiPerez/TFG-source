@@ -39,10 +39,13 @@ class_name AIController
 @export var turn_end_delay: float = 0.5  ## Segundos antes de cerrar el turno
 @export var rng_seed: int = -1           ## -1 → seed aleatorio cada turno
 
-## Heuristica de asignacion v1: rellenar cada frente propio hasta este
-## minimo de tropas, sacando del pool por orden. Cuando se itere sobre la
-## IA real se sustituira por una politica con prioridad (frente con marker
-## en mi contra > frente recien abierto > etc.).
+## Referencia al TurnManager para construir AIWorldView en cada turno.
+## Lo inyecta map.gd tras registrar el controller. null en tests unitarios,
+## donde AIWorldView se construye solo con las stats propias (sin rivales).
+var turn_manager: TurnManager
+
+## Mínimo de tropas por frente que la heurística garantiza en la primera pasada.
+## La segunda pasada puede añadir hasta +2 en frentes donde se pierde.
 const MIN_TROOPS_PER_FRONT: int = 3
 
 var _rng: RandomNumberGenerator
@@ -111,13 +114,17 @@ func _run_turn() -> void:
 	# Bucle decisorio
 	var ctx := AITurnContext.create(self, _rng)
 	ctx.drawn_cards = _drawn_cards
+	ctx.world_view = _build_world_view()
+	var _adj_cond := AdjacentCondition.new()
+	_adj_cond.empire = stats.empire
+	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
 
 	var iterations := 0
 	while iterations < max_iterations and not ctx.drawn_cards.is_empty():
 		var options := _enumerate_all_options(ctx)
 		options.append(AIPlayOption.create_pass())
 
-		var chosen := _pick_random_option(options)
+		var chosen := _pick_best_option(options, ctx)
 		if chosen == null or chosen.is_pass:
 			GameLogger.debug("[IA] %s decide pasar (iter %d)" % [empire_name, iterations])
 			break
@@ -205,11 +212,17 @@ func _enumerate_all_options(ctx: AITurnContext) -> Array[AIPlayOption]:
 	return all
 
 
-func _pick_random_option(options: Array[AIPlayOption]) -> AIPlayOption:
+func _pick_best_option(options: Array[AIPlayOption], ctx: AITurnContext) -> AIPlayOption:
 	if options.is_empty():
 		return null
-	var idx := _rng.randi_range(0, options.size() - 1)
-	return options[idx]
+	var best: AIPlayOption = null
+	var best_score := -INF
+	for option in options:
+		var s := AIHeuristic.score_option(option, ctx)
+		if s > best_score:
+			best_score = s
+			best = option
+	return best
 
 
 ## Espera asíncrona configurable. Si delay <= 0 retorna inmediatamente
@@ -226,51 +239,102 @@ func _finish_turn() -> void:
 	turn_finished.emit(self)
 
 
-## Asigna tropas del pool a los frentes propios sin suficientes refuerzos.
+## Construye el AIWorldView para este turno usando los controllers registrados
+## en el TurnManager. Si turn_manager es null (tests unitarios sin escena
+## completa), devuelve una vista con solo las propias stats y sin rivales.
+func _build_world_view() -> AIWorldView:
+	var all: Array[EmpireController] = []
+	if turn_manager != null:
+		all = turn_manager.controllers
+	return AIWorldView.build(stats, all)
+
+
+## Asigna tropas del pool a los frentes propios con prioridad por urgencia.
 ##
-## Heuristica v1 (placeholder, no inteligente):
-##   - Recorre TODOS los frentes activos del registro global, no solo los
-##     del manager propio. Los frentes solo se almacenan en el manager del
-##     atacante; sin esta visibilidad global, el defensor nunca recibe
-##     refuerzos en sus tiles bajo ataque y pierde el frente por inanicion.
-##   - Para cada frente donde este imperio participa (atacante O defensor),
-##     saca tropas del pool hasta llegar a `MIN_TROOPS_PER_FRONT` o agotar
-##     el pool.
-##   - Sin priorizacion, sin balance entre frentes, sin tener en cuenta la
-##     composicion enemiga ni el marker. Esta intencionalmente simple para
-##     que el sistema de combate empiece a producir datos; la heuristica
-##     se sustituira cuando se aborde la IA militar de verdad.
+## Heurística v2:
+##   1. Calcula urgency_score para cada frente (posición del marker vs umbral).
+##      Frentes sin tropas reciben urgencia × 2: sin resistencia el marker cae libre.
+##   2. Ordena frentes por urgencia DESC.
+##   3. Primera pasada: llenar hasta MIN_TROOPS_PER_FRONT empezando por el más urgente.
+##      Tropa elegida: defensor → max defense; atacante → max attack.
+##   4. Segunda pasada: reforzar hasta MIN + 2 los frentes donde se pierde
+##      activamente (base_urgency > 1.5, es decir, marker negativo).
 ##
-## Pre: este metodo solo lo llama el AIController; un Player no pasa por
-## aqui (el jugador asigna manualmente via BattleFrontPanel).
+## Pre: solo lo llama AIController; el jugador asigna via BattleFrontPanel.
 func _assign_troops_to_fronts() -> void:
 	if battle_front_manager == null:
 		return
 	if stats == null or stats.troop_pool.is_empty():
 		return
 
+	# Recopilar frentes donde participamos con urgencia calculada
+	var entries: Array = []
 	for front in BattleFront.get_active_instances():
 		if front == null or front.is_resolved:
 			continue
 		var side: StringName
-		var current_count: int
 		if front.attacker_empire == stats.empire:
 			side = &"attacker"
-			current_count = front.attacker_troops.size()
 		elif front.defender_empire == stats.empire:
 			side = &"defender"
-			current_count = front.defender_troops.size()
 		else:
 			continue
+		var base_urg := _front_base_urgency(front, side)
+		var cur_troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var full_urg := base_urg * (2.0 if cur_troops.is_empty() else 1.0)
+		entries.append({ "front": front, "side": side, "base_urgency": base_urg, "urgency": full_urg })
 
-		while current_count < MIN_TROOPS_PER_FRONT and not stats.troop_pool.is_empty():
-			var troop: Troop = stats.troop_pool[0]
-			var assigned := battle_front_manager.assign_troop_to_front(front, troop, side)
-			if not assigned:
-				# Si el manager rechaza (p.ej. frente ya resuelto entre
-				# iteraciones), salimos del while para no bucle infinito.
-				break
-			current_count += 1
+	if entries.is_empty():
+		return
 
+	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.urgency > b.urgency)
+
+	# Primera pasada: llenar hasta MIN_TROOPS_PER_FRONT
+	for entry in entries:
 		if stats.troop_pool.is_empty():
 			return
+		var front: BattleFront = entry.front
+		var side: StringName = entry.side
+		var troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		while troops.size() < MIN_TROOPS_PER_FRONT and not stats.troop_pool.is_empty():
+			if not _assign_best_troop(front, side):
+				break
+
+	# Segunda pasada: reforzar frentes donde se pierde activamente
+	for entry in entries:
+		if stats.troop_pool.is_empty():
+			return
+		if entry.base_urgency <= 1.5:
+			continue
+		var front: BattleFront = entry.front
+		var side: StringName = entry.side
+		var troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		while troops.size() < MIN_TROOPS_PER_FRONT + 2 and not stats.troop_pool.is_empty():
+			if not _assign_best_troop(front, side):
+				break
+
+
+## Urgencia base del frente para nuestro bando, sin multiplicador por troop_count.
+## 3.0 = perdiendo gravemente | 2.0 = perdiendo | 1.5 = equilibrio
+## 0.8 = ganando              | 0.3 = casi resuelto
+func _front_base_urgency(front: BattleFront, side: StringName) -> float:
+	var ai_marker := front.marker if side == &"attacker" else -front.marker
+	var thr := front.get_current_threshold()
+	if ai_marker < -thr * 0.5: return 3.0
+	if ai_marker < 0.0:         return 2.0
+	if ai_marker < thr * 0.4:   return 1.5
+	if ai_marker < thr * 0.7:   return 0.8
+	return 0.3
+
+
+## Elige la mejor tropa del pool para el rol dado y la asigna al frente.
+## Defensor → max defense; Atacante → max attack.
+func _assign_best_troop(front: BattleFront, side: StringName) -> bool:
+	if stats.troop_pool.is_empty():
+		return false
+	var sorted_pool := stats.troop_pool.duplicate()
+	if side == &"defender":
+		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
+	else:
+		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)
+	return battle_front_manager.assign_troop_to_front(front, sorted_pool[0], side)

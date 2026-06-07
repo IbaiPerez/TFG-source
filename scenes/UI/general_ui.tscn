@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://chkt8mhljf7ue"]
+[gd_scene load_steps=15 format=3 uid="uid://chkt8mhljf7ue"]
 
 [ext_resource type="Script" uid="uid://cgmoodqwgdltf" path="res://scripts/ui/general_ui.gd" id="1_frbhi"]
 [ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="2_1r63k"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://d2r5m2jujfv48" path="res://assets/cards/played_pile_icon.svg" id="9_played"]
 [ext_resource type="PackedScene" path="res://scenes/UI/military/troop_pool_view.tscn" id="10_troop_view"]
 [ext_resource type="PackedScene" uid="uid://daiactionlog1" path="res://scenes/UI/ai_action_log.tscn" id="11_ailog"]
+[ext_resource type="PackedScene" path="res://scenes/UI/rival_stats_ui.tscn" id="12_rivalstats"]
 
 [sub_resource type="Theme" id="Theme_dsvdl"]
 
@@ -109,6 +110,17 @@ offset_left = 10.0
 offset_top = 138.0
 offset_right = 300.0
 offset_bottom = 438.0
+
+[node name="RivalDropdown" parent="." instance=ExtResource("12_rivalstats")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 120.0
+offset_right = -10.0
+offset_bottom = 322.0
 
 [node name="TilePanel" parent="." instance=ExtResource("4_ilc3t")]
 visible = false

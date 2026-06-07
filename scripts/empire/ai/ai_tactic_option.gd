@@ -29,16 +29,20 @@ static func from_card(p_card: TacticCard, p_front: BattleFront) -> AITacticOptio
 func execute(ctx: AITurnContext) -> Card:
 	if card == null or front == null:
 		return null
+
 	var visual := _resolve_visual_for(front)
-	if visual == null:
-		# Visual no encontrado — abortamos sin emitir card_played.
-		# Devolver null hace que el bucle no elimine la carta de
-		# drawn_cards: el siguiente intento puede tener mejor suerte
-		# o, si no, la carta se descarta al final del turno.
-		push_warning("[AITacticOption] BattleFrontVisual no encontrado para frente — opción ignorada")
-		return null
-	targets = [visual]
-	card.play(targets, ctx.stats)
+	if visual != null:
+		# Camino normal con escena 3D activa: targets[0] = BattleFrontVisual.
+		targets = [visual]
+		card.play(targets, ctx.stats)
+		return card
+
+	# Fallback headless (simulación, tests, turno IA sin escena 3D):
+	# aplicar la táctica directamente sobre el BattleFront sin visual.
+	# Emitimos card_played para que los listeners del bus respondan igual
+	# que si la carta se hubiera jugado por el camino normal.
+	Events.card_played.emit(card, ctx.stats)
+	(card as TacticCard).apply_to_front(front, ctx.stats)
 	return card
 
 

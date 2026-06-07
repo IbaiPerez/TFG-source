@@ -13,8 +13,8 @@ script = ExtResource("7_eff")
 modifier_id = "anfiteatro_cards"
 modifier_name = "Cultura Popular"
 stat_type = 6
-value = 2.0
-tooltipe_text = "+2 cartas por turno"
+value = 1.0
+tooltipe_text = "+1 carta por turno"
 
 [resource]
 script = ExtResource("4_bld")
@@ -22,7 +22,7 @@ name = "Anfiteatro"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
 image = ExtResource("5_img")
 construction_cost = 350
-gold_produced = -5
-food_produced = -5
+gold_produced = -8
+food_produced = -8
 effects = Array[ExtResource("6_beff")]([SubResource("eff_anfiteatro_cards")])
 metadata/_custom_type_script = "uid://2ce384crr8i0"

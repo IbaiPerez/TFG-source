@@ -60,17 +60,22 @@ func set_parameters() -> void:
 
 func recalculate_modifiers() -> void:
 	max_buildings = location.max_building if location else 0
-	food_production = (natural_resource.food_produced if natural_resource else 0) - (location.food_consumption if location else 0)
+	var natural_food := natural_resource.food_produced if natural_resource else 0
+	food_production = natural_food - (location.food_consumption if location else 0)
 	gold_production = natural_resource.gold_produced if natural_resource else 0
+	var food_percent_total := 0.0
 	for b in buildings:
 		gold_production += b.gold_produced
 		food_production += b.food_produced
+		food_percent_total += b.food_percent_bonus
+	if food_percent_total != 0.0:
+		food_production += int(natural_food * food_percent_total / 100.0)
 
 func can_build(building: Building) -> bool:
 	if buildings.size() >= max_buildings:
 		return false
 
-	if building in buildings:
+	if buildings.any(func(b): return b.name == building.name):
 		return false
 
 	if building.required_natural_resource != null:

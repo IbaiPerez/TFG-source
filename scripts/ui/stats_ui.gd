@@ -6,6 +6,7 @@ class_name StatsUI
 @onready var food_generation: Label = %FoodGeneration
 @onready var modifiers_panel: ModifiersPanel = %ModifiersPanel
 @onready var troop_pool_button: TroopPoolOpener = %TroopPoolButton
+@onready var rival_info_button: Button = %RivalInfoButton
 
 
 func update_stats(stats: Stats) -> void:
@@ -30,3 +31,11 @@ func set_modifier_manager(mm:ModifierManager) -> void:
 	if not is_node_ready():
 		await ready
 	modifiers_panel.modifier_manager = mm
+
+
+## Activa el botón toggle con el nombre del rival y muestra el indicador de color.
+func show_rival_toggle(empire_name: String) -> void:
+	if not is_node_ready():
+		await ready
+	rival_info_button.visible = true
+	rival_info_button.text = empire_name + " ▾"

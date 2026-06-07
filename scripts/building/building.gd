@@ -17,6 +17,10 @@ class_name Building
 ## edificios militares (Fortaleza, etc.). El BattleFront lee esta
 ## propiedad en _get_building_defense.
 @export var flat_defense_bonus: int = 0
+## Bonus porcentual sobre la comida producida por el recurso natural de
+## la casilla. Se aplica en Tile.recalculate_modifiers() solo al food del
+## natural_resource (no a otros edificios ni al consumo de la localizacion).
+@export var food_percent_bonus: float = 0.0
 
 
 func can_be_upgraded(stats:Stats) -> bool:

@@ -83,7 +83,11 @@ static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_numb
 	if p_battle_front_manager:
 		ctx.active_front_count = p_battle_front_manager.active_fronts.size()
 
-	# Comprobar si hay alguna tile controlada adyacente a otro imperio
+	# Comprobar si hay alguna tile controlada adyacente a otro imperio.
+	# Funciona correctamente tanto para tiles terrestres como oceánicas:
+	# tile.neighbors está poblado para todas las tiles del mapa (incluida Ocean)
+	# por world_generator.set_neighbors(), y tile.controller se asigna al
+	# colonizar independientemente del bioma.
 	ctx.has_adjacent_enemy = false
 	for tile in ctx.controlled_tiles:
 		for neighbor in tile.neighbors:
@@ -92,5 +96,15 @@ static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_numb
 				break
 		if ctx.has_adjacent_enemy:
 			break
+
+	# Salvaguarda de progresión: si a partir del turno 20 ningún rival es
+	# adyacente, probablemente los imperios están en masas de tierra separadas
+	# por un mar interior generado proceduralmente. En ese caso forzamos
+	# has_adjacent_enemy = true para que UnlockRecruitEvent (CORE_PROGRESSION,
+	# único) no quede bloqueado indefinidamente.
+	# HasAdjacentEnemyCondition solo la usa ese evento, así que este override
+	# no afecta a ninguna otra condición del sistema.
+	if not ctx.has_adjacent_enemy and p_turn_number >= 20:
+		ctx.has_adjacent_enemy = true
 
 	return ctx

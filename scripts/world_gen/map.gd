@@ -115,7 +115,13 @@ func _create_ai_controllers() -> void:
 		$Node.add_child(ai)
 		ai.start_game(ai_stats)
 		turn_manager.register_controller(ai)
+		ai.turn_manager = turn_manager
 		ai_controllers.append(ai)
+
+		# Conectar las stats del primer rival al panel de stats del rival en la UI.
+		# El juego es siempre 1v1, así que solo aplica al primer (y único) AIController.
+		if ai_controllers.size() == 1 and ui_layer != null:
+			ui_layer.rival_stats = ai_stats
 
 		GameLogger.info("[Map] IA registrada: %s" % empire.name)
 
@@ -150,6 +156,20 @@ func _start_from_save(snapshot:Dictionary) -> void:
 
 	# Recuperar el TurnManager creado por apply_snapshot.
 	turn_manager = get_node_or_null("TurnManager") as TurnManager
+
+	# Inyectar la referencia al TurnManager en cada AIController para que
+	# puedan construir AIWorldView en sus turnos.
+	if turn_manager != null:
+		for ctrl in turn_manager.controllers:
+			if ctrl is AIController:
+				(ctrl as AIController).turn_manager = turn_manager
+
+	# Conectar las stats del primer rival al panel de stats del rival en la UI.
+	if turn_manager != null and ui_layer != null:
+		for ctrl in turn_manager.controllers:
+			if ctrl is AIController and ctrl.stats != null:
+				ui_layer.rival_stats = ctrl.stats
+				break
 
 	# El selector de tiles para eventos también debe existir en partidas
 	# cargadas (lo crea map.gd en flujo normal). PROCESS_MODE_ALWAYS para
