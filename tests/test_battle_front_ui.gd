@@ -185,7 +185,7 @@ func test_panel_shows_maintenance_cost_per_side() -> void:
 	var tile_b := _create_tile(Tile.biome_type.Grassland, empire_b)
 	var front := BattleFront.new(tile_a, tile_b, empire_a, empire_b)
 
-	# Tres tropas → mantenimiento progresivo: 1+2+3 = 6 oro / 6 comida
+	# Tres tropas → mantenimiento progresivo: 5+10+15 = 30 oro / 30 comida
 	front.assign_troop(_create_troop("T1"), &"attacker")
 	front.assign_troop(_create_troop("T2"), &"attacker")
 	front.assign_troop(_create_troop("T3"), &"attacker")
@@ -198,9 +198,9 @@ func test_panel_shows_maintenance_cost_per_side() -> void:
 	var attacker_text := panel.attacker_stats_label.get_parsed_text()
 	assert_string_contains(attacker_text, "Mant.",
 		"El bloque de stats debe etiquetar el coste de mantenimiento")
-	assert_string_contains(attacker_text, "-6 oro",
+	assert_string_contains(attacker_text, "-30 oro",
 		"Debe reflejar el oro extra que el frente está consumiendo")
-	assert_string_contains(attacker_text, "-6 comida",
+	assert_string_contains(attacker_text, "-30 comida",
 		"Debe reflejar la comida extra que el frente está consumiendo")
 
 	panel.queue_free()

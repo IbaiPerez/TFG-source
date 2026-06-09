@@ -282,6 +282,10 @@ func before_each():
 	## Called before each test
 	input_simulator = IntegrationTestInput.new()
 	add_child_autofree(input_simulator)
+	# Evitar que el engine llame a _input/_unhandled_input con eventos reales
+	# (p.ej. scroll del panel de GUT durante await). Los tests solo usan llamadas directas.
+	input_simulator.set_process_input(false)
+	input_simulator.set_process_unhandled_input(false)
 
 	# Reset counters
 	input_simulator.clicks_processed = 0

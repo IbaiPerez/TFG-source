@@ -302,9 +302,9 @@ func test_front_maintenance_scales_progressively() -> void:
 	front.assign_troop(t3, &"attacker")
 
 	var maint := front.get_front_maintenance(&"attacker")
-	# 1 + 2 + 3 = 6
-	assert_eq(maint["gold"], 6, "Mantenimiento progresivo: 1+2+3 = 6 oro")
-	assert_eq(maint["food"], 6, "Mantenimiento progresivo: 1+2+3 = 6 comida")
+	# 5 + 10 + 15 = 30
+	assert_eq(maint["gold"], 30, "Mantenimiento progresivo: 5+10+15 = 30 oro")
+	assert_eq(maint["food"], 30, "Mantenimiento progresivo: 5+10+15 = 30 comida")
 
 
 func test_front_maintenance_empty() -> void:

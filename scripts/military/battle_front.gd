@@ -387,8 +387,8 @@ func get_front_maintenance(side: StringName) -> Dictionary:
 	var extra_gold: int = 0
 	var extra_food: int = 0
 	for i in range(troops.size()):
-		# Recargo progresivo: +1, +2, +3... por cada tropa adicional
-		var surcharge: int = i + 1
+		# Recargo progresivo: +5, +10, +15... por cada tropa adicional
+		var surcharge: int = (i + 1) * 5
 		extra_gold += surcharge
 		extra_food += surcharge
 	return { "gold": extra_gold, "food": extra_food }

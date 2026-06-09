@@ -11,5 +11,5 @@ type = 0
 attack = 6
 defense = 1
 recruitment_cost_gold = 40
-maintenance_gold = 3
+maintenance_gold = 18
 maintenance_food = 2

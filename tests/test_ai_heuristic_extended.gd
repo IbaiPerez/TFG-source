@@ -168,8 +168,8 @@ func test_gold_urgency_late_negative() -> void:
 	assert_almost_eq(AIHeuristic._gold_urgency(-5, AIGamePhase.Phase.LATE), 3.0, 0.01)
 
 func test_gold_urgency_late_comfortable() -> void:
-	# gpt=250 (≥200) → 0.8 (late tiene mínimo más alto que early)
-	assert_almost_eq(AIHeuristic._gold_urgency(250, AIGamePhase.Phase.LATE), 0.8, 0.01)
+	# gpt=250 (200..500) → 0.7 (rendimiento decreciente en late rico)
+	assert_almost_eq(AIHeuristic._gold_urgency(250, AIGamePhase.Phase.LATE), 0.7, 0.01)
 
 
 # ============================================================

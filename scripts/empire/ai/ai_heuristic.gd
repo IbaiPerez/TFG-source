@@ -65,12 +65,15 @@ static func _gold_urgency(gpt: int, phase: AIGamePhase.Phase) -> float:
 			if gpt < 400: return 1.0
 			return 0.7
 		_: # LATE
-			# En late queda poco que construir; el superávit importa menos
-			if gpt < 0:   return 3.0
-			if gpt < 50:  return 2.0
-			if gpt < 100: return 1.3
-			if gpt < 200: return 1.0
-			return 0.8
+			# Rendimiento decreciente: mucho GPT → invertir en militares, no en más oro.
+			if gpt < 0:    return 3.0
+			if gpt < 50:   return 2.0
+			if gpt < 100:  return 1.3
+			if gpt < 200:  return 1.0
+			if gpt < 500:  return 0.7
+			if gpt < 1000: return 0.5
+			if gpt < 2000: return 0.35
+			return 0.35   # gpt ≥ 2000: oro abundante, la economía ya no es la prioridad
 
 
 ## Urgencia de comida: cuánto necesitamos mejorar el balance de food.
@@ -373,7 +376,10 @@ static func _score_build(option: AIBuildOption, ctx: AITurnContext,
 	var gu := _gold_urgency(ctx.stats.gold_per_turn, phase)
 	var fu := _food_urgency(ctx.stats.food, phase)
 	var mu := _military_urgency(ctx, phase)
-	var score := b.gold_produced * 5.0 * gu \
+	# Los edificios con mantenimiento (gold_produced < 0) reciben un peso reducido
+	# para evitar que el coste anule el valor estratégico de sus efectos.
+	var gold_weight := 5.0 if b.gold_produced >= 0 else 2.5
+	var score := b.gold_produced * gold_weight * gu \
 		 + b.food_produced * 4.0 * fu \
 		 + b.flat_defense_bonus * 8.0 * mu \
 		 + _score_building_effects(b.effects, ctx, phase)
@@ -390,7 +396,8 @@ static func _score_upgrade(option: AIUpgradeBuildingOption, ctx: AITurnContext,
 	var dg := option.new_building.gold_produced - option.old_building.gold_produced
 	var df := option.new_building.food_produced - option.old_building.food_produced
 	var dd := option.new_building.flat_defense_bonus - option.old_building.flat_defense_bonus
-	var score := dg * 5.0 * gu + df * 4.0 * fu + dd * 8.0 * mu \
+	var dg_weight := 5.0 if dg >= 0 else 2.5
+	var score := dg * dg_weight * gu + df * 4.0 * fu + dd * 8.0 * mu \
 		 + _score_building_effects(option.new_building.effects, ctx, phase) \
 		 - _score_building_effects(option.old_building.effects, ctx, phase)
 	return score * _build_cost_factor(
@@ -414,7 +421,17 @@ static func _score_recruit(option: AIRecruitOption, ctx: AITurnContext,
 	# 0 tropas → ×1.0 | 25 tropas → ×0.5 | 50 tropas → ×0.33
 	var saturation := 1.0 / (1.0 + ctx.stats.troop_pool.size() * 0.04)
 	var surplus := _resource_surplus_factor(ctx, phase)
-	return float(option.troop.attack + option.troop.defense) * 3.0 * mu * comp * saturation * surplus
+	# Factor de coste-eficiencia: favorece tropas baratas relativas al precio base 30.
+	# maxi(..., 1) evita división por cero con tropas de test que tienen coste = 0.
+	var cost_eff := sqrt(30.0 / float(maxi(option.troop.recruitment_cost_gold, 1)))
+	# Penalización por saturación de tipo: evita monocultura.
+	# 0 de ese tipo → ×1.0 | 5 de ese tipo → ×0.50 | 10 de ese tipo → ×0.33
+	var type_count := 0
+	for t in ctx.stats.troop_pool:
+		if t.type == option.troop.type:
+			type_count += 1
+	var type_diversity := 1.0 / (1.0 + float(type_count) * 0.2)
+	return float(option.troop.attack + option.troop.defense) * 3.0 * mu * comp * saturation * surplus * cost_eff * type_diversity
 
 
 ## Bonus de complementariedad: favorece tropas que equilibran el pool actual.
@@ -678,7 +695,8 @@ static func _score_direct_build(option: AIPlayOption, ctx: AITurnContext,
 	var gu := _gold_urgency(ctx.stats.gold_per_turn, phase)
 	var fu := _food_urgency(ctx.stats.food, phase)
 	var mu := _military_urgency(ctx, phase)
-	var score := b.gold_produced * 5.0 * gu \
+	var gold_weight := 5.0 if b.gold_produced >= 0 else 2.5
+	var score := b.gold_produced * gold_weight * gu \
 		 + b.food_produced * 4.0 * fu \
 		 + b.flat_defense_bonus * 8.0 * mu \
 		 + _score_building_effects(b.effects, ctx, phase)
@@ -955,7 +973,9 @@ static func _score_stat_effect(effect: AddStatModifierEffect,
 		StatModifier.StatType.CARD_DRAW_BONUS:
 			return v * 8.0
 		StatModifier.StatType.TROOPS_PER_RECRUIT:
-			return v * 6.0 * mu
+			# Escalado lineal con urgencia militar: base modesta en paz, prioridad alta en guerra.
+			# mu=0.4 (paz) → 13  |  mu=0.9 (frontera) → 23  |  mu=1.5 (frente) → 35  |  mu=3.0 → 65
+			return v * (5.0 + 20.0 * mu)
 		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT:
 			return ctx.stats.troop_pool.size() * absf(v) * 0.3 * mu
 	return 0.0

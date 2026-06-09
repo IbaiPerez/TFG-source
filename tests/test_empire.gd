@@ -162,10 +162,10 @@ func test_banking_ability_has_build_cost_modifier():
 # ============================================================
 
 func test_horde_ability_creates_four_modifiers():
-	# cards_per_turn + card_return + cavalry_recruit (filtrado) + cavalry_maintenance (filtrado)
+	# cards_per_turn + card_return + cavalry_maintenance (filtrado)
 	var ability := HordeAbility.new()
 	var mods := ability.create_modifiers()
-	assert_eq(mods.size(), 4, "Horde should create 4 modifiers: cards, return, cavalry recruit, cavalry maintenance")
+	assert_eq(mods.size(), 3, "Horde should create 3 modifiers: cards, return, cavalry maintenance")
 
 
 func test_horde_ability_has_cards_per_turn_modifier():
@@ -191,17 +191,13 @@ func test_horde_ability_has_card_return_modifier():
 	assert_true(has_return, "Should have a CardReturnModifier for Colonize")
 
 
-func test_horde_ability_has_cavalry_recruit_modifier():
+func test_horde_ability_has_no_cavalry_recruit_modifier():
 	var ability := HordeAbility.new()
 	var mods := ability.create_modifiers()
-	var found := false
 	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.TROOPS_PER_RECRUIT:
-			found = true
-			assert_eq(mod.value, 1.0)
-			assert_eq(mod.troop_type_filter, Troop.TroopType.CABALLERIA,
-				"El modifier de recluta debe estar filtrado a caballería")
-	assert_true(found, "Horde should have a TROOPS_PER_RECRUIT modifier filtered to cavalry")
+		if mod is StatModifier:
+			assert_ne(mod.type, StatModifier.StatType.TROOPS_PER_RECRUIT,
+				"Horde no debe tener el modificador de reclutar caballería extra")
 
 
 func test_horde_ability_has_cavalry_maintenance_modifier():
