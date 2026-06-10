@@ -161,22 +161,35 @@ func test_banking_ability_has_build_cost_modifier():
 #  HordeAbility
 # ============================================================
 
-func test_horde_ability_creates_four_modifiers():
-	# cards_per_turn + card_return + cavalry_maintenance (filtrado)
+func test_horde_ability_without_livestock_creates_two_modifiers():
+	# card_return + cavalry_maintenance (sin recurso ganado)
 	var ability := HordeAbility.new()
 	var mods := ability.create_modifiers()
-	assert_eq(mods.size(), 3, "Horde should create 3 modifiers: cards, return, cavalry maintenance")
+	assert_eq(mods.size(), 2, "Without livestock resource: card_return + cavalry_maintenance")
 
 
-func test_horde_ability_has_cards_per_turn_modifier():
+func test_horde_ability_with_livestock_creates_three_modifiers():
+	# TILE_RESOURCE_FOOD (ganado) + card_return + cavalry_maintenance
 	var ability := HordeAbility.new()
+	ability.livestock_resource = NaturalResource.new()
+	ability.livestock_resource.name = "Livestock"
 	var mods := ability.create_modifiers()
-	var has_cards := false
+	assert_eq(mods.size(), 3, "With livestock resource: food + card_return + cavalry_maintenance")
+
+
+func test_horde_ability_has_livestock_food_modifier():
+	var ability := HordeAbility.new()
+	var livestock := NaturalResource.new()
+	livestock.name = "Livestock"
+	ability.livestock_resource = livestock
+	var mods := ability.create_modifiers()
+	var has_food := false
 	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.CARDS_PER_TURN:
-			has_cards = true
-			assert_eq(mod.value, 1.0)
-	assert_true(has_cards, "Should have a CARDS_PER_TURN modifier")
+		if mod is StatModifier and mod.type == StatModifier.StatType.TILE_RESOURCE_FOOD:
+			has_food = true
+			assert_almost_eq(mod.value, 1.0, 0.001)
+			assert_eq(mod.target_resource, livestock)
+	assert_true(has_food, "Should have a TILE_RESOURCE_FOOD modifier targeting livestock")
 
 
 func test_horde_ability_has_card_return_modifier():

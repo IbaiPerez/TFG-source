@@ -2,10 +2,12 @@ extends Object
 class_name GridMapper
 
 var settings : GenerationSettings
+var effective_radius : int
 
 ## Main entry point, Get all positions to spawn tiles on
 func calculate_map_positions(in_settings: GenerationSettings) -> MappingData:
 	settings = in_settings
+	effective_radius = _compute_effective_radius(settings.radius, settings.map_shape)
 	var map = MappingData.new()
 	var positions : Array[PositionData]
 
@@ -54,12 +56,12 @@ func modify_position(pos : PositionData, buffer_filter):
 	var c = pos.grid_position.x
 	var r = pos.grid_position.y
 	pos.noise = noise_at_tile(c, r, settings.biome_noise)
-	if settings.create_water and (buffer_filter.call(c,r,settings.radius-settings.outer_buffer) or (buffer_filter.call(c,r,settings.radius-settings.inner_buffer) and noise_at_tile(c,r,settings.ocean_noise) > settings.ocean_threshold)):
+	if settings.create_water and (buffer_filter.call(c,r,effective_radius-settings.outer_buffer) or (buffer_filter.call(c,r,effective_radius-settings.inner_buffer) and noise_at_tile(c,r,settings.ocean_noise) > settings.ocean_threshold)):
 		pos.water = true
 	elif settings.create_mountains and (noise_at_tile(c, r, settings.mountain_noise) > settings.mountain_threshold):
 		pos.mountain = true
-	
-	if !buffer_filter.call(c,r,settings.radius-settings.outer_buffer) and buffer_filter.call(c,r,settings.radius-settings.inner_buffer):
+
+	if !buffer_filter.call(c,r,effective_radius-settings.outer_buffer) and buffer_filter.call(c,r,effective_radius-settings.inner_buffer):
 		pos.buffer = true
 
 
@@ -91,20 +93,35 @@ func find_noise_caps(positions) -> Vector2:
 	return min_max_noise
 
 
+## Compute the physical radius for a given shape so all shapes produce ~the same tile count
+## as a hexagonal map of the same logical radius (hexagonal is the reference).
+func _compute_effective_radius(logical_radius: int, shape: int) -> int:
+	var n := 3.0 * logical_radius * logical_radius + 3.0 * logical_radius + 1.0
+	match shape:
+		1: # RECTANGULAR: ~(2r+1)^2 tiles
+			return roundi((sqrt(n) - 1.0) / 2.0)
+		2: # DIAMOND: ~2r^2 tiles
+			return roundi(sqrt(n / 2.0))
+		3: # CIRCLE: ~pi*r^2 tiles
+			return roundi(sqrt(n / PI))
+		_: # HEXAGONAL (default)
+			return logical_radius
+
+
 ### Bounds
 ### # Specific bounds functions for each shape
 
 func hexagonal_bounds() -> Callable:
 	return func(col = null):
 		if col == null:
-			return range(-settings.radius, settings.radius + 1)
+			return range(-effective_radius, effective_radius + 1)
 		else:
-			return range(max(-settings.radius, -col - settings.radius), min(settings.radius, -col + settings.radius) + 1)
+			return range(max(-effective_radius, -col - effective_radius), min(effective_radius, -col + effective_radius) + 1)
 
 
 func rectangle_bounds() -> Callable:
 	return func(_col = null):
-		return range(-settings.radius, settings.radius + 1)
+		return range(-effective_radius, effective_radius + 1)
 
 
 ### Filters
@@ -112,14 +129,14 @@ func rectangle_bounds() -> Callable:
 
 func circle_shape_filter(col: int, row: int) -> bool:
 	var dist = sqrt(col * col + row * row)
-	return dist < settings.radius
+	return dist < effective_radius
 
 
 func diamond_shape_filter(col: int, row: int) -> bool:
 	var adjusted_row = row
 	if col % 2 != 0:
-		adjusted_row += 0.5 
-	return abs(adjusted_row) + abs(col) < settings.radius
+		adjusted_row += 0.5
+	return abs(adjusted_row) + abs(col) < effective_radius
 
 
 ### Buffer-filters!

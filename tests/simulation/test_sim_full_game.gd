@@ -3,8 +3,9 @@ extends GutTest
 ## Test-driver para la simulacion headless de partida completa.
 ##
 ## Configuracion:
-##  - 5 runs independientes.
-##  - 100 turnos por run.
+##  - 15 runs independientes.
+##  - La partida termina cuando se detecta victoria (dominacion o eliminacion).
+##    max_rounds = 500 actua como limite de seguridad si ninguna IA gana.
 ##  - Cada run usa WorldGenerator real con radius / mountain_threshold /
 ##    ocean_threshold / empires del jugador y rival randomizados.
 ##  - Ambos imperios son AIController (sin jugador humano). El "rol" de
@@ -33,12 +34,12 @@ func test_run_simulation() -> void:
 	# error estandar de la media ~1/sqrt(3) ≈ 0.58x respecto a 5 runs,
 	# suficiente para distinguir tendencias de balance en late-game.
 	multi.num_runs = 15
-	multi.num_rounds = 100
+	multi.max_rounds = 500  # limite de seguridad; la partida termina por victoria
 	multi.rng_master_seed = 20260516  # YYYYMMDD para tener un seed estable y fechado
 	multi.attach_to(self)
 
-	print("[Sim] Iniciando: %d runs x %d rondas (master seed = %d)" % [
-		multi.num_runs, multi.num_rounds, multi.rng_master_seed
+	print("[Sim] Iniciando: %d runs (max %d rondas por seguridad, master seed = %d)" % [
+		multi.num_runs, multi.max_rounds, multi.rng_master_seed
 	])
 
 	await multi.run()
@@ -67,8 +68,15 @@ func test_run_simulation() -> void:
 		e.handled = true
 
 	# Sanity check: el harness añade 2 snapshots iniciales (turno 0) +
-	# 2 por ronda → 2 + 2*num_rounds por run.
-	var expected_total = (2 + 2 * multi.num_rounds) * multi.num_runs
+	# 2 por ronda jugada. Si la partida termina con victoria, el run produce
+	# 2 + 2*finished_round snapshots; si alcanza el limite, 2 + 2*max_rounds.
+	var expected_total := 0
+	for r in multi.runs:
+		var fr: int = r.get("finished_round", -1)
+		if fr > 0:
+			expected_total += 2 + 2 * fr
+		else:
+			expected_total += 2 + 2 * multi.max_rounds
 	var actual_total := 0
 	for r in multi.runs:
 		actual_total += r["snapshots"].size()
@@ -100,21 +108,41 @@ func _print_summary(multi) -> void:
 	print("\n[Sim] === RESUMEN ===")
 	print("[Sim] Runs ejecutadas: %d" % multi.runs.size())
 
-	# Por run: imperios elegidos.
+	# Por run: imperios elegidos, ganador y condicion de victoria.
+	var finished_rounds: Array = []
 	for r in multi.runs:
-		print("[Sim]   run %d → A=%s vs B=%s | radius=%d, mtn=%.2f, ocean=%.2f" % [
+		var fr: int = r.get("finished_round", -1)
+		var winner: String = r.get("winner", "")
+		var cond: String = r.get("victory_condition", "")
+		var result_str := "EMPATE/LIMITE" if winner.is_empty() else "%s (%s, r%d)" % [winner, cond, fr]
+		print("[Sim]   run %d → A=%s vs B=%s | radius=%d → %s" % [
 			r["run_id"],
 			r["seed_meta"].get("empire_a", "?"),
 			r["seed_meta"].get("empire_b", "?"),
 			r["seed_meta"].get("radius", 0),
-			r["seed_meta"].get("mountain_threshold", 0.0),
-			r["seed_meta"].get("ocean_threshold", 0.0),
+			result_str,
+		])
+		if fr > 0:
+			finished_rounds.append(fr)
+
+	if not finished_rounds.is_empty():
+		var sum_fr := 0.0
+		var min_fr: int = finished_rounds[0]
+		var max_fr: int = finished_rounds[0]
+		for v in finished_rounds:
+			sum_fr += v
+			min_fr = mini(min_fr, v)
+			max_fr = maxi(max_fr, v)
+		print("[Sim] Duracion media: %.1f rondas [min=%d, max=%d] (%d/%d partidas con ganador)" % [
+			sum_fr / finished_rounds.size(), min_fr, max_fr,
+			finished_rounds.size(), multi.runs.size()
 		])
 
 	# Para cada AI, comparar metricas en turnos clave (inicio, mitad, fin).
 	var labels := ["AI_A", "AI_B"]
-	var key_rounds := [0, int(multi.num_rounds / 4), int(multi.num_rounds / 2),
-		int(multi.num_rounds * 3 / 4), multi.num_rounds]
+	# Hitos fijos: early (0-10), mid (20-50) y late (75-100+).
+	# Las rondas donde ninguna run tiene datos simplemente no aparecen.
+	var key_rounds := [0, 5, 10, 20, 35, 50, 75, 100]
 
 	# Calculo los agregados una sola vez.
 	var aggs: Array = multi.aggregate()

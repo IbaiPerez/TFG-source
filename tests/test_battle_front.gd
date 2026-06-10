@@ -598,10 +598,10 @@ func test_combat_multiplier_independent_per_side() -> void:
 
 # --- Tests del threshold dinamico (decay con turns_elapsed) ---
 
-func test_threshold_initial_default_is_15() -> void:
-	# Default actualizado tras el primer rebalanceo: bajado de 20 a 15.
-	assert_eq(front.threshold, 15.0,
-		"Threshold inicial por defecto deberia ser 15 tras el rebalanceo")
+func test_threshold_initial_default_is_10() -> void:
+	# Default actualizado: bajado de 15 a 10 para resolver frentes mas rapido.
+	assert_eq(front.threshold, 10.0,
+		"Threshold inicial por defecto deberia ser 10 tras el segundo rebalanceo")
 
 
 func test_current_threshold_starts_at_initial() -> void:
@@ -649,12 +649,12 @@ func test_can_resolve_uses_current_threshold() -> void:
 	# SOLO cuando ha pasado tiempo suficiente para que el threshold haya
 	# bajado hasta el marker.
 	front.min_duration = 1
-	front.threshold = 15.0
-	front.marker = 11.0
+	front.threshold = 10.0
+	front.marker = 7.0
 	front.turns_elapsed = 1
 	assert_false(front.can_resolve(),
-		"En turno 1, threshold ~15 sigue por encima del marker=11 → no resuelve")
-	# Al final del decay, threshold = 10 < 11, ya resuelve.
+		"En turno 1, threshold ~10 sigue por encima del marker=7 → no resuelve")
+	# Al final del decay, threshold = 5 < 7, ya resuelve.
 	front.turns_elapsed = BattleFront.THRESHOLD_DECAY_TURNS
 	assert_true(front.can_resolve(),
-		"Tras el decay, threshold=10 < marker=11 → puede resolverse")
+		"Tras el decay, threshold=5 < marker=7 → puede resolverse")

@@ -124,7 +124,7 @@ func test_from_dict_rebuilds_with_world_and_empires():
 		"marker": 4.0,
 		"turns_elapsed": 2,
 		"min_duration": 3,
-		"threshold": 15.0,
+		"threshold": 10.0,
 		"attacker_troops": [],
 		"defender_troops": [],
 		"attacker_bonuses": [],

@@ -1,10 +1,12 @@
-[gd_resource type="Resource" script_class="HordeAbility" load_steps=3 format=3 uid="uid://chorde001abil"]
+[gd_resource type="Resource" script_class="HordeAbility" load_steps=4 format=3 uid="uid://chorde001abil"]
 
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="1_2pqsx"]
 [ext_resource type="Script" uid="uid://ivmfcxtas8ng" path="res://scripts/empire/abilities/horde_ability.gd" id="1_script"]
+[ext_resource type="Resource" uid="uid://bdc8ttqwuh7kc" path="res://resources/natural_resources/livestock.tres" id="2_livestock"]
 
 [resource]
 script = ExtResource("1_script")
 id = "horde_nomada"
 ability_name = "Horda Nomada"
-description = "El espiritu nomada de las estepas impulsa tu expansion. Robas 1 carta adicional por turno y cada vez que juegas Colonizar hay un 30% de probabilidad de que vuelva a tu mano. Ademas, tu caballeria cuesta un 25% menos de mantener."
+description = "El espiritu nomada de las estepas impulsa tu expansion. Tus casillas con Ganado producen +1 comida adicional y cada vez que juegas Colonizar hay un 30% de probabilidad de que vuelva a tu mano. Ademas, tu caballeria cuesta un 25% menos de mantener."
+livestock_resource = ExtResource("2_livestock")

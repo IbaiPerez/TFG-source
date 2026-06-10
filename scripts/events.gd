@@ -27,6 +27,8 @@ extends Node
 ## Las constantes `StringName` de cada bus tematico (e.g. MapEvents.TILE_SELECTED)
 ## evitan typos en .connect/.emit cuando se opera por nombre.
 
+signal game_over(winner: Empire)
+
 signal generate_world(settings:GenerationSettings, stats:Stats)
 
 signal navigate_to_empire_selection

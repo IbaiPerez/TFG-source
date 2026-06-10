@@ -2,19 +2,23 @@ extends EmpireAbility
 class_name HordeAbility
 
 ## Horda Nomada - Habilidad del Imperio Mongol
-## +1 carta por turno, Colonizar 30% de volver a la mano,
+## +1 comida en casillas con Ganado, Colonizar 30% de volver a la mano,
 ## -25% mantenimiento de caballería
+
+@export var livestock_resource:NaturalResource
 
 
 func create_modifiers() -> Array[Modifier]:
 	var mods:Array[Modifier] = []
 
-	# +1 carta por turno
-	var cards_mod := StatModifier.new(
-		"horde_cards", "Horda Nomada: Cartas",
-		StatModifier.StatType.CARDS_PER_TURN, 1.0, -1
-	)
-	mods.append(cards_mod)
+	# +1 comida en casillas con Ganado
+	if livestock_resource:
+		var food_mod := StatModifier.new(
+			"horde_livestock_food", "Horda Nomada: Ganado",
+			StatModifier.StatType.TILE_RESOURCE_FOOD, 1.0, -1,
+			null, livestock_resource
+		)
+		mods.append(food_mod)
 
 	# Colonizar vuelve a la mano con 30% de probabilidad
 	var return_mod := CardReturnModifier.new(

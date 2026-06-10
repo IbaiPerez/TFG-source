@@ -2,14 +2,15 @@ extends Control
 
 const SAVE_LOAD_PANEL_SCRIPT := preload("res://scripts/ui/menus/save_load_panel.gd")
 
-@onready var _play_button:    Button = $CenterContainer/VBoxContainer/ButtonContainer/PlayButton
-@onready var _load_button:    Button = $CenterContainer/VBoxContainer/ButtonContainer/LoadButton
-@onready var _options_button: Button = $CenterContainer/VBoxContainer/ButtonContainer/OptionsButton
-@onready var _exit_button:    Button = $CenterContainer/VBoxContainer/ButtonContainer/ExitButton
+@onready var _play_button:     Button = $CenterContainer/VBoxContainer/ButtonContainer/PlayButton
+@onready var _load_button:     Button = $CenterContainer/VBoxContainer/ButtonContainer/LoadButton
+@onready var _tutorial_button: Button = $CenterContainer/VBoxContainer/ButtonContainer/TutorialButton
+@onready var _options_button:  Button = $CenterContainer/VBoxContainer/ButtonContainer/OptionsButton
+@onready var _exit_button:     Button = $CenterContainer/VBoxContainer/ButtonContainer/ExitButton
 
 
 func _ready() -> void:
-	var buttons: Array[Button] = [_play_button, _load_button, _options_button, _exit_button]
+	var buttons: Array[Button] = [_play_button, _load_button, _tutorial_button, _options_button, _exit_button]
 	for i in range(buttons.size()):
 		var prev := buttons[(i - 1 + buttons.size()) % buttons.size()]
 		var next := buttons[(i + 1) % buttons.size()]
@@ -32,6 +33,10 @@ func _on_load_button_pressed() -> void:
 	# SaveLoadPanel extiende CanvasLayer, así que se renderiza sobre todo
 	# el menú independientemente de dónde esté en el árbol.
 	add_child(panel)
+
+
+func _on_tutorial_button_pressed() -> void:
+	add_child(TutorialPanel.new())
 
 
 func _on_options_button_pressed() -> void:

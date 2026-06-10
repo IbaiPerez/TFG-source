@@ -59,6 +59,7 @@ func _start_new_game() -> void:
 	# Conectar señales del jugador al TurnManager
 	Events.player_turn_ended.connect(turn_manager.on_player_turn_ended)
 	Events.player_hand_discarded.connect(turn_manager.on_player_hand_discarded)
+	Events.game_over.connect(_on_game_over)
 
 	# Selector de tiles para eventos (Megalópolis, etc.)
 	# Debe responder durante la pausa porque los eventos pausan el árbol
@@ -187,6 +188,24 @@ func _start_from_save(snapshot:Dictionary) -> void:
 	# Continuar el turno actual del controlador que tocaba.
 	if turn_manager and turn_manager.controllers.size() > 0:
 		turn_manager.resume_turn()
+
+
+func _on_game_over(winner: Empire) -> void:
+	GameLogger.info("[Map] Partida finalizada. Ganador: %s" % winner.name)
+	Events.player_turn_ended.disconnect(turn_manager.on_player_turn_ended)
+	Events.player_hand_discarded.disconnect(turn_manager.on_player_hand_discarded)
+	Events.game_over.disconnect(_on_game_over)
+
+	var is_player_winner := (player_handler.stats != null
+			and player_handler.stats.empire == winner)
+	var dialog := AcceptDialog.new()
+	dialog.title = "Fin de partida"
+	dialog.dialog_text = ("¡Victoria!\n%s ha dominado el mapa." % winner.name
+			if is_player_winner
+			else "Derrota.\n%s ha ganado la partida." % winner.name)
+	dialog.confirmed.connect(func(): Events.navigate_to_main_menu.emit())
+	add_child(dialog)
+	dialog.popup_centered()
 
 
 static func _load_turn_events() -> Array[TurnEvent]:

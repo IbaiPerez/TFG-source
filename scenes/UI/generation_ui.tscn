@@ -77,9 +77,9 @@ layout_mode = 2
 [node name="RadiusSlider" type="HSlider" parent="GenerationSettings/SettingsContainer/RadiusRow"]
 unique_name_in_owner = true
 layout_mode = 2
-min_value = 5.0
-max_value = 15.0
-value = 5.0
+min_value = 4.0
+max_value = 10.0
+value = 6.0
 
 [node name="ShapeRow" type="HBoxContainer" parent="GenerationSettings/SettingsContainer"]
 layout_mode = 2

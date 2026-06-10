@@ -19,7 +19,7 @@ extends GutTest
 ##     `_ready` ya no genera y queda una unica pasada de generate_world.
 ##
 ## Este test reproduce la semilla exacta del bug y verifica que tras el
-## bootstrap (num_rounds=0), ningun imperio empieza con 0 tiles en
+## bootstrap (max_rounds=0), ningun imperio empieza con 0 tiles en
 ## ninguna de las 5 runs.
 
 
@@ -39,13 +39,13 @@ func after_each() -> void:
 
 
 func test_no_empire_starts_with_zero_tiles_under_original_failing_seed() -> void:
-	# Misma configuracion que `test_sim_full_game.gd` pero con num_rounds=0
+	# Misma configuracion que `test_sim_full_game.gd` pero con max_rounds=0
 	# para que el test sea rapido: queremos ejercitar solo el bootstrap
 	# (generate_world + create_empires + wire_stats), que es donde vivia
 	# el bug.
 	var multi = MULTI_RUN.new()
 	multi.num_runs = 5
-	multi.num_rounds = 0
+	multi.max_rounds = 0  # 0 = solo bootstrap, sin rondas jugadas
 	multi.rng_master_seed = 20260516  # Semilla original del JSON con el bug.
 	multi.attach_to(self)
 
@@ -57,7 +57,7 @@ func test_no_empire_starts_with_zero_tiles_under_original_failing_seed() -> void
 	for r in multi.runs:
 		var snaps: Array = r["snapshots"]
 		assert_eq(snaps.size(), 2,
-			"Con num_rounds=0 cada run debe tener exactamente 2 snapshots (R=0 x 2 IAs)")
+			"Con max_rounds=0 cada run debe tener exactamente 2 snapshots (R=0 x 2 IAs)")
 		var ai_a_snap: Dictionary = snaps[0]
 		var ai_b_snap: Dictionary = snaps[1]
 

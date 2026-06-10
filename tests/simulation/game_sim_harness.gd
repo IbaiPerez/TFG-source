@@ -3,13 +3,13 @@ class_name GameSimHarness
 
 ## Harness de simulacion headless: monta una partida usando el
 ## WorldGenerator real (con tiles, biomas, recursos, agua y montañas
-## reales) y dos AIControllers (sin jugador humano). Corre N rondas, captura
-## un snapshot por imperio y por turno. Sin UI 3D ni paneles, pero
-## reutilizando toda la logica de generacion y de turno del juego.
+## reales) y dos AIControllers (sin jugador humano). Corre rondas hasta que
+## se detecte una condicion de victoria (dominacion o eliminacion). Sin UI
+## 3D ni paneles, pero reutilizando toda la logica de generacion y de turno.
 ##
 ## Uso:
 ##   var sim := GameSimHarness.new()
-##   sim.num_rounds = 100
+##   sim.max_rounds = 500   # limite de seguridad; la partida termina antes
 ##   sim.run_id = 0
 ##   sim.attach_to(gut_test)
 ##   await sim.run()
@@ -28,7 +28,7 @@ class_name GameSimHarness
 
 # --- Config por run --------------------------------------------------------
 
-var num_rounds: int = 100
+var max_rounds: int = 500   ## Limite de seguridad; la partida termina antes si hay ganador
 var run_id: int = 0
 var rng_master: RandomNumberGenerator        ## Para randomizar settings de run
 
@@ -58,6 +58,9 @@ var stats_a: Stats
 var stats_b: Stats
 var snapshots: Array = []
 var run_seed_meta: Dictionary = {}
+var winner_empire_name: String = ""
+var victory_condition: String = ""  ## "domination" | "elimination" | "" si no termino
+var finished_round: int = -1
 ## Historial de frentes resueltos, contadores por empire.name. Cada empire
 ## tiene { won_as_atk, won_as_def, lost_as_atk, lost_as_def, total_resolved }.
 ## El harness escucha `Events.battle_front_resolved` y agrega aquí; los
@@ -105,16 +108,24 @@ func run() -> void:
 	snapshots.append(_capture_snapshot(0, ai_a))
 	snapshots.append(_capture_snapshot(0, ai_b))
 
-	for round_num in num_rounds:
+	var round_num := 0
+	while round_num < max_rounds:
 		await ai_a.start_turn()
 		snapshots.append(_capture_snapshot(round_num + 1, ai_a))
 
 		await ai_b.start_turn()
 		snapshots.append(_capture_snapshot(round_num + 1, ai_b))
 
-		# Yield al motor entre rondas: cada ronda procesa muchas señales
-		# y entradas; sin esto, 100 rondas en un solo frame producen
-		# warnings de "frame too long" y bloquean el heartbeat de GUT.
+		var result := _check_victory_in_sim()
+		if not result.is_empty():
+			winner_empire_name = result["winner"]
+			victory_condition = result["condition"]
+			finished_round = round_num + 1
+			break
+
+		round_num += 1
+		# Yield al motor entre rondas para evitar warnings de "frame too long"
+		# y mantener el heartbeat de GUT activo.
 		await _gut_test.get_tree().process_frame
 
 	# Cleanup obligatorio antes de devolver: liberamos el raiz para que
@@ -257,6 +268,29 @@ func _load_turn_events() -> Array[TurnEvent]:
 	return events
 
 
+# --- Condiciones de victoria -----------------------------------------------
+
+## Comprueba dominación (>= 70 % del mapa) y eliminación (rival a 0 tiles).
+## Devuelve {"winner": nombre, "condition": "domination"|"elimination"}
+## o {} si la partida continúa.
+func _check_victory_in_sim() -> Dictionary:
+	var total := WorldMap.map.size()
+	if total == 0 or stats_a == null or stats_b == null:
+		return {}
+	var a_tiles := stats_a.empire.controlled_tiles.size()
+	var b_tiles := stats_b.empire.controlled_tiles.size()
+	if b_tiles == 0 and a_tiles > 0:
+		return {"winner": stats_a.empire.name, "condition": "elimination"}
+	if a_tiles == 0 and b_tiles > 0:
+		return {"winner": stats_b.empire.name, "condition": "elimination"}
+	const THRESHOLD := 0.70
+	if float(a_tiles) / float(total) >= THRESHOLD:
+		return {"winner": stats_a.empire.name, "condition": "domination"}
+	if float(b_tiles) / float(total) >= THRESHOLD:
+		return {"winner": stats_b.empire.name, "condition": "domination"}
+	return {}
+
+
 # --- Captura de metricas ---------------------------------------------------
 
 func _capture_snapshot(round_num: int, ai: AIController) -> Dictionary:
@@ -273,6 +307,7 @@ func _capture_snapshot(round_num: int, ai: AIController) -> Dictionary:
 		"map": _capture_map(empire),
 		"military": _capture_military(stats, ai),
 		"modifiers": _capture_modifiers(ai.modifier_manager),
+		"heuristic": _capture_heuristic(ai),
 	}
 
 
@@ -360,6 +395,7 @@ func _capture_map(empire: Empire) -> Dictionary:
 			buildings_total += 1
 			buildings_by_name[b.name] = buildings_by_name.get(b.name, 0) + 1
 	return {
+		"total_map_tiles": WorldMap.map.size(),
 		# Reportamos el tamaño REAL (tiles vivas), no el de la lista
 		# bruta, para que un eventual error de bookkeeping se vea en
 		# los datos en lugar de inflar contadores con tiles fantasma.
@@ -457,6 +493,62 @@ func _on_battle_front_resolved(front: BattleFront, attacker_won: bool) -> void:
 				entry["won_as_defender"] += 1
 		entry["total_resolved"] += 1
 		_battle_history[key] = entry
+
+
+## Construye un AITurnContext mínimo (sin cartas en mano ni world_view) para
+## pasar a los metodos estaticos de AIHeuristic durante la captura de snapshot.
+## El RNG es desechable: ninguno de los metodos de scoring lo usa.
+func _make_snapshot_ctx(ai: AIController) -> AITurnContext:
+	var ctx := AITurnContext.new()
+	ctx.controller = ai
+	ctx.stats = ai.stats
+	ctx.battle_front_manager = ai.battle_front_manager
+	ctx.rng = RandomNumberGenerator.new()
+	ctx.colonizable_tiles_count = _count_colonizable_tiles(ai.stats.empire)
+	return ctx
+
+
+## Cuenta tiles sin controller adyacentes al territorio del empire.
+func _count_colonizable_tiles(empire: Empire) -> int:
+	if empire == null:
+		return 0
+	var seen := {}
+	var count := 0
+	for tile in empire.controlled_tiles:
+		for nb in tile.neighbors:
+			if nb is Tile and (nb as Tile).controller == null and not seen.has(nb):
+				seen[nb] = true
+				count += 1
+	return count
+
+
+## Captura señales de urgencia y metricas de posicion de la heuristica IA.
+func _capture_heuristic(ai: AIController) -> Dictionary:
+	var stats := ai.stats
+	if stats == null or stats.empire == null:
+		return {}
+	var phase := AIGamePhase.detect(stats)
+	var ctx := _make_snapshot_ctx(ai)
+
+	var total := WorldMap.map.size()
+	var controlled := stats.empire.controlled_tiles.size()
+	var dom_target := int(ceil(float(total) * 0.70))
+
+	return {
+		"phase": AIGamePhase.Phase.keys()[phase],
+		"gold_urgency": AIHeuristic._gold_urgency(stats.gold_per_turn, phase),
+		"food_urgency": AIHeuristic._food_urgency(stats.food, phase),
+		"military_urgency": AIHeuristic._military_urgency(ctx, phase),
+		"deck_urgency": AIHeuristic._deck_urgency(ctx),
+		"expansion_factor": AIHeuristic._expansion_factor(ctx),
+		"resource_surplus_factor": AIHeuristic._resource_surplus_factor(ctx, phase),
+		"max_front_pressure": AIHeuristic._max_front_pressure(ctx),
+		"buildable_slots": AIHeuristic._buildable_slots(ctx),
+		"upgradeable_buildings": AIHeuristic._upgradeable_buildings(ctx),
+		"colonizable_tiles": ctx.colonizable_tiles_count,
+		"territory_pct": float(controlled) / float(total) if total > 0 else 0.0,
+		"tiles_to_domination": maxi(0, dom_target - controlled),
+	}
 
 
 func _capture_modifiers(mm: ModifierManager) -> Array:

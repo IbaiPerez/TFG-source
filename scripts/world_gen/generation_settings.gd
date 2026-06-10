@@ -12,7 +12,7 @@ enum shape {HEXAGONAL, RECTANGULAR, DIAMOND, CIRCLE}
 @export_group("Generation")
 @export var map_seed : int
 @export var map_shape : shape = shape.HEXAGONAL
-@export_range(0, 99, 1) var radius: int = 8
+@export_range(0, 99, 1) var radius: int = 6
 @export var biome_noise : FastNoiseLite
 
 @export_group("Hills")

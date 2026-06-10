@@ -9,7 +9,7 @@ class_name MultiRunSimulator
 ## Uso:
 ##   var multi := MultiRunSimulator.new()
 ##   multi.num_runs = 5
-##   multi.num_rounds = 100
+##   multi.max_rounds = 500  # limite de seguridad; la partida termina por victoria
 ##   multi.rng_master_seed = 12345
 ##   multi.attach_to(gut_test)
 ##   await multi.run()
@@ -19,7 +19,7 @@ class_name MultiRunSimulator
 # --- Config ----------------------------------------------------------------
 
 var num_runs: int = 5
-var num_rounds: int = 100
+var max_rounds: int = 500   ## Limite de seguridad por run; la partida termina antes si hay ganador
 var rng_master_seed: int = 12345
 
 
@@ -42,7 +42,7 @@ func run() -> void:
 	for i in num_runs:
 		print("[Sim] === RUN %d / %d ===" % [i + 1, num_runs])
 		var harness := GameSimHarness.new()
-		harness.num_rounds = num_rounds
+		harness.max_rounds = max_rounds
 		harness.run_id = i
 		# RNG independiente por run pero derivado del master, asi la
 		# misma rng_master_seed reproduce exactamente la misma serie.
@@ -56,6 +56,9 @@ func run() -> void:
 			"run_id": i,
 			"seed_meta": harness.run_seed_meta,
 			"snapshots": harness.snapshots,
+			"winner": harness.winner_empire_name,
+			"victory_condition": harness.victory_condition,
+			"finished_round": harness.finished_round,
 		})
 
 		# Limpieza obligatoria entre runs: WorldMap y BattleFront son
@@ -71,7 +74,7 @@ func dump_to(path: String) -> void:
 	var payload := {
 		"metadata": {
 			"num_runs": num_runs,
-			"num_rounds": num_rounds,
+			"max_rounds_safety_cap": max_rounds,
 			"rng_master_seed": rng_master_seed,
 			"timestamp": Time.get_datetime_string_from_system(true),
 		},
@@ -126,12 +129,14 @@ func _aggregate_metrics(snapshots: Array) -> Dictionary:
 		"economy.gold_per_turn",
 		"economy.food",
 		"economy.total_purges_done",
+		"economy.combat_multiplier",
 		"deck.draw_pile",
 		"deck.discard_pile",
 		"deck.played_pile",
 		"deck.deck_total_real",
 		"deck.cards_per_turn",
 		"deck.unlocked_pool_size",
+		"map.total_map_tiles",
 		"map.controlled_tiles",
 		"map.buildings_total",
 		"military.troop_pool_size",
@@ -145,6 +150,18 @@ func _aggregate_metrics(snapshots: Array) -> Dictionary:
 		"military.resolved.lost_as_attacker",
 		"military.resolved.lost_as_defender",
 		"military.resolved.total_resolved",
+		"heuristic.gold_urgency",
+		"heuristic.food_urgency",
+		"heuristic.military_urgency",
+		"heuristic.deck_urgency",
+		"heuristic.expansion_factor",
+		"heuristic.resource_surplus_factor",
+		"heuristic.max_front_pressure",
+		"heuristic.buildable_slots",
+		"heuristic.upgradeable_buildings",
+		"heuristic.colonizable_tiles",
+		"heuristic.territory_pct",
+		"heuristic.tiles_to_domination",
 	]
 
 	var out := {}

@@ -27,19 +27,17 @@ var turns_elapsed: int = 0
 var min_duration: int = 3
 
 ## Umbral inicial del frente. El umbral efectivo se calcula con
-## `get_current_threshold()` y va decreciendo desde `threshold` (default 15)
-## hasta `MIN_THRESHOLD` (10) de forma lineal en `THRESHOLD_DECAY_TURNS` (30)
+## `get_current_threshold()` y va decreciendo desde `threshold` (default 10)
+## hasta `MIN_THRESHOLD` (5) de forma lineal en `THRESHOLD_DECAY_TURNS` (10)
 ## turnos transcurridos en el frente.
 ##
-## Why: con threshold fijo en 20, los datos de simulacion mostraron que el
-## ~50% de los frentes vivos en R100 tenian |marker| < 5 y ninguno alcanzaba
-## el umbral. La fuerza simetrica entre bandos hace que el marker oscile
-## cerca de 0 y el frente nunca cierre. Bajar el techo a 15 y dejar que el
-## tiempo lo erosione hasta 10 evita esos atascos: cuanto mas tiempo lleva
-## un frente abierto sin decision, mas facil se vuelve resolverlo.
-var threshold: float = 15.0
-const MIN_THRESHOLD: float = 10.0
-const THRESHOLD_DECAY_TURNS: int = 30
+## Why: frentes con ejercitos simetricos oscilaban cerca de cero y nunca
+## se resolvian. Bajando el techo a 10 y el minimo a 5 con decay de 10
+## turnos, los frentes estancados se resuelven antes del turno 15 en la
+## mayoria de casos, evitando LATE games bloqueados.
+var threshold: float = 10.0
+const MIN_THRESHOLD: float = 5.0
+const THRESHOLD_DECAY_TURNS: int = 10
 
 ## Tropas asignadas por bando (arrays de Troop)
 var attacker_troops: Array[Troop] = []

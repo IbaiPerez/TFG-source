@@ -99,30 +99,35 @@ func test_noise_at_tile_normalized():
 func test_circle_shape_filter_origin():
 	var mapper := GridMapper.new()
 	mapper.settings = _make_settings(5)
+	mapper.effective_radius = 5
 	assert_true(mapper.circle_shape_filter(0, 0), "Origin should be in circle")
 
 
 func test_circle_shape_filter_inside():
 	var mapper := GridMapper.new()
 	mapper.settings = _make_settings(5)
+	mapper.effective_radius = 5
 	assert_true(mapper.circle_shape_filter(2, 2), "Point inside circle")
 
 
 func test_circle_shape_filter_outside():
 	var mapper := GridMapper.new()
 	mapper.settings = _make_settings(3)
+	mapper.effective_radius = 3
 	assert_false(mapper.circle_shape_filter(3, 3), "Point outside circle")
 
 
 func test_diamond_shape_filter_origin():
 	var mapper := GridMapper.new()
 	mapper.settings = _make_settings(5)
+	mapper.effective_radius = 5
 	assert_true(mapper.diamond_shape_filter(0, 0))
 
 
 func test_diamond_shape_filter_outside():
 	var mapper := GridMapper.new()
 	mapper.settings = _make_settings(3)
+	mapper.effective_radius = 3
 	assert_false(mapper.diamond_shape_filter(2, 2), "|2|+|2|=4 >= 3")
 
 

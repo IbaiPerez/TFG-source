@@ -39,7 +39,7 @@ func _ready() -> void:
 
 	if UIState:
 		UIState.register_menu()
-	custom_minimum_size = Vector2(450, 300)
+	custom_minimum_size = Vector2(640, 580)
 	anchors_preset = PRESET_CENTER
 	_build_ui()
 	_populate_pool()
@@ -47,10 +47,10 @@ func _ready() -> void:
 
 func _build_ui() -> void:
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_bottom", 14)
 	add_child(margin)
 
 	var vbox := VBoxContainer.new()
@@ -77,12 +77,12 @@ func _build_ui() -> void:
 
 	# Grid de tropas disponibles
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(0, 180)
+	scroll.custom_minimum_size = Vector2(0, 400)
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(scroll)
 
 	troops_grid = GridContainer.new()
-	troops_grid.columns = 4
+	troops_grid.columns = 5
 	scroll.add_child(troops_grid)
 
 	# Botón cerrar

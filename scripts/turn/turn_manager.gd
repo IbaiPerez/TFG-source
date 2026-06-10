@@ -8,6 +8,8 @@ class_name TurnManager
 signal round_started(round_number:int)
 signal round_ended(round_number:int)
 
+const DOMINATION_THRESHOLD := 0.70
+
 var controllers:Array[EmpireController] = []
 var current_index:int = -1
 var round_number:int = 0
@@ -70,12 +72,50 @@ func _advance_to_next() -> void:
 		# Todos han jugado -> nueva ronda
 		GameLogger.info("[TurnManager] === FIN RONDA %d ===" % round_number)
 		round_ended.emit(round_number)
+
+		var winner := _check_victory()
+		if winner != null:
+			GameLogger.info("[TurnManager] === VICTORIA: %s ===" % winner.name)
+			Events.game_over.emit(winner)
+			return
+
 		round_number += 1
 		current_index = 0
 		GameLogger.info("[TurnManager] === RONDA %d ===" % round_number)
 		round_started.emit(round_number)
 
 	_start_current_controller_turn()
+
+
+## Comprueba las condiciones de victoria tras cada ronda completa.
+## Devuelve el Empire ganador o null si la partida continúa.
+## - Eliminación: un único imperio tiene tiles (el otro ha sido conquistado).
+## - Dominación: un imperio controla >= 70 % del mapa total.
+func _check_victory() -> Empire:
+	var total_tiles := WorldMap.map.size()
+	if total_tiles == 0:
+		return null
+
+	var empires_with_tiles: Array[Empire] = []
+	for ctrl in controllers:
+		if ctrl.stats == null or ctrl.stats.empire == null:
+			continue
+		if ctrl.stats.empire.controlled_tiles.size() > 0:
+			empires_with_tiles.append(ctrl.stats.empire)
+
+	# Eliminación: solo un imperio sigue en pie
+	if empires_with_tiles.size() == 1:
+		return empires_with_tiles[0]
+
+	# Dominación: algún imperio supera el umbral territorial
+	for ctrl in controllers:
+		if ctrl.stats == null or ctrl.stats.empire == null:
+			continue
+		var n := ctrl.stats.empire.controlled_tiles.size()
+		if float(n) / float(total_tiles) >= DOMINATION_THRESHOLD:
+			return ctrl.stats.empire
+
+	return null
 
 func _start_current_controller_turn() -> void:
 	var controller := controllers[current_index]
