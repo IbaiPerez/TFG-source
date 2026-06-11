@@ -118,13 +118,19 @@ func _run_turn() -> void:
 	var _adj_cond := AdjacentCondition.new()
 	_adj_cond.empire = stats.empire
 	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
+	ctx.total_map_tiles = WorldMap.map.size()
 
 	var iterations := 0
 	while iterations < max_iterations and not ctx.drawn_cards.is_empty():
 		var options := _enumerate_all_options(ctx)
 		options.append(AIPlayOption.create_pass())
 
+		# Preparar caché de urgencias una sola vez para todo este ciclo de scoring.
+		# Se invalida tras ejecutar la opción porque el estado del mundo cambia.
+		AIHeuristic.prepare_decision_cache(ctx)
 		var chosen := _pick_best_option(options, ctx)
+		ctx.invalidate_decision_cache()
+
 		if chosen == null or chosen.is_pass:
 			GameLogger.debug("[IA] %s decide pasar (iter %d)" % [empire_name, iterations])
 			break

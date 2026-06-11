@@ -106,8 +106,9 @@ static func _resolve_turn_event(event: TurnEvent, context: EventContext,
 
 
 ## Replica TurnEventPanel._on_tile_selected: paga el coste, ejecuta el
-## tile_effect con la tile elegida random, ejecuta los demás effects que
-## no requieran tile input, y marca el evento como unique.
+## tile_effect con la tile elegida, ejecuta los demás effects que no requieran
+## tile input, y marca el evento como unique.
+## Para UrbanizeToMegalopolisEffect usa scoring heurístico en lugar de azar.
 static func _execute_choice_with_tile_input(event: TurnEvent, choice: TurnEventChoice,
 		context: EventContext, rng: RandomNumberGenerator) -> void:
 	if choice.cost != null:
@@ -117,7 +118,11 @@ static func _execute_choice_with_tile_input(event: TurnEvent, choice: TurnEventC
 	if tile_effect != null and tile_effect.has_method("get_eligible_tiles"):
 		var eligible: Array = tile_effect.get_eligible_tiles(context)
 		if not eligible.is_empty():
-			var picked_tile = eligible[rng.randi_range(0, eligible.size() - 1)]
+			var picked_tile: Tile
+			if tile_effect is UrbanizeToMegalopolisEffect:
+				picked_tile = _pick_best_megalopolis_tile(eligible)
+			else:
+				picked_tile = eligible[rng.randi_range(0, eligible.size() - 1)]
 			if tile_effect.has_method("execute_with_tile"):
 				tile_effect.execute_with_tile(picked_tile, context.stats)
 
@@ -127,6 +132,48 @@ static func _execute_choice_with_tile_input(event: TurnEvent, choice: TurnEventC
 			effect.execute(context)
 
 	_mark_unique_if_applicable(event, context.stats)
+
+
+## Elige la mejor tile para fundar una Megalópolis: maximiza los edificios
+## supervivientes y el recurso natural; penaliza los edificios que se demolerán.
+## Los edificios Village-only (allowed_location_type solo contiene Village o
+## inferior) se demolerán al pasar a Megalópolis.
+static func _pick_best_megalopolis_tile(eligible: Array) -> Tile:
+	var best_tile: Tile = eligible[0] as Tile
+	var best_score := -INF
+	for entry in eligible:
+		var tile := entry as Tile
+		if tile == null:
+			continue
+		var surviving_value := 0.0
+		var demolished_penalty := 0.0
+		for b in tile.buildings:
+			if b == null:
+				continue
+			# Un edificio se demolerá si su allowed_location_type no está vacío
+			# y no incluye Megalópolis (type == 2 según LocationType.Type).
+			var survives := true
+			if not b.allowed_location_type.is_empty():
+				survives = false
+				for lt in b.allowed_location_type:
+					if lt.type >= Tile.location_type.Megalopolis:
+						survives = true
+						break
+			if survives:
+				surviving_value += b.gold_produced * 2.0 + b.food_produced * 1.5 \
+								 + b.flat_defense_bonus * 1.0
+			else:
+				demolished_penalty += b.gold_produced * 2.0 + b.food_produced * 1.5 \
+								    + b.flat_defense_bonus * 1.0
+		var res_val := 0.0
+		if tile.natural_resource != null:
+			res_val = tile.natural_resource.gold_produced * 1.5 \
+					+ tile.natural_resource.food_produced * 1.2
+		var tile_score := surviving_value + res_val - demolished_penalty
+		if tile_score > best_score:
+			best_score = tile_score
+			best_tile = tile
+	return best_tile
 
 
 ## Replica TurnEventPanel._on_card_selected: identifica el primer
