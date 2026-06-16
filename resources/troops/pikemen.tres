@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_script")
-name = "Piqueros"
+name = "TROOP_PIKEMEN_NAME"
 icon = ExtResource("2_icon")
 type = 4
 attack = 1

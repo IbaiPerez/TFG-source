@@ -8,7 +8,7 @@
 
 [resource]
 script = ExtResource("3_pquqj")
-name = "Fishing Port"
+name = "BLD_FISHING_PORT_NAME"
 required_natural_resource = ExtResource("3_ve44e")
 allowed_biomes = Array[int]([5])
 image = ExtResource("img_icon")

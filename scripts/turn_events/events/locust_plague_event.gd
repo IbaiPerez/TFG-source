@@ -16,8 +16,8 @@ func _init():
 
 	# Unica opcion: sufrir la plaga
 	var suffer := TurnEventChoice.new()
-	suffer.label = "Sufrir la plaga"
-	suffer.description = "Las langostas devoran tus cosechas. -20% comida durante 4 turnos."
+	suffer.label = tr("EVT_LOCUST_CH1_LABEL")
+	suffer.description = tr("EVT_LOCUST_CH1_DESC")
 	suffer.effects = [
 		ScaledStatModifierEffect.new(
 			"locust_plague_food", "Plaga de Langostas",

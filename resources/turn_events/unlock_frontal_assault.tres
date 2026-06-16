@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_frontal_assault"
-title = "Doctrina del Asalto Frontal"
-description = "[i]Tu infantería pesada avanza como un muro de acero. Tus generales proponen una doctrina de combate frontal: armadura, disciplina y empuje implacable contra el centro enemigo.[/i]"
+title = "EVT_UNLOCK_FRONTAL_TITLE"
+description = "EVT_UNLOCK_FRONTAL_DESC"
 allow_skip = true
 weight = 80.0
 unique = true

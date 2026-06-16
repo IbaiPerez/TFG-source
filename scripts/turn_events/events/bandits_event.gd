@@ -17,8 +17,8 @@ func _init():
 
 	# Opcion 1: sufrir el robo
 	var suffer := TurnEventChoice.new()
-	suffer.label = "Ignorar a los bandidos"
-	suffer.description = "Los bandidos saquean tus rutas comerciales."
+	suffer.label = tr("EVT_BANDITS_CH1_LABEL")
+	suffer.description = tr("EVT_BANDITS_CH1_DESC")
 	suffer.effects = [
 		ScaledStatModifierEffect.new(
 			"bandits_gold", "Bandidos",
@@ -29,8 +29,8 @@ func _init():
 
 	# Opcion 2: pagar oro para evitarlo
 	var pay := TurnEventChoice.new()
-	pay.label = "Contratar escoltas"
-	pay.description = "Paga oro para proteger tus caravanas."
+	pay.label = tr("EVT_BANDITS_CH2_LABEL")
+	pay.description = tr("EVT_BANDITS_CH2_DESC")
 	pay.cost = ScaledGoldCost.new(30.0, 0.6, 0.0)
 	pay.effects = []
 

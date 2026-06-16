@@ -14,8 +14,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Contratar artesanos"
-	choice.description = "Reduccion temporal del coste de construccion."
+	choice.label = tr("EVT_TRAVELING_ARTISANS_CH1_LABEL")
+	choice.description = tr("EVT_TRAVELING_ARTISANS_CH1_DESC")
 	choice.effects = [
 		ScaledBuildCostModifierEffect.new(
 			"artisans_discount", "Artesanos Ambulantes",

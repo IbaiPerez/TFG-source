@@ -33,9 +33,23 @@ var run_id: int = 0
 var rng_master: RandomNumberGenerator        ## Para randomizar settings de run
 
 # Rangos de randomizacion (puedes ajustarlos)
-var radius_range := Vector2i(5, 10)
+# Radio 4-6 = tamaño realista (61-127 casillas). Radios mayores (hasta 10 = 331
+# casillas) disparan el coste por iteración del MCTS y meten ruido de tamaño en
+# las comparaciones, así que por defecto nos quedamos en el rango jugable.
+var radius_range := Vector2i(4, 6)
 var mountain_range := Vector2(0.5, 0.8)
 var ocean_range := Vector2(0.5, 0.7)
+
+## AIConfig por bando. null → el AIController crea su default en _ready()
+## (mode=MCTS). Asignar configs distintas permite enfrentar modos de IA
+## (heurística vs MCTS) en la misma partida.
+var config_a: AIConfig = null
+var config_b: AIConfig = null
+
+## Si false, se omite la captura de snapshots por turno (economía/deck/mapa/
+## militar/heurística). Acelera las comparaciones de modo, donde solo
+## interesan ganador, coste por turno y acciones jugadas.
+var capture_snapshots: bool = true
 
 
 # --- Recursos -------------------------------------------------------------
@@ -59,8 +73,38 @@ var stats_b: Stats
 var snapshots: Array = []
 var run_seed_meta: Dictionary = {}
 var winner_empire_name: String = ""
+var winner_label: String = ""       ## "AI_A" | "AI_B" | "" si no termino (empate/limite)
 var victory_condition: String = ""  ## "domination" | "elimination" | "" si no termino
 var finished_round: int = -1
+
+## Recuento de casillas al terminar la partida (para saber si se colonizó todo
+## el mapa o la partida acabó antes por dominación/eliminación).
+var final_tiles_a: int = 0
+var final_tiles_b: int = 0
+var final_total_tiles: int = 0     ## WorldMap.map.size() (incluye agua/montaña)
+
+## Si true, registra por turno la AUTO-EVALUACIÓN de cada IA: score_state del
+## estado real desde su perspectiva + casillas propias/rival. Sirve para
+## diagnosticar si la IA "sabe" cuándo va ganando/perdiendo (¿la curva de
+## score_state sigue a la ventaja real de territorio, y con qué antelación?).
+var capture_self_eval: bool = false
+var self_eval_trace: Array = []    ## [{round, label, mode, empire, score_state, my_tiles, rival_tiles}]
+
+## Diagnóstico MCTS de la partida: nº de decisiones del lado MCTS y de cuántas
+## la búsqueda se apartó del prior heurístico. Capturados al terminar.
+var mcts_decisions: int = 0
+var mcts_prior_overrides: int = 0
+
+## Conteo de acciones jugadas por etiqueta de IA → { card_class: count }.
+## Poblado escuchando Events.ai_card_played. Permite comparar el "estilo" de
+## juego de cada modo (cuántas Colonize/Build/Recruit/OpenFront/Tactic…).
+var actions_by_label: Dictionary = {"AI_A": {}, "AI_B": {}}
+
+## Coste de decisión por etiqueta: microsegundos totales en start_turn() y
+## número de turnos jugados. ms/turno = (usec/turns)/1000. La diferencia entre
+## el bando MCTS y el heurístico aísla el sobrecoste de la búsqueda.
+var turn_usec_by_label: Dictionary = {"AI_A": 0, "AI_B": 0}
+var turns_by_label: Dictionary = {"AI_A": 0, "AI_B": 0}
 ## Historial de frentes resueltos, contadores por empire.name. Cada empire
 ## tiene { won_as_atk, won_as_def, lost_as_atk, lost_as_def, total_resolved }.
 ## El harness escucha `Events.battle_front_resolved` y agrega aquí; los
@@ -105,22 +149,43 @@ func run() -> void:
 	if not Events.battle_front_resolved.is_connected(_on_battle_front_resolved):
 		Events.battle_front_resolved.connect(_on_battle_front_resolved)
 
-	snapshots.append(_capture_snapshot(0, ai_a))
-	snapshots.append(_capture_snapshot(0, ai_b))
+	# Conteo de acciones jugadas por cada IA (Events.ai_card_played).
+	actions_by_label = {"AI_A": {}, "AI_B": {}}
+	turn_usec_by_label = {"AI_A": 0, "AI_B": 0}
+	turns_by_label = {"AI_A": 0, "AI_B": 0}
+	if not Events.ai_card_played.is_connected(_on_ai_card_played):
+		Events.ai_card_played.connect(_on_ai_card_played)
+
+	if capture_snapshots:
+		snapshots.append(_capture_snapshot(0, ai_a))
+		snapshots.append(_capture_snapshot(0, ai_b))
 
 	var round_num := 0
 	while round_num < max_rounds:
+		# Temporizamos solo start_turn() (decisión + ejecución), no la captura
+		# de snapshot, para que el coste medido sea el de la IA.
+		var t0 := Time.get_ticks_usec()
 		await ai_a.start_turn()
-		snapshots.append(_capture_snapshot(round_num + 1, ai_a))
+		turn_usec_by_label["AI_A"] += Time.get_ticks_usec() - t0
+		turns_by_label["AI_A"] += 1
+		if capture_snapshots:
+			snapshots.append(_capture_snapshot(round_num + 1, ai_a))
+		_capture_self_eval(round_num + 1, ai_a)
 
+		var t1 := Time.get_ticks_usec()
 		await ai_b.start_turn()
-		snapshots.append(_capture_snapshot(round_num + 1, ai_b))
+		turn_usec_by_label["AI_B"] += Time.get_ticks_usec() - t1
+		turns_by_label["AI_B"] += 1
+		if capture_snapshots:
+			snapshots.append(_capture_snapshot(round_num + 1, ai_b))
+		_capture_self_eval(round_num + 1, ai_b)
 
 		var result := _check_victory_in_sim()
 		if not result.is_empty():
 			winner_empire_name = result["winner"]
 			victory_condition = result["condition"]
 			finished_round = round_num + 1
+			winner_label = "AI_A" if winner_empire_name == stats_a.empire.name else "AI_B"
 			break
 
 		round_num += 1
@@ -128,12 +193,33 @@ func run() -> void:
 		# y mantener el heartbeat de GUT activo.
 		await _gut_test.get_tree().process_frame
 
+	# Recuento final de casillas ANTES de liberar las tiles (run_root). Sirve
+	# para distinguir "la partida acabó con el mapa lleno" de "acabó antes por
+	# dominación/eliminación con casillas sin colonizar".
+	if stats_a != null and stats_a.empire != null:
+		final_tiles_a = stats_a.empire.controlled_tiles.size()
+	if stats_b != null and stats_b.empire != null:
+		final_tiles_b = stats_b.empire.controlled_tiles.size()
+	final_total_tiles = WorldMap.map.size()
+
+	# Contadores de diagnóstico MCTS del bando MCTS (antes de liberar las IAs).
+	var mcts_ai: AIController = null
+	if config_a != null and config_a.mode == AIConfig.Mode.MCTS:
+		mcts_ai = ai_a
+	elif config_b != null and config_b.mode == AIConfig.Mode.MCTS:
+		mcts_ai = ai_b
+	if mcts_ai != null:
+		mcts_decisions = mcts_ai.mcts_decisions
+		mcts_prior_overrides = mcts_ai.mcts_prior_overrides
+
 	# Cleanup obligatorio antes de devolver: liberamos el raiz para que
 	# la siguiente run pueda registrar `AI_A` / `AI_B` sin colision.
 	# Los `snapshots` ya estan poblados (dicts puros), no dependen de los
 	# nodos vivos. Esperamos un frame para que queue_free se procese.
 	if Events.battle_front_resolved.is_connected(_on_battle_front_resolved):
 		Events.battle_front_resolved.disconnect(_on_battle_front_resolved)
+	if Events.ai_card_played.is_connected(_on_ai_card_played):
+		Events.ai_card_played.disconnect(_on_ai_card_played)
 	_run_root.queue_free()
 	_run_root = null
 	ai_a = null
@@ -235,20 +321,70 @@ func _wire_stats_to_generated_empires() -> void:
 func _spawn_ai_controllers() -> void:
 	# Seeds derivados del rng_master para reproducibilidad de la run
 	# completa: misma seed_master → misma sim entera (mapa + decisiones).
-	ai_a = _spawn_ai(stats_a, rng_master.randi(), "AI_A")
-	ai_b = _spawn_ai(stats_b, rng_master.randi(), "AI_B")
+	ai_a = _spawn_ai(stats_a, rng_master.randi(), "AI_A", config_a)
+	ai_b = _spawn_ai(stats_b, rng_master.randi(), "AI_B", config_b)
+
+	# Registro mínimo de controllers para que cada IA vea al rival vía
+	# AIController._build_world_view() — IMPRESCINDIBLE para el MCTS: sin un
+	# rival visible, AIGameState.from_context deja rival_tiles=0 y la
+	# evaluación da 1.0 (victoria) en todo estado, degenerando la búsqueda.
+	# También habilita el deck observer (_ensure_observer_ready).
+	#
+	# NO usamos TurnManager.register_controller(): conectaría turn_finished y
+	# dispararía el auto-avance de turnos, en conflicto con la orquestación
+	# manual (await ai.start_turn()). Poblamos .controllers directamente.
+	var tm := TurnManager.new()
+	tm.name = "SimTurnManager"
+	tm.controllers.append(ai_a)
+	tm.controllers.append(ai_b)
+	_run_root.add_child(tm)
+	ai_a.turn_manager = tm
+	ai_b.turn_manager = tm
 
 
-func _spawn_ai(stats: Stats, seed_value: int, name: String) -> AIController:
+func _spawn_ai(stats: Stats, seed_value: int, name: String,
+		config: AIConfig = null) -> AIController:
 	var ai := AIController.new()
 	ai.name = name
 	ai.action_delay = 0.0
 	ai.turn_end_delay = 0.0
 	ai.rng_seed = seed_value
 	ai.max_iterations = 20
+	# Asignar antes de add_child: _ready() solo crea un default si ai_config
+	# es null, así que esto fija el modo (heurística / MCTS) de este bando.
+	if config != null:
+		ai.ai_config = config
 	_run_root.add_child(ai)
 	ai.start_game(stats)
 	return ai
+
+
+## Listener de Events.ai_card_played. Contabiliza la acción por etiqueta de IA
+## y tipo de carta (nombre de clase). Mapea el empire emisor a AI_A/AI_B.
+func _on_ai_card_played(card: Card, _anchor_tile: Tile, empire: Empire,
+		_payload: Dictionary) -> void:
+	if card == null or empire == null:
+		return
+	var label := ""
+	if stats_a != null and empire == stats_a.empire:
+		label = "AI_A"
+	elif stats_b != null and empire == stats_b.empire:
+		label = "AI_B"
+	else:
+		return
+	var key := _card_action_label(card)
+	var tally: Dictionary = actions_by_label[label]
+	tally[key] = tally.get(key, 0) + 1
+
+
+## Etiqueta legible del tipo de carta para el conteo de acciones.
+func _card_action_label(card: Card) -> String:
+	var script := card.get_script() as Script
+	if script != null:
+		var gname := script.get_global_name()
+		if gname != &"":
+			return String(gname)
+	return "UnknownCard"
 
 
 func _load_turn_events() -> Array[TurnEvent]:
@@ -292,6 +428,36 @@ func _check_victory_in_sim() -> Dictionary:
 
 
 # --- Captura de metricas ---------------------------------------------------
+
+## Registra la auto-evaluación de la IA en el turno actual: construye el
+## snapshot del estado REAL desde su perspectiva (igual que hace el MCTS al
+## decidir) y guarda score_state + casillas. Comparar la curva de score_state
+## con la ventaja real de tiles revela si la IA "sabe" su situación y cuándo.
+func _capture_self_eval(round_num: int, ai: AIController) -> void:
+	if not capture_self_eval or ai == null or ai.stats == null:
+		return
+	var ctx := AITurnContext.new()
+	ctx.controller = ai
+	ctx.stats = ai.stats
+	ctx.battle_front_manager = ai.battle_front_manager
+	ctx.rng = RandomNumberGenerator.new()
+	ctx.drawn_cards = []
+	ctx.world_view = ai._build_world_view()
+	ctx.total_map_tiles = WorldMap.map.size()
+	var snap := AIRealState.from_context(ctx)
+	var mode := "MCTS" if (ai.ai_config != null \
+		and ai.ai_config.mode == AIConfig.Mode.MCTS) else "HEURISTIC"
+	self_eval_trace.append({
+		"round": round_num,
+		"label": ai.name,
+		"mode": mode,
+		"empire": ai.stats.empire.name if ai.stats.empire else "",
+		"score_state": AIRealEval.score_state(snap),
+		"my_tiles": snap.count_tiles(AIRealState.OWNER_SELF),
+		"rival_tiles": snap.count_tiles(AIRealState.OWNER_RIVAL),
+		"total_tiles": snap.total_map_tiles,
+	})
+
 
 func _capture_snapshot(round_num: int, ai: AIController) -> Dictionary:
 	var stats := ai.stats

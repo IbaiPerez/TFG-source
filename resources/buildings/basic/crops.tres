@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("3_bhxrk")
-name = "Crops"
+name = "BLD_CROPS_NAME"
 required_natural_resource = ExtResource("5_l3dn6")
 allowed_location_type = Array[ExtResource("1_gtd2o")]([ExtResource("2_r3w6y")])
 image = ExtResource("4_phfj3")

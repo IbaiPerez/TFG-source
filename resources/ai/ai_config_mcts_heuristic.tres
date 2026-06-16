@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="AIConfig" load_steps=2 format=3 uid="uid://ce6x81inn56h5"]
+
+[ext_resource type="Script" uid="uid://bcliuv78l28as" path="res://scripts/empire/ai/ai_config.gd" id="1_aiconfig"]
+
+[resource]
+script = ExtResource("1_aiconfig")

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "drought"
-title = "Sequía"
-description = "[i]El sol castiga sin piedad. Los ríos se secan, los pozos se agotan y la tierra se agrieta bajo un cielo implacable.[/i]"
+title = "EVT_DROUGHT_TITLE"
+description = "EVT_DROUGHT_DESC"
 allow_skip = false
 weight = 3.0
 unique = false

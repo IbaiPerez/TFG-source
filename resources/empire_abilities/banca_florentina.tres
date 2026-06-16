@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1_script")
 id = "Banca Fiorentina"
-ability_name = "Banca Fiorentina"
-description = "El poder del dinero abre todas las puertas. Tu produccion de oro aumenta un 15% y el coste de construccion de todos los edificios se reduce un 20%. Ademas, puedes construir el Banco, un edificio exclusivo con alta produccion de oro."
+ability_name = "ABIL_MEDICI_NAME"
+description = "ABIL_MEDICI_DESC"
 exclusive_buildings = Array[ExtResource("2_bldg")]([ExtResource("3_bank")])
 metadata/_custom_type_script = "uid://bxdrxv7cq17i4"

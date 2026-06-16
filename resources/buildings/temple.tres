@@ -12,14 +12,14 @@
 [sub_resource type="Resource" id="eff_temple_food"]
 script = ExtResource("8_eff")
 modifier_id = "temple_food_percent"
-modifier_name = "Bendición Sagrada"
+modifier_name = "BLD_TEMPLE_M1"
 stat_type = 3
 value = 10.0
-tooltipe_text = "+10% producción de comida global"
+tooltipe_text = "EFF_FOOD_GLOBAL_10"
 
 [resource]
 script = ExtResource("5_bld")
-name = "Temple"
+name = "BLD_TEMPLE_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
 image = ExtResource("6_img")
 construction_cost = 200

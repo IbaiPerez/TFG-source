@@ -16,8 +16,8 @@ func _init():
 
 	# Opcion 1: aceptar el intercambio
 	var trade := TurnEventChoice.new()
-	trade.label = "Vender ganado"
-	trade.description = "Pierdes comida pero ganas oro durante 3 turnos."
+	trade.label = tr("EVT_CATTLE_FAIR_CH1_LABEL")
+	trade.description = tr("EVT_CATTLE_FAIR_CH1_DESC")
 	trade.effects = [
 		ScaledStatModifierEffect.new(
 			"cattle_fair_food", "Feria de Ganado",
@@ -33,8 +33,8 @@ func _init():
 
 	# Opcion 2: rechazar
 	var decline := TurnEventChoice.new()
-	decline.label = "Rechazar la oferta"
-	decline.description = "No participas en la feria."
+	decline.label = tr("EVT_CATTLE_FAIR_CH2_LABEL")
+	decline.description = tr("EVT_CATTLE_FAIR_CH2_DESC")
 	decline.effects = []
 
 	choices = [trade, decline]

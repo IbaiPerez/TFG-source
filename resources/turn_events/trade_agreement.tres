@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "trade_agreement"
-title = "Tratado Comercial"
-description = "[i]Un emisario de un reino vecino propone un acuerdo comercial a largo plazo. La inversión es alta, pero los beneficios son permanentes.[/i]"
+title = "EVT_TRADE_AGREEMENT_TITLE"
+description = "EVT_TRADE_AGREEMENT_DESC"
 allow_skip = false
 weight = 6.0
 unique = true

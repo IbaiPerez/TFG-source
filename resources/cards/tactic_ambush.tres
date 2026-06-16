@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_script")
-tactic_name = "Emboscada"
+tactic_name = "TACTIC_AMBUSH_NAME"
 affected_troop_types = Array[int]([2])
 attack_percent_per_type = 40.0
 defense_percent_per_type = 0.0

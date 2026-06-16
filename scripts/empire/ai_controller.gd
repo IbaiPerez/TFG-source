@@ -38,6 +38,10 @@ class_name AIController
 @export var action_delay: float = 0.9    ## Segundos entre jugadas
 @export var turn_end_delay: float = 0.5  ## Segundos antes de cerrar el turno
 @export var rng_seed: int = -1           ## -1 → seed aleatorio cada turno
+## Configuración del algoritmo de decisión. Asignar un .tres de resources/ai/
+## para cambiar entre heurística, MCTS aleatorio y MCTS con heurística.
+## null → crea un AIConfig por defecto (mode=MCTS) en _ready().
+@export var ai_config: AIConfig
 
 ## Referencia al TurnManager para construir AIWorldView en cada turno.
 ## Lo inyecta map.gd tras registrar el controller. null en tests unitarios,
@@ -50,15 +54,29 @@ const MIN_TROOPS_PER_FRONT: int = 3
 
 var _rng: RandomNumberGenerator
 var _drawn_cards: Array[Card] = []
+## Observer de cartas del rival. null hasta que turn_manager tiene un rival disponible.
+## Se inicializa lazy en el primer turno con rival. Persiste entre turnos.
+var _deck_observer: AIDeckObserver = null
+
+## Diagnóstico MCTS (acumulado durante la partida): nº de decisiones tomadas con
+## MCTS y de cuántas la búsqueda se apartó del prior heurístico (overrode_prior).
+## El harness de simulación los lee al final para medir la tasa de "override".
+var mcts_decisions: int = 0
+var mcts_prior_overrides: int = 0
 
 
 func _ready() -> void:
 	_init_managers()
 	_rng = RandomNumberGenerator.new()
-	# Escuchar retornos a la mano: si una carta nuestra "vuelve a la
-	# mano" (por CardReturnModifier), la reintroducimos en drawn_cards
-	# para que el bucle pueda volver a jugarla este turno.
+	if ai_config == null:
+		ai_config = AIConfig.new()
 	Events.card_returned_to_hand.connect(_on_card_returned_to_hand)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and _deck_observer != null:
+		_deck_observer.cleanup()
+		_deck_observer = null
 
 
 func _on_card_returned_to_hand(card: Card, owner_stats: Stats) -> void:
@@ -111,10 +129,15 @@ func _run_turn() -> void:
 			_drawn_cards.append(c)
 	GameLogger.debug("[IA] %s robó %d cartas" % [empire_name, _drawn_cards.size()])
 
+	# Inicializar el observer de cartas del rival en cuanto tengamos un rival.
+	_ensure_observer_ready()
+
 	# Bucle decisorio
 	var ctx := AITurnContext.create(self, _rng)
 	ctx.drawn_cards = _drawn_cards
 	ctx.world_view = _build_world_view()
+	ctx.deck_observer = _deck_observer
+	ctx.config = ai_config
 	var _adj_cond := AdjacentCondition.new()
 	_adj_cond.empire = stats.empire
 	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
@@ -221,6 +244,124 @@ func _enumerate_all_options(ctx: AITurnContext) -> Array[AIPlayOption]:
 func _pick_best_option(options: Array[AIPlayOption], ctx: AITurnContext) -> AIPlayOption:
 	if options.is_empty():
 		return null
+	var cfg := ctx.config
+	if cfg != null and cfg.mode == AIConfig.Mode.MCTS:
+		var picked := _pick_best_option_mcts(options, ctx, cfg)
+		# Si MCTS no devuelve jugada (sin acciones modelables), caemos a heurística.
+		if picked != null:
+			return picked
+	return _pick_best_option_heuristic(options, ctx)
+
+
+## Decisión por MCTS v2 (Fase C v2 — SO-ISMCTS sobre estado real). Construye el
+## snapshot rico desde el contexto, busca con AIRealMCTS, y mapea la jugada
+## elegida (snapshot) a la AIPlayOption real ejecutable. Devuelve:
+##   - la AIPlayOption mapeada,
+##   - una PASS si la búsqueda decidió pasar (cierra el turno),
+##   - null si la búsqueda degeneró o la jugada no tiene opción real
+##     correspondiente → el llamante cae a la heurística.
+func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
+		cfg: AIConfig) -> AIPlayOption:
+	var state := AIRealState.from_context(ctx)
+
+	# Determinización del rival (SO-ISMCTS): deck conocido + tamaño de mano.
+	var known_deck: Array[Card] = []
+	var rival_hand_size := 2
+	if ctx.world_view != null:
+		var rival_view := ctx.world_view.get_rival_view()
+		if rival_view != null:
+			known_deck = AIDeterminizer.build_known_deck(rival_view, ctx.deck_observer)
+			rival_hand_size = rival_view.hand_size
+
+	# Prior HÍBRIDO de la raíz: puntuamos las jugadas reales con la heurística
+	# REAL (score_option sobre el ctx real, con la caché ya preparada) y las
+	# indexamos por move_key para que la raíz del MCTS use la heurística fuerte
+	# como prior/poda, no la aproximación score_move.
+	var root_priors := {}
+	for m in AIRealOptions.enumerate(state, ctx.drawn_cards, AIRealState.OWNER_SELF):
+		var opt := _map_move_to_option(m, options)
+		if opt != null:
+			root_priors[AIRealMCTSNode.move_key(m)] = AIHeuristic.score_option(opt, ctx)
+
+	var result := AIRealMCTS.search(state, ctx.drawn_cards, known_deck,
+		rival_hand_size, cfg, _rng, root_priors)
+	# Diagnóstico: contar decisiones y cuántas se apartan del prior heurístico.
+	mcts_decisions += 1
+	if result.overrode_prior:
+		mcts_prior_overrides += 1
+	if result.best_move == null:
+		return null   # búsqueda degenerada → heurística
+	if result.chose_pass:
+		return AIPlayOption.create_pass()
+
+	var picked := _map_move_to_option(result.best_move, options)
+	if picked == null:
+		return null   # jugada sin opción real correspondiente → heurística
+	GameLogger.debug("[IA] MCTS-v2: %d iters · raíz %d/%d · Q=%.3f → %s" % [
+		result.iterations, result.root_visits, result.root_children,
+		result.best_avg_value, picked.describe()])
+	return picked
+
+
+## Mapea una jugada del snapshot (AIRealOptions.Move) a la AIPlayOption real
+## equivalente entre las opciones legales del turno, casando por carta + target
+## (índice de tile en WorldMap.map, igual que AIRealState.from_context). Devuelve
+## null si ninguna casa (el llamante cae a la heurística).
+func _map_move_to_option(m: AIRealOptions.Move,
+		options: Array[AIPlayOption]) -> AIPlayOption:
+	# Frentes activos en el mismo orden que from_context (para casar TACTIC).
+	var active_fronts: Array = []
+	for f in BattleFront.get_active_instances():
+		if f != null and not f.is_resolved:
+			active_fronts.append(f)
+
+	for opt in options:
+		if opt == null or opt.is_pass or opt.card != m.card:
+			continue
+		match m.kind:
+			&"COLONIZE", &"CHANGE_LOCATION":
+				if _tile_index(opt.anchor_tile()) == m.tile_id:
+					return opt
+			&"GENERATE_GOLD", &"CARD_DRAW":
+				return opt   # sin target: basta la identidad de carta
+			&"BUILD", &"DIRECT_BUILD":
+				var bo := opt as AIBuildOption
+				if bo != null and bo.building == m.building \
+						and _tile_index(opt.anchor_tile()) == m.tile_id:
+					return opt
+			&"UPGRADE":
+				var uo := opt as AIUpgradeBuildingOption
+				if uo != null and uo.old_building == m.old_building \
+						and uo.new_building == m.new_building \
+						and _tile_index(opt.anchor_tile()) == m.tile_id:
+					return opt
+			&"RECRUIT":
+				var ro := opt as AIRecruitOption
+				if ro != null and ro.troop == m.troop:
+					return opt
+			&"OPEN_FRONT":
+				var ofo := opt as AIOpenFrontOption
+				if ofo != null and _tile_index(ofo.enemy_tile) == m.def_tile_id \
+						and _tile_index(ofo.source_tile) == m.tile_id:
+					return opt
+			&"TACTIC":
+				var to := opt as AITacticOption
+				if to != null and m.front_idx >= 0 and m.front_idx < active_fronts.size() \
+						and to.front == active_fronts[m.front_idx]:
+					return opt
+	return null
+
+
+## Índice de una tile en WorldMap.map (mismo id que usa AIRealState.from_context).
+func _tile_index(tile: Tile) -> int:
+	if tile == null:
+		return -1
+	return WorldMap.map.find(tile)
+
+
+## Decisión por heurística pura (Fase B). También es el fallback de MCTS.
+func _pick_best_option_heuristic(options: Array[AIPlayOption],
+		ctx: AITurnContext) -> AIPlayOption:
 	var best: AIPlayOption = null
 	var best_score := -INF
 	for option in options:
@@ -243,6 +384,22 @@ func _finish_turn() -> void:
 	var empire_name := stats.empire.name if stats.empire else "IA"
 	GameLogger.debug("[IA] === FIN TURNO DE %s ===" % empire_name)
 	turn_finished.emit(self)
+
+
+## Inicializa _deck_observer la primera vez que hay un rival disponible.
+## Idempotente: no hace nada si ya está inicializado o si no hay rival aún.
+func _ensure_observer_ready() -> void:
+	if _deck_observer != null or turn_manager == null:
+		return
+	for ctrl in turn_manager.controllers:
+		if ctrl.stats == null or ctrl.stats == stats:
+			continue
+		_deck_observer = AIDeckObserver.new()
+		var starting: Array[Card] = []
+		if ctrl.stats.starting_deck != null:
+			starting = ctrl.stats.starting_deck.cards
+		_deck_observer.init(ctrl.stats, starting)
+		return
 
 
 ## Construye el AIWorldView para este turno usando los controllers registrados

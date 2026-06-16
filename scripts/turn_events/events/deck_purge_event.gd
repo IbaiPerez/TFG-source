@@ -17,14 +17,14 @@ func _init():
 
 	# Opcion 1: elegir una carta para eliminar
 	var purge := TurnEventChoice.new()
-	purge.label = "Depurar el mazo"
-	purge.description = "Elige una carta de tu mazo para eliminarla permanentemente."
+	purge.label = tr("EVT_DECK_PURGE_CH1_LABEL")
+	purge.description = tr("EVT_DECK_PURGE_CH1_DESC")
 	purge.effects = [RemoveCardEventEffect.new(null, CardRemovalFilter.new())]
 
 	# Opcion 2: no hacer nada
 	var skip := TurnEventChoice.new()
-	skip.label = "No hacer nada"
-	skip.description = "Mantienes tu mazo intacto."
+	skip.label = tr("EVT_DECK_PURGE_CH2_LABEL")
+	skip.description = tr("EVT_DECK_PURGE_CH2_DESC")
 	skip.effects = []
 
 	choices = [purge, skip]

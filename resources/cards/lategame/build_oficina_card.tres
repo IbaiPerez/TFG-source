@@ -11,4 +11,4 @@ buildings = Array[ExtResource("1_bldg")]([ExtResource("4_building")])
 id = "Build Oficina de Construccion"
 type = 2
 icon = ExtResource("3_icon")
-tooltipe_text = "Construye una Oficina de Construcción (+15 oro al construir o mejorar)"
+tooltipe_text = "CARD_BUILD_OFICINA_TIP"

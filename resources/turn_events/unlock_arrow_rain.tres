@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_arrow_rain"
-title = "Doctrina del Tiro Masivo"
-description = "[i]Tus arqueros han perfeccionado el tiro en parábola. Tus capitanes proponen formalizar la doctrina de la lluvia de flechas: una andanada coordinada que satura el campo enemigo... siempre que el terreno permita ver el blanco.[/i]"
+title = "EVT_UNLOCK_ARROW_RAIN_TITLE"
+description = "EVT_UNLOCK_ARROW_RAIN_DESC"
 allow_skip = true
 weight = 80.0
 unique = true

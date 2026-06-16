@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "locust_plague"
-title = "Plaga de Langostas"
-description = "[i]Una nube oscura se cierne sobre tus tierras. Miles de langostas devoran todo a su paso, dejando los campos yermos.[/i]"
+title = "EVT_LOCUST_TITLE"
+description = "EVT_LOCUST_DESC"
 allow_skip = false
 weight = 4.0
 unique = false

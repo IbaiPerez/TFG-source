@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "special_shop"
-title = "Bazar Exótico"
-description = "[i]Un misterioso mercader ha desplegado su tienda en las afueras. Sus mercancías son raras y poderosas, pero su precio es elevado.[/i]"
+title = "EVT_SPECIAL_SHOP_TITLE"
+description = "EVT_SPECIAL_SHOP_DESC"
 allow_skip = true
 weight = 3.0
 unique = false

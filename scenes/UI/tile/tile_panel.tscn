@@ -91,7 +91,7 @@ columns = 2
 [node name="Gold" type="Label" parent="MarginContainer/VBoxContainer/ProductionContainer/GridContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "Gold:"
+text = "STAT_GOLD_LABEL"
 horizontal_alignment = 2
 
 [node name="GoldProduced" type="Label" parent="MarginContainer/VBoxContainer/ProductionContainer/GridContainer"]
@@ -101,7 +101,7 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 [node name="Food" type="Label" parent="MarginContainer/VBoxContainer/ProductionContainer/GridContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "Food:"
+text = "STAT_FOOD_LABEL"
 horizontal_alignment = 2
 
 [node name="FoodProduced" type="Label" parent="MarginContainer/VBoxContainer/ProductionContainer/GridContainer"]
@@ -125,9 +125,9 @@ columns = 3
 
 [node name="DemolishConfirmDialog" type="ConfirmationDialog" parent="."]
 title = "Demoler edificio"
-ok_button_text = "Demoler"
-cancel_button_text = "Cancelar"
-dialog_text = "¿Demoler edificio? Esta acción no se puede deshacer."
+ok_button_text = "UI_DEMOLISH"
+cancel_button_text = "UI_CANCEL"
+dialog_text = "TILE_DEMOLISH_CONFIRM"
 
 [connection signal="confirmed" from="DemolishConfirmDialog" to="." method="_on_demolish_confirmed"]
 [connection signal="canceled" from="DemolishConfirmDialog" to="." method="_on_demolish_canceled"]

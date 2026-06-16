@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("5_bld")
-name = "Molino"
+name = "BLD_MOLINO_NAME"
 allowed_biomes = Array[int]([0])
 image = ExtResource("6_img")
 construction_cost = 120

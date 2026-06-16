@@ -305,6 +305,9 @@ static func _spawn_controller(map_node:Node3D, is_player:bool) -> EmpireControll
 		map_node.get_node("Node").add_child(ph)
 		return ph
 	else:
+		var existing: Node = map_node.get_node_or_null("Node/AIController")
+		if existing is AIController:
+			return existing as AIController
 		var ai := AIController.new()
 		ai.name = "AIController_%d" % map_node.get_node("Node").get_child_count()
 		map_node.get_node("Node").add_child(ai)

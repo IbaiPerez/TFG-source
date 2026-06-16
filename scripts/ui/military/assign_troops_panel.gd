@@ -59,7 +59,7 @@ func _build_ui() -> void:
 
 	# Título
 	var title := Label.new()
-	title.text = "Asignar Tropas al Frente"
+	title.text = tr("BATTLE_ASSIGN_TITLE")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 
@@ -87,7 +87,7 @@ func _build_ui() -> void:
 
 	# Botón cerrar
 	close_button = Button.new()
-	close_button.text = "Cerrar"
+	close_button.text = tr("UI_CLOSE")
 	close_button.pressed.connect(_on_close_pressed)
 	vbox.add_child(close_button)
 	close_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -108,12 +108,12 @@ func _populate_pool() -> void:
 	else:
 		troops_in_front = battle_front.defender_troops.size()
 
-	front_troops_label.text = "Tropas en el frente: %d" % troops_in_front
-	pool_label.text = "Tropas en reserva: %d" % stats.troop_pool.size()
+	front_troops_label.text = tr("ASSIGN_FRONT_TROOPS") % troops_in_front
+	pool_label.text = tr("ASSIGN_RESERVE_TROOPS") % stats.troop_pool.size()
 
 	if stats.troop_pool.is_empty():
 		var empty_label := Label.new()
-		empty_label.text = "No hay tropas disponibles en la reserva"
+		empty_label.text = tr("ASSIGN_NO_TROOPS")
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_label.add_theme_color_override("font_color", UITheme.EMPTY_MUTED)
 		troops_grid.add_child(empty_label)
@@ -144,7 +144,7 @@ func _create_troop_slot(troop: Troop) -> PanelContainer:
 
 	# Nombre
 	var name_label := Label.new()
-	name_label.text = troop.name
+	name_label.text = tr(troop.name)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(name_label)
 
@@ -164,7 +164,7 @@ func _create_troop_slot(troop: Troop) -> PanelContainer:
 
 	# Botón asignar
 	var btn := Button.new()
-	btn.text = "Asignar"
+	btn.text = tr("UI_ASSIGN")
 	btn.pressed.connect(func(): _on_troop_slot_pressed(troop))
 	vbox.add_child(btn)
 

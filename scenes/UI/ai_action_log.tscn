@@ -15,7 +15,7 @@ layout_mode = 2
 [node name="Title" type="Label" parent="Layout/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Log IA"
+text = "AILOG_TITLE"
 
 [node name="ToggleButton" type="Button" parent="Layout/Header"]
 custom_minimum_size = Vector2(24, 24)

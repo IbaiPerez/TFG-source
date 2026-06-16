@@ -14,8 +14,9 @@ func _on_pressed() -> void:
 
 func _update_text() -> void:
 	var current_mode = get_window().mode
+	# Se asigna la CLAVE; el Control la auto-traduce y se re-traduce al cambiar
+	# de idioma (NOTIFICATION_TRANSLATION_CHANGED).
 	if current_mode == Window.MODE_WINDOWED:
-		text = "Fullscreen: OFF"
+		text = "OPT_FULLSCREEN_OFF"
 	else:
-		text = "Fullscreen: ON"
-	print("Window mode: ", current_mode)
+		text = "OPT_FULLSCREEN_ON"

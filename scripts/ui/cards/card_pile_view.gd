@@ -40,7 +40,7 @@ func show_current_view(new_title:String, randomized:bool = false) -> void:
 		card.queue_free()
 	
 	card_tooltip_popup.hide_tooltip()
-	title.text = new_title
+	title.text = tr(new_title)
 	_update_view.call_deferred(randomized)
 
 func _update_view(randomized:bool) -> void:

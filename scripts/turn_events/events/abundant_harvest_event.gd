@@ -14,7 +14,7 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Recoger la cosecha"
-	choice.description = "Tus campos producen mas de lo esperado."
+	choice.label = tr("EVT_ABUNDANT_CH1_LABEL")
+	choice.description = tr("EVT_ABUNDANT_CH1_DESC")
 	choice.effects = [ScaledFoodEffect.new(15.0, 0.5, 0.08)]
 	choices = [choice]

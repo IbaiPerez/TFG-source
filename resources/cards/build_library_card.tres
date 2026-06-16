@@ -12,4 +12,4 @@ id = "Build Library"
 type = 2
 needs_confirmation = true
 icon = ExtResource("3_icon")
-tooltipe_text = "Construye una Library (+1 carta por turno)"
+tooltipe_text = "CARD_BUILD_LIBRARY_TIP"

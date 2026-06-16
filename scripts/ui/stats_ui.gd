@@ -38,4 +38,4 @@ func show_rival_toggle(empire_name: String) -> void:
 	if not is_node_ready():
 		await ready
 	rival_info_button.visible = true
-	rival_info_button.text = empire_name + " ▾"
+	rival_info_button.text = tr(empire_name) + " ▾"

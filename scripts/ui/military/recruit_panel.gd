@@ -54,7 +54,7 @@ func _build_ui() -> void:
 	margin.add_child(vbox)
 
 	var title := Label.new()
-	title.text = "Reclutar Tropa"
+	title.text = tr("RECRUIT_TITLE")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_color_override("font_color", Color.BLACK)
 	vbox.add_child(title)

@@ -58,7 +58,7 @@ func _set_building(value:Building) -> void:
 		return
 
 	building_image.texture = value.image
-	name_label.text = value.name
+	name_label.text = tr(value.name)
 	# Coste efectivo (descuento de Banca Florentina, eventos). Si stats
 	# es null, get_effective_construction_cost devuelve el raw.
 	cost_value_label.text = str(value.get_effective_construction_cost(stats))
@@ -69,7 +69,7 @@ func _set_building(value:Building) -> void:
 		allowed_locations_label.visible = true
 		for location in building.allowed_location_type:
 			allowed_locations_label.text = ", ".join(
-		building.allowed_location_type.map(func(l): return Tile.location_type.keys()[l.type]))
+		building.allowed_location_type.map(func(l): return tr("LOC_" + Tile.location_type.keys()[l.type].to_upper())))
 	else:
 		label_6.visible = false
 		allowed_locations_label.visible = false
@@ -78,7 +78,7 @@ func _set_building(value:Building) -> void:
 		allowed_biomes_label.visible = true
 		for location in building.allowed_biomes:
 			allowed_biomes_label.text = ", ".join(
-		building.allowed_biomes.map(func(b): return Tile.biome_type.keys()[b]))
+		building.allowed_biomes.map(func(b): return tr("TILE_" + Tile.biome_type.keys()[b].to_upper())))
 	else:
 		label_7.visible = false
 		allowed_biomes_label.visible = false
@@ -100,7 +100,7 @@ func _populate_effects(effects:Array[BuildingEffect]) -> void:
 		rtl.fit_content = true
 		rtl.scroll_active = false
 		rtl.custom_minimum_size = Vector2(200, 0)
-		rtl.text = effect.tooltipe_text
+		rtl.text = tr(effect.tooltipe_text)
 		effects_container.add_child(rtl)
 
 

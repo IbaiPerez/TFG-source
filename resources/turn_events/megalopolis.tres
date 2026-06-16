@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "megalopolis"
-title = "Fundación de Megalópolis"
-description = "[i]Tu civilización ha alcanzado un nivel de desarrollo sin precedentes. Las ciudades más prósperas bullen de actividad y sus habitantes sueñan con algo más grande: una metrópolis que sea el centro del mundo conocido, un faro de poder y cultura que eclipse a todas las demás.[/i]"
+title = "EVT_MEGALOPOLIS_TITLE"
+description = "EVT_MEGALOPOLIS_DESC"
 allow_skip = false
 weight = 8.0
 unique = false

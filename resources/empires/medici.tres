@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_6ahxq")
-name = "medici"
+name = "EMP_MEDICI_NAME"
 color = Color(0.8235294, 0.74509805, 0, 1)
 ability = ExtResource("1_onfsx")
 metadata/_custom_type_script = "uid://cifwawcw04jkd"

@@ -5,8 +5,8 @@ class_name ChangeLocationTypeCard
 
 
 func _build_tooltip() -> String:
-	var type_name:String = Tile.location_type.keys()[location_type.type] if location_type else "?"
-	return "[center][b][color=#5B7A3A]Urbaniza[/color][/b] una casilla a [color=#4A6A8A]%s[/color][/center]" % type_name
+	var type_name:String = tr("LOC_" + Tile.location_type.keys()[location_type.type].to_upper()) if location_type else "?"
+	return tr("CARD_URBANIZE_TOOLTIP") % type_name
 
 
 func apply_effects(targets:Array[Node],stats:Stats) -> void:

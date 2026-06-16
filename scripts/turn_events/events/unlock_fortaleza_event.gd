@@ -16,7 +16,7 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Dominar las montañas"
-	choice.description = "Desbloquea la Fortaleza como edificio construible en montañas."
+	choice.label = tr("EVT_UNLOCK_FORTALEZA_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_FORTALEZA_CH1_DESC")
 	choice.effects = [UnlockBuildingEffect.new(FORTALEZA)]
 	choices = [choice]

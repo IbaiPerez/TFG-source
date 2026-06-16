@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "agrarian_reform"
-title = "Reforma Agraria"
-description = "[i]Los campesinos claman por una redistribución de tierras. Invertir en agricultura podría alimentar a tu pueblo, pero a costa de las arcas.[/i]"
+title = "EVT_AGRARIAN_TITLE"
+description = "EVT_AGRARIAN_DESC"
 allow_skip = false
 weight = 4.0
 unique = false

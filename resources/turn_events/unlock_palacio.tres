@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_palacio"
-title = "La Corona Imperial"
-description = "[i]Tu imperio se ha convertido en una de las civilizaciones más poderosas del mundo conocido. Los nobles y gobernadores de tus provincias proponen erigir un palacio imperial, símbolo definitivo de tu grandeza, que centralice el poder y multiplique la prosperidad de todas tus tierras.[/i]"
+title = "EVT_UNLOCK_PALACIO_TITLE"
+description = "EVT_UNLOCK_PALACIO_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

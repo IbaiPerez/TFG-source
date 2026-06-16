@@ -21,8 +21,8 @@ func _init():
 	cost.gold = 200
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Fundar Megalópolis"
-	choice.description = "Elige una de tus ciudades con 3+ edificios para transformarla en una Megalópolis. Coste: 200 oro."
+	choice.label = tr("EVT_MEGALOPOLIS_CH1_LABEL")
+	choice.description = tr("EVT_MEGALOPOLIS_CH1_DESC")
 	choice.cost = cost
 	choice.effects = [UrbanizeToMegalopolisEffect.new()]
 	choices = [choice]

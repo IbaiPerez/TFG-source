@@ -76,16 +76,16 @@ func _update_display() -> void:
 	if icon_rect:
 		icon_rect.texture = troop.icon
 	if name_label:
-		name_label.text = troop.name
+		name_label.text = tr(troop.name)
 	if type_label:
 		type_label.text = "[%s]" % troop.get_type_label()
 		type_label.tooltip_text = _build_matchup_tooltip()
 	if stats_label:
 		stats_label.text = "Atk: %d  Def: %d" % [troop.attack, troop.defense]
 	if cost_label:
-		cost_label.text = "%d oro" % troop.recruitment_cost_gold
+		cost_label.text = tr("FMT_GOLD") % troop.recruitment_cost_gold
 	if maintenance_label:
-		maintenance_label.text = "Mant: %d oro · %d comida" % [
+		maintenance_label.text = tr("FMT_MAINTENANCE") % [
 			troop.maintenance_gold, troop.maintenance_food
 		]
 
@@ -107,9 +107,9 @@ func _build_matchup_tooltip() -> String:
 			weak.append(Troop.type_label_for(other))
 	var lines: Array[String] = []
 	if not strong.is_empty():
-		lines.append("Fuerte vs: %s" % ", ".join(strong))
+		lines.append(tr("MATCHUP_STRONG") % ", ".join(strong))
 	if not weak.is_empty():
-		lines.append("Débil vs: %s" % ", ".join(weak))
+		lines.append(tr("MATCHUP_WEAK") % ", ".join(weak))
 	return "\n".join(lines)
 
 

@@ -72,6 +72,15 @@ func _spawn_ai(stats: Stats, seed_value: int = -1) -> AIController:
 	ai.turn_end_delay = 0.0
 	ai.rng_seed = seed_value
 	ai.max_iterations = 20
+	# Estos tests cubren la MECÁNICA del bucle de turno (robar, jugar, descartar,
+	# played_pile, recover, build end-to-end), no el algoritmo de decisión.
+	# Los fijamos a la heurística (Fase B): política determinista que juega las
+	# cartas beneficiosas con fiabilidad. La búsqueda MCTS (Fase C) tiene su
+	# propia cobertura en test_ai_mcts.gd y un modelo abstracto que, por diseño,
+	# no valora cartas de economía de mazo (CardDraw, Recover, GenerateGold).
+	var cfg := AIConfig.new()
+	cfg.mode = AIConfig.Mode.HEURISTIC
+	ai.ai_config = cfg
 	add_child_autofree(ai)
 	# Asignar stats directamente sin pasar por start_game para evitar
 	# que el shuffle reordene las cartas de prueba.

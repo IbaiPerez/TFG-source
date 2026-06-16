@@ -30,8 +30,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Reclutar tropas"
-	choice.description = "Recibes una carta de Reclutar, se desbloquea en el pool de cartas y se habilita la construcción del Cuartel."
+	choice.label = tr("EVT_UNLOCK_RECRUIT_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_RECRUIT_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(RECRUIT_CARD),
 		AddToCardPoolEffect.new(RECRUIT_CARD, 8.0, -0.1, 3.0),

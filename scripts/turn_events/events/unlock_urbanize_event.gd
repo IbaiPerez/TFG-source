@@ -27,8 +27,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Fundar ciudades"
-	choice.description = "Recibes una carta de Proyecto Urbano y desbloqueas nuevos edificios de ciudad."
+	choice.label = tr("EVT_UNLOCK_URBANIZE_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_URBANIZE_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(URBAN_PROJECT_CARD),
 		AddToCardPoolEffect.new(URBAN_PROJECT_CARD, 6.0, 0.0, 3.0),

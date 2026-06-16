@@ -46,7 +46,7 @@ func _build_ui() -> void:
 	panel.add_child(vbox)
 
 	var title := Label.new()
-	title.text = "Cargar partida" if mode == Mode.LOAD_ONLY else "Guardar / Cargar"
+	title.text = tr("SAVE_TITLE_LOAD") if mode == Mode.LOAD_ONLY else tr("SAVE_TITLE_FULL")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 28)
 	title.add_theme_color_override("font_color", UITheme.BORDER_BROWN)
@@ -67,11 +67,11 @@ func _build_ui() -> void:
 		input_row.add_theme_constant_override("separation", 8)
 		vbox.add_child(input_row)
 		var lbl := Label.new()
-		lbl.text = "Slot:"
+		lbl.text = tr("SAVE_SLOT_LABEL")
 		lbl.add_theme_color_override("font_color", UITheme.TEXT_DARK)
 		input_row.add_child(lbl)
 		_slot_input = LineEdit.new()
-		_slot_input.placeholder_text = "nombre del slot"
+		_slot_input.placeholder_text = tr("SAVE_SLOT_PLACEHOLDER")
 		_slot_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		input_row.add_child(_slot_input)
 
@@ -81,16 +81,16 @@ func _build_ui() -> void:
 	vbox.add_child(buttons_row)
 
 	if mode == Mode.FULL:
-		_save_button = _make_button("Guardar", _on_save_pressed)
+		_save_button = _make_button(tr("UI_SAVE"), _on_save_pressed)
 		buttons_row.add_child(_save_button)
 
-	_load_button = _make_button("Cargar", _on_load_pressed)
+	_load_button = _make_button(tr("UI_LOAD"), _on_load_pressed)
 	buttons_row.add_child(_load_button)
 
-	_delete_button = _make_button("Borrar", _on_delete_pressed)
+	_delete_button = _make_button(tr("UI_DELETE"), _on_delete_pressed)
 	buttons_row.add_child(_delete_button)
 
-	_close_button = _make_button("Cerrar", _on_close_pressed)
+	_close_button = _make_button(tr("UI_CLOSE"), _on_close_pressed)
 	buttons_row.add_child(_close_button)
 
 

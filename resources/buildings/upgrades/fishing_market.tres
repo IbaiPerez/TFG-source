@@ -8,7 +8,7 @@
 
 [resource]
 script = ExtResource("3_lrqus")
-name = "Fishing Market"
+name = "BLD_FISH_MARKET_NAME"
 required_natural_resource = ExtResource("6_cm5ae")
 image = ExtResource("3_h1djr")
 construction_cost = 200

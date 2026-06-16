@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("3_47dlx")
-name = "Livestock Farm"
+name = "BLD_LIVESTOCK_NAME"
 required_natural_resource = ExtResource("5_w5tqp")
 allowed_location_type = Array[ExtResource("1_pyppq")]([ExtResource("2_drw5y")])
 image = ExtResource("4_28t6q")

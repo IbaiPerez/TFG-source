@@ -15,8 +15,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Disfrutar la abundancia"
-	choice.description = "Bonus temporal a la produccion de comida."
+	choice.label = tr("EVT_TIME_OF_PLENTY_CH1_LABEL")
+	choice.description = tr("EVT_TIME_OF_PLENTY_CH1_DESC")
 	choice.effects = [
 		ScaledStatModifierEffect.new(
 			"time_of_plenty_food", "Tiempo de Abundancia",

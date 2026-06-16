@@ -11,14 +11,14 @@
 [sub_resource type="Resource" id="eff_tesoro_gold"]
 script = ExtResource("6_eff")
 modifier_id = "tesoro_imperial_gold"
-modifier_name = "Arcas del Tesoro"
+modifier_name = "BLD_TESORO_M1"
 stat_type = 1
 value = 20.0
-tooltipe_text = "+20% producción de oro global"
+tooltipe_text = "EFF_GOLD_GLOBAL_20"
 
 [resource]
 script = ExtResource("4_bld")
-name = "Tesoro Imperial"
+name = "BLD_TESORO_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
 image = ExtResource("5_img")
 construction_cost = 600

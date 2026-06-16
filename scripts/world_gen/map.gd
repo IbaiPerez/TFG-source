@@ -11,6 +11,7 @@ var auto_start_game: bool = true
 
 @onready var ui_layer: UILayer = $Scene/UI_layer as UILayer
 @onready var player_handler: PlayerHandler = $Node/PlayerHandler as PlayerHandler
+@onready var ai_controller: AIController = $Node/AIController as AIController
 
 var turn_manager:TurnManager
 var ai_controllers:Array[AIController] = []
@@ -101,27 +102,30 @@ func _create_ai_controllers() -> void:
 		push_warning("[Map] No hay generation_settings, no se crean IAs")
 		return
 
-	var initial_stats_template:Stats = stats
-
-	for empire in generation_settings.empires:
-		# Crear una instancia de Stats para cada IA
-		# Usamos el mismo empire que EmpireCreator ya coloco en el mapa
-		var ai_stats:Stats = initial_stats_template.create_instance()
+	var empires := generation_settings.empires
+	for i in range(empires.size()):
+		var empire: Empire = empires[i]
+		var ai_stats: Stats = stats.create_instance()
 		ai_stats.empire = empire
 		ai_stats.available_events = _load_turn_events()
 
-		# Crear y registrar el AIController
-		var ai := AIController.new()
-		ai.name = "AIController_%s" % empire.name
-		$Node.add_child(ai)
+		# Primer empire (caso 1v1): reutilizar el nodo de escena.
+		# Esto permite configurar ai_config y otros parámetros desde el Inspector.
+		# Imperios adicionales (hipotético N>1): crear dinámicamente como fallback.
+		var ai: AIController
+		if i == 0:
+			ai = ai_controller
+		else:
+			ai = AIController.new()
+			ai.name = "AIController_%s" % empire.name
+			$Node.add_child(ai)
+
 		ai.start_game(ai_stats)
 		turn_manager.register_controller(ai)
 		ai.turn_manager = turn_manager
 		ai_controllers.append(ai)
 
-		# Conectar las stats del primer rival al panel de stats del rival en la UI.
-		# El juego es siempre 1v1, así que solo aplica al primer (y único) AIController.
-		if ai_controllers.size() == 1 and ui_layer != null:
+		if i == 0 and ui_layer != null:
 			ui_layer.rival_stats = ai_stats
 
 		GameLogger.info("[Map] IA registrada: %s" % empire.name)

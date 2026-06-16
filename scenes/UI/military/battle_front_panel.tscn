@@ -138,7 +138,7 @@ theme_override_constants/separation = 4
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Atacante"
+text = "BATTLE_ATTACKER"
 horizontal_alignment = 1
 
 [node name="AttackerStats" type="RichTextLabel" parent="MarginContainer/MainVBox/SidesHBox/AttackerColumn"]
@@ -166,7 +166,7 @@ theme_override_constants/separation = 4
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Defensor"
+text = "BATTLE_DEFENDER"
 horizontal_alignment = 1
 
 [node name="DefenderStats" type="RichTextLabel" parent="MarginContainer/MainVBox/SidesHBox/DefenderColumn"]
@@ -191,10 +191,10 @@ alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
-text = "Asignar Tropas"
+text = "BATTLE_ASSIGN_TROOPS"
 
 [node name="CloseButton" type="Button" parent="MarginContainer/MainVBox/ButtonHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "Cerrar"
+text = "UI_CLOSE"

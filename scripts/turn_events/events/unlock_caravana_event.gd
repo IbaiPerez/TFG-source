@@ -16,7 +16,7 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Establecer rutas comerciales"
-	choice.description = "Desbloquea la Caravana Comercial como edificio construible en desiertos."
+	choice.label = tr("EVT_UNLOCK_CARAVANA_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_CARAVANA_CH1_DESC")
 	choice.effects = [UnlockBuildingEffect.new(CARAVANA)]
 	choices = [choice]

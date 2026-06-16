@@ -10,22 +10,22 @@
 [sub_resource type="Resource" id="eff_biblio_cards"]
 script = ExtResource("5_eff")
 modifier_id = "gran_biblioteca_cards"
-modifier_name = "Sabiduría Antigua"
+modifier_name = "BLD_GRANBIBL_M1"
 stat_type = 6
 value = 1.0
-tooltipe_text = "+1 carta por turno"
+tooltipe_text = "EFF_CARD_PER_TURN"
 
 [sub_resource type="Resource" id="eff_biblio_draw"]
 script = ExtResource("5_eff")
 modifier_id = "gran_biblioteca_draw"
-modifier_name = "Conocimiento Arcano"
+modifier_name = "BLD_GRANBIBL_M2"
 stat_type = 7
 value = 1.0
-tooltipe_text = "+1 carta extra al robar"
+tooltipe_text = "BLD_GRANBIBL_T2"
 
 [resource]
 script = ExtResource("3_bld")
-name = "Gran Biblioteca"
+name = "BLD_GRANBIBL_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_mega")])
 image = ExtResource("4_img")
 construction_cost = 450

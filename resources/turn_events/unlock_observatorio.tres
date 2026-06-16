@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_observatorio"
-title = "Cielos de la Tundra"
-description = "[i]Las noches despejadas de la tundra revelan un cielo estrellado sin igual. Tus sabios proponen construir observatorios en las cumbres heladas para estudiar los astros. El conocimiento adquirido ampliará tus opciones estratégicas, pero mantener a los astrónomos en el frío será costoso.[/i]"
+title = "EVT_UNLOCK_OBSERVATORIO_TITLE"
+description = "EVT_UNLOCK_OBSERVATORIO_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

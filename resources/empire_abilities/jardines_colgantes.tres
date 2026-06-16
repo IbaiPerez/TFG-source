@@ -8,7 +8,7 @@
 [resource]
 script = ExtResource("1_script")
 id = "jardines_colgantes"
-ability_name = "Jardines Colgantes"
-description = "La fertilidad y el comercio de Mesopotamia hacen prosperar tu civilizacion. Las casillas con Trigo producen +2 comida adicional, cada vez que juegas una carta de Construccion recibes +3 oro, y tu produccion de oro global aumenta un 10% gracias a las Rutas Comerciales de Mesopotamia. Ademas, puedes construir el Zigurat, un edificio exclusivo equilibrado."
+ability_name = "ABIL_BABYLON_NAME"
+description = "ABIL_BABYLON_DESC"
 exclusive_buildings = Array[ExtResource("2_bldg")]([ExtResource("3_zigg")])
 wheat_resource = ExtResource("4_wheat")

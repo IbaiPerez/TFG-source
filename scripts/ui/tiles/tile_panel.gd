@@ -33,7 +33,7 @@ func _ready() -> void:
 func setup(value:Tile) -> void:
 	tile = value
 	province_name_label.text = tile.province_name
-	biome_label.text = tile.biome
+	biome_label.text = tr("TILE_" + tile.biome.to_upper())
 	
 	if tile.natural_resource:
 		resource_color_rect.color = tile.natural_resource.color
@@ -42,14 +42,14 @@ func setup(value:Tile) -> void:
 	else:
 		resource_color_rect.color = Color.TRANSPARENT
 		resource_image.texture = null
-		resource_name_label.text = "Sin recurso"
+		resource_name_label.text = tr("TILE_NO_RESOURCE")
 	
 	if tile.controller:
 		controller_color_rect.color = tile.controller.color
 		controller_label.text = tile.controller.name
 	else:
 		controller_color_rect.color = Color.TRANSPARENT
-		controller_label.text = "No controller"
+		controller_label.text = tr("TILE_NO_CONTROLLER")
 	
 	if tile.gold_production < 0:
 		gold_produced.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
@@ -71,7 +71,7 @@ func setup(value:Tile) -> void:
 		food_produced.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
 		food_produced.text = "+" + str(tile.food_production)
 	
-	location_label.text = Tile.location_type.find_key(tile.location.type)
+	location_label.text = tr("LOC_" + Tile.location_type.find_key(tile.location.type).to_upper())
 	
 	_setup_buildings()
 
@@ -109,7 +109,7 @@ func _on_demolish_requested(building:Building) -> void:
 		# Sin diálogo (test/escena alternativa): demoler directamente
 		_perform_demolish()
 		return
-	demolish_confirm_dialog.dialog_text = "¿Demoler %s? Esta acción no se puede deshacer." % building.name
+	demolish_confirm_dialog.dialog_text = tr("TILE_DEMOLISH_CONFIRM_NAMED") % tr(building.name)
 	demolish_confirm_dialog.popup_centered()
 
 

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_oficina"
-title = "Burocracia Imperial"
-description = "[i]La cantidad de edificios en tu imperio ha crecido hasta el punto de necesitar una gestión centralizada. Tus consejeros proponen establecer una oficina de construcción que coordine y abarate las futuras obras.[/i]"
+title = "EVT_UNLOCK_OFICINA_TITLE"
+description = "EVT_UNLOCK_OFICINA_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

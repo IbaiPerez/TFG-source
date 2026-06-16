@@ -8,7 +8,7 @@
 
 [resource]
 script = ExtResource("5_bld")
-name = "Glassworks"
+name = "BLD_GLASSWORKS_NAME"
 required_natural_resource = ExtResource("7_res")
 image = ExtResource("6_img")
 construction_cost = 200

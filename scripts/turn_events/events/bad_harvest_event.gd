@@ -16,8 +16,8 @@ func _init():
 
 	# Opcion 1: sufrir la penalizacion
 	var suffer := TurnEventChoice.new()
-	suffer.label = "Aceptar las perdidas"
-	suffer.description = "Tus campos producen menos de lo esperado."
+	suffer.label = tr("EVT_BAD_HARVEST_CH1_LABEL")
+	suffer.description = tr("EVT_BAD_HARVEST_CH1_DESC")
 	suffer.effects = [
 		ScaledStatModifierEffect.new(
 			"bad_harvest_food", "Mala Cosecha",
@@ -28,8 +28,8 @@ func _init():
 
 	# Opcion 2: pagar oro para evitarlo
 	var pay := TurnEventChoice.new()
-	pay.label = "Comprar grano de emergencia"
-	pay.description = "Paga oro para compensar las perdidas."
+	pay.label = tr("EVT_BAD_HARVEST_CH2_LABEL")
+	pay.description = tr("EVT_BAD_HARVEST_CH2_DESC")
 	pay.cost = ScaledGoldCost.new(25.0, 0.5, 0.0)
 	pay.effects = []
 

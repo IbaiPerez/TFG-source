@@ -11,7 +11,7 @@
 
 [resource]
 script = ExtResource("3_fx6ve")
-name = "Fishery"
+name = "BLD_FISHERY_NAME"
 required_natural_resource = ExtResource("5_bmybj")
 allowed_location_type = Array[ExtResource("1_in7fw")]([ExtResource("2_cmolb")])
 image = ExtResource("4_56gil")

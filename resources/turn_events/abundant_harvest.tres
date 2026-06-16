@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "abundant_harvest"
-title = "Cosecha Abundante"
-description = "[i]Las lluvias han sido generosas este año. Tus campos rebosan de grano y fruta, más de lo que nadie esperaba.[/i]"
+title = "EVT_ABUNDANT_TITLE"
+description = "EVT_ABUNDANT_DESC"
 allow_skip = false
 weight = 7.0
 unique = false

@@ -27,7 +27,7 @@ grow_vertical = 2
 
 [node name="Label" type="Label" parent="GenerationSettings"]
 layout_mode = 2
-text = "⚙️ GENERATION SETTINGS"
+text = "GEN_TITLE"
 
 [node name="HSeparator" type="HSeparator" parent="GenerationSettings"]
 layout_mode = 2
@@ -38,7 +38,7 @@ theme_override_constants/separation = 8
 
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer"]
 layout_mode = 2
-text = "Generation:"
+text = "GEN_MODE"
 
 [node name="HSeparator" type="HSeparator" parent="GenerationSettings/SettingsContainer"]
 layout_mode = 2
@@ -48,7 +48,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/SeedRow"]
 layout_mode = 2
-text = "Seed: "
+text = "GEN_SEED"
 
 [node name="SeedSpinBox" type="SpinBox" parent="GenerationSettings/SettingsContainer/SeedRow"]
 unique_name_in_owner = true
@@ -68,7 +68,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/RadiusRow/HBoxContainer"]
 layout_mode = 2
-text = "World Radius: "
+text = "GEN_RADIUS"
 
 [node name="RadiusValue" type="Label" parent="GenerationSettings/SettingsContainer/RadiusRow/HBoxContainer"]
 unique_name_in_owner = true
@@ -86,19 +86,19 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/ShapeRow"]
 layout_mode = 2
-text = "Map shape: "
+text = "GEN_SHAPE"
 
 [node name="ShapeOptionButton" type="OptionButton" parent="GenerationSettings/SettingsContainer/ShapeRow"]
 unique_name_in_owner = true
 layout_mode = 2
 item_count = 4
-popup/item_0/text = "Hexagon"
+popup/item_0/text = "GEN_SHAPE_HEX"
 popup/item_0/id = 0
-popup/item_1/text = "Rectangular"
+popup/item_1/text = "GEN_SHAPE_RECT"
 popup/item_1/id = 1
-popup/item_2/text = "Diamond"
+popup/item_2/text = "GEN_SHAPE_DIAMOND"
 popup/item_2/id = 2
-popup/item_3/text = "Circle"
+popup/item_3/text = "GEN_SHAPE_CIRCLE"
 popup/item_3/id = 3
 
 [node name="Control" type="Control" parent="GenerationSettings/SettingsContainer"]
@@ -109,7 +109,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
 layout_mode = 2
-text = "Biomes: "
+text = "GEN_BIOMES"
 
 [node name="HSeparator" type="HSeparator" parent="GenerationSettings/SettingsContainer/BiomesContainer"]
 layout_mode = 2
@@ -126,7 +126,7 @@ button_pressed = true
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/GrasslandRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "Grassland"
+text = "TILE_GRASSLAND"
 
 [node name="GrasslandDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/GrasslandRow"]
 unique_name_in_owner = true
@@ -153,7 +153,7 @@ button_pressed = true
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/ForestRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "Forest"
+text = "TILE_FOREST"
 
 [node name="ForestDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/ForestRow"]
 unique_name_in_owner = true
@@ -180,7 +180,7 @@ button_pressed = true
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/DesertRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "Desert"
+text = "TILE_DESERT"
 
 [node name="DesertDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/DesertRow"]
 unique_name_in_owner = true
@@ -207,7 +207,7 @@ button_pressed = true
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/Swamp"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "Swamp"
+text = "TILE_SWAMP"
 
 [node name="SwampDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/Swamp"]
 unique_name_in_owner = true
@@ -234,7 +234,7 @@ button_pressed = true
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/TundraRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "Tundra"
+text = "TILE_TUNDRA"
 
 [node name="TundraDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/TundraRow"]
 unique_name_in_owner = true
@@ -261,7 +261,7 @@ button_pressed = true
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/OceanRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "Ocean"
+text = "TILE_OCEAN"
 
 [node name="OceanDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/OceanRow"]
 unique_name_in_owner = true
@@ -288,7 +288,7 @@ button_pressed = true
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BiomesContainer/MountainRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-text = "Mountain"
+text = "TILE_MOUNTAIN"
 
 [node name="MountainDensity" type="HSlider" parent="GenerationSettings/SettingsContainer/BiomesContainer/MountainRow"]
 unique_name_in_owner = true
@@ -311,7 +311,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BufferContainer"]
 layout_mode = 2
-text = "Buffer: "
+text = "GEN_BUFFER"
 
 [node name="HSeparator" type="HSeparator" parent="GenerationSettings/SettingsContainer/BufferContainer"]
 layout_mode = 2
@@ -322,7 +322,7 @@ layout_mode = 2
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BufferContainer/OuterBufferRow"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
-text = "Outer Buffer"
+text = "GEN_BUFFER_OUTER"
 
 [node name="OuterBufferSpinBox" type="SpinBox" parent="GenerationSettings/SettingsContainer/BufferContainer/OuterBufferRow"]
 unique_name_in_owner = true
@@ -334,7 +334,7 @@ layout_mode = 2
 [node name="Label" type="Label" parent="GenerationSettings/SettingsContainer/BufferContainer/InnerBufferRow"]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
-text = "Inner Buffer"
+text = "GEN_BUFFER_INNER"
 
 [node name="InnerBufferSpinBox" type="SpinBox" parent="GenerationSettings/SettingsContainer/BufferContainer/InnerBufferRow"]
 unique_name_in_owner = true
@@ -352,7 +352,7 @@ alignment = 1
 [node name="GenerationButton" type="Button" parent="GenerationSettings/SettingsContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Generate Map"
+text = "GEN_GENERATE"
 
 [connection signal="value_changed" from="GenerationSettings/SettingsContainer/SeedRow/SeedSpinBox" to="." method="_on_seed_spin_box_value_changed"]
 [connection signal="pressed" from="GenerationSettings/SettingsContainer/SeedRow/RandomSeedButton" to="." method="_on_random_seed_button_pressed"]

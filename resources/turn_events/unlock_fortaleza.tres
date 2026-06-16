@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_fortaleza"
-title = "Bastiones de Piedra"
-description = "[i]Tus constructores han aprendido a aprovechar la roca de las montañas para erigir estructuras defensivas imponentes. Los ingenieros militares proponen construir fortalezas en las cimas para proteger el territorio conquistado.[/i]"
+title = "EVT_UNLOCK_FORTALEZA_TITLE"
+description = "EVT_UNLOCK_FORTALEZA_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

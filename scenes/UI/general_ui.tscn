@@ -45,7 +45,7 @@ alignment = 1
 
 [node name="Label" type="Label" parent="MapModes"]
 layout_mode = 2
-text = "Map Modes"
+text = "MAPMODE_TITLE"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="MapModes"]
@@ -60,7 +60,7 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_map_modes")
-text = "Political"
+text = "MAPMODE_POLITICAL"
 
 [node name="BiomesModeButton" type="Button" parent="MapModes/MapModesButtons"]
 custom_minimum_size = Vector2(100, 0)
@@ -68,21 +68,21 @@ layout_mode = 2
 toggle_mode = true
 button_pressed = true
 button_group = SubResource("ButtonGroup_map_modes")
-text = "Biomes"
+text = "MAPMODE_BIOMES"
 
 [node name="NaturalResourcesBiomeButton" type="Button" parent="MapModes/MapModesButtons"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_map_modes")
-text = "Natural Resources"
+text = "MAPMODE_RESOURCES"
 
 [node name="LocationTypeModeButton" type="Button" parent="MapModes/MapModesButtons"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 toggle_mode = true
 button_group = SubResource("ButtonGroup_map_modes")
-text = "Location Type"
+text = "MAPMODE_LOCATION"
 
 [node name="StatsUI" parent="." instance=ExtResource("2_dsvdl")]
 layout_mode = 1
@@ -101,7 +101,7 @@ offset_right = -10.0
 offset_bottom = -24.0
 grow_horizontal = 0
 grow_vertical = 0
-text = "End turn"
+text = "UI_END_TURN"
 
 [node name="AIActionLog" parent="." instance=ExtResource("11_ailog")]
 unique_name_in_owner = true

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "spirit_bendicion"
-title = "Bendición de la Naturaleza"
-description = "[i]Las hojas del bosque brillan con una luz esmeralda. Los espíritus del Santuario canalizan la energía de la tierra hacia tus campos de cultivo, bendiciendo las cosechas con una fertilidad sobrenatural.[/i]"
+title = "EVT_SPIRIT_BENDICION_TITLE"
+description = "EVT_SPIRIT_BENDICION_DESC"
 allow_skip = false
 weight = 2.0
 unique = false

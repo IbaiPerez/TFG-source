@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "mercenaries"
-title = "Mercenarios"
-description = "[i]Un grupo de soldados de fortuna busca empleo. Por el precio adecuado, podrían expandir tus fronteras.[/i]"
+title = "EVT_MERCENARIES_TITLE"
+description = "EVT_MERCENARIES_DESC"
 allow_skip = false
 weight = 4.0
 unique = false

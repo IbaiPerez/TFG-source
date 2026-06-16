@@ -15,20 +15,20 @@
 [sub_resource type="Resource" id="eff_troops_per_recruit"]
 script = ExtResource("8_statmod")
 modifier_id = "cuartel_troops_per_recruit"
-modifier_name = "Cuartel: Reclutamiento extra"
+modifier_name = "BLD_CUARTEL_M1"
 stat_type = 8
 value = 1.0
-tooltipe_text = "+1 tropa por cada uso de Reclutar"
+tooltipe_text = "BLD_CUARTEL_T1"
 
 [sub_resource type="Resource" id="eff_add_recruit_card"]
 script = ExtResource("9_addcard")
 card = ExtResource("10_recruit")
 first_only = true
-tooltipe_text = "Al construir el PRIMER Cuartel, añade una carta de Reclutar al descarte"
+tooltipe_text = "BLD_CUARTEL_T2"
 
 [resource]
 script = ExtResource("5_bld")
-name = "Cuartel"
+name = "BLD_CUARTEL_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_village"), ExtResource("3_town"), ExtResource("4_mega")])
 image = ExtResource("6_img")
 construction_cost = 150

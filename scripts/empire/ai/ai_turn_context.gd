@@ -17,6 +17,10 @@ var rng: RandomNumberGenerator          ## RNG con seed para determinismo
 var drawn_cards: Array[Card] = []       ## Cartas que la IA tiene "en mano" durante el turno
 var world_view: AIWorldView             ## Vista de información del turno (Fase A):
                                         ## own_stats + vistas públicas de rivales.
+var deck_observer: AIDeckObserver       ## Observador de cartas del rival (Fase C).
+                                        ## null en tests unitarios sin rival real.
+var config: AIConfig                    ## Configuración del algoritmo (modo, iters MCTS…).
+                                        ## null → comportamiento por defecto (heurística).
 
 ## Tiles sin controller adyacentes a tiles propias. -1 = desconocido (tests).
 var colonizable_tiles_count: int = -1

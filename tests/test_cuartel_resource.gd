@@ -20,7 +20,7 @@ const RECRUIT_CARD := preload("res://resources/cards/recruit_card.tres")
 
 func test_cuartel_loads_with_basic_fields() -> void:
 	assert_not_null(CUARTEL, "El .tres del Cuartel debe cargarse")
-	assert_eq(CUARTEL.name, "Cuartel")
+	assert_eq(CUARTEL.name, "BLD_CUARTEL_NAME")
 	# El usuario itera coste/mantenimiento en paralelo; el test verifica
 	# que los campos existen y son del orden correcto sin clavar el valor
 	# exacto (que puede cambiar durante el tuning).
@@ -77,7 +77,7 @@ func test_cuartel_second_effect_adds_recruit_card() -> void:
 func test_cuartel_upgrades_to_academia() -> void:
 	assert_eq(CUARTEL.upgrades_to.size(), 1,
 		"El Cuartel debe poder mejorarse a Academia Militar")
-	assert_eq(CUARTEL.upgrades_to[0].name, "Academia Militar")
+	assert_eq(CUARTEL.upgrades_to[0].name, "BLD_ACADEMIA_NAME")
 
 
 # ============================================================
@@ -86,7 +86,7 @@ func test_cuartel_upgrades_to_academia() -> void:
 
 func test_academia_loads_with_basic_fields() -> void:
 	assert_not_null(ACADEMIA, "El .tres de la Academia debe cargarse")
-	assert_eq(ACADEMIA.name, "Academia Militar")
+	assert_eq(ACADEMIA.name, "BLD_ACADEMIA_NAME")
 	# Igual que en Cuartel, el usuario afina los numeros en paralelo. Solo
 	# verificamos relaciones de orden con el Cuartel base.
 	assert_gt(ACADEMIA.construction_cost, CUARTEL.construction_cost,

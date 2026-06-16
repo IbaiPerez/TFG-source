@@ -60,7 +60,7 @@ func setup(p_shop_config:ShopConfig, p_stats:Stats, event_title:String,
 
 func _update_gold_display() -> void:
 	if gold_label:
-		gold_label.text = "%d oro" % stats.total_gold
+		gold_label.text = tr("FMT_GOLD") % stats.total_gold
 
 
 func _set_mode(mode:Mode) -> void:
@@ -97,7 +97,7 @@ func _add_shop_item_ui(item:ShopItem) -> void:
 
 	# Precio
 	var price_label := Label.new()
-	price_label.text = "%d oro" % item.price
+	price_label.text = tr("FMT_GOLD") % item.price
 	price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	price_label.add_theme_color_override("font_color", UITheme.TEXT_DARK)
 	price_label.add_theme_font_size_override("font_size", 14)
@@ -106,7 +106,8 @@ func _add_shop_item_ui(item:ShopItem) -> void:
 	# Stock
 	if item.stock != -1:
 		var stock_label := Label.new()
-		stock_label.text = "Stock: %d" % (item.stock - item._sold_count)
+		stock_label.text = tr("SHOP_STOCK") % (item.stock - item._sold_count)
+		stock_label.set_meta("is_stock_label", true)
 		stock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		stock_label.add_theme_color_override("font_color", UITheme.TEXT_MUTED)
 		stock_label.add_theme_font_size_override("font_size", 12)
@@ -114,7 +115,7 @@ func _add_shop_item_ui(item:ShopItem) -> void:
 
 	# Boton de compra
 	var buy_button := Button.new()
-	buy_button.text = "Comprar"
+	buy_button.text = tr("SHOP_BUY")
 	buy_button.disabled = not item.can_afford(stats.total_gold)
 	buy_button.pressed.connect(_on_buy_pressed.bind(item, buy_button, container))
 	container.add_child(buy_button)
@@ -130,9 +131,9 @@ func _populate_purge_view() -> void:
 
 	var purges_left := shop_config.max_purges - shop_config._purges_done_this_visit
 	if shop_config.max_purges == -1:
-		purge_cost_label.text = "Coste de purga: %d oro" % shop_config.purge_cost
+		purge_cost_label.text = tr("SHOP_PURGE_COST") % shop_config.purge_cost
 	else:
-		purge_cost_label.text = "Coste de purga: %d oro (%d usos restantes)" % [
+		purge_cost_label.text = tr("SHOP_PURGE_COST_USES") % [
 			shop_config.purge_cost, purges_left]
 	purge_cost_label.visible = shop_config.allow_purge
 
@@ -151,7 +152,7 @@ func _populate_purge_view() -> void:
 		card_ui.tooltip_requested.connect(card_tooltip_popup.show_tooltip)
 
 		var purge_button := Button.new()
-		purge_button.text = "Eliminar"
+		purge_button.text = tr("UI_REMOVE")
 		purge_button.disabled = not shop_config.can_purge(stats.total_gold)
 		purge_button.pressed.connect(_on_purge_pressed.bind(card))
 		container.add_child(purge_button)
@@ -170,13 +171,13 @@ func _on_buy_pressed(item:ShopItem, button:Button, container:VBoxContainer) -> v
 	if not item.is_available():
 		container.modulate = UITheme.DISABLED_MUTED
 		button.disabled = true
-		button.text = "Agotado"
+		button.text = tr("SHOP_SOLD_OUT")
 	else:
 		button.disabled = not item.can_afford(stats.total_gold)
 		# Actualizar label de stock si existe
 		for child in container.get_children():
-			if child is Label and child.text.begins_with("Stock:"):
-				child.text = "Stock: %d" % (item.stock - item._sold_count)
+			if child is Label and child.has_meta("is_stock_label"):
+				child.text = tr("SHOP_STOCK") % (item.stock - item._sold_count)
 
 	# Actualizar asequibilidad de todos los items
 	_refresh_buy_buttons()

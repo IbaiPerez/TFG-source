@@ -45,7 +45,7 @@ theme_override_constants/separation = 16
 [node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Elige una carta para eliminar"
+text = "EVTCARD_PROMPT"
 label_settings = SubResource("LabelSettings_evsel")
 horizontal_alignment = 1
 
@@ -75,7 +75,7 @@ offset_top = 26.0
 offset_right = -36.0
 offset_bottom = 66.0
 grow_horizontal = 0
-text = "Cancelar"
+text = "UI_CANCEL"
 
 [node name="CardTooltipPopup" parent="." instance=ExtResource("2_ttip")]
 unique_name_in_owner = true

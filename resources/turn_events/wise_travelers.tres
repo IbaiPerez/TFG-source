@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "wise_travelers"
-title = "Sabios Viajeros"
-description = "[i]Un grupo de eruditos y sabios llega a tu corte. Su conocimiento es vasto y desean compartirlo a cambio de refugio.[/i]"
+title = "EVT_WISE_TRAVELERS_TITLE"
+description = "EVT_WISE_TRAVELERS_DESC"
 allow_skip = false
 weight = 8.0
 unique = true

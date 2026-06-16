@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "time_of_plenty"
-title = "Tiempo de Abundancia"
-description = "[i]Una época de prosperidad bendice tus tierras. Los graneros se llenan y el pueblo celebra con fiestas.[/i]"
+title = "EVT_TIME_OF_PLENTY_TITLE"
+description = "EVT_TIME_OF_PLENTY_DESC"
 allow_skip = false
 weight = 5.0
 unique = false

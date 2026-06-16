@@ -36,6 +36,14 @@ func test_run_simulation() -> void:
 	multi.num_runs = 15
 	multi.max_rounds = 500  # limite de seguridad; la partida termina por victoria
 	multi.rng_master_seed = 20260516  # YYYYMMDD para tener un seed estable y fechado
+	# Este test analiza el BALANCE de la heurística (Fase B): ambos bandos usan
+	# heurística pura. La comparación heurística-vs-MCTS vive en
+	# test_sim_mode_comparison.gd. Fijar el modo evita que el default (MCTS)
+	# convierta esta sim en MCTS-vs-MCTS (más lenta y con otro propósito).
+	var heur := AIConfig.new()
+	heur.mode = AIConfig.Mode.HEURISTIC
+	multi.config_a = heur
+	multi.config_b = heur
 	multi.attach_to(self)
 
 	print("[Sim] Iniciando: %d runs (max %d rondas por seguridad, master seed = %d)" % [

@@ -63,7 +63,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 custom_minimum_size = Vector2(50, 0)
 size_flags_horizontal = 0
-text = "Gold:"
+text = "STAT_GOLD_LABEL"
 
 [node name="GoldSpacer" type="Control" parent="Content/GoldRow"]
 layout_mode = 2
@@ -91,7 +91,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 custom_minimum_size = Vector2(50, 0)
 size_flags_horizontal = 0
-text = "Food:"
+text = "STAT_FOOD_LABEL"
 
 [node name="FoodSpacer" type="Control" parent="Content/FoodRow"]
 layout_mode = 2
@@ -112,7 +112,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 custom_minimum_size = Vector2(50, 0)
 size_flags_horizontal = 0
-text = "Cards/turn:"
+text = "RIVAL_CARDS_PER_TURN"
 
 [node name="CardsSpacer" type="Control" parent="Content/CardsRow"]
 layout_mode = 2
@@ -123,4 +123,25 @@ unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(55, 0)
 text = "3"
+horizontal_alignment = 2
+
+[node name="DeckRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DeckLabel" type="Label" parent="Content/DeckRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(50, 0)
+size_flags_horizontal = 0
+text = "RIVAL_DECK"
+
+[node name="DeckSpacer" type="Control" parent="Content/DeckRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DeckValue" type="Label" parent="Content/DeckRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(55, 0)
+text = "0 cards"
 horizontal_alignment = 2

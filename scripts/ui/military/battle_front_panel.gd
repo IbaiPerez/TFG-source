@@ -74,15 +74,15 @@ func _update_display() -> void:
 	# Título
 	var atk_name: String = battle_front.attacker_empire.name if battle_front.attacker_empire else "?"
 	var def_name: String = battle_front.defender_empire.name if battle_front.defender_empire else "?"
-	title_label.text = "%s vs %s" % [atk_name, def_name]
+	title_label.text = "%s vs %s" % [tr(atk_name), tr(def_name)]
 
 	# Marcador y turnos
 	var marker_sign := "+" if battle_front.marker >= 0 else ""
 	var effective_threshold := battle_front.get_current_threshold()
-	marker_label.text = "Marcador: %s%.1f / %.1f" % [marker_sign, battle_front.marker, effective_threshold]
+	marker_label.text = tr("BATTLE_MARKER") % [marker_sign, battle_front.marker, effective_threshold]
 
 	var turns_remaining := maxi(battle_front.min_duration - battle_front.turns_elapsed, 0)
-	turns_label.text = "Turno %d (mín. %d restantes)" % [battle_front.turns_elapsed, turns_remaining]
+	turns_label.text = tr("BATTLE_TURNS") % [battle_front.turns_elapsed, turns_remaining]
 
 	# Actualizar barra de tira y afloja
 	_update_tug_bar()
@@ -155,20 +155,20 @@ func _update_side_stats(side: StringName, label: RichTextLabel) -> void:
 	# Totales (incluyen bioma, edificios y bonuses)
 	label.append_text("[color=#cc3333]ATK: %.1f[/color]  [color=#3366cc]DEF: %.1f[/color]\n" % [atk, def])
 	# Aporte sólo de las tropas asignadas, para que el jugador vea cuánto ha comprometido
-	label.append_text("[color=#5a4838]Tropas: %d ATK · %d DEF[/color]\n" % [troops_atk, troops_def])
+	label.append_text("[color=#5a4838]%s[/color]\n" % (tr("BATTLE_TROOPS_LINE") % [troops_atk, troops_def]))
 	# Indicador de efectividad por tipo (sólo si hay tropas que comparen)
 	if troops_atk > 0 and not enemy_troops.is_empty():
 		var color_hex: String = _effectiveness_color_hex(effectiveness_mult)
-		label.append_text("[color=%s]Efectividad: ×%.2f (%.1f efectivo)[/color]\n" % [color_hex, effectiveness_mult, effective_troops_atk])
+		label.append_text("[color=%s]%s[/color]\n" % [color_hex, tr("BATTLE_EFFECTIVENESS_LINE") % [effectiveness_mult, effective_troops_atk]])
 	# Presión resultante (atk / (1 + def_enemiga))
-	label.append_text("[color=#cccc33]Presión: %.2f[/color]\n" % pressure)
+	label.append_text("[color=#cccc33]%s[/color]\n" % (tr("BATTLE_PRESSURE_LINE") % pressure))
 	# Coste de mantenimiento extra que el frente está consumiendo este turno
-	label.append_text("[color=#7a4f2c]Mant.: -%d oro · -%d comida[/color]" % [maint.get("gold", 0), maint.get("food", 0)])
+	label.append_text("[color=#7a4f2c]%s[/color]" % (tr("BATTLE_MAINTENANCE_LINE") % [maint.get("gold", 0), maint.get("food", 0)]))
 
 	# Tácticas activas en este lado (cartas tácticas con tactic_name).
 	var tactic_lines := _render_active_tactics(side)
 	if not tactic_lines.is_empty():
-		label.append_text("\n\n[color=#4A6A8A][b]Tácticas activas:[/b][/color]\n")
+		label.append_text("\n\n[color=#4A6A8A][b]%s[/b][/color]\n" % tr("BATTLE_ACTIVE_TACTICS"))
 		for line in tactic_lines:
 			label.append_text("%s\n" % line)
 
@@ -195,8 +195,8 @@ func _render_active_tactics(side: StringName) -> Array[String]:
 			parts.append("[color=#cc3333]+%.1f ATK/tropa[/color]" % (bonus.attack_per_troop * bonus.attack_biome_modifier))
 		if bonus.defense_per_troop != 0.0:
 			parts.append("[color=#3366cc]+%.1f DEF/tropa[/color]" % (bonus.defense_per_troop * bonus.defense_biome_modifier))
-		var detail: String = " · ".join(parts) if not parts.is_empty() else "(sin efecto)"
-		lines.append("• %s — %s" % [bonus.tactic_name, detail])
+		var detail: String = " · ".join(parts) if not parts.is_empty() else tr("BATTLE_NO_EFFECT")
+		lines.append("• %s — %s" % [tr(bonus.tactic_name), detail])
 	return lines
 
 
@@ -219,7 +219,7 @@ func _update_troops_display(troops: Array[Troop], container: VBoxContainer, colo
 
 	if troops.is_empty():
 		var empty_label := Label.new()
-		empty_label.text = "Sin tropas"
+		empty_label.text = tr("BATTLE_NO_TROOPS")
 		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_label.add_theme_color_override("font_color", UITheme.DISABLED_MUTED)
 		container.add_child(empty_label)
@@ -249,7 +249,7 @@ func _update_troops_display(troops: Array[Troop], container: VBoxContainer, colo
 			hbox.add_child(icon)
 
 		var text := Label.new()
-		text.text = "%s x%d (ATK:%d DEF:%d)" % [troop.name, count, troop.attack, troop.defense]
+		text.text = "%s x%d (ATK:%d DEF:%d)" % [tr(troop.name), count, troop.attack, troop.defense]
 		text.add_theme_color_override("font_color", color.darkened(0.3))
 		hbox.add_child(text)
 

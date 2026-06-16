@@ -16,7 +16,7 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Aprovechar los pantanos"
-	choice.description = "Desbloquea la Granja de Sanguijuelas como edificio construible en pantanos."
+	choice.label = tr("EVT_UNLOCK_GRANJA_SANG_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_GRANJA_SANG_CH1_DESC")
 	choice.effects = [UnlockBuildingEffect.new(GRANJA)]
 	choices = [choice]

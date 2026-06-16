@@ -20,8 +20,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Establecer la oficina"
-	choice.description = "Añade una carta para construir la Oficina de Construcción a tu pila de descartes."
+	choice.label = tr("EVT_UNLOCK_OFICINA_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_OFICINA_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(BUILD_OFICINA_CARD),
 		AddToCardPoolEffect.new(BUILD_OFICINA_CARD, 3.0, 0.15, 2.0),

@@ -12,6 +12,7 @@ class_name RivalStatsUI
 @onready var gold_per_turn: Label = %GoldPerTurn
 @onready var food_value: Label = %FoodValue
 @onready var cards_value: Label = %CardsValue
+@onready var deck_value: Label = %DeckValue
 
 
 func update_stats(p_stats: Stats) -> void:
@@ -22,16 +23,16 @@ func update_stats(p_stats: Stats) -> void:
 
 	if p_stats.empire != null:
 		color_indicator.color = p_stats.empire.color
-		empire_name.text = p_stats.empire.name
-		tile_count.text = "%d tiles" % p_stats.empire.controlled_tiles.size()
+		empire_name.text = tr(p_stats.empire.name)
+		tile_count.text = tr("RIVAL_TILES") % p_stats.empire.controlled_tiles.size()
 
 	gold_value.text = str(p_stats.total_gold)
 
 	if p_stats.gold_per_turn >= 0:
-		gold_per_turn.text = "+%d/turn" % p_stats.gold_per_turn
+		gold_per_turn.text = "+" + tr("FMT_PER_TURN") % p_stats.gold_per_turn
 		gold_per_turn.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
 	else:
-		gold_per_turn.text = "%d/turn" % p_stats.gold_per_turn
+		gold_per_turn.text = tr("FMT_PER_TURN") % p_stats.gold_per_turn
 		gold_per_turn.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
 
 	if p_stats.food >= 0:
@@ -45,3 +46,10 @@ func update_stats(p_stats: Stats) -> void:
 	if p_stats.modifier_manager != null:
 		bonus = p_stats.modifier_manager.get_cards_per_turn_bonus()
 	cards_value.text = str(clampi(p_stats.cards_per_turn + bonus, 1, 20))
+
+	var ds := 0
+	if p_stats.draw_pile != null:
+		ds += p_stats.draw_pile.cards.size()
+	if p_stats.discard_pile != null:
+		ds += p_stats.discard_pile.cards.size()
+	deck_value.text = tr("RIVAL_DECK_CARDS") % ds

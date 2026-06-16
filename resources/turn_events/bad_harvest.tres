@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "bad_harvest"
-title = "Mala Cosecha"
-description = "[i]Las heladas tardías han dañado los cultivos. Tus campos producen mucho menos de lo esperado este año.[/i]"
+title = "EVT_BAD_HARVEST_TITLE"
+description = "EVT_BAD_HARVEST_DESC"
 allow_skip = false
 weight = 7.0
 unique = false

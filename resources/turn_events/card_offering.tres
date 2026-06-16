@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 id = "card_offering"
-title = "Ofrenda de Cartas"
-description = "[i]Un mensajero llega con noticias de tierras lejanas. Trae consigo un pergamino con nuevas tácticas y estrategias que podrían serte útiles.[/i]"
+title = "EVT_CARD_OFFERING_TITLE"
+description = "EVT_CARD_OFFERING_DESC"
 allow_skip = true
 weight = 7.0

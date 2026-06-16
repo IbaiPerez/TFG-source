@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("5_bld")
-name = "Caravana Comercial"
+name = "BLD_CARAVANA_NAME"
 allowed_biomes = Array[int]([2])
 image = ExtResource("6_img")
 construction_cost = 150

@@ -194,6 +194,12 @@ func before_each():
 	tracker = MockInteractionTracker.new()
 	add_child_autofree(tracker)
 
+	# Reset del estado global de Input. `Input.action_press` NO refresca el flag
+	# "just_pressed" si la acción ya estaba pulsada, así que cualquier "Click"
+	# colgado (de otro contexto, p.ej. el editor) haría que el primer click del
+	# test no se contara. Liberarlo garantiza un punto de partida determinista.
+	Input.action_release("Click")
+
 	# Clean UIState
 	while UIState._menu_count > 0:
 		UIState.unregister_menu()

@@ -7,6 +7,6 @@
 [resource]
 script = ExtResource("1_script")
 id = "horde_nomada"
-ability_name = "Horda Nomada"
-description = "El espiritu nomada de las estepas impulsa tu expansion. Tus casillas con Ganado producen +1 comida adicional y cada vez que juegas Colonizar hay un 30% de probabilidad de que vuelva a tu mano. Ademas, tu caballeria cuesta un 25% menos de mantener."
+ability_name = "ABIL_MONGOL_NAME"
+description = "ABIL_MONGOL_DESC"
 livestock_resource = ExtResource("2_livestock")

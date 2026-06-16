@@ -38,8 +38,8 @@ func prepare(context:EventContext) -> void:
 		return
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Aceptar la ofrenda"
-	choice.description = "Recibes una copia de [b]%s[/b]." % _selected_card.id
+	choice.label = tr("EVT_CARD_OFFERING_CH1_LABEL")
+	choice.description = tr("EVT_CARD_OFFERING_CH1_DESC") % _selected_card.id
 	choice.effects = [AddCardEffect.new(_selected_card)]
 	choices = [choice]
 

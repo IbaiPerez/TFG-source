@@ -70,16 +70,16 @@ func _on_ai_card_played(card: Card, anchor_tile: Tile, empire: Empire,
 ## sub-decisiones (building, troop), las incluye.
 func _format_line(card: Card, anchor_tile: Tile, empire: Empire,
 		payload: Dictionary) -> String:
-	var empire_name := empire.name if empire.name else "?"
+	var empire_name := tr(empire.name) if empire.name else "?"
 	var card_name := _describe_card(card, payload)
 
 	var location := ""
 	if anchor_tile != null:
 		if anchor_tile.province_name and not anchor_tile.province_name.is_empty():
-			location = " en %s" % anchor_tile.province_name
+			location = tr("AILOG_AT") % anchor_tile.province_name
 		elif anchor_tile.pos_data != null:
 			var g: Vector2i = anchor_tile.pos_data.grid_position
-			location = " en (%d, %d)" % [g.x, g.y]
+			location = tr("AILOG_AT_COORDS") % [g.x, g.y]
 
 	return "[%s] %s%s" % [empire_name, card_name, location]
 
@@ -88,18 +88,18 @@ func _describe_card(card: Card, payload: Dictionary) -> String:
 	# Enriquecer con payload cuando esté disponible.
 	if payload.has("building") and payload["building"] != null:
 		var b: Building = payload["building"]
-		return "construye %s" % (b.name if b.name else "edificio")
+		return tr("AILOG_BUILDS") % (tr(b.name) if b.name else tr("GENERIC_BUILDING"))
 	if payload.has("new_building") and payload["new_building"] != null:
 		var nb: Building = payload["new_building"]
-		return "mejora a %s" % (nb.name if nb.name else "edificio")
+		return tr("AILOG_UPGRADES") % (tr(nb.name) if nb.name else tr("GENERIC_BUILDING"))
 	if payload.has("troop") and payload["troop"] != null:
 		var t: Troop = payload["troop"]
-		return "recluta %s" % (t.name if t.name else "tropa")
+		return tr("AILOG_RECRUITS") % (tr(t.name) if t.name else tr("GENERIC_TROOP"))
 	if payload.has("chosen_card") and payload["chosen_card"] != null:
 		var c: Card = payload["chosen_card"]
-		return "recupera %s" % (c.id.capitalize() if c.id else "carta")
+		return tr("AILOG_RECOVERS") % (c.id.capitalize() if c.id else tr("GENERIC_CARD"))
 	# Fallback: el id de la carta.
-	return "juega %s" % (card.id.capitalize() if card.id else "carta")
+	return tr("AILOG_PLAYS") % (card.id.capitalize() if card.id else tr("GENERIC_CARD"))
 
 
 func _append_line(text: String, color: Color) -> void:

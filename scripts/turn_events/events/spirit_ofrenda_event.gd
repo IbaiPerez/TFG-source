@@ -9,12 +9,12 @@ func _init():
 	category = EventCategory.Type.SPIRIT
 
 	conditions = [
-		HasBuildingCondition.new("Santuario del Bosque")
+		HasBuildingCondition.new("BLD_SANTUARIO_NAME")
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Aceptar la ofrenda"
-	choice.description = "Los espíritus ofrecen los frutos del bosque. Ganas comida según el avance de la partida."
+	choice.label = tr("EVT_SPIRIT_OFRENDA_CH1_LABEL")
+	choice.description = tr("EVT_SPIRIT_OFRENDA_CH1_DESC")
 	choice.effects = [
 		ScaledFoodEffect.new(20.0, 2.0, 0.0)
 	]

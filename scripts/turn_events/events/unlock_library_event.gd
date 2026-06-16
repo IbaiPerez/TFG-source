@@ -20,8 +20,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Acoger a los eruditos"
-	choice.description = "Recibes una carta de un solo uso para construir una Library."
+	choice.label = tr("EVT_UNLOCK_LIBRARY_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_LIBRARY_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(BUILD_LIBRARY_CARD),
 		AddToCardPoolEffect.new(BUILD_LIBRARY_CARD, 3.0, 0.15, 2.0),

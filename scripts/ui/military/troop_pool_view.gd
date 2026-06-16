@@ -33,7 +33,7 @@ func show_current_view(new_title:String) -> void:
 	for slot:Node in troops_container.get_children():
 		slot.queue_free()
 
-	title.text = new_title
+	title.text = tr(new_title)
 	_update_view.call_deferred()
 
 

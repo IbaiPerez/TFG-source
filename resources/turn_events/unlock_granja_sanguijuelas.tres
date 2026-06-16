@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_granja_sanguijuelas"
-title = "Secretos del Pantano"
-description = "[i]Los curanderos de tus tierras pantanosas han descubierto las propiedades medicinales de las sanguijuelas locales. Proponen criar estos animales para venderlos como remedio a los boticarios de tierras lejanas. Es un negocio lucrativo, aunque mantener las granjas consume recursos.[/i]"
+title = "EVT_UNLOCK_GRANJA_SANG_TITLE"
+description = "EVT_UNLOCK_GRANJA_SANG_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

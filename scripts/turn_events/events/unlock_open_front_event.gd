@@ -25,8 +25,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Preparar la ofensiva"
-	choice.description = "Recibes una carta de Abrir Frente y se desbloquea en el pool de cartas."
+	choice.label = tr("EVT_UNLOCK_OPEN_FRONT_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_OPEN_FRONT_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(OPEN_FRONT_CARD),
 		AddToCardPoolEffect.new(OPEN_FRONT_CARD, 6.0, -0.1, 2.0),

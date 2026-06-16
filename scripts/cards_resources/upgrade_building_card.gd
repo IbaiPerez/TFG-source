@@ -7,7 +7,7 @@ var menu:BuildingPanel
 
 
 func _build_tooltip() -> String:
-	return "[center][b][color=#5B7A3A]Mejora[/color][/b] un [color=#4A6A8A]edificio[/color] existente[/center]"
+	return tr("CARD_UPGRADE_TOOLTIP")
 
 
 func apply_effects(targets:Array[Node],stats:Stats) -> void:

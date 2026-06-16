@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_caravana"
-title = "Rutas del Desierto"
-description = "[i]Tu dominio sobre las arenas se extiende. Mercaderes nómadas se acercan a tus fronteras ofreciendo establecer rutas comerciales permanentes a través del desierto. Las caravanas traerán riquezas, pero habrá que alimentar a los comerciantes.[/i]"
+title = "EVT_UNLOCK_CARAVANA_TITLE"
+description = "EVT_UNLOCK_CARAVANA_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

@@ -58,7 +58,7 @@ func _build_ui() -> void:
 	margin.add_child(vbox)
 
 	var title := Label.new()
-	title.text = "Abrir frente de batalla"
+	title.text = tr("OPENFRONT_TITLE")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 
@@ -66,13 +66,13 @@ func _build_ui() -> void:
 	vbox.add_child(separator)
 
 	var instruction := Label.new()
-	instruction.text = "Selecciona la casilla\ndesde la que atacar"
+	instruction.text = tr("OPENFRONT_INSTRUCTION")
 	instruction.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	instruction.autowrap_mode = TextServer.AUTOWRAP_WORD
 	vbox.add_child(instruction)
 
 	var cancel_hint := Label.new()
-	cancel_hint.text = "Clic derecho: cancelar"
+	cancel_hint.text = tr("OPENFRONT_CANCEL_HINT")
 	cancel_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(cancel_hint)
 

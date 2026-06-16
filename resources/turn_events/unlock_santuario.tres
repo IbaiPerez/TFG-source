@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_santuario"
-title = "Espíritus del Bosque"
-description = "[i]En lo más profundo de tus bosques, los exploradores han encontrado un claro donde los árboles susurran con voces antiguas. Los espíritus del bosque se manifiestan ante tus colonos y ofrecen su bendición: permiten erigir un santuario sagrado en su honor. Pero la decisión es tuya.[/i]"
+title = "EVT_UNLOCK_SANTUARIO_TITLE"
+description = "EVT_UNLOCK_SANTUARIO_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

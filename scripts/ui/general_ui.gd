@@ -45,10 +45,10 @@ func _ready() -> void:
 	Events.tile_deselected.connect(_on_tile_deselected)
 	Events.player_hand_drawn.connect(_on_player_hand_drawn)
 	stats_ui.rival_info_button.pressed.connect(_on_rival_info_button_pressed)
-	draw_pile_button.pressed.connect(draw_pile_view.show_current_view.bind("Draw Pile", true))
-	discard_pile_button.pressed.connect(discard_pile_view.show_current_view.bind("Discard Pile"))
-	played_pile_button.pressed.connect(played_pile_view.show_current_view.bind("Played Cards"))
-	stats_ui.troop_pool_button.pressed.connect(troop_pool_view.show_current_view.bind("Tropas reclutadas"))
+	draw_pile_button.pressed.connect(draw_pile_view.show_current_view.bind("CARDPILE_DRAW_TITLE", true))
+	discard_pile_button.pressed.connect(discard_pile_view.show_current_view.bind("CARDPILE_DISCARD_TITLE"))
+	played_pile_button.pressed.connect(played_pile_view.show_current_view.bind("CARDPILE_PLAYED_TITLE"))
+	stats_ui.troop_pool_button.pressed.connect(troop_pool_view.show_current_view.bind("TROOPPOOL_TITLE"))
 	tile_panel.visible = false
 	_setup_map_mode_buttons()
 	_connect_modifier_manager.call_deferred()
@@ -66,10 +66,10 @@ func _setup_map_mode_buttons() -> void:
 		first_button.button_group.pressed.connect(_on_map_mode_button_pressed)
 
 	var descriptions := {
-		"PoliticalModeButton":         "Modo Político: muestra el control territorial de cada imperio",
-		"BiomesModeButton":            "Modo Biomas: muestra el tipo de terreno de cada tile",
-		"NaturalResourcesBiomeButton": "Modo Recursos: muestra los recursos naturales del mapa",
-		"LocationTypeModeButton":      "Modo Localizaciones: muestra el tipo de cada ubicación",
+		"PoliticalModeButton":         "MAPMODE_POLITICAL_TIP",
+		"BiomesModeButton":            "MAPMODE_BIOMES_TIP",
+		"NaturalResourcesBiomeButton": "MAPMODE_RESOURCES_TIP",
+		"LocationTypeModeButton":      "MAPMODE_LOCATION_TIP",
 	}
 
 	# tooltip_text de Godot usa coordenadas físicas de pantalla, incompatibles
@@ -101,7 +101,7 @@ func _setup_map_mode_buttons() -> void:
 		var btn := button as Button
 		var desc: String = descriptions[btn.name]
 		btn.mouse_entered.connect(func() -> void:
-			tooltip_label.text = desc
+			tooltip_label.text = tr(desc)
 			tooltip_panel.show()
 			await get_tree().process_frame
 			var vp := get_viewport_rect().size
@@ -144,7 +144,7 @@ func _set_rival_stats(value: Stats) -> void:
 		return
 	rival_stats.stats_changed.connect(_on_rival_stats_changed)
 	if is_node_ready():
-		var empire_name := rival_stats.empire.name if rival_stats.empire else "Rival"
+		var empire_name := rival_stats.empire.name if rival_stats.empire else "GENERIC_RIVAL"
 		stats_ui.show_rival_toggle(empire_name)
 		rival_dropdown.update_stats(rival_stats)
 
@@ -158,16 +158,16 @@ func _on_rival_info_button_pressed() -> void:
 		var t := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 		t.tween_property(rival_dropdown, "modulate:a", 0.0, 0.15)
 		t.tween_callback(func() -> void: rival_dropdown.visible = false)
-		stats_ui.rival_info_button.text = (
-			rival_stats.empire.name if rival_stats and rival_stats.empire else "Rival"
+		stats_ui.rival_info_button.text = tr(
+			rival_stats.empire.name if rival_stats and rival_stats.empire else "GENERIC_RIVAL"
 		) + " ▾"
 	else:
 		rival_dropdown.modulate.a = 0.0
 		rival_dropdown.visible = true
 		var t := create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		t.tween_property(rival_dropdown, "modulate:a", 1.0, 0.18)
-		stats_ui.rival_info_button.text = (
-			rival_stats.empire.name if rival_stats and rival_stats.empire else "Rival"
+		stats_ui.rival_info_button.text = tr(
+			rival_stats.empire.name if rival_stats and rival_stats.empire else "GENERIC_RIVAL"
 		) + " ▴"
 
 

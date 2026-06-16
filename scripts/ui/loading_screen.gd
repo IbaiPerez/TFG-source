@@ -25,14 +25,14 @@ func _ready() -> void:
 	center.add_child(vbox)
 
 	var title := Label.new()
-	title.text = "Generando mapa..."
+	title.text = tr("LOADING_TITLE")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 36)
 	title.add_theme_color_override("font_color", UITheme.BORDER_BROWN)
 	vbox.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = "Por favor, espera..."
+	subtitle.text = tr("LOADING_SUBTITLE")
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_font_size_override("font_size", 16)
 	subtitle.add_theme_color_override("font_color", UITheme.TEXT_MUTED)
@@ -40,7 +40,7 @@ func _ready() -> void:
 
 	if seed_value != 0:
 		var seed_label := Label.new()
-		seed_label.text = "Semilla: %d" % seed_value
+		seed_label.text = tr("LOADING_SEED") % seed_value
 		seed_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		seed_label.add_theme_font_size_override("font_size", 14)
 		seed_label.add_theme_color_override("font_color", UITheme.TEXT_MUTED)

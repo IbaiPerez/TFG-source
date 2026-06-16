@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_w8pek")
-name = "Sand"
+name = "RES_SAND_NAME"
 image = ExtResource("1_py4c8")
 color = Color(0.62063044, 0.64395875, 0.42505625, 1)
 biomes = Dictionary[int, float]({

@@ -16,8 +16,8 @@ func _init():
 
 	# Unica opcion: sufrir la sequia
 	var suffer := TurnEventChoice.new()
-	suffer.label = "Soportar la sequia"
-	suffer.description = "Una sequia prolongada azota tus tierras."
+	suffer.label = tr("EVT_DROUGHT_CH1_LABEL")
+	suffer.description = tr("EVT_DROUGHT_CH1_DESC")
 	suffer.effects = [
 		ScaledStatModifierEffect.new(
 			"drought_food", "Sequia",

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_upgrade"
-title = "Maestros del Oficio"
-description = "[i]Artesanos experimentados de tierras lejanas llegan a tus dominios, impresionados por tu creciente imperio. Ofrecen sus conocimientos para perfeccionar las estructuras existentes, transformándolas en versiones superiores de sí mismas.[/i]"
+title = "EVT_UNLOCK_UPGRADE_TITLE"
+description = "EVT_UNLOCK_UPGRADE_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

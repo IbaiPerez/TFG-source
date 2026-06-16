@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "material_crisis"
-title = "Crisis de Materiales"
-description = "[i]Los suministros de piedra y madera se han agotado en la región. Los precios de construcción se disparan.[/i]"
+title = "EVT_MATERIAL_CRISIS_TITLE"
+description = "EVT_MATERIAL_CRISIS_DESC"
 allow_skip = false
 weight = 5.0
 unique = false

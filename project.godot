@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameLogger="*res://scripts/logger.gd"
+I18n="*res://scripts/i18n.gd"
 Events="*res://scripts/events.gd"
 MapEvents="*res://scripts/map_events.gd"
 CardEvents="*res://scripts/card_events.gd"
@@ -103,6 +104,11 @@ RotateCameraRight={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":69,"key_label":0,"unicode":101,"location":0,"echo":false,"script":null)
 ]
 }
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://localization/translations.en.translation", "res://localization/translations.es.translation")
+locale/fallback="es"
 
 [layer_names]
 

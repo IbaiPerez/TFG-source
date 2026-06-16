@@ -20,8 +20,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Erigir el palacio"
-	choice.description = "Añade una carta para construir el Palacio Imperial a tu pila de descartes."
+	choice.label = tr("EVT_UNLOCK_PALACIO_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_PALACIO_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(BUILD_PALACIO_CARD),
 		AddToCardPoolEffect.new(BUILD_PALACIO_CARD, 3.0, 0.15, 2.0),

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_ambush"
-title = "Doctrina de Emboscada"
-description = "[i]Tus exploradores conocen cada sendero, cada arboleda, cada pantano. Tus capitanes proponen una doctrina de combate irregular: golpear desde la maleza y desaparecer antes de que el enemigo reaccione.[/i]"
+title = "EVT_UNLOCK_AMBUSH_TITLE"
+description = "EVT_UNLOCK_AMBUSH_DESC"
 allow_skip = true
 weight = 80.0
 unique = true

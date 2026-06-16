@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://dxw5gc7xqbkqj"]
+[gd_scene load_steps=28 format=3 uid="uid://dxw5gc7xqbkqj"]
 
 [ext_resource type="Script" uid="uid://byck58typyfki" path="res://scripts/world_gen/map.gd" id="1_e8i6t"]
 [ext_resource type="Script" uid="uid://bcsfis7fcjm3n" path="res://scripts/camera/camera_3d.gd" id="1_fam8b"]
@@ -15,8 +15,29 @@
 [ext_resource type="Script" uid="uid://ccptwq3cxwxmw" path="res://scripts/map/map_tracker.gd" id="8_70cmx"]
 [ext_resource type="Script" uid="uid://cwxxqp1cjvmcl" path="res://scripts/player/player_handler.gd" id="14_wme18"]
 [ext_resource type="Script" uid="uid://djm7lx8epff0y" path="res://scripts/military/battle_front_visual_manager.gd" id="15_bfvm"]
-[ext_resource type="Texture2D" uid="uid://parchment1" path="res://assets/backgrounds/parchment.png" id="16_parch"]
-[ext_resource type="Texture2D" uid="uid://woodtable1" path="res://assets/backgrounds/wood_table/wood_table_001/wood_table_001_diff_4k.jpg" id="17_wood"]
+[ext_resource type="Texture2D" uid="uid://drkul5upgi3cc" path="res://assets/backgrounds/parchment.png" id="16_parch"]
+[ext_resource type="Texture2D" uid="uid://cm7qosdsmoqiq" path="res://assets/backgrounds/wood_table/wood_table_001/wood_table_001_diff_4k.jpg" id="17_wood"]
+[ext_resource type="Script" uid="uid://el3e3fe5i2li" path="res://scripts/empire/ai_controller.gd" id="18_aicontrl"]
+[ext_resource type="Resource" uid="uid://ce6x81inn56h5" path="res://resources/ai/ai_config_mcts_heuristic.tres" id="19_aiconf"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
+shading_mode = 0
+albedo_color = Color(2, 1.4, 0.8, 1)
+albedo_texture = ExtResource("17_wood")
+uv1_scale = Vector3(20, 20, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_wood"]
+size = Vector2(200, 200)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_parch"]
+albedo_texture = ExtResource("16_parch")
+emission_enabled = true
+emission = Color(0.4, 0.35, 0.3, 1)
+emission_energy_multiplier = 3.5
+uv1_scale = Vector3(4, 4, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_parch"]
+size = Vector2(40, 40)
 
 [sub_resource type="Environment" id="Environment_kbma3"]
 ssao_enabled = true
@@ -33,31 +54,6 @@ fog_height = 1.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ewd2j"]
 size = Vector2(1280, 550)
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_parch"]
-size = Vector2(40, 40)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_parch"]
-albedo_texture = ExtResource("16_parch")
-uv1_scale = Vector3(4, 4, 1)
-albedo_color = Color(1, 1, 1, 1)
-emission_enabled = true
-emission = Color(0.4, 0.35, 0.3, 1)
-emission_energy_multiplier = 3.5
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_wood"]
-size = Vector2(200, 200)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
-albedo_texture = ExtResource("17_wood")
-uv1_scale = Vector3(20, 20, 1)
-albedo_color = Color(2.0, 1.4, 0.8, 1)
-emission_enabled = true
-emission = Color(1.0, 0.7, 0.4, 1)
-emission_energy_multiplier = 10.0
-shading_mode = 0
-metallic = 0.0
-roughness = 0.5
 
 [sub_resource type="GDScript" id="GDScript_wme18"]
 script/source = "extends Node
@@ -86,8 +82,8 @@ stats = ExtResource("2_wme18")
 [node name="Camera" type="Node3D" parent="."]
 
 [node name="Camera3D" type="Camera3D" parent="Camera" node_paths=PackedStringArray("sun")]
-process_mode = 3
 unique_name_in_owner = true
+process_mode = 3
 transform = Transform3D(1, 0, 0, 0, 0.99853665, -0.054078814, 0, 0.054078814, 0.99853665, 0, 0, 0)
 script = ExtResource("1_fam8b")
 movespeed = 15
@@ -98,15 +94,15 @@ sun = NodePath("../../Scene/DirectionalLight3D")
 
 [node name="WoodBackground" type="MeshInstance3D" parent="Scene"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+material_override = SubResource("StandardMaterial3D_wood")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_wood")
-material_override = SubResource("StandardMaterial3D_wood")
 
 [node name="ParchmentBackground" type="MeshInstance3D" parent="Scene"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+material_override = SubResource("StandardMaterial3D_parch")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_parch")
-material_override = SubResource("StandardMaterial3D_parch")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Scene"]
 environment = SubResource("Environment_kbma3")
@@ -175,6 +171,10 @@ tile_parent = NodePath("../../Scene/TileParent")
 [node name="PlayerHandler" type="Node" parent="Node" node_paths=PackedStringArray("hand") groups=["player_handler"]]
 script = ExtResource("14_wme18")
 hand = NodePath("../../Scene/UI_layer/Hand")
+
+[node name="AIController" type="Node" parent="Node"]
+script = ExtResource("18_aicontrl")
+ai_config = ExtResource("19_aiconf")
 
 [node name="BuildingManager" type="Node" parent="Node"]
 script = SubResource("GDScript_wme18")

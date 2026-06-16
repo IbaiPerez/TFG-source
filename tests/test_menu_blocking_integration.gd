@@ -291,6 +291,11 @@ func before_each():
 	input_simulator.clicks_processed = 0
 	input_simulator.scrolls_processed = 0
 
+	# Reset del estado global de Input. `Input.action_press` NO refresca el flag
+	# "just_pressed" si la acción ya estaba pulsada; liberar "Click" garantiza
+	# que el primer click de cada test se registre de forma determinista.
+	Input.action_release("Click")
+
 	# Clean UIState
 	while UIState._menu_count > 0:
 		UIState.unregister_menu()

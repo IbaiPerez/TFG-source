@@ -26,21 +26,15 @@ enum TroopType {
 
 ## Devuelve el nombre legible del tipo (para tooltips, debug, UI).
 func get_type_label() -> String:
-	match type:
-		TroopType.CABALLERIA: return "Caballería"
-		TroopType.A_DISTANCIA: return "A Distancia"
-		TroopType.INFANTERIA_LIGERA: return "Infantería Ligera"
-		TroopType.INFANTERIA_PESADA: return "Infantería Pesada"
-		TroopType.PIQUEROS: return "Piqueros"
-		_: return "?"
+	return type_label_for(type)
 
 
 ## Helper estático: devuelve la etiqueta legible de un valor del enum.
 static func type_label_for(t: int) -> String:
 	match t:
-		TroopType.CABALLERIA: return "Caballería"
-		TroopType.A_DISTANCIA: return "A Distancia"
-		TroopType.INFANTERIA_LIGERA: return "Infantería Ligera"
-		TroopType.INFANTERIA_PESADA: return "Infantería Pesada"
-		TroopType.PIQUEROS: return "Piqueros"
+		TroopType.CABALLERIA: return TranslationServer.translate("TROOP_TYPE_CABALLERIA")
+		TroopType.A_DISTANCIA: return TranslationServer.translate("TROOP_TYPE_A_DISTANCIA")
+		TroopType.INFANTERIA_LIGERA: return TranslationServer.translate("TROOP_TYPE_INFANTERIA_LIGERA")
+		TroopType.INFANTERIA_PESADA: return TranslationServer.translate("TROOP_TYPE_INFANTERIA_PESADA")
+		TroopType.PIQUEROS: return TranslationServer.translate("TROOP_TYPE_PIQUEROS")
 		_: return "?"

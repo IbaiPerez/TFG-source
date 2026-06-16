@@ -22,6 +22,11 @@ var num_runs: int = 5
 var max_rounds: int = 500   ## Limite de seguridad por run; la partida termina antes si hay ganador
 var rng_master_seed: int = 12345
 
+## AIConfig por bando para todas las runs. null → el AIController usa su default
+## (mode=MCTS). El análisis de balance heurístico debe fijarlas a HEURISTIC.
+var config_a: AIConfig = null
+var config_b: AIConfig = null
+
 
 # --- Estado ----------------------------------------------------------------
 
@@ -44,6 +49,8 @@ func run() -> void:
 		var harness := GameSimHarness.new()
 		harness.max_rounds = max_rounds
 		harness.run_id = i
+		harness.config_a = config_a
+		harness.config_b = config_b
 		# RNG independiente por run pero derivado del master, asi la
 		# misma rng_master_seed reproduce exactamente la misma serie.
 		var run_rng := RandomNumberGenerator.new()

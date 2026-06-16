@@ -23,8 +23,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Adoptar la doctrina de carga"
-	choice.description = "Recibes la carta de Carga de Caballería y se desbloquea en el pool."
+	choice.label = tr("EVT_UNLOCK_CAVALRY_CHARGE_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_CAVALRY_CHARGE_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(TACTIC_CARD),
 		AddToCardPoolEffect.new(TACTIC_CARD, 5.0, -0.1, 1.5),

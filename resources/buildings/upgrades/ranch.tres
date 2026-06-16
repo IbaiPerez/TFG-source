@@ -9,7 +9,7 @@
 
 [resource]
 script = ExtResource("5_bld")
-name = "Ranch"
+name = "BLD_RANCH_NAME"
 required_natural_resource = ExtResource("7_res")
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_5e5lo")])
 image = ExtResource("6_img")

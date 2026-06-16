@@ -15,7 +15,7 @@ const CARD_MENU_UI = preload("uid://bt76i1liwhags")
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_cancel)
-	title.text = "Elige una carta para eliminar"
+	title.text = tr("EVTCARD_PROMPT")
 
 	for card:Node in cards_container.get_children():
 		card.queue_free()

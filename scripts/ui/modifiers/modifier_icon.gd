@@ -52,13 +52,11 @@ func _on_mouse_entered() -> void:
 
 	var dur_text:String
 	if modifier.duration == -1:
-		dur_text = "[color=#8a6a1a]Permanente[/color]"
-	elif modifier.duration == 1:
-		dur_text = "[color=#5a3a12]Turnos restantes: 1[/color]"
+		dur_text = "[color=#8a6a1a]%s[/color]" % tr("MOD_PERMANENT")
 	else:
-		dur_text = "[color=#5a3a12]Turnos restantes: %d[/color]" % modifier.duration
+		dur_text = "[color=#5a3a12]%s[/color]" % (tr("MOD_TURNS_LEFT") % modifier.duration)
 
-	var text := "[b]%s[/b]\n\n%s\n\n%s" % [modifier.name, modifier.description, dur_text]
+	var text := "[b]%s[/b]\n\n%s\n\n%s" % [tr(modifier.name), tr(modifier.description), dur_text]
 	tooltip.show_tooltip(text)
 
 

@@ -66,7 +66,7 @@ func test_unlock_recruit_event_also_unlocks_cuartel_building() -> void:
 			break
 	assert_not_null(unlock_building_effect,
 		"Debe haber un UnlockBuildingEffect en la choice del evento")
-	assert_eq(unlock_building_effect.building.name, "Cuartel",
+	assert_eq(unlock_building_effect.building.name, "BLD_CUARTEL_NAME",
 		"El edificio desbloqueado debe ser el Cuartel")
 
 

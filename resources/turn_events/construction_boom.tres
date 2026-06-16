@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "construction_boom"
-title = "Boom de Construcción"
-description = "[i]Tu imperio crece sin cesar. Los maestros constructores acuden a tus tierras en busca de trabajo, trayendo consigo nuevos planos y técnicas.[/i]"
+title = "EVT_CONSTRUCTION_BOOM_TITLE"
+description = "EVT_CONSTRUCTION_BOOM_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

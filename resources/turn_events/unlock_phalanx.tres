@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_phalanx"
-title = "Doctrina de la Falange"
-description = "[i]Tus piqueros forman filas con disciplina. Tus instructores proponen una formación cerrada de lanzas y escudos: un muro humano que detiene cualquier embestida en terreno favorable.[/i]"
+title = "EVT_UNLOCK_PHALANX_TITLE"
+description = "EVT_UNLOCK_PHALANX_DESC"
 allow_skip = true
 weight = 80.0
 unique = true

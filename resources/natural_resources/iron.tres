@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_aes6y")
-name = "Iron"
+name = "RES_IRON_NAME"
 image = ExtResource("1_f04w3")
 color = Color(0.24477637, 0.2447764, 0.24477637, 1)
 biomes = Dictionary[int, float]({

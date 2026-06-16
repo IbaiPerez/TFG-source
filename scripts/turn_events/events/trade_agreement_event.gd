@@ -16,8 +16,8 @@ func _init():
 
 	# Opcion 1: invertir en el tratado
 	var invest := TurnEventChoice.new()
-	invest.label = "Firmar el tratado"
-	invest.description = "Paga oro para obtener +10% oro permanente."
+	invest.label = tr("EVT_TRADE_AGREEMENT_CH1_LABEL")
+	invest.description = tr("EVT_TRADE_AGREEMENT_CH1_DESC")
 	invest.cost = ScaledGoldCost.new(60.0, 1.0, 0.0)
 	invest.effects = [
 		ApplyModifierEffect.new(
@@ -30,8 +30,8 @@ func _init():
 
 	# Opcion 2: rechazar
 	var decline := TurnEventChoice.new()
-	decline.label = "Rechazar el tratado"
-	decline.description = "No firmas el acuerdo."
+	decline.label = tr("EVT_TRADE_AGREEMENT_CH2_LABEL")
+	decline.description = tr("EVT_TRADE_AGREEMENT_CH2_DESC")
 	decline.effects = []
 
 	choices = [invest, decline]

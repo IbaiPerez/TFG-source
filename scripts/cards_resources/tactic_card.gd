@@ -45,7 +45,7 @@ class_name TacticCard
 
 func _build_tooltip() -> String:
 	var lines: Array[String] = []
-	var title: String = tactic_name if tactic_name != "" else "Táctica"
+	var title: String = tr(tactic_name) if tactic_name != "" else tr("CARD_TACTIC_DEFAULT")
 	lines.append("[center][b][color=#4A6A8A]%s[/color][/b][/center]" % title)
 
 	# Lista los tipos afectados.
@@ -53,7 +53,7 @@ func _build_tooltip() -> String:
 		var labels: Array[String] = []
 		for t in affected_troop_types:
 			labels.append(Troop.type_label_for(t))
-		lines.append("[center][color=#5a4838]Afecta a: %s[/color][/center]" % ", ".join(labels))
+		lines.append("[center][color=#5a4838]%s[/color][/center]" % (tr("TACTIC_AFFECTS") % ", ".join(labels)))
 
 	# Bonus principales.
 	var bonus_lines: Array[String] = []
@@ -62,9 +62,9 @@ func _build_tooltip() -> String:
 	if defense_percent_per_type != 0.0:
 		bonus_lines.append("+%.0f%% DEF" % defense_percent_per_type)
 	if attack_per_troop != 0.0:
-		bonus_lines.append("+%.1f ATK plano por tropa" % attack_per_troop)
+		bonus_lines.append(tr("TACTIC_FLAT_ATK") % attack_per_troop)
 	if defense_per_troop != 0.0:
-		bonus_lines.append("+%.1f DEF plano por tropa" % defense_per_troop)
+		bonus_lines.append(tr("TACTIC_FLAT_DEF") % defense_per_troop)
 	if not bonus_lines.is_empty():
 		lines.append("[center][color=#cc3333]%s[/color][/center]" % " · ".join(bonus_lines))
 
@@ -77,7 +77,7 @@ func _build_tooltip() -> String:
 				continue
 			biome_lines.append("%s ×%.1f" % [_biome_label(biome), mod])
 		if not biome_lines.is_empty():
-			lines.append("[center][color=#3a5a3a]Bioma: %s[/color][/center]" % " · ".join(biome_lines))
+			lines.append("[center][color=#3a5a3a]%s[/color][/center]" % (tr("TACTIC_BIOME") % " · ".join(biome_lines)))
 
 	return "\n".join(lines)
 
@@ -165,12 +165,6 @@ func apply_to_front(front: BattleFront, stats: Stats) -> void:
 
 ## Etiqueta legible de un bioma para el tooltip.
 func _biome_label(biome: int) -> String:
-	match biome:
-		Tile.biome_type.Grassland: return "Pradera"
-		Tile.biome_type.Desert: return "Desierto"
-		Tile.biome_type.Tundra: return "Tundra"
-		Tile.biome_type.Forest: return "Bosque"
-		Tile.biome_type.Swamp: return "Pantano"
-		Tile.biome_type.Mountain: return "Montaña"
-		Tile.biome_type.Ocean: return "Océano"
-		_: return "?"
+	if biome < 0 or biome >= Tile.biome_type.size():
+		return "?"
+	return tr("TILE_" + Tile.biome_type.keys()[biome].to_upper())

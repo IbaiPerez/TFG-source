@@ -11,14 +11,14 @@
 [sub_resource type="Resource" id="eff_obs_cards"]
 script = ExtResource("6_eff")
 modifier_id = "observatorio_cards"
-modifier_name = "Estudio Estelar"
+modifier_name = "BLD_OBSERV_M1"
 stat_type = 6
 value = 1.0
-tooltipe_text = "+1 carta por turno"
+tooltipe_text = "EFF_CARD_PER_TURN"
 
 [resource]
 script = ExtResource("4_bld")
-name = "Observatorio"
+name = "BLD_OBSERV_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
 allowed_biomes = Array[int]([4])
 image = ExtResource("5_img")

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "trade_winds"
-title = "Vientos de Comercio"
-description = "[i]Los vientos soplan a favor de tus barcos mercantes. Las rutas comerciales florecen como nunca antes.[/i]"
+title = "EVT_TRADE_WINDS_TITLE"
+description = "EVT_TRADE_WINDS_DESC"
 allow_skip = false
 weight = 6.0
 unique = false

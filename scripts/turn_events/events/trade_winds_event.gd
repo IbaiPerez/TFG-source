@@ -15,8 +15,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Aprovechar los vientos"
-	choice.description = "Bonus temporal a la produccion de oro."
+	choice.label = tr("EVT_TRADE_WINDS_CH1_LABEL")
+	choice.description = tr("EVT_TRADE_WINDS_CH1_DESC")
 	choice.effects = [
 		ScaledStatModifierEffect.new(
 			"trade_winds_gold", "Vientos de Comercio",

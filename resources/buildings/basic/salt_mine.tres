@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("3_ccqln")
-name = "Salt Mine"
+name = "BLD_SALT_MINE_NAME"
 required_natural_resource = ExtResource("5_sgore")
 allowed_location_type = Array[ExtResource("1_fwhkv")]([ExtResource("2_i6elg")])
 image = ExtResource("4_baf2p")

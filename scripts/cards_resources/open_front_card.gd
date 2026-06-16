@@ -20,7 +20,7 @@ var chosen: Tile
 
 
 func _build_tooltip() -> String:
-	return "[center][b][color=#8B1A1A]Abre[/color][/b] un [color=#8B1A1A]frente de batalla[/color] contra una casilla [color=#8B3A2A]enemiga[/color] adyacente[/center]"
+	return tr("CARD_OPENFRONT_TOOLTIP")
 
 
 func get_valid_targets(stats: Stats) -> Array[Node]:

@@ -20,8 +20,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Acoger a los arquitectos"
-	choice.description = "Añade una carta para construir el Coliseo a tu pila de descartes."
+	choice.label = tr("EVT_UNLOCK_COLISEO_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_COLISEO_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(BUILD_COLISEO_CARD),
 		AddToCardPoolEffect.new(BUILD_COLISEO_CARD, 3.0, 0.15, 2.0),

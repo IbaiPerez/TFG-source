@@ -9,7 +9,7 @@
 
 [resource]
 script = ExtResource("5_bld")
-name = "Royal Mint"
+name = "BLD_ROYAL_MINT_NAME"
 required_natural_resource = ExtResource("7_res")
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_i7lid")])
 image = ExtResource("6_img")

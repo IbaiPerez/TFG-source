@@ -12,14 +12,14 @@
 [sub_resource type="Resource" id="eff_library_cards"]
 script = ExtResource("8_eff")
 modifier_id = "library_cards"
-modifier_name = "Erudición"
+modifier_name = "BLD_LIBRARY_M1"
 stat_type = 6
 value = 1.0
-tooltipe_text = "+1 carta por turno"
+tooltipe_text = "EFF_CARD_PER_TURN"
 
 [resource]
 script = ExtResource("5_bld")
-name = "Library"
+name = "BLD_LIBRARY_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
 image = ExtResource("6_img")
 construction_cost = 350

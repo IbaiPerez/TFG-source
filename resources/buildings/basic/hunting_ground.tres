@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("5_i4gj2")
-name = "Hunting Ground"
+name = "BLD_HUNTING_NAME"
 required_natural_resource = ExtResource("4_iemaa")
 allowed_location_type = Array[ExtResource("1_lhlsh")]([ExtResource("2_0mo6p")])
 image = ExtResource("4_0mo6p")

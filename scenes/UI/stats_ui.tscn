@@ -70,7 +70,7 @@ stretch_mode = 5
 [node name="GoldTitle" type="Label" parent="Background/MainRow/ResourcesContainer/GoldContainer"]
 layout_mode = 2
 size_flags_vertical = 4
-text = "Gold: "
+text = "STAT_GOLD_LABEL"
 
 [node name="Gold" type="Label" parent="Background/MainRow/ResourcesContainer/GoldContainer"]
 unique_name_in_owner = true
@@ -106,7 +106,7 @@ stretch_mode = 5
 [node name="FoodTitle" type="Label" parent="Background/MainRow/ResourcesContainer/FoodContainer"]
 layout_mode = 2
 size_flags_vertical = 4
-text = "Food: "
+text = "STAT_FOOD_LABEL"
 
 [node name="FoodGeneration" type="Label" parent="Background/MainRow/ResourcesContainer/FoodContainer"]
 unique_name_in_owner = true

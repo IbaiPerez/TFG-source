@@ -10,14 +10,14 @@
 [sub_resource type="Resource" id="eff_catedral_food"]
 script = ExtResource("6_eff")
 modifier_id = "gran_catedral_food"
-modifier_name = "Bendición de la Catedral"
+modifier_name = "BLD_CATEDRAL_M1"
 stat_type = 3
 value = 25.0
-tooltipe_text = "+25% producción de comida global"
+tooltipe_text = "EFF_FOOD_GLOBAL_25"
 
 [resource]
 script = ExtResource("4_bld")
-name = "Gran Catedral"
+name = "BLD_CATEDRAL_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("3_mega")])
 image = ExtResource("5_img")
 construction_cost = 500

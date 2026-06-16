@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_escuela"
-title = "Urbanistas Ilustrados"
-description = "[i]Eruditos y planificadores urbanos solicitan audiencia. Han estudiado el crecimiento de tus ciudades y proponen fundar una escuela de planificación que optimice la urbanización futura de tu imperio.[/i]"
+title = "EVT_UNLOCK_ESCUELA_TITLE"
+description = "EVT_UNLOCK_ESCUELA_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

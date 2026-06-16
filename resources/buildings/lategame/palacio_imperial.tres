@@ -10,30 +10,30 @@
 [sub_resource type="Resource" id="eff_palacio_gold"]
 script = ExtResource("5_eff")
 modifier_id = "palacio_gold"
-modifier_name = "Tesoro del Palacio"
+modifier_name = "BLD_PALACIO_M1"
 stat_type = 1
 value = 15.0
-tooltipe_text = "+15% producción de oro global"
+tooltipe_text = "EFF_GOLD_GLOBAL_15"
 
 [sub_resource type="Resource" id="eff_palacio_food"]
 script = ExtResource("5_eff")
 modifier_id = "palacio_food"
-modifier_name = "Graneros del Palacio"
+modifier_name = "BLD_PALACIO_M2"
 stat_type = 3
 value = 15.0
-tooltipe_text = "+15% producción de comida global"
+tooltipe_text = "EFF_FOOD_GLOBAL_15"
 
 [sub_resource type="Resource" id="eff_palacio_cards"]
 script = ExtResource("5_eff")
 modifier_id = "palacio_cards"
-modifier_name = "Consejo Imperial"
+modifier_name = "BLD_PALACIO_M3"
 stat_type = 6
 value = 1.0
-tooltipe_text = "+1 carta por turno"
+tooltipe_text = "EFF_CARD_PER_TURN"
 
 [resource]
 script = ExtResource("3_bld")
-name = "Palacio Imperial"
+name = "BLD_PALACIO_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_mega")])
 image = ExtResource("4_img")
 construction_cost = 800

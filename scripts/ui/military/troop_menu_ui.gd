@@ -26,7 +26,7 @@ func set_troop(value:Troop) -> void:
 	if troop == null:
 		return
 	icon.texture = troop.icon
-	name_label.text = troop.name
+	name_label.text = tr(troop.name)
 	stats_label.text = "Atk %d   Def %d" % [troop.attack, troop.defense]
 
 

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_molino"
-title = "Vientos de Pradera"
-description = "[i]Tus colonos han aprendido a dominar los vientos de las praderas. Los carpinteros proponen construir molinos para aprovechar la fuerza del viento y multiplicar la producción de grano.[/i]"
+title = "EVT_UNLOCK_MOLINO_TITLE"
+description = "EVT_UNLOCK_MOLINO_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

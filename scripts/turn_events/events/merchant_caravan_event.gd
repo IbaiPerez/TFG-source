@@ -15,7 +15,7 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Aceptar las monedas"
-	choice.description = "Recibes oro de los mercaderes."
+	choice.label = tr("EVT_MERCHANT_CARAVAN_CH1_LABEL")
+	choice.description = tr("EVT_MERCHANT_CARAVAN_CH1_DESC")
 	choice.effects = [ScaledGoldEffect.new(20.0, 0.8, 0.05)]
 	choices = [choice]

@@ -21,7 +21,7 @@ func _ready() -> void:
 	if UIState:
 		UIState.register_menu()
 	back_button.pressed.connect(_on_cancel)
-	title.text = "Select a card to recover"
+	title.text = tr("RECOVER_PROMPT")
 
 	for card:Node in cards_container.get_children():
 		card.queue_free()

@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("3_ot1s7")
-name = "Logging Camp"
+name = "BLD_LOGGING_NAME"
 required_natural_resource = ExtResource("4_c7fj6")
 allowed_location_type = Array[ExtResource("1_ivlo4")]([ExtResource("2_ot1s7")])
 image = ExtResource("img_icon")

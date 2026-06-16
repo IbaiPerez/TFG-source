@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("3_yi1ie")
-name = "Port"
+name = "BLD_PORT_NAME"
 allowed_location_type = Array[ExtResource("1_62yht")]([ExtResource("2_wywg4"), ExtResource("3_htdhu")])
 allowed_biomes = Array[int]([5])
 image = ExtResource("5_6vu6y")

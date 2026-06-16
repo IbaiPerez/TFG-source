@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "cattle_fair"
-title = "Feria de Ganado"
-description = "[i]Ganaderos de tierras lejanas organizan una gran feria. Puedes vender parte de tu ganado a buen precio.[/i]"
+title = "EVT_CATTLE_FAIR_TITLE"
+description = "EVT_CATTLE_FAIR_DESC"
 allow_skip = false
 weight = 5.0
 unique = false

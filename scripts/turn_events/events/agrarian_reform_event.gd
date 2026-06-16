@@ -16,8 +16,8 @@ func _init():
 
 	# Opcion 1: implementar la reforma
 	var reform := TurnEventChoice.new()
-	reform.label = "Implementar la reforma"
-	reform.description = "Pierdes oro pero ganas comida durante 4 turnos."
+	reform.label = tr("EVT_AGRARIAN_CH1_LABEL")
+	reform.description = tr("EVT_AGRARIAN_CH1_DESC")
 	reform.effects = [
 		ScaledStatModifierEffect.new(
 			"agrarian_reform_gold", "Reforma Agraria",
@@ -33,8 +33,8 @@ func _init():
 
 	# Opcion 2: rechazar
 	var decline := TurnEventChoice.new()
-	decline.label = "Mantener el orden actual"
-	decline.description = "No implementas la reforma."
+	decline.label = tr("EVT_AGRARIAN_CH2_LABEL")
+	decline.description = tr("EVT_AGRARIAN_CH2_DESC")
 	decline.effects = []
 
 	choices = [reform, decline]

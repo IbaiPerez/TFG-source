@@ -88,7 +88,7 @@ func _create_empire_card(empire: Empire) -> PanelContainer:
 
 	# Select button
 	var select_btn := Button.new()
-	select_btn.text = "Select"
+	select_btn.text = "UI_SELECT"
 	select_btn.pressed.connect(_on_empire_selected.bind(empire))
 	vbox.add_child(select_btn)
 	_select_buttons.append(select_btn)

@@ -20,8 +20,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Erigir un templo"
-	choice.description = "Recibes una carta de un solo uso para construir un Temple."
+	choice.label = tr("EVT_UNLOCK_TEMPLE_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_TEMPLE_CH1_DESC")
 	choice.effects = [
 		AddCardEffect.new(BUILD_TEMPLE_CARD),
 		AddToCardPoolEffect.new(BUILD_TEMPLE_CARD, 3.0, 0.15, 2.0),

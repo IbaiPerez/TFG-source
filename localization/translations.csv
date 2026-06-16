@@ -1,0 +1,472 @@
+keys,en,es
+MENU_SUBTITLE,A Strategy Card Game,Un juego de cartas de estrategia
+MENU_PLAY,Play,Jugar
+MENU_LOAD,Load,Cargar
+MENU_OPTIONS,Options,Opciones
+MENU_TUTORIAL,Tutorial,Tutorial
+MENU_EXIT,Exit,Salir
+OPT_TITLE,OPTIONS,OPCIONES
+OPT_LANGUAGE,Language,Idioma
+OPT_FULLSCREEN_ON,Fullscreen: ON,Pantalla completa: SÍ
+OPT_FULLSCREEN_OFF,Fullscreen: OFF,Pantalla completa: NO
+UI_BACK,Back,Volver
+UI_SELECT,Select,Seleccionar
+UI_CANCEL,Cancel,Cancelar
+UI_CLOSE,Close,Cerrar
+UI_END_TURN,End turn,Terminar turno
+UI_DEMOLISH,Demolish,Demoler
+EMPSEL_TITLE,Choose Your Empire,Elige tu imperio
+STAT_GOLD_LABEL,"Gold: ","Oro: "
+STAT_FOOD_LABEL,"Food: ","Comida: "
+AILOG_TITLE,AI Log,Registro IA
+MAPMODE_TITLE,Map Modes,Modos de mapa
+MAPMODE_POLITICAL,Political,Político
+MAPMODE_BIOMES,Biomes,Biomas
+MAPMODE_RESOURCES,Natural Resources,Recursos naturales
+MAPMODE_LOCATION,Location Type,Tipo de localización
+GEN_TITLE,⚙️ GENERATION SETTINGS,⚙️ AJUSTES DE GENERACIÓN
+GEN_MODE,Generation:,Generación:
+GEN_SEED,"Seed: ","Semilla: "
+GEN_RADIUS,"World Radius: ","Radio del mundo: "
+GEN_SHAPE,"Map shape: ","Forma del mapa: "
+GEN_SHAPE_HEX,Hexagon,Hexágono
+GEN_SHAPE_RECT,Rectangular,Rectangular
+GEN_SHAPE_DIAMOND,Diamond,Rombo
+GEN_SHAPE_CIRCLE,Circle,Círculo
+GEN_BIOMES,"Biomes: ","Biomas: "
+GEN_BUFFER,"Buffer: ","Margen: "
+GEN_BUFFER_OUTER,Outer Buffer,Margen exterior
+GEN_BUFFER_INNER,Inner Buffer,Margen interior
+GEN_GENERATE,Generate Map,Generar mapa
+TILE_GRASSLAND,Grassland,Pradera
+TILE_FOREST,Forest,Bosque
+TILE_DESERT,Desert,Desierto
+TILE_SWAMP,Swamp,Pantano
+TILE_TUNDRA,Tundra,Tundra
+TILE_OCEAN,Ocean,Océano
+TILE_MOUNTAIN,Mountain,Montaña
+RIVAL_CARDS_PER_TURN,Cards/turn:,Cartas/turno:
+RIVAL_DECK,Deck:,Mazo:
+BUILDINGS_TITLE,Buildings,Edificios
+CARDPILE_DISCARD_TITLE,Discard Pile,Pila de descarte
+CARDPILE_EMPTY,No cards,No hay cartas
+SHOP_BUY,Buy,Comprar
+SHOP_PURGE_TAB,Purge deck,Purgar mazo
+SHOP_CLOSE,Close shop,Cerrar tienda
+MODIFIERS_TITLE,Modifiers,Modificadores
+TILE_DEMOLISH_CONFIRM,Demolish building? This action cannot be undone.,¿Demoler edificio? Esta acción no se puede deshacer.
+TOOLTIP_DEMOLISH_BUILDING,Demolish building,Demoler edificio
+BLDCARD_COST,"Construction cost: ","Coste de construcción: "
+BLDCARD_LOCATIONS,"Allowed locations: ","Localizaciones permitidas: "
+BLDCARD_BIOMES,"Allowed biomes: ","Biomas permitidos: "
+TROOPPOOL_TITLE,Recruited troops,Tropas reclutadas
+TROOPPOOL_EMPTY,You have no recruited troops yet.,No tienes tropas reclutadas todavía.
+EVTCARD_PROMPT,Choose a card to remove,Elige una carta para eliminar
+BATTLE_ATTACKER,Attacker,Atacante
+BATTLE_DEFENDER,Defender,Defensor
+BATTLE_ASSIGN_TROOPS,Assign Troops,Asignar Tropas
+RECOVER_PROMPT,Select a card to recover,Selecciona una carta para recuperar
+UI_ASSIGN,Assign,Asignar
+UI_REMOVE,Remove,Eliminar
+UI_SAVE,Save,Guardar
+UI_LOAD,Load,Cargar
+UI_DELETE,Delete,Borrar
+FMT_GOLD,%d gold,%d oro
+FMT_PER_TURN,%d/turn,%d/turno
+FMT_MAINTENANCE,Upkeep: %d gold · %d food,Mant: %d oro · %d comida
+GENERIC_RIVAL,Rival,Rival
+GENERIC_BUILDING,building,edificio
+GENERIC_TROOP,troop,tropa
+GENERIC_CARD,card,carta
+TILE_NO_RESOURCE,No resource,Sin recurso
+TILE_NO_CONTROLLER,No controller,Sin controlador
+TILE_DEMOLISH_CONFIRM_NAMED,Demolish %s? This action cannot be undone.,¿Demoler %s? Esta acción no se puede deshacer.
+LOC_UNCOLONIZED,Uncolonized,Sin colonizar
+LOC_VILLAGE,Village,Aldea
+LOC_TOWN,Town,Ciudad
+LOC_MEGALOPOLIS,Megalopolis,Megalópolis
+BATTLE_MARKER,Score: %s%.1f / %.1f,Marcador: %s%.1f / %.1f
+BATTLE_TURNS,Turn %d (min. %d remaining),Turno %d (mín. %d restantes)
+BATTLE_TROOPS_LINE,Troops: %d ATK · %d DEF,Tropas: %d ATK · %d DEF
+BATTLE_EFFECTIVENESS_LINE,Effectiveness: ×%.2f (%.1f effective),Efectividad: ×%.2f (%.1f efectivo)
+BATTLE_PRESSURE_LINE,Pressure: %.2f,Presión: %.2f
+BATTLE_MAINTENANCE_LINE,Upkeep: -%d gold · -%d food,Mant.: -%d oro · -%d comida
+BATTLE_ACTIVE_TACTICS,Active tactics:,Tácticas activas:
+BATTLE_NO_TROOPS,No troops,Sin tropas
+BATTLE_NO_EFFECT,(no effect),(sin efecto)
+BATTLE_ASSIGN_TITLE,Assign Troops to the Front,Asignar Tropas al Frente
+ASSIGN_FRONT_TROOPS,Troops at the front: %d,Tropas en el frente: %d
+ASSIGN_RESERVE_TROOPS,Troops in reserve: %d,Tropas en reserva: %d
+ASSIGN_NO_TROOPS,No troops available in the reserve,No hay tropas disponibles en la reserva
+TROOP_TYPE_CABALLERIA,Cavalry,Caballería
+TROOP_TYPE_A_DISTANCIA,Ranged,A Distancia
+TROOP_TYPE_INFANTERIA_LIGERA,Light Infantry,Infantería Ligera
+TROOP_TYPE_INFANTERIA_PESADA,Heavy Infantry,Infantería Pesada
+TROOP_TYPE_PIQUEROS,Pikemen,Piqueros
+MOD_PERMANENT,Permanent,Permanente
+MOD_TURNS_LEFT,Turns left: %d,Turnos restantes: %d
+LOADING_TITLE,Generating map...,Generando mapa...
+LOADING_SUBTITLE,Please wait...,"Por favor, espera..."
+LOADING_SEED,Seed: %d,Semilla: %d
+RIVAL_TILES,%d tiles,%d casillas
+RIVAL_DECK_CARDS,%d cards,%d cartas
+SHOP_STOCK,Stock: %d,Stock: %d
+SHOP_PURGE_COST,Purge cost: %d gold,Coste de purga: %d oro
+SHOP_PURGE_COST_USES,Purge cost: %d gold (%d uses left),Coste de purga: %d oro (%d usos restantes)
+SHOP_SOLD_OUT,Sold out,Agotado
+MAPMODE_POLITICAL_TIP,Political Mode: shows each empire's territorial control,Modo Político: muestra el control territorial de cada imperio
+MAPMODE_BIOMES_TIP,Biomes Mode: shows the terrain type of each tile,Modo Biomas: muestra el tipo de terreno de cada tile
+MAPMODE_RESOURCES_TIP,Resources Mode: shows the map's natural resources,Modo Recursos: muestra los recursos naturales del mapa
+MAPMODE_LOCATION_TIP,Locations Mode: shows each tile's location type,Modo Localizaciones: muestra el tipo de cada ubicación
+CARDPILE_DRAW_TITLE,Draw Pile,Pila de robo
+CARDPILE_PLAYED_TITLE,Played Cards,Cartas jugadas
+AILOG_AT," at %s"," en %s"
+AILOG_AT_COORDS," at (%d, %d)"," en (%d, %d)"
+AILOG_BUILDS,builds %s,construye %s
+AILOG_UPGRADES,upgrades to %s,mejora a %s
+AILOG_RECRUITS,recruits %s,recluta %s
+AILOG_RECOVERS,recovers %s,recupera %s
+AILOG_PLAYS,plays %s,juega %s
+RECRUIT_TITLE,Recruit Troop,Reclutar Tropa
+MATCHUP_STRONG,Strong vs: %s,Fuerte vs: %s
+MATCHUP_WEAK,Weak vs: %s,Débil vs: %s
+OPENFRONT_TITLE,Open battle front,Abrir frente de batalla
+OPENFRONT_INSTRUCTION,Select the tile to attack from,Selecciona la casilla desde la que atacar
+OPENFRONT_CANCEL_HINT,Right click: cancel,Clic derecho: cancelar
+SAVE_TITLE_LOAD,Load game,Cargar partida
+SAVE_TITLE_FULL,Save / Load,Guardar / Cargar
+SAVE_SLOT_LABEL,Slot:,Ranura:
+SAVE_SLOT_PLACEHOLDER,slot name,nombre del slot
+CARD_TACTIC_DEFAULT,Tactic,Táctica
+TACTIC_AFFECTS,Affects: %s,Afecta a: %s
+TACTIC_FLAT_ATK,+%.1f flat ATK per troop,+%.1f ATK plano por tropa
+TACTIC_FLAT_DEF,+%.1f flat DEF per troop,+%.1f DEF plano por tropa
+TACTIC_BIOME,Biome: %s,Bioma: %s
+CARD_BUILD_TOOLTIP,[center][b][color=#5B7A3A]Build[/color][/b] a [color=#4A6A8A]building[/color] on a controlled tile[/center],[center][b][color=#5B7A3A]Construye[/color][/b] un [color=#4A6A8A]edificio[/color] en una casilla controlada[/center]
+CARD_COLONIZE_TOOLTIP,[center][b][color=#5B7A3A]Colonize[/color][/b] a [color=#4A6A8A]tile[/color] [shake rate=20 level=5][color=#8B3A2A]adjacent[/color][/shake] to one controlled by your [b][color=#5B7A3A]empire[/color][/b][/center],[center][b][color=#5B7A3A]Coloniza[/color][/b] una [color=#4A6A8A]casilla[/color] [shake rate=20 level=5][color=#8B3A2A]adyacente[/color][/shake] a una controlada por tu [b][color=#5B7A3A]imperio[/color][/b][/center]
+CARD_DIRECTBUILD_TOOLTIP_GENERIC,[center][b][color=#5B7A3A]Build[/color][/b] a [color=#4A6A8A]building[/color] directly[/center],[center][b][color=#5B7A3A]Construye[/color][/b] un [color=#4A6A8A]edificio[/color] directamente[/center]
+CARD_DIRECTBUILD_TOOLTIP,[center][b][color=#5B7A3A]Build[/color][/b] [color=#4A6A8A]%s[/color][/center],[center][b][color=#5B7A3A]Construye[/color][/b] [color=#4A6A8A]%s[/color][/center]
+CARD_UPGRADE_TOOLTIP,[center][b][color=#5B7A3A]Upgrade[/color][/b] an existing [color=#4A6A8A]building[/color][/center],[center][b][color=#5B7A3A]Mejora[/color][/b] un [color=#4A6A8A]edificio[/color] existente[/center]
+CARD_GENGOLD_TOOLTIP,[center][b][color=#8A6A1A]Generate %d[/color][/b] [color=#8A6A1A]gold[/color][/center],[center][b][color=#8A6A1A]Genera %d[/color][/b] de [color=#8A6A1A]oro[/color][/center]
+CARD_RECRUIT_TOOLTIP,[center][b][color=#8B1A1A]Recruit[/color][/b] a [color=#4A6A8A]troop[/color] for your army[/center],[center][b][color=#8B1A1A]Recluta[/color][/b] una [color=#4A6A8A]tropa[/color] para tu ejército[/center]
+CARD_OPENFRONT_TOOLTIP,[center][b][color=#8B1A1A]Open[/color][/b] a [color=#8B1A1A]battle front[/color] against an adjacent [color=#8B3A2A]enemy[/color] tile[/center],[center][b][color=#8B1A1A]Abre[/color][/b] un [color=#8B1A1A]frente de batalla[/color] contra una casilla [color=#8B3A2A]enemiga[/color] adyacente[/center]
+CARD_RECOVER_TOOLTIP,[center][b][color=#5B7A3A]Recover[/color][/b] a played [color=#4A6A8A]single-use card[/color] and return it to your hand[/center],[center][b][color=#5B7A3A]Recupera[/color][/b] una [color=#4A6A8A]carta de un solo uso[/color] jugada y devuelvela a tu mano[/center]
+CARD_URBANIZE_TOOLTIP,[center][b][color=#5B7A3A]Urbanize[/color][/b] a tile to [color=#4A6A8A]%s[/color][/center],[center][b][color=#5B7A3A]Urbaniza[/color][/b] una casilla a [color=#4A6A8A]%s[/color][/center]
+CARD_DRAW_TOOLTIP_ONE,[center][b][color=#5B7A3A]Draw[/color][/b] an extra [color=#4A6A8A]card[/color][/center],[center][b][color=#5B7A3A]Roba[/color][/b] una [color=#4A6A8A]carta[/color] extra[/center]
+CARD_DRAW_TOOLTIP_N,[center][b][color=#5B7A3A]Draw %d[/color][/b] extra [color=#4A6A8A]cards[/color][/center],[center][b][color=#5B7A3A]Roba %d[/color][/b] [color=#4A6A8A]cartas[/color] extra[/center]
+EFF_CARD_PER_TURN,+1 card per turn,+1 carta por turno
+EFF_GOLD_GLOBAL_20,+20% global gold production,+20% producción de oro global
+EFF_GOLD_GLOBAL_15,+15% global gold production,+15% producción de oro global
+EFF_FOOD_GLOBAL_25,+25% global food production,+25% producción de comida global
+EFF_FOOD_GLOBAL_15,+15% global food production,+15% producción de comida global
+EFF_FOOD_GLOBAL_10,+10% global food production,+10% producción de comida global
+EFF_BUILD_COST_20,-20% global construction cost,-20% coste de construcción global
+BLD_CARAVANA_NAME,Trade Caravan,Caravana Comercial
+BLD_FORTALEZA_NAME,Fortress,Fortaleza
+BLD_ANFITEATRO_NAME,Amphitheater,Anfiteatro
+BLD_ANFITEATRO_M1,Popular Culture,Cultura Popular
+BLD_WAREHOUSE_NAME,Warehouse,Almacén
+BLD_ZIGGURAT_NAME,Ziggurat,Zigurat
+BLD_HUERTOS_NAME,Urban Gardens,Huertos Urbanos
+BLD_GREMIO_NAME,Merchants' Guild,Gremio de Mercaderes
+BLD_MARKET_NAME,Market Square,Plaza del Mercado
+BLD_GRANJA_SANG_NAME,Leech Farm,Granja de Sanguijuelas
+BLD_SAND_PIT_NAME,Sand Pit,Foso de Arena
+BLD_LIBRARY_NAME,Library,Biblioteca
+BLD_LIBRARY_M1,Scholarship,Erudición
+BLD_TESORO_NAME,Imperial Treasury,Tesoro Imperial
+BLD_TESORO_M1,Treasury Coffers,Arcas del Tesoro
+BLD_COLISEO_NAME,Colosseum,Coliseo
+BLD_COLISEO_M1,Colosseum Efficiency,Eficiencia del Coliseo
+BLD_BANK_NAME,Bank,Banco
+BLD_PORT_NAME,Port,Puerto
+BLD_PALACIO_NAME,Imperial Palace,Palacio Imperial
+BLD_PALACIO_M1,Palace Treasury,Tesoro del Palacio
+BLD_PALACIO_M2,Palace Granaries,Graneros del Palacio
+BLD_PALACIO_M3,Imperial Council,Consejo Imperial
+BLD_CATEDRAL_NAME,Great Cathedral,Gran Catedral
+BLD_CATEDRAL_M1,Cathedral Blessing,Bendición de la Catedral
+BLD_OFICINA_NAME,Construction Office,Oficina de Construcción
+BLD_OFICINA_T1,+15 gold when playing Build,+15 oro al jugar Build Card
+BLD_OFICINA_T2,+15 gold when playing Upgrade Building,+15 oro al jugar Upgrade Building Card
+BLD_SALT_MINE_NAME,Salt Mine,Mina de Sal
+BLD_ACADEMIA_NAME,Military Academy,Academia Militar
+BLD_ACADEMIA_M1,Military Academy: Extra Recruitment,Academia Militar: Reclutamiento extra
+BLD_ACADEMIA_T1,+1 additional troop per Recruit use (stacks with the base Barracks),+1 tropa adicional por cada uso de Reclutar (acumula con el Cuartel base)
+BLD_ACADEMIA_M2,Military Academy: Efficient Upkeep,Academia Militar: Mantenimiento eficiente
+BLD_ACADEMIA_T2,-20% to base troop upkeep,-20% al mantenimiento base de tropas
+BLD_ACADEMIA_T3,"When upgrading the FIRST building to Military Academy, adds a Recruit card to the discard pile","Al mejorar al PRIMER edificio a Academia Militar, añade una carta de Reclutar al descarte"
+BLD_HUNTING_NAME,Hunting Ground,Zona de Caza
+BLD_PUERTOCOM_NAME,Trade Port,Puerto Comercial
+BLD_PUERTOCOM_M1,Sea Routes,Rutas Marítimas
+BLD_CUARTEL_NAME,Barracks,Cuartel
+BLD_CUARTEL_M1,Barracks: Extra Recruitment,Cuartel: Reclutamiento extra
+BLD_CUARTEL_T1,+1 troop per Recruit use,+1 tropa por cada uso de Reclutar
+BLD_CUARTEL_T2,"When building the FIRST Barracks, adds a Recruit card to the discard pile","Al construir el PRIMER Cuartel, añade una carta de Reclutar al descarte"
+BLD_GRANBIBL_NAME,Great Library,Gran Biblioteca
+BLD_GRANBIBL_M1,Ancient Wisdom,Sabiduría Antigua
+BLD_GRANBIBL_M2,Arcane Knowledge,Conocimiento Arcano
+BLD_GRANBIBL_T2,+1 extra card when drawing,+1 carta extra al robar
+BLD_CROPS_NAME,Crops,Cultivos
+BLD_OBSERV_NAME,Observatory,Observatorio
+BLD_OBSERV_M1,Stellar Study,Estudio Estelar
+BLD_FISHERY_NAME,Fishery,Pesquería
+BLD_QUARRY_NAME,Quarry,Cantera
+BLD_ESCUELA_NAME,Planning School,Escuela de Planificación
+BLD_ESCUELA_T1,+20 gold when playing Urban Project,+20 oro al jugar Urban Project
+BLD_GOLD_MINE_NAME,Gold Mine,Mina de Oro
+BLD_JARDINES_NAME,Celestial Gardens,Jardines Celestiales
+BLD_JARDINES_M1,Divine Fertility,Fertilidad Divina
+BLD_LIVESTOCK_NAME,Livestock Farm,Granja de Ganado
+BLD_IRON_MINE_NAME,Iron Mine,Mina de Hierro
+BLD_MOLINO_NAME,Mill,Molino
+BLD_LOGGING_NAME,Logging Camp,Campamento Forestal
+BLD_FISH_MARKET_NAME,Fish Market,Mercado de Pescado
+BLD_GLASSWORKS_NAME,Glassworks,Vidriera
+BLD_FISHING_PORT_NAME,Fishing Port,Puerto Pesquero
+BLD_FORGE_NAME,Forge,Herrería
+BLD_SANTUARIO_NAME,Forest Sanctuary,Santuario del Bosque
+BLD_GRANARY_NAME,Granary,Granero
+BLD_RANCH_NAME,Ranch,Rancho
+BLD_TEMPLE_NAME,Temple,Templo
+BLD_TEMPLE_M1,Sacred Blessing,Bendición Sagrada
+BLD_ROYAL_MINT_NAME,Royal Mint,Casa de la Moneda
+BLD_SALT_REF_NAME,Salt Refinery,Refinería de Sal
+BLD_SAWMILL_NAME,Sawmill,Serrería
+BLD_STONECUTTER_NAME,Stonecutter Workshop,Taller de Cantería
+BLD_TANNERY_NAME,Tannery,Tenería
+EMP_MONGOL_NAME,Mongol Empire,Imperio Mongol
+EMP_BABYLON_NAME,Babylon,Babilonia
+EMP_MEDICI_NAME,Medici,Medici
+ABIL_MEDICI_NAME,Florentine Bank,Banca Fiorentina
+ABIL_MEDICI_DESC,"The power of money opens every door. Your gold production increases by 15% and the construction cost of all buildings is reduced by 20%. Also, you can build the Bank, an exclusive building with high gold production.","El poder del dinero abre todas las puertas. Tu produccion de oro aumenta un 15% y el coste de construccion de todos los edificios se reduce un 20%. Ademas, puedes construir el Banco, un edificio exclusivo con alta produccion de oro."
+ABIL_BABYLON_NAME,Hanging Gardens,Jardines Colgantes
+ABIL_BABYLON_DESC,"The fertility and trade of Mesopotamia make your civilization prosper. Wheat tiles produce +2 additional food, each time you play a Build card you receive +3 gold, and your global gold production increases by 10% thanks to the Trade Routes of Mesopotamia. Also, you can build the Ziggurat, a balanced exclusive building.","La fertilidad y el comercio de Mesopotamia hacen prosperar tu civilizacion. Las casillas con Trigo producen +2 comida adicional, cada vez que juegas una carta de Construccion recibes +3 oro, y tu produccion de oro global aumenta un 10% gracias a las Rutas Comerciales de Mesopotamia. Ademas, puedes construir el Zigurat, un edificio exclusivo equilibrado."
+ABIL_MONGOL_NAME,Nomad Horde,Horda Nómada
+ABIL_MONGOL_DESC,"The nomadic spirit of the steppes drives your expansion. Your Livestock tiles produce +1 additional food and each time you play Colonize there is a 30% chance it returns to your hand. Also, your cavalry costs 25% less to maintain.","El espiritu nomada de las estepas impulsa tu expansion. Tus casillas con Ganado producen +1 comida adicional y cada vez que juegas Colonizar hay un 30% de probabilidad de que vuelva a tu mano. Ademas, tu caballeria cuesta un 25% menos de mantener."
+TROOP_CAVALRY_NAME,Cavalry,Caballería
+TROOP_HEAVY_NAME,Heavy Infantry,Infantería Pesada
+TROOP_MILITIA_NAME,Militia,Milicia
+TROOP_PIKEMEN_NAME,Pikemen,Piqueros
+TROOP_RANGED_NAME,Ranged,Tiradores
+RES_WOOD_NAME,Wood,Madera
+RES_SALT_NAME,Salt,Sal
+RES_GOLD_NAME,Gold,Oro
+RES_IRON_NAME,Iron,Hierro
+RES_WILD_GAME_NAME,Wild Game,Caza Mayor
+RES_FISH_NAME,Fish,Pesca
+RES_STONE_NAME,Stone,Piedra
+RES_WHEAT_NAME,Wheat,Trigo
+RES_LIVESTOCK_NAME,Livestock,Ganado
+RES_SAND_NAME,Sand,Arena
+TACTIC_ARROW_RAIN_NAME,Arrow Rain,Lluvia de Flechas
+TACTIC_PHALANX_NAME,Pike and Shield Wall,Muro de Lanzas y Escudos
+TACTIC_AMBUSH_NAME,Ambush,Emboscada
+TACTIC_FRONTAL_NAME,Frontal Assault,Asalto Frontal
+TACTIC_CAVALRY_CHARGE_NAME,Cavalry Charge,Carga de Caballería
+CARD_BUILD_LIBRARY_TIP,Build a Library (+1 card per turn),Construye una Library (+1 carta por turno)
+CARD_BUILD_TEMPLE_TIP,Build a Temple (+10% global food),Construye un Temple (+10% comida global)
+CARD_BUILD_COLISEO_TIP,Build a Colosseum (-20% global construction cost),Construye un Coliseo (-20% coste construcción global)
+CARD_BUILD_ESCUELA_TIP,Build a Planning School (+20 gold when urbanizing),Construye una Escuela de Planificación (+20 oro al urbanizar)
+CARD_BUILD_OFICINA_TIP,Build a Construction Office (+15 gold when building or upgrading),Construye una Oficina de Construcción (+15 oro al construir o mejorar)
+CARD_BUILD_PALACIO_TIP,"Build the Imperial Palace (+15% gold, +15% food, +1 card/turn)","Construye el Palacio Imperial (+15% oro, +15% comida, +1 carta/turno)"
+EVT_AGRARIAN_TITLE,Agrarian Reform,Reforma Agraria
+EVT_AGRARIAN_DESC,"[i]The peasants clamor for a redistribution of land. Investing in agriculture could feed your people, but at the cost of the treasury.[/i]","[i]Los campesinos claman por una redistribución de tierras. Invertir en agricultura podría alimentar a tu pueblo, pero a costa de las arcas.[/i]"
+EVT_BASIC_SHOP_TITLE,Local Market,Mercado Local
+EVT_BASIC_SHOP_DESC,"[i]A lively market sets up near your domains. The merchants offer supplies in exchange for gold.[/i]","[i]Un animado mercado se instala cerca de tus dominios. Los comerciantes ofrecen suministros a cambio de oro.[/i]"
+EVT_BAD_HARVEST_TITLE,Bad Harvest,Mala Cosecha
+EVT_BAD_HARVEST_DESC,"[i]Late frosts have damaged the crops. Your fields produce far less than expected this year.[/i]","[i]Las heladas tardías han dañado los cultivos. Tus campos producen mucho menos de lo esperado este año.[/i]"
+EVT_ABUNDANT_TITLE,Abundant Harvest,Cosecha Abundante
+EVT_ABUNDANT_DESC,"[i]The rains have been generous this year. Your fields overflow with grain and fruit, more than anyone expected.[/i]","[i]Las lluvias han sido generosas este año. Tus campos rebosan de grano y fruta, más de lo que nadie esperaba.[/i]"
+EVT_BANDITS_TITLE,Bandits on the Roads,Bandidos en los Caminos
+EVT_BANDITS_DESC,"[i]Bands of bandits have taken over the roads connecting your provinces. Trade and travelers are in danger.[/i]","[i]Grupos de bandidos han tomado los caminos que conectan tus provincias. El comercio y los viajeros están en peligro.[/i]"
+EVT_CARD_OFFERING_TITLE,Card Offering,Ofrenda de Cartas
+EVT_CARD_OFFERING_DESC,"[i]A messenger arrives with news from distant lands. He carries a scroll with new tactics and strategies that could be useful to you.[/i]","[i]Un mensajero llega con noticias de tierras lejanas. Trae consigo un pergamino con nuevas tácticas y estrategias que podrían serte útiles.[/i]"
+EVT_CATTLE_FAIR_TITLE,Cattle Fair,Feria de Ganado
+EVT_CATTLE_FAIR_DESC,"[i]Ranchers from distant lands organize a great fair. You can sell part of your livestock at a good price.[/i]","[i]Ganaderos de tierras lejanas organizan una gran feria. Puedes vender parte de tu ganado a buen precio.[/i]"
+EVT_DECK_PURGE_TITLE,Deck Purge,Depuración del Mazo
+EVT_DECK_PURGE_DESC,"[i]A traveling archivist visits your court and offers to review your strategies. He can help you discard the least useful plans to make your deck more efficient.[/i]","[i]Un archivero itinerante visita tu corte y se ofrece a revisar tus estrategias. Puede ayudarte a descartar los planes menos útiles para que tu mazo sea más eficiente.[/i]"
+EVT_CONSTRUCTION_BOOM_TITLE,Construction Boom,Boom de Construcción
+EVT_CONSTRUCTION_BOOM_DESC,"[i]Your empire grows endlessly. Master builders flock to your lands seeking work, bringing new blueprints and techniques.[/i]","[i]Tu imperio crece sin cesar. Los maestros constructores acuden a tus tierras en busca de trabajo, trayendo consigo nuevos planos y técnicas.[/i]"
+EVT_LOCUST_TITLE,Locust Plague,Plaga de Langostas
+EVT_LOCUST_DESC,"[i]A dark cloud looms over your lands. Thousands of locusts devour everything in their path, leaving the fields barren.[/i]","[i]Una nube oscura se cierne sobre tus tierras. Miles de langostas devoran todo a su paso, dejando los campos yermos.[/i]"
+EVT_MATERIAL_CRISIS_TITLE,Material Crisis,Crisis de Materiales
+EVT_MATERIAL_CRISIS_DESC,"[i]Supplies of stone and wood have run out in the region. Construction prices skyrocket.[/i]","[i]Los suministros de piedra y madera se han agotado en la región. Los precios de construcción se disparan.[/i]"
+EVT_DROUGHT_TITLE,Drought,Sequía
+EVT_DROUGHT_DESC,"[i]The sun punishes without mercy. Rivers dry up, wells run out and the earth cracks beneath an implacable sky.[/i]","[i]El sol castiga sin piedad. Los ríos se secan, los pozos se agotan y la tierra se agrieta bajo un cielo implacable.[/i]"
+EVT_MERCHANT_CARAVAN_TITLE,Merchant Caravan,Caravana Mercante
+EVT_MERCHANT_CARAVAN_DESC,"[i]A caravan of foreign merchants arrives in your lands. They bring gold coins and a desire to trade.[/i]","[i]Una caravana de mercaderes extranjeros llega a tus tierras. Traen consigo monedas de oro y deseos de comerciar.[/i]"
+EVT_MEGALOPOLIS_TITLE,Founding a Megalopolis,Fundación de Megalópolis
+EVT_MEGALOPOLIS_DESC,"[i]Your civilization has reached an unprecedented level of development. The most prosperous cities buzz with activity and their inhabitants dream of something greater: a metropolis that is the center of the known world, a beacon of power and culture that eclipses all others.[/i]","[i]Tu civilización ha alcanzado un nivel de desarrollo sin precedentes. Las ciudades más prósperas bullen de actividad y sus habitantes sueñan con algo más grande: una metrópolis que sea el centro del mundo conocido, un faro de poder y cultura que eclipse a todas las demás.[/i]"
+EVT_MERCENARIES_TITLE,Mercenaries,Mercenarios
+EVT_MERCENARIES_DESC,"[i]A group of soldiers of fortune is looking for work. For the right price, they could expand your borders.[/i]","[i]Un grupo de soldados de fortuna busca empleo. Por el precio adecuado, podrían expandir tus fronteras.[/i]"
+EVT_SPIRIT_BENDICION_TITLE,Blessing of Nature,Bendición de la Naturaleza
+EVT_SPIRIT_BENDICION_DESC,"[i]The forest leaves shine with an emerald light. The Sanctuary spirits channel the energy of the land toward your croplands, blessing the harvests with supernatural fertility.[/i]","[i]Las hojas del bosque brillan con una luz esmeralda. Los espíritus del Santuario canalizan la energía de la tierra hacia tus campos de cultivo, bendiciendo las cosechas con una fertilidad sobrenatural.[/i]"
+EVT_SPECIAL_SHOP_TITLE,Exotic Bazaar,Bazar Exótico
+EVT_SPECIAL_SHOP_DESC,"[i]A mysterious merchant has set up shop on the outskirts. His wares are rare and powerful, but their price is steep.[/i]","[i]Un misterioso mercader ha desplegado su tienda en las afueras. Sus mercancías son raras y poderosas, pero su precio es elevado.[/i]"
+EVT_SPIRIT_OFRENDA_TITLE,Forest Offering,Ofrenda del Bosque
+EVT_SPIRIT_OFRENDA_DESC,"[i]At dawn, the settlers find baskets of wild berries, mushrooms and honey laid before the Sanctuary. The forest spirits share their abundance with those who respect the sacred grove.[/i]","[i]Al amanecer, los colonos encuentran cestas de frutos silvestres, setas y miel depositadas ante el Santuario. Los espíritus del bosque comparten su abundancia con quienes respetan la arboleda sagrada.[/i]"
+EVT_SPIRIT_RAICES_TITLE,Protective Roots,Raíces Protectoras
+EVT_SPIRIT_RAICES_DESC,"[i]The roots of the sacred forest spread underground, reaching the foundations of your buildings. The spirits strengthen the structures from below, reducing the cost of materials needed to build.[/i]","[i]Las raíces del bosque sagrado se extienden bajo tierra, alcanzando los cimientos de tus construcciones. Los espíritus fortalecen las estructuras desde abajo, reduciendo el coste de materiales necesarios para edificar.[/i]"
+EVT_SPIRIT_PACTO_TITLE,Pact with the Forest,Pacto con el Bosque
+EVT_SPIRIT_PACTO_DESC,"[i]The Sanctuary spirits propose an ancestral pact: they will extend the forest roots beyond your borders, claiming virgin territory for your empire. In exchange, they only ask that you respect the conquered land.[/i]","[i]Los espíritus del Santuario proponen un pacto ancestral: extenderán las raíces del bosque más allá de tus fronteras, reclamando territorio virgen para tu imperio. A cambio, solo piden que respetes la tierra conquistada.[/i]"
+EVT_TRADE_AGREEMENT_TITLE,Trade Agreement,Tratado Comercial
+EVT_TRADE_AGREEMENT_DESC,"[i]An envoy from a neighboring kingdom proposes a long-term trade deal. The investment is high, but the benefits are permanent.[/i]","[i]Un emisario de un reino vecino propone un acuerdo comercial a largo plazo. La inversión es alta, pero los beneficios son permanentes.[/i]"
+EVT_TIME_OF_PLENTY_TITLE,Time of Plenty,Tiempo de Abundancia
+EVT_TIME_OF_PLENTY_DESC,"[i]An era of prosperity blesses your lands. The granaries fill up and the people celebrate with festivals.[/i]","[i]Una época de prosperidad bendice tus tierras. Los graneros se llenan y el pueblo celebra con fiestas.[/i]"
+EVT_SPIRIT_SUSURROS_TITLE,Ancestral Whispers,Susurros Ancestrales
+EVT_SPIRIT_SUSURROS_DESC,"[i]At night, ancient voices echo from the Sanctuary. The ancestral spirits share their wisdom with your advisors, revealing forgotten strategies and opening new possibilities each turn.[/i]","[i]Por las noches, voces antiguas resuenan desde el Santuario. Los espíritus ancestrales comparten su sabiduría con tus consejeros, revelando estrategias olvidadas y abriendo nuevas posibilidades cada turno.[/i]"
+EVT_TRADE_WINDS_TITLE,Trade Winds,Vientos de Comercio
+EVT_TRADE_WINDS_DESC,"[i]The winds blow in favor of your merchant ships. The trade routes flourish like never before.[/i]","[i]Los vientos soplan a favor de tus barcos mercantes. Las rutas comerciales florecen como nunca antes.[/i]"
+EVT_TRAVELING_ARTISANS_TITLE,Traveling Artisans,Artesanos Ambulantes
+EVT_TRAVELING_ARTISANS_DESC,"[i]A guild of itinerant artisans offers their services. Their techniques reduce the cost of any work.[/i]","[i]Un gremio de artesanos itinerantes ofrece sus servicios. Sus técnicas reducen el coste de cualquier obra.[/i]"
+EVT_UNLOCK_AMBUSH_TITLE,Ambush Doctrine,Doctrina de Emboscada
+EVT_UNLOCK_AMBUSH_DESC,"[i]Your scouts know every path, every grove, every swamp. Your captains propose a doctrine of irregular combat: strike from the undergrowth and disappear before the enemy reacts.[/i]","[i]Tus exploradores conocen cada sendero, cada arboleda, cada pantano. Tus capitanes proponen una doctrina de combate irregular: golpear desde la maleza y desaparecer antes de que el enemigo reaccione.[/i]"
+EVT_UNLOCK_CARAVANA_TITLE,Desert Routes,Rutas del Desierto
+EVT_UNLOCK_CARAVANA_DESC,"[i]Your dominion over the sands expands. Nomadic merchants approach your borders offering to establish permanent trade routes across the desert. The caravans will bring riches, but the merchants will need to be fed.[/i]","[i]Tu dominio sobre las arenas se extiende. Mercaderes nómadas se acercan a tus fronteras ofreciendo establecer rutas comerciales permanentes a través del desierto. Las caravanas traerán riquezas, pero habrá que alimentar a los comerciantes.[/i]"
+EVT_UNLOCK_ARROW_RAIN_TITLE,Massed Volley Doctrine,Doctrina del Tiro Masivo
+EVT_UNLOCK_ARROW_RAIN_DESC,"[i]Your archers have perfected arcing fire. Your captains propose formalizing the arrow rain doctrine: a coordinated volley that saturates the enemy field... as long as the terrain allows a line of sight.[/i]","[i]Tus arqueros han perfeccionado el tiro en parábola. Tus capitanes proponen formalizar la doctrina de la lluvia de flechas: una andanada coordinada que satura el campo enemigo... siempre que el terreno permita ver el blanco.[/i]"
+EVT_UNLOCK_CAVALRY_CHARGE_TITLE,Charge Doctrine,Doctrina de Carga
+EVT_UNLOCK_CAVALRY_CHARGE_DESC,"[i]Your riders have proven their worth on the battlefield. Your generals propose formalizing the frontal charge doctrine: a coordinated rush that crushes the enemy lines... when the terrain allows it.[/i]","[i]Tus jinetes han demostrado su valía en el campo de batalla. Tus generales proponen formalizar la doctrina de carga frontal: una embestida coordinada que aplaste las líneas enemigas... cuando el terreno lo permita.[/i]"
+EVT_UNLOCK_ESCUELA_TITLE,Enlightened Planners,Urbanistas Ilustrados
+EVT_UNLOCK_ESCUELA_DESC,"[i]Scholars and urban planners request an audience. They have studied the growth of your cities and propose founding a planning school to optimize the future urbanization of your empire.[/i]","[i]Eruditos y planificadores urbanos solicitan audiencia. Han estudiado el crecimiento de tus ciudades y proponen fundar una escuela de planificación que optimice la urbanización futura de tu imperio.[/i]"
+EVT_UNLOCK_COLISEO_TITLE,Architects of Spectacle,Arquitectos del Espectáculo
+EVT_UNLOCK_COLISEO_DESC,"[i]Your empire's fame attracts visionary architects from distant lands. They propose building a great colosseum in your megalopolis, a monument that reduces construction costs across the empire thanks to the techniques they will teach your stonemasons.[/i]","[i]La fama de tu imperio atrae a arquitectos visionarios de tierras lejanas. Proponen construir un gran coliseo en tu megalópolis, un monumento que reduzca los costes de construcción en todo el imperio gracias a las técnicas que enseñarán a tus canteros.[/i]"
+EVT_UNLOCK_FORTALEZA_TITLE,Stone Bastions,Bastiones de Piedra
+EVT_UNLOCK_FORTALEZA_DESC,"[i]Your builders have learned to use mountain rock to erect imposing defensive structures. The military engineers propose building fortresses on the peaks to protect conquered territory.[/i]","[i]Tus constructores han aprendido a aprovechar la roca de las montañas para erigir estructuras defensivas imponentes. Los ingenieros militares proponen construir fortalezas en las cimas para proteger el territorio conquistado.[/i]"
+EVT_UNLOCK_FRONTAL_TITLE,Frontal Assault Doctrine,Doctrina del Asalto Frontal
+EVT_UNLOCK_FRONTAL_DESC,"[i]Your heavy infantry advances like a wall of steel. Your generals propose a frontal combat doctrine: armor, discipline and relentless push against the enemy center.[/i]","[i]Tu infantería pesada avanza como un muro de acero. Tus generales proponen una doctrina de combate frontal: armadura, disciplina y empuje implacable contra el centro enemigo.[/i]"
+EVT_UNLOCK_GRANJA_SANG_TITLE,Secrets of the Swamp,Secretos del Pantano
+EVT_UNLOCK_GRANJA_SANG_DESC,"[i]The healers of your swamp lands have discovered the medicinal properties of the local leeches. They propose raising these animals to sell as a remedy to apothecaries in distant lands. It is a lucrative business, though maintaining the farms consumes resources.[/i]","[i]Los curanderos de tus tierras pantanosas han descubierto las propiedades medicinales de las sanguijuelas locales. Proponen criar estos animales para venderlos como remedio a los boticarios de tierras lejanas. Es un negocio lucrativo, aunque mantener las granjas consume recursos.[/i]"
+EVT_UNLOCK_LIBRARY_TITLE,Traveling Scholars,Eruditos Viajeros
+EVT_UNLOCK_LIBRARY_DESC,"[i]Sages and scholars from distant lands seek refuge in your cities. They offer to share their knowledge in exchange for a place to preserve it: a great library that attracts more brilliant minds to your empire.[/i]","[i]Sabios y eruditos de tierras lejanas buscan refugio en tus ciudades. Ofrecen compartir su conocimiento a cambio de un lugar donde preservarlo: una gran biblioteca que atraiga a más mentes brillantes a tu imperio.[/i]"
+EVT_UNLOCK_OBSERVATORIO_TITLE,Skies of the Tundra,Cielos de la Tundra
+EVT_UNLOCK_OBSERVATORIO_DESC,"[i]The clear nights of the tundra reveal an unparalleled starry sky. Your sages propose building observatories on the icy peaks to study the stars. The knowledge gained will broaden your strategic options, but keeping the astronomers in the cold will be costly.[/i]","[i]Las noches despejadas de la tundra revelan un cielo estrellado sin igual. Tus sabios proponen construir observatorios en las cumbres heladas para estudiar los astros. El conocimiento adquirido ampliará tus opciones estratégicas, pero mantener a los astrónomos en el frío será costoso.[/i]"
+EVT_UNLOCK_MOLINO_TITLE,Winds of the Grassland,Vientos de Pradera
+EVT_UNLOCK_MOLINO_DESC,"[i]Your settlers have learned to harness the winds of the grasslands. The carpenters propose building mills to use the force of the wind and multiply grain production.[/i]","[i]Tus colonos han aprendido a dominar los vientos de las praderas. Los carpinteros proponen construir molinos para aprovechar la fuerza del viento y multiplicar la producción de grano.[/i]"
+EVT_UNLOCK_OFICINA_TITLE,Imperial Bureaucracy,Burocracia Imperial
+EVT_UNLOCK_OFICINA_DESC,"[i]The number of buildings in your empire has grown to the point of needing centralized management. Your advisors propose establishing a construction office to coordinate and lower the cost of future works.[/i]","[i]La cantidad de edificios en tu imperio ha crecido hasta el punto de necesitar una gestión centralizada. Tus consejeros proponen establecer una oficina de construcción que coordine y abarate las futuras obras.[/i]"
+EVT_UNLOCK_OPEN_FRONT_TITLE,Border Conflict,Conflicto fronterizo
+EVT_UNLOCK_OPEN_FRONT_DESC,"[i]Your troops are ready and tension on the border grows. Your generals propose taking the initiative and opening a battle front against the enemy.[/i]","[i]Tus tropas están listas y la tensión en la frontera crece. Tus generales proponen tomar la iniciativa y abrir un frente de batalla contra el enemigo.[/i]"
+EVT_UNLOCK_PALACIO_TITLE,The Imperial Crown,La Corona Imperial
+EVT_UNLOCK_PALACIO_DESC,"[i]Your empire has become one of the most powerful civilizations in the known world. The nobles and governors of your provinces propose erecting an imperial palace, the ultimate symbol of your greatness, that centralizes power and multiplies the prosperity of all your lands.[/i]","[i]Tu imperio se ha convertido en una de las civilizaciones más poderosas del mundo conocido. Los nobles y gobernadores de tus provincias proponen erigir un palacio imperial, símbolo definitivo de tu grandeza, que centralice el poder y multiplique la prosperidad de todas tus tierras.[/i]"
+EVT_UNLOCK_PHALANX_TITLE,Phalanx Doctrine,Doctrina de la Falange
+EVT_UNLOCK_PHALANX_DESC,"[i]Your pikemen form ranks with discipline. Your instructors propose a closed formation of spears and shields: a human wall that stops any charge on favorable terrain.[/i]","[i]Tus piqueros forman filas con disciplina. Tus instructores proponen una formación cerrada de lanzas y escudos: un muro humano que detiene cualquier embestida en terreno favorable.[/i]"
+EVT_UNLOCK_TEMPLE_TITLE,Spiritual Fervor,Fervor Espiritual
+EVT_UNLOCK_TEMPLE_DESC,"[i]Pilgrims and priests arrive in your domains, inspired by the prosperity of your civilization. They propose erecting a sacred temple that blesses your harvests and feeds the spirit of your people.[/i]","[i]Peregrinos y sacerdotes llegan a tus dominios, inspirados por la prosperidad de tu civilización. Proponen erigir un templo sagrado que bendiga tus cosechas y alimente el espíritu de tu pueblo.[/i]"
+EVT_UNLOCK_RECRUIT_TITLE,Call to Arms,Llamada a las armas
+EVT_UNLOCK_RECRUIT_DESC,"[i]Your empire's borders touch those of a rival. Your advisors recommend preparing the defenses and forming an army. It is time to recruit troops.[/i]","[i]Las fronteras de tu imperio rozan las de un rival. Tus consejeros recomiendan preparar las defensas y formar un ejército. Es hora de reclutar tropas.[/i]"
+EVT_UNLOCK_SANTUARIO_TITLE,Forest Spirits,Espíritus del Bosque
+EVT_UNLOCK_SANTUARIO_DESC,"[i]Deep within your forests, the scouts have found a clearing where the trees whisper with ancient voices. The forest spirits manifest before your settlers and offer their blessing: they allow a sacred sanctuary to be erected in their honor. But the decision is yours.[/i]","[i]En lo más profundo de tus bosques, los exploradores han encontrado un claro donde los árboles susurran con voces antiguas. Los espíritus del bosque se manifiestan ante tus colonos y ofrecen su bendición: permiten erigir un santuario sagrado en su honor. Pero la decisión es tuya.[/i]"
+EVT_UNLOCK_UPGRADE_TITLE,Masters of the Craft,Maestros del Oficio
+EVT_UNLOCK_UPGRADE_DESC,"[i]Experienced artisans from distant lands arrive in your domains, impressed by your growing empire. They offer their knowledge to perfect existing structures, transforming them into superior versions of themselves.[/i]","[i]Artesanos experimentados de tierras lejanas llegan a tus dominios, impresionados por tu creciente imperio. Ofrecen sus conocimientos para perfeccionar las estructuras existentes, transformándolas en versiones superiores de sí mismas.[/i]"
+EVT_UNLOCK_URBANIZE_TITLE,Urban Boom,Auge Urbano
+EVT_UNLOCK_URBANIZE_DESC,"[i]Your villages prosper and grow endlessly. The most veteran master builders and administrators propose an ambitious plan: transform the most developed villages into true cities, with markets, warehouses and ports that propel your civilization into a new era.[/i]","[i]Tus aldeas prosperan y crecen sin cesar. Los maestros constructores y administradores más veteranos proponen un ambicioso plan: transformar las aldeas más desarrolladas en auténticas ciudades, con mercados, almacenes y puertos que impulsen tu civilización a una nueva era.[/i]"
+EVT_WISE_TRAVELERS_TITLE,Wise Travelers,Sabios Viajeros
+EVT_WISE_TRAVELERS_DESC,"[i]A group of scholars and sages arrives at your court. Their knowledge is vast and they wish to share it in exchange for refuge.[/i]","[i]Un grupo de eruditos y sabios llega a tu corte. Su conocimiento es vasto y desean compartirlo a cambio de refugio.[/i]"
+EVT_ABUNDANT_CH1_LABEL,Gather the harvest,Recoger la cosecha
+EVT_ABUNDANT_CH1_DESC,Your fields produce more than expected.,Tus campos producen mas de lo esperado.
+EVT_BAD_HARVEST_CH1_LABEL,Accept the losses,Aceptar las perdidas
+EVT_BAD_HARVEST_CH1_DESC,Your fields produce less than expected.,Tus campos producen menos de lo esperado.
+EVT_BAD_HARVEST_CH2_LABEL,Buy emergency grain,Comprar grano de emergencia
+EVT_BAD_HARVEST_CH2_DESC,Pay gold to offset the losses.,Paga oro para compensar las perdidas.
+EVT_AGRARIAN_CH1_LABEL,Implement the reform,Implementar la reforma
+EVT_AGRARIAN_CH1_DESC,You lose gold but gain food for 4 turns.,Pierdes oro pero ganas comida durante 4 turnos.
+EVT_AGRARIAN_CH2_LABEL,Keep the current order,Mantener el orden actual
+EVT_AGRARIAN_CH2_DESC,You do not implement the reform.,No implementas la reforma.
+EVT_BANDITS_CH1_LABEL,Ignore the bandits,Ignorar a los bandidos
+EVT_BANDITS_CH1_DESC,The bandits raid your trade routes.,Los bandidos saquean tus rutas comerciales.
+EVT_BANDITS_CH2_LABEL,Hire escorts,Contratar escoltas
+EVT_BANDITS_CH2_DESC,Pay gold to protect your caravans.,Paga oro para proteger tus caravanas.
+EVT_CARD_OFFERING_CH1_LABEL,Accept the offering,Aceptar la ofrenda
+EVT_CARD_OFFERING_CH1_DESC,You receive a copy of [b]%s[/b].,Recibes una copia de [b]%s[/b].
+EVT_CATTLE_FAIR_CH1_LABEL,Sell livestock,Vender ganado
+EVT_CATTLE_FAIR_CH1_DESC,You lose food but gain gold for 3 turns.,Pierdes comida pero ganas oro durante 3 turnos.
+EVT_CATTLE_FAIR_CH2_LABEL,Decline the offer,Rechazar la oferta
+EVT_CATTLE_FAIR_CH2_DESC,You do not take part in the fair.,No participas en la feria.
+EVT_CONSTRUCTION_BOOM_CH1_LABEL,Receive a Build card,Recibir carta de Construir
+EVT_CONSTRUCTION_BOOM_CH1_DESC,Adds a Build card to your discard pile.,Añade una carta de Construir a tu pila de descartes.
+EVT_DECK_PURGE_CH1_LABEL,Purge the deck,Depurar el mazo
+EVT_DECK_PURGE_CH1_DESC,Choose a card from your deck to remove permanently.,Elige una carta de tu mazo para eliminarla permanentemente.
+EVT_DECK_PURGE_CH2_LABEL,Do nothing,No hacer nada
+EVT_DECK_PURGE_CH2_DESC,You keep your deck intact.,Mantienes tu mazo intacto.
+EVT_DROUGHT_CH1_LABEL,Endure the drought,Soportar la sequia
+EVT_DROUGHT_CH1_DESC,A prolonged drought strikes your lands.,Una sequia prolongada azota tus tierras.
+EVT_LOCUST_CH1_LABEL,Suffer the plague,Sufrir la plaga
+EVT_LOCUST_CH1_DESC,The locusts devour your harvests. -20% food for 4 turns.,Las langostas devoran tus cosechas. -20% comida durante 4 turnos.
+EVT_MATERIAL_CRISIS_CH1_LABEL,Accept the prices,Aceptar los precios
+EVT_MATERIAL_CRISIS_CH1_DESC,Materials are scarce. +25% construction cost for 4 turns.,Los materiales escasean. +25% coste de construccion durante 4 turnos.
+EVT_MATERIAL_CRISIS_CH2_LABEL,Secure supplies,Asegurar suministros
+EVT_MATERIAL_CRISIS_CH2_DESC,Pay gold to guarantee supply.,Paga oro para garantizar el abastecimiento.
+EVT_MEGALOPOLIS_CH1_LABEL,Found a Megalopolis,Fundar Megalópolis
+EVT_MEGALOPOLIS_CH1_DESC,Choose one of your cities with 3+ buildings to transform it into a Megalopolis. Cost: 200 gold.,Elige una de tus ciudades con 3+ edificios para transformarla en una Megalópolis. Coste: 200 oro.
+EVT_MERCENARIES_CH1_LABEL,Hire mercenaries,Contratar mercenarios
+EVT_MERCENARIES_CH1_DESC,Pay gold to receive a Colonize card.,Paga oro para recibir una carta de Colonizar.
+EVT_MERCENARIES_CH2_LABEL,Decline the offer,Rechazar la oferta
+EVT_MERCENARIES_CH2_DESC,You do not hire mercenaries.,No contratas mercenarios.
+EVT_MERCHANT_CARAVAN_CH1_LABEL,Accept the coins,Aceptar las monedas
+EVT_MERCHANT_CARAVAN_CH1_DESC,You receive gold from the merchants.,Recibes oro de los mercaderes.
+EVT_SPIRIT_BENDICION_CH1_LABEL,Accept the blessing,Aceptar la bendición
+EVT_SPIRIT_BENDICION_CH1_DESC,The spirits bless your harvests. +25% food production for 3 turns.,Los espíritus bendicen tus cosechas. +25% producción de comida durante 3 turnos.
+EVT_SPIRIT_OFRENDA_CH1_LABEL,Accept the offering,Aceptar la ofrenda
+EVT_SPIRIT_OFRENDA_CH1_DESC,The spirits offer the fruits of the forest. You gain food based on game progress.,Los espíritus ofrecen los frutos del bosque. Ganas comida según el avance de la partida.
+EVT_SPIRIT_PACTO_CH1_LABEL,Seal the pact,Sellar el pacto
+EVT_SPIRIT_PACTO_CH1_DESC,The spirits extend the forest roots and claim an adjacent tile for your empire.,Los espíritus extienden las raíces del bosque y reclaman una casilla adyacente para tu imperio.
+EVT_SPIRIT_RAICES_CH1_LABEL,Accept the protection,Aceptar la protección
+EVT_SPIRIT_RAICES_CH1_DESC,The forest roots strengthen your foundations. -15% construction cost for 3 turns.,Las raíces del bosque fortalecen tus cimientos. -15% coste de construcción durante 3 turnos.
+EVT_SPIRIT_SUSURROS_CH1_LABEL,Listen to the whispers,Escuchar los susurros
+EVT_SPIRIT_SUSURROS_CH1_DESC,The ancestral voices guide your decisions. +1 card per turn for 3 turns.,Las voces ancestrales guían tus decisiones. +1 carta por turno durante 3 turnos.
+EVT_TRADE_AGREEMENT_CH1_LABEL,Sign the treaty,Firmar el tratado
+EVT_TRADE_AGREEMENT_CH1_DESC,Pay gold to gain +10% permanent gold.,Paga oro para obtener +10% oro permanente.
+EVT_TRADE_AGREEMENT_CH2_LABEL,Reject the treaty,Rechazar el tratado
+EVT_TRADE_AGREEMENT_CH2_DESC,You do not sign the agreement.,No firmas el acuerdo.
+EVT_TRADE_WINDS_CH1_LABEL,Harness the winds,Aprovechar los vientos
+EVT_TRADE_WINDS_CH1_DESC,Temporary bonus to gold production.,Bonus temporal a la produccion de oro.
+EVT_TIME_OF_PLENTY_CH1_LABEL,Enjoy the abundance,Disfrutar la abundancia
+EVT_TIME_OF_PLENTY_CH1_DESC,Temporary bonus to food production.,Bonus temporal a la produccion de comida.
+EVT_UNLOCK_AMBUSH_CH1_LABEL,Adopt the ambush doctrine,Adoptar la doctrina de emboscada
+EVT_UNLOCK_AMBUSH_CH1_DESC,You receive the Ambush card and it is unlocked in the pool.,Recibes la carta de Emboscada y se desbloquea en el pool.
+EVT_TRAVELING_ARTISANS_CH1_LABEL,Hire artisans,Contratar artesanos
+EVT_TRAVELING_ARTISANS_CH1_DESC,Temporary reduction in construction cost.,Reduccion temporal del coste de construccion.
+EVT_UNLOCK_ARROW_RAIN_CH1_LABEL,Adopt the massed volley doctrine,Adoptar la doctrina del tiro masivo
+EVT_UNLOCK_ARROW_RAIN_CH1_DESC,You receive the Arrow Rain card and it is unlocked in the pool.,Recibes la carta de Lluvia de Flechas y se desbloquea en el pool.
+EVT_UNLOCK_CARAVANA_CH1_LABEL,Establish trade routes,Establecer rutas comerciales
+EVT_UNLOCK_CARAVANA_CH1_DESC,Unlocks the Trade Caravan as a building you can build in deserts.,Desbloquea la Caravana Comercial como edificio construible en desiertos.
+EVT_UNLOCK_CAVALRY_CHARGE_CH1_LABEL,Adopt the charge doctrine,Adoptar la doctrina de carga
+EVT_UNLOCK_CAVALRY_CHARGE_CH1_DESC,You receive the Cavalry Charge card and it is unlocked in the pool.,Recibes la carta de Carga de Caballería y se desbloquea en el pool.
+EVT_UNLOCK_COLISEO_CH1_LABEL,Welcome the architects,Acoger a los arquitectos
+EVT_UNLOCK_COLISEO_CH1_DESC,Adds a card to build the Colosseum to your discard pile.,Añade una carta para construir el Coliseo a tu pila de descartes.
+EVT_UNLOCK_ESCUELA_CH1_LABEL,Found the school,Fundar la escuela
+EVT_UNLOCK_ESCUELA_CH1_DESC,Adds a card to build the Planning School to your discard pile.,Añade una carta para construir la Escuela de Planificación a tu pila de descartes.
+EVT_UNLOCK_FORTALEZA_CH1_LABEL,Master the mountains,Dominar las montañas
+EVT_UNLOCK_FORTALEZA_CH1_DESC,Unlocks the Fortress as a building you can build in mountains.,Desbloquea la Fortaleza como edificio construible en montañas.
+EVT_UNLOCK_FRONTAL_CH1_LABEL,Adopt the frontal assault doctrine,Adoptar la doctrina de asalto frontal
+EVT_UNLOCK_FRONTAL_CH1_DESC,You receive the Frontal Assault card and it is unlocked in the pool.,Recibes la carta de Asalto Frontal y se desbloquea en el pool.
+EVT_UNLOCK_GRANJA_SANG_CH1_LABEL,Exploit the swamps,Aprovechar los pantanos
+EVT_UNLOCK_GRANJA_SANG_CH1_DESC,Unlocks the Leech Farm as a building you can build in swamps.,Desbloquea la Granja de Sanguijuelas como edificio construible en pantanos.
+EVT_UNLOCK_LIBRARY_CH1_LABEL,Welcome the scholars,Acoger a los eruditos
+EVT_UNLOCK_LIBRARY_CH1_DESC,You receive a single-use card to build a Library.,Recibes una carta de un solo uso para construir una Library.
+EVT_UNLOCK_MOLINO_CH1_LABEL,Build Mills,Construir Molinos
+EVT_UNLOCK_MOLINO_CH1_DESC,Unlocks the Mill as a building you can build in grasslands.,Desbloquea el Molino como edificio construible en praderas.
+EVT_UNLOCK_OBSERVATORIO_CH1_LABEL,Study the stars,Estudiar las estrellas
+EVT_UNLOCK_OBSERVATORIO_CH1_DESC,Unlocks the Observatory as a building you can build in the tundra.,Desbloquea el Observatorio como edificio construible en la tundra.
+EVT_UNLOCK_OFICINA_CH1_LABEL,Establish the office,Establecer la oficina
+EVT_UNLOCK_OFICINA_CH1_DESC,Adds a card to build the Construction Office to your discard pile.,Añade una carta para construir la Oficina de Construcción a tu pila de descartes.
+EVT_UNLOCK_OPEN_FRONT_CH1_LABEL,Prepare the offensive,Preparar la ofensiva
+EVT_UNLOCK_OPEN_FRONT_CH1_DESC,You receive an Open Front card and it is unlocked in the card pool.,Recibes una carta de Abrir Frente y se desbloquea en el pool de cartas.
+EVT_UNLOCK_PHALANX_CH1_LABEL,Adopt the phalanx formation,Adoptar la formación de falange
+EVT_UNLOCK_PHALANX_CH1_DESC,You receive the Pike and Shield Wall card and it is unlocked in the pool.,Recibes la carta del Muro de Lanzas y Escudos y se desbloquea en el pool.
+EVT_UNLOCK_PALACIO_CH1_LABEL,Erect the palace,Erigir el palacio
+EVT_UNLOCK_PALACIO_CH1_DESC,Adds a card to build the Imperial Palace to your discard pile.,Añade una carta para construir el Palacio Imperial a tu pila de descartes.
+EVT_UNLOCK_RECRUIT_CH1_LABEL,Recruit troops,Reclutar tropas
+EVT_UNLOCK_RECRUIT_CH1_DESC,"You receive a Recruit card, it is unlocked in the card pool and Barracks construction is enabled.","Recibes una carta de Reclutar, se desbloquea en el pool de cartas y se habilita la construcción del Cuartel."
+EVT_UNLOCK_SANTUARIO_CH1_LABEL,Accept the blessing,Aceptar la bendición
+EVT_UNLOCK_SANTUARIO_CH1_DESC,You receive a single-use card to build the Forest Sanctuary.,Recibes una carta de un solo uso para construir el Santuario del Bosque.
+EVT_UNLOCK_TEMPLE_CH1_LABEL,Erect a temple,Erigir un templo
+EVT_UNLOCK_TEMPLE_CH1_DESC,You receive a single-use card to build a Temple.,Recibes una carta de un solo uso para construir un Temple.
+EVT_UNLOCK_UPGRADE_CH1_LABEL,Welcome the masters,Acoger a los maestros
+EVT_UNLOCK_UPGRADE_CH1_DESC,You receive an Upgrade Building card.,Recibes una carta de Mejorar Edificio.
+EVT_UNLOCK_URBANIZE_CH1_LABEL,Found cities,Fundar ciudades
+EVT_UNLOCK_URBANIZE_CH1_DESC,You receive an Urban Project card and unlock new city buildings.,Recibes una carta de Proyecto Urbano y desbloqueas nuevos edificios de ciudad.
+EVT_WISE_TRAVELERS_CH1_LABEL,Welcome the sages,Acoger a los sabios
+EVT_WISE_TRAVELERS_CH1_DESC,+1 card per turn permanently.,+1 carta por turno de forma permanente.

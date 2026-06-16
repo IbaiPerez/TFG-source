@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "bandits"
-title = "Bandidos en los Caminos"
-description = "[i]Grupos de bandidos han tomado los caminos que conectan tus provincias. El comercio y los viajeros están en peligro.[/i]"
+title = "EVT_BANDITS_TITLE"
+description = "EVT_BANDITS_DESC"
 allow_skip = false
 weight = 6.0
 unique = false

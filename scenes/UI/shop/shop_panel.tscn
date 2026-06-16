@@ -103,12 +103,12 @@ theme_override_constants/separation = 10
 [node name="BuyTabButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TabButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Comprar"
+text = "SHOP_BUY"
 
 [node name="PurgeTabButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/TabButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Purgar mazo"
+text = "SHOP_PURGE_TAB"
 
 [node name="BuySection" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
@@ -173,7 +173,7 @@ columns = 4
 [node name="CloseButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Cerrar tienda"
+text = "SHOP_CLOSE"
 
 [node name="CardTooltipPopup" parent="." instance=ExtResource("2_tooltip")]
 unique_name_in_owner = true

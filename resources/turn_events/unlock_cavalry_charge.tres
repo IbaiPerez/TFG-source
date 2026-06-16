@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_cavalry_charge"
-title = "Doctrina de Carga"
-description = "[i]Tus jinetes han demostrado su valía en el campo de batalla. Tus generales proponen formalizar la doctrina de carga frontal: una embestida coordinada que aplaste las líneas enemigas... cuando el terreno lo permita.[/i]"
+title = "EVT_UNLOCK_CAVALRY_CHARGE_TITLE"
+description = "EVT_UNLOCK_CAVALRY_CHARGE_DESC"
 allow_skip = true
 weight = 80.0
 unique = true

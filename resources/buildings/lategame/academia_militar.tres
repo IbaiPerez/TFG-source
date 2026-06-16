@@ -12,28 +12,28 @@
 [sub_resource type="Resource" id="eff_academia_troops_per_recruit"]
 script = ExtResource("6_statmod")
 modifier_id = "academia_troops_per_recruit"
-modifier_name = "Academia Militar: Reclutamiento extra"
+modifier_name = "BLD_ACADEMIA_M1"
 stat_type = 8
 value = 1.0
-tooltipe_text = "+1 tropa adicional por cada uso de Reclutar (acumula con el Cuartel base)"
+tooltipe_text = "BLD_ACADEMIA_T1"
 
 [sub_resource type="Resource" id="eff_academia_maintenance"]
 script = ExtResource("6_statmod")
 modifier_id = "academia_maintenance_discount"
-modifier_name = "Academia Militar: Mantenimiento eficiente"
+modifier_name = "BLD_ACADEMIA_M2"
 stat_type = 9
 value = -20.0
-tooltipe_text = "-20% al mantenimiento base de tropas"
+tooltipe_text = "BLD_ACADEMIA_T2"
 
 [sub_resource type="Resource" id="eff_academia_add_recruit_card"]
 script = ExtResource("7_addcard")
 card = ExtResource("8_recruit")
 first_only = true
-tooltipe_text = "Al mejorar al PRIMER edificio a Academia Militar, añade una carta de Reclutar al descarte"
+tooltipe_text = "BLD_ACADEMIA_T3"
 
 [resource]
 script = ExtResource("3_bld")
-name = "Academia Militar"
+name = "BLD_ACADEMIA_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_mega")])
 image = ExtResource("4_img")
 construction_cost = 350

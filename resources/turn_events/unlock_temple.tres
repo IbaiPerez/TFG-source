@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_temple"
-title = "Fervor Espiritual"
-description = "[i]Peregrinos y sacerdotes llegan a tus dominios, inspirados por la prosperidad de tu civilización. Proponen erigir un templo sagrado que bendiga tus cosechas y alimente el espíritu de tu pueblo.[/i]"
+title = "EVT_UNLOCK_TEMPLE_TITLE"
+description = "EVT_UNLOCK_TEMPLE_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

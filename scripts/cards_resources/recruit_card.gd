@@ -25,7 +25,7 @@ var chosen: Troop
 
 
 func _build_tooltip() -> String:
-	return "[center][b][color=#8B1A1A]Recluta[/color][/b] una [color=#4A6A8A]tropa[/color] para tu ejército[/center]"
+	return tr("CARD_RECRUIT_TOOLTIP")
 
 
 func confirm(_targets: Array[Node], stats: Stats) -> void:

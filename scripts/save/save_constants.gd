@@ -5,7 +5,12 @@ class_name SaveConstants
 
 ## Versión actual del formato. Incrementar al cambiar el esquema de manera
 ## incompatible. El loader rechaza versiones desconocidas.
-const SAVE_FORMAT_VERSION:int = 1
+##
+## v2: la localización (i18n) convirtió los `name` de Building/Troop en claves
+## de traducción (p.ej. "BLD_MOLINO_NAME"). El SaveResourceRegistry indexa por
+## esas claves, así que los saves v1 (que guardaban nombres en español como
+## "Molino") ya no resuelven y se rechazan limpiamente.
+const SAVE_FORMAT_VERSION:int = 2
 
 ## Carpeta donde viven los slots de guardado del usuario (persistente).
 const USER_SAVES_DIR:String = "user://saves"

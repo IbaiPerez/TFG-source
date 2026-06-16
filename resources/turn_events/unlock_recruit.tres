@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_recruit"
-title = "Llamada a las armas"
-description = "[i]Las fronteras de tu imperio rozan las de un rival. Tus consejeros recomiendan preparar las defensas y formar un ejército. Es hora de reclutar tropas.[/i]"
+title = "EVT_UNLOCK_RECRUIT_TITLE"
+description = "EVT_UNLOCK_RECRUIT_DESC"
 allow_skip = false
 weight = 100.0
 unique = true

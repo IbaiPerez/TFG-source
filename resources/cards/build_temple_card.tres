@@ -12,4 +12,4 @@ id = "Build Temple"
 type = 2
 icon = ExtResource("3_icon")
 needs_confirmation = true
-tooltipe_text = "Construye un Temple (+10% comida global)"
+tooltipe_text = "CARD_BUILD_TEMPLE_TIP"

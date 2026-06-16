@@ -8,7 +8,7 @@
 
 [resource]
 script = ExtResource("3_bld")
-name = "Granja de Sanguijuelas"
+name = "BLD_GRANJA_SANG_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_vil")])
 allowed_biomes = Array[int]([3])
 image = ExtResource("4_img")

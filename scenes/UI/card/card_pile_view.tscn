@@ -44,7 +44,7 @@ theme_override_constants/separation = 16
 [node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Discard Pile"
+text = "CARDPILE_DISCARD_TITLE"
 label_settings = SubResource("LabelSettings_y4d6k")
 horizontal_alignment = 1
 
@@ -107,7 +107,7 @@ layout_mode = 2
 [node name="EmptyLabel" type="Label" parent="MarginContainer/VBoxContainer/EmptyStateContainer/EmptyPanel"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "No hay cartas"
+text = "CARDPILE_EMPTY"
 horizontal_alignment = 1
 
 [node name="BackButton" type="Button" parent="."]
@@ -121,7 +121,7 @@ offset_top = 26.0
 offset_right = -36.0
 offset_bottom = 66.0
 grow_horizontal = 0
-text = "Back"
+text = "UI_BACK"
 
 [node name="CardTooltipPopup" parent="." instance=ExtResource("2_ceun1")]
 unique_name_in_owner = true

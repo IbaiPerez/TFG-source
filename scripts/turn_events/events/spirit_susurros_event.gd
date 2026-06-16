@@ -9,12 +9,12 @@ func _init():
 	category = EventCategory.Type.SPIRIT
 
 	conditions = [
-		HasBuildingCondition.new("Santuario del Bosque")
+		HasBuildingCondition.new("BLD_SANTUARIO_NAME")
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Escuchar los susurros"
-	choice.description = "Las voces ancestrales guían tus decisiones. +1 carta por turno durante 3 turnos."
+	choice.label = tr("EVT_SPIRIT_SUSURROS_CH1_LABEL")
+	choice.description = tr("EVT_SPIRIT_SUSURROS_CH1_DESC")
 	choice.effects = [
 		ScaledStatModifierEffect.new(
 			"spirit_susurros", "Susurros Ancestrales",

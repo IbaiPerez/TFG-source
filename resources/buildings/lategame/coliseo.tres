@@ -11,13 +11,13 @@
 [sub_resource type="Resource" id="eff_coliseo_cost"]
 script = ExtResource("6_eff")
 modifier_id = "coliseo_build_cost"
-modifier_name = "Eficiencia del Coliseo"
+modifier_name = "BLD_COLISEO_M1"
 percent = 20.0
-tooltipe_text = "-20% coste de construcción global"
+tooltipe_text = "EFF_BUILD_COST_20"
 
 [resource]
 script = ExtResource("4_bld")
-name = "Coliseo"
+name = "BLD_COLISEO_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
 image = ExtResource("5_img")
 construction_cost = 400

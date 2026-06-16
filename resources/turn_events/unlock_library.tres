@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_library"
-title = "Eruditos Viajeros"
-description = "[i]Sabios y eruditos de tierras lejanas buscan refugio en tus ciudades. Ofrecen compartir su conocimiento a cambio de un lugar donde preservarlo: una gran biblioteca que atraiga a más mentes brillantes a tu imperio.[/i]"
+title = "EVT_UNLOCK_LIBRARY_TITLE"
+description = "EVT_UNLOCK_LIBRARY_DESC"
 allow_skip = false
 weight = 10.0
 unique = true

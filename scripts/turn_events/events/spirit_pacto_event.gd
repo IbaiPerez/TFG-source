@@ -10,13 +10,13 @@ func _init():
 	category = EventCategory.Type.SPIRIT
 
 	conditions = [
-		HasBuildingCondition.new("Santuario del Bosque"),
+		HasBuildingCondition.new("BLD_SANTUARIO_NAME"),
 		HasAdjacentUncontrolledCondition.new()
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Sellar el pacto"
-	choice.description = "Los espíritus extienden las raíces del bosque y reclaman una casilla adyacente para tu imperio."
+	choice.label = tr("EVT_SPIRIT_PACTO_CH1_LABEL")
+	choice.description = tr("EVT_SPIRIT_PACTO_CH1_DESC")
 	choice.effects = [
 		ColonizeAdjacentEffect.new(1)  # 1 = Forest, prioriza bosque
 	]

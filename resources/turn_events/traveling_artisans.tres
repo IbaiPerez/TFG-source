@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "traveling_artisans"
-title = "Artesanos Ambulantes"
-description = "[i]Un gremio de artesanos itinerantes ofrece sus servicios. Sus técnicas reducen el coste de cualquier obra.[/i]"
+title = "EVT_TRAVELING_ARTISANS_TITLE"
+description = "EVT_TRAVELING_ARTISANS_DESC"
 allow_skip = false
 weight = 6.0
 unique = false

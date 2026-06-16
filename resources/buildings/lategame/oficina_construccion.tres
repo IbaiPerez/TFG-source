@@ -14,17 +14,17 @@
 script = ExtResource("6_goc")
 required_card = ExtResource("8_build")
 gold_reward = 15
-tooltipe_text = "+15 oro al jugar Build Card"
+tooltipe_text = "BLD_OFICINA_T1"
 
 [sub_resource type="Resource" id="eff_upgrade_gold"]
 script = ExtResource("6_goc")
 required_card = ExtResource("9_upgrade")
 gold_reward = 15
-tooltipe_text = "+15 oro al jugar Upgrade Building Card"
+tooltipe_text = "BLD_OFICINA_T2"
 
 [resource]
 script = ExtResource("4_bld")
-name = "Oficina de Construcción"
+name = "BLD_OFICINA_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
 image = ExtResource("5_img")
 construction_cost = 350

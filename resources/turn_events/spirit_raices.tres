@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "spirit_raices"
-title = "Raíces Protectoras"
-description = "[i]Las raíces del bosque sagrado se extienden bajo tierra, alcanzando los cimientos de tus construcciones. Los espíritus fortalecen las estructuras desde abajo, reduciendo el coste de materiales necesarios para edificar.[/i]"
+title = "EVT_SPIRIT_RAICES_TITLE"
+description = "EVT_SPIRIT_RAICES_DESC"
 allow_skip = false
 weight = 1.5
 unique = false

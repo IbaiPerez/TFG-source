@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "unlock_open_front"
-title = "Conflicto fronterizo"
-description = "[i]Tus tropas están listas y la tensión en la frontera crece. Tus generales proponen tomar la iniciativa y abrir un frente de batalla contra el enemigo.[/i]"
+title = "EVT_UNLOCK_OPEN_FRONT_TITLE"
+description = "EVT_UNLOCK_OPEN_FRONT_DESC"
 allow_skip = false
 weight = 100.0
 unique = true

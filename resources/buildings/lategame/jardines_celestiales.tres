@@ -10,17 +10,17 @@
 [sub_resource type="Resource" id="eff_jardcel_food"]
 script = ExtResource("6_eff")
 modifier_id = "jardines_celestiales_food"
-modifier_name = "Fertilidad Divina"
+modifier_name = "BLD_JARDINES_M1"
 stat_type = 3
 value = 15.0
-tooltipe_text = "+15% producción de comida global"
+tooltipe_text = "EFF_FOOD_GLOBAL_15"
 
 [sub_resource type="Resource" id="Resource_mkm3q"]
 metadata/__load_path__ = "res://assets/buildings/lategame/jardines_celestiales.svg"
 
 [resource]
 script = ExtResource("4_bld")
-name = "Jardines Celestiales"
+name = "BLD_JARDINES_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
 image = SubResource("Resource_mkm3q")
 construction_cost = 550

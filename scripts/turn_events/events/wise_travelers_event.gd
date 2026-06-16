@@ -15,8 +15,8 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Acoger a los sabios"
-	choice.description = "+1 carta por turno de forma permanente."
+	choice.label = tr("EVT_WISE_TRAVELERS_CH1_LABEL")
+	choice.description = tr("EVT_WISE_TRAVELERS_CH1_DESC")
 	choice.effects = [
 		ApplyModifierEffect.new(
 			StatModifier.new(

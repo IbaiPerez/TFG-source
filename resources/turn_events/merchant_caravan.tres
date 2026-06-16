@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = "merchant_caravan"
-title = "Caravana Mercante"
-description = "[i]Una caravana de mercaderes extranjeros llega a tus tierras. Traen consigo monedas de oro y deseos de comerciar.[/i]"
+title = "EVT_MERCHANT_CARAVAN_TITLE"
+description = "EVT_MERCHANT_CARAVAN_DESC"
 allow_skip = false
 weight = 8.0
 unique = false

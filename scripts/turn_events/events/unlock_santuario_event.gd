@@ -17,7 +17,7 @@ func _init():
 	]
 
 	var choice := TurnEventChoice.new()
-	choice.label = "Aceptar la bendición"
-	choice.description = "Recibes una carta de un solo uso para construir el Santuario del Bosque."
+	choice.label = tr("EVT_UNLOCK_SANTUARIO_CH1_LABEL")
+	choice.description = tr("EVT_UNLOCK_SANTUARIO_CH1_DESC")
 	choice.effects = [AddCardEffect.new(BUILD_SANTUARIO_CARD)]
 	choices = [choice]
