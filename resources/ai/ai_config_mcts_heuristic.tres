@@ -4,3 +4,4 @@
 
 [resource]
 script = ExtResource("1_aiconfig")
+mcts_time_budget_ms = 1000

@@ -35,6 +35,10 @@ const ICONS := {
 	"food_percent_negative": preload("res://assets/modifiers/food_percent_negative.svg"),
 	"cards_flat_positive": preload("res://assets/modifiers/cards_flat_positive.svg"),
 	"cards_flat_negative": preload("res://assets/modifiers/cards_flat_negative.svg"),
+	"troops_flat_positive": preload("res://assets/modifiers/troops_flat_positive.svg"),
+	"troops_flat_negative": preload("res://assets/modifiers/troops_flat_negative.svg"),
+	"troop_maintenance_percent_positive": preload("res://assets/modifiers/troop_maintenance_percent_positive.svg"),
+	"troop_maintenance_percent_negative": preload("res://assets/modifiers/troop_maintenance_percent_negative.svg"),
 }
 
 var type: StatType
@@ -96,6 +100,12 @@ func _build_icon_key() -> String:
 		StatType.CARDS_PER_TURN, StatType.CARD_DRAW_BONUS:
 			resource_name = "cards"
 			modifier_type = "flat"
+		StatType.TROOPS_PER_RECRUIT:
+			resource_name = "troops"
+			modifier_type = "flat"
+		StatType.TROOP_MAINTENANCE_PERCENT:
+			resource_name = "troop_maintenance"
+			modifier_type = "percent"
 		_:
 			return ""
 

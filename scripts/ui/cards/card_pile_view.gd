@@ -29,7 +29,13 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	# Esta vista es persistente (se muestra/oculta, no se libera), asi que
+	# solo gestionamos ESC cuando esta visible. Consumimos el input para que
+	# no se propague al menu de pausa (que abriria "encima" de esta vista).
+	if not visible:
+		return
 	if event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
 		if card_tooltip_popup.visible:
 			card_tooltip_popup.hide_tooltip()
 		else:

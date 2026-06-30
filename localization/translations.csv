@@ -470,3 +470,6 @@ EVT_UNLOCK_URBANIZE_CH1_LABEL,Found cities,Fundar ciudades
 EVT_UNLOCK_URBANIZE_CH1_DESC,You receive an Urban Project card and unlock new city buildings.,Recibes una carta de Proyecto Urbano y desbloqueas nuevos edificios de ciudad.
 EVT_WISE_TRAVELERS_CH1_LABEL,Welcome the sages,Acoger a los sabios
 EVT_WISE_TRAVELERS_CH1_DESC,+1 card per turn permanently.,+1 carta por turno de forma permanente.
+PAUSE_TITLE,Game Paused,Partida en pausa
+PAUSE_CONTINUE,Continue,Continuar
+PAUSE_MAIN_MENU,Main Menu,Menú Principal

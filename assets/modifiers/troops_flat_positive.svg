@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#F5EFE0" stroke="#7B4F2E" stroke-width="3"/>
+
+  <!-- Sword (blade up, hilt down) -->
+  <!-- Blade -->
+  <rect x="61" y="22" width="6" height="46" rx="1.5" fill="#BDC6CE" stroke="#808080" stroke-width="1.5"/>
+  <!-- Blade tip -->
+  <polygon points="61,22 64,14 67,22" fill="#A8B0B8" stroke="#808080" stroke-width="1"/>
+  <!-- Crossguard -->
+  <rect x="48" y="66" width="32" height="7" rx="3" fill="#8B6914" stroke="#6B5010" stroke-width="1.5"/>
+  <!-- Grip -->
+  <rect x="61" y="73" width="6" height="18" rx="2.5" fill="#5C3A1E" stroke="#3A2010" stroke-width="1.2"/>
+  <!-- Pommel -->
+  <circle cx="64" cy="95" r="5.5" fill="#9B7920" stroke="#6B5010" stroke-width="1.5"/>
+
+  <!-- Green arrow UP (top-right corner) -->
+  <g transform="translate(98, 28)">
+    <polygon points="0,-18 12,0 6,0 6,12 -6,12 -6,0 -12,0" fill="#2ECC40" stroke="#1B7A26" stroke-width="1.5" stroke-linejoin="round"/>
+  </g>
+</svg>

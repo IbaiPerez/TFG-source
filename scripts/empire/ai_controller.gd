@@ -63,6 +63,20 @@ var _deck_observer: AIDeckObserver = null
 ## El harness de simulación los lee al final para medir la tasa de "override".
 var mcts_decisions: int = 0
 var mcts_prior_overrides: int = 0
+## Iteraciones MCTS acumuladas: `mcts_total_iterations` = cómputo real gastado
+## (iteraciones NUEVAS por decisión); `mcts_total_root_visits` = visitas totales en
+## la raíz de cada búsqueda, que con reutilización de subárbol INCLUYE el warm start
+## heredado. El ratio root_visits/iterations > 1 mide cuánto aporta la persistencia.
+var mcts_total_iterations: int = 0
+var mcts_total_root_visits: int = 0
+
+## Subárbol MCTS conservado entre decisiones del MISMO turno (tree persistence —
+## una de las fortalezas de MCTS). Tras jugar una carta se re-enraíza en el hijo
+## de la jugada elegida, así la siguiente decisión reutiliza las visitas/valor ya
+## calculados (warm start) en vez de empezar el árbol de cero. Se descarta (null)
+## al empezar cada turno y cuando el árbol deja de ser válido (PASS, fallback a
+## heurística, o jugada sin opción real correspondiente).
+var _mcts_root: AIRealMCTSNode = null
 
 
 func _ready() -> void:
@@ -142,6 +156,10 @@ func _run_turn() -> void:
 	_adj_cond.empire = stats.empire
 	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
 	ctx.total_map_tiles = WorldMap.map.size()
+
+	# Nuevo turno: el árbol de turnos anteriores ya no es válido (intervinieron
+	# el rival y advance_turn). La reutilización de subárbol es SOLO intra-turno.
+	_mcts_root = null
 
 	var iterations := 0
 	while iterations < max_iterations and not ctx.drawn_cards.is_empty():
@@ -283,12 +301,21 @@ func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 		if opt != null:
 			root_priors[AIRealMCTSNode.move_key(m)] = AIHeuristic.score_option(opt, ctx)
 
+	# Reutilización de subárbol: pasamos el árbol conservado de la decisión
+	# anterior de este turno (null en la primera decisión) como warm start.
 	var result := AIRealMCTS.search(state, ctx.drawn_cards, known_deck,
-		rival_hand_size, cfg, _rng, root_priors)
+		rival_hand_size, cfg, _rng, root_priors, _mcts_root)
 	# Diagnóstico: contar decisiones y cuántas se apartan del prior heurístico.
 	mcts_decisions += 1
+	mcts_total_iterations += result.iterations
+	mcts_total_root_visits += result.root_visits
 	if result.overrode_prior:
 		mcts_prior_overrides += 1
+
+	# Por defecto el árbol queda invalidado; solo se conserva en el camino feliz
+	# (MCTS eligió una jugada con opción real ejecutable, distinta de PASS).
+	_mcts_root = null
+
 	if result.best_move == null:
 		return null   # búsqueda degenerada → heurística
 	if result.chose_pass:
@@ -297,6 +324,12 @@ func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 	var picked := _map_move_to_option(result.best_move, options)
 	if picked == null:
 		return null   # jugada sin opción real correspondiente → heurística
+
+	# La jugada elegida se EJECUTARÁ a continuación en _run_turn(): conservamos su
+	# subárbol como raíz para la próxima decisión de este turno (warm start con las
+	# visitas/valor ya acumulados bajo esa jugada).
+	_mcts_root = result.best_child
+
 	GameLogger.debug("[IA] MCTS-v2: %d iters · raíz %d/%d · Q=%.3f → %s" % [
 		result.iterations, result.root_visits, result.root_children,
 		result.best_avg_value, picked.describe()])

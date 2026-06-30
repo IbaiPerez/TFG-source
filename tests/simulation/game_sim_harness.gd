@@ -90,10 +90,16 @@ var final_total_tiles: int = 0     ## WorldMap.map.size() (incluye agua/montaña
 var capture_self_eval: bool = false
 var self_eval_trace: Array = []    ## [{round, label, mode, empire, score_state, my_tiles, rival_tiles}]
 
-## Diagnóstico MCTS de la partida: nº de decisiones del lado MCTS y de cuántas
-## la búsqueda se apartó del prior heurístico. Capturados al terminar.
-var mcts_decisions: int = 0
-var mcts_prior_overrides: int = 0
+## Diagnóstico MCTS POR ETIQUETA (ambos bandos): cada entrada tiene decisions,
+## prior_overrides, total_iterations (cómputo real) y total_root_visits (incluye
+## el warm start por reutilización de subárbol). Un bando heurístico queda todo a
+## 0 (su AIController nunca entra en la búsqueda). Por etiqueta porque en el
+## emparejamiento ISMCTS-heurístico vs ISMCTS-aleatorio AMBOS son MCTS y hay que
+## medir los dos. Capturados al terminar.
+var mcts_stats_by_label: Dictionary = {
+	"AI_A": {"decisions": 0, "prior_overrides": 0, "total_iterations": 0, "total_root_visits": 0},
+	"AI_B": {"decisions": 0, "prior_overrides": 0, "total_iterations": 0, "total_root_visits": 0},
+}
 
 ## Conteo de acciones jugadas por etiqueta de IA → { card_class: count }.
 ## Poblado escuchando Events.ai_card_played. Permite comparar el "estilo" de
@@ -202,15 +208,10 @@ func run() -> void:
 		final_tiles_b = stats_b.empire.controlled_tiles.size()
 	final_total_tiles = WorldMap.map.size()
 
-	# Contadores de diagnóstico MCTS del bando MCTS (antes de liberar las IAs).
-	var mcts_ai: AIController = null
-	if config_a != null and config_a.mode == AIConfig.Mode.MCTS:
-		mcts_ai = ai_a
-	elif config_b != null and config_b.mode == AIConfig.Mode.MCTS:
-		mcts_ai = ai_b
-	if mcts_ai != null:
-		mcts_decisions = mcts_ai.mcts_decisions
-		mcts_prior_overrides = mcts_ai.mcts_prior_overrides
+	# Diagnóstico MCTS de AMBOS bandos (antes de liberar las IAs). Un bando
+	# heurístico devuelve todo 0 (nunca entra en la búsqueda).
+	mcts_stats_by_label["AI_A"] = _read_mcts_stats(ai_a)
+	mcts_stats_by_label["AI_B"] = _read_mcts_stats(ai_b)
 
 	# Cleanup obligatorio antes de devolver: liberamos el raiz para que
 	# la siguiente run pueda registrar `AI_A` / `AI_B` sin colision.
@@ -230,6 +231,19 @@ func run() -> void:
 
 
 # --- Bootstrap -------------------------------------------------------------
+
+## Lee los contadores de diagnóstico MCTS de un AIController. Para un bando
+## heurístico, sus campos siguen a 0 (nunca ejecuta la búsqueda).
+func _read_mcts_stats(ai: AIController) -> Dictionary:
+	if ai == null:
+		return {"decisions": 0, "prior_overrides": 0, "total_iterations": 0, "total_root_visits": 0}
+	return {
+		"decisions": ai.mcts_decisions,
+		"prior_overrides": ai.mcts_prior_overrides,
+		"total_iterations": ai.mcts_total_iterations,
+		"total_root_visits": ai.mcts_total_root_visits,
+	}
+
 
 func _spawn_tiles_tracker() -> void:
 	# TilesTracker es Node hijo del Map en el juego real. Lo necesitamos

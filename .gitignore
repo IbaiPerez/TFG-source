@@ -27,3 +27,21 @@ user://
 
 # AI planning & research docs (local only, not for VCS)
 _ai_docs/
+
+# Overleaf / TFG LaTeX project (managed in Overleaf, not in this repo)
+tfg_latex/
+
+# LaTeX build artifacts (in case any .tex lives elsewhere)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc

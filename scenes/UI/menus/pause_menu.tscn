@@ -1,0 +1,104 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/menus/pause_menu.gd" id="1_pm"]
+[ext_resource type="Script" path="res://scripts/ui/menus/language_selector.gd" id="2_lang"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.949, 0.886, 0.729, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.3, 0.2, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 48.0
+content_margin_top = 40.0
+content_margin_right = 48.0
+content_margin_bottom = 40.0
+
+[node name="PauseMenu" type="CanvasLayer"]
+process_mode = 3
+layer = 20
+script = ExtResource("1_pm")
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="CenterContainer" type="CenterContainer" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Overlay/CenterContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Overlay/CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="Overlay/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "PAUSE_TITLE"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.243, 0.153, 0.137, 1)
+
+[node name="HSeparator" type="HSeparator" parent="Overlay/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ContinueButton" type="Button" parent="Overlay/CenterContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+size_flags_horizontal = 4
+text = "PAUSE_CONTINUE"
+theme_override_font_sizes/font_size = 22
+
+[node name="TutorialButton" type="Button" parent="Overlay/CenterContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+size_flags_horizontal = 4
+text = "MENU_TUTORIAL"
+theme_override_font_sizes/font_size = 22
+
+[node name="LanguageBar" type="HBoxContainer" parent="Overlay/CenterContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="LanguageLabel" type="Label" parent="Overlay/CenterContainer/PanelContainer/VBoxContainer/LanguageBar"]
+layout_mode = 2
+size_flags_vertical = 1
+text = "OPT_LANGUAGE"
+theme_override_colors/font_color = Color(0.243, 0.153, 0.137, 1)
+
+[node name="LanguageSelector" type="OptionButton" parent="Overlay/CenterContainer/PanelContainer/VBoxContainer/LanguageBar"]
+layout_mode = 2
+script = ExtResource("2_lang")
+
+[node name="MainMenuButton" type="Button" parent="Overlay/CenterContainer/PanelContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+size_flags_horizontal = 4
+text = "PAUSE_MAIN_MENU"
+theme_override_font_sizes/font_size = 22
+
+[connection signal="pressed" from="Overlay/CenterContainer/PanelContainer/VBoxContainer/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="Overlay/CenterContainer/PanelContainer/VBoxContainer/TutorialButton" to="." method="_on_tutorial_button_pressed"]
+[connection signal="pressed" from="Overlay/CenterContainer/PanelContainer/VBoxContainer/MainMenuButton" to="." method="_on_main_menu_button_pressed"]

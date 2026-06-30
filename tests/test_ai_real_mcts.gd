@@ -194,3 +194,54 @@ func test_search_uniform_mode_runs() -> void:
 	var result := AIRealMCTS.search(s, hand, [] as Array[Card], 2,
 		_config(60, 3, 8, false), _rng())
 	assert_not_null(result.best_move, "El modo Monte Carlo puro también devuelve jugada")
+
+
+# ============================================================
+#  Reutilización de subárbol (tree persistence)
+# ============================================================
+
+func test_search_exposes_root_and_subtree() -> void:
+	# La búsqueda expone su raíz y el subárbol del best_move, para que el
+	# controller pueda reutilizarlo en la siguiente decisión del mismo turno.
+	var s := _colonize_state()
+	var hand: Array[Card] = [ColonizeCard.new()]
+	var result := AIRealMCTS.search(s, hand, [] as Array[Card], 2, _config(120), _rng())
+	assert_not_null(result.root, "Expone la raíz del árbol")
+	assert_not_null(result.best_child, "Expone el subárbol del best_move")
+	assert_true(result.root.children.has(result.best_child),
+		"El subárbol reutilizable es hijo de la raíz")
+
+
+func test_reuse_root_preserves_visits() -> void:
+	# Warm start: al reutilizar el subárbol como raíz, conserva las visitas ya
+	# acumuladas y solo SUMA las nuevas iteraciones (no empieza el árbol de cero).
+	var s := _colonize_state()
+	var hand: Array[Card] = [ColonizeCard.new(), ColonizeCard.new()]
+	var r1 := AIRealMCTS.search(s, hand, [] as Array[Card], 2, _config(120), _rng(7))
+	var warm := r1.best_child.visits
+	assert_gt(warm, 0, "El subárbol acumuló visitas en la primera búsqueda")
+	# Segunda decisión del MISMO turno: reutiliza el subárbol anterior.
+	var hand2: Array[Card] = [ColonizeCard.new()]
+	var r2 := AIRealMCTS.search(s, hand2, [] as Array[Card], 2, _config(60), _rng(7),
+		{}, r1.best_child)
+	assert_eq(r2.root, r1.best_child, "La raíz reutilizada es el subárbol anterior")
+	assert_eq(r2.root_visits, warm + r2.iterations,
+		"Conserva las visitas previas y suma las nuevas (warm start)")
+
+
+func test_reroot_refresh_prunes_illegal_children() -> void:
+	# Al re-enraizar, los hijos cuya jugada ya NO es legal en el nuevo estado se
+	# podan, aunque tuvieran muchas visitas: evita devolver una jugada ilegal.
+	var s := _colonize_state()
+	var root := AIRealMCTSNode.create(AIRealState.OWNER_SELF, 0)
+	var ghost := AIRealMCTSNode.create(AIRealState.OWNER_SELF, 0)
+	ghost.move = _move(&"COLONIZE", 99)   # tile inexistente → ilegal
+	ghost.visits = 999
+	root.add_child(ghost, AIRealMCTSNode.move_key(ghost.move))
+	var hand: Array[Card] = [ColonizeCard.new()]
+	var r := AIRealMCTS.search(s, hand, [] as Array[Card], 2, _config(80), _rng(),
+		{}, root)
+	assert_false(root.child_by_key.has(AIRealMCTSNode.move_key(ghost.move)),
+		"El hijo con jugada ilegal se poda al re-enraizar")
+	assert_not_null(r.best_move, "Tras podar, sigue devolviendo una jugada legal")
+	assert_ne(r.best_move.tile_id, 99, "Nunca elige la jugada podada")

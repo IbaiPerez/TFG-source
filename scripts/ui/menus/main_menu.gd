@@ -10,7 +10,7 @@ const SAVE_LOAD_PANEL_SCRIPT := preload("res://scripts/ui/menus/save_load_panel.
 
 
 func _ready() -> void:
-	var buttons: Array[Button] = [_play_button, _load_button, _tutorial_button, _options_button, _exit_button]
+	var buttons: Array[Button] = [_play_button, _load_button, _options_button, _tutorial_button, _exit_button]
 	for i in range(buttons.size()):
 		var prev := buttons[(i - 1 + buttons.size()) % buttons.size()]
 		var next := buttons[(i + 1) % buttons.size()]

@@ -38,6 +38,12 @@ class Result:
 	## prior (la que elegiría la heurística). Mide cuánto la búsqueda "se aparta"
 	## del prior heurístico — diagnóstico de la patología "más tiempo, peor".
 	var overrode_prior: bool = false
+	## Raíz del árbol explorado en esta búsqueda. El controller puede conservarla
+	## para reutilizar el subárbol en la siguiente decisión del MISMO turno.
+	var root: AIRealMCTSNode = null
+	## Subárbol (hijo) correspondiente a `best_move`. Es lo que el controller debe
+	## reutilizar como nueva raíz tras EJECUTAR `best_move` (tree persistence).
+	var best_child: AIRealMCTSNode = null
 
 
 ## Una jugada candidata con su prior, producida por _entries.
@@ -54,14 +60,26 @@ class Entry:
 ## la RAÍZ, calculado por el controller con la heurística REAL (score_option)
 ## sobre el contexto real. Si está vacío, el prior de la raíz usa score_move como
 ## el resto del árbol. Alinea la decisión raíz con la heurística fuerte (suelo).
+## `reuse_root` (REUTILIZACIÓN DE SUBÁRBOL / tree persistence): si el controller
+## pasa el subárbol de la jugada anterior de ESTE turno, se reutiliza como raíz —
+## conserva las visitas/valor ya calculados (warm start). Dentro de un mismo turno
+## las jugadas propias se ENCADENAN sin turno del rival ni advance_turn entre medias,
+## así que el hijo de la jugada A₁ sigue a profundidad 0, igual que una raíz nueva:
+## re-enraizar es consistente. Antes de buscar se pone al día (ver _reroot_refresh).
 static func search(root_state: AIRealState, own_hand: Array[Card],
 		known_deck: Array[Card], rival_hand_size: int,
 		config: AIConfig, rng: RandomNumberGenerator,
-		root_priors: Dictionary = {}) -> Result:
+		root_priors: Dictionary = {}, reuse_root: AIRealMCTSNode = null) -> Result:
 	var result := Result.new()
 	if config == null or root_state == null:
 		return result
-	var root := AIRealMCTSNode.create(OWNER_SELF, 0)
+	var root: AIRealMCTSNode
+	if reuse_root != null:
+		root = reuse_root
+		_reroot_refresh(root, root_state, own_hand, config, root_priors)
+	else:
+		root = AIRealMCTSNode.create(OWNER_SELF, 0)
+	result.root = root
 	var iters_cap := maxi(config.mcts_iterations, 1)
 	var budget := config.mcts_time_budget_ms
 	var start := Time.get_ticks_msec()
@@ -81,6 +99,9 @@ static func search(root_state: AIRealState, own_hand: Array[Card],
 	if best == null:
 		return result
 	result.best_avg_value = best.avg_value()
+	# Subárbol a reutilizar tras ejecutar la jugada (lo descarta el controller si
+	# resulta ser PASS o si la jugada no tiene opción real correspondiente).
+	result.best_child = best
 	# ¿La búsqueda se apartó del prior? Comparar el hijo más visitado con el de
 	# mayor prior (la elección de la heurística en la raíz).
 	var top_prior: AIRealMCTSNode = null
@@ -96,6 +117,37 @@ static func search(root_state: AIRealState, own_hand: Array[Card],
 	else:
 		result.best_move = best.move
 	return result
+
+
+# ---------------------------------------------------------------------------
+# Reutilización de subárbol (tree persistence)
+# ---------------------------------------------------------------------------
+
+## Pone al día el subárbol reutilizado como nueva raíz. Tras EJECUTAR la jugada
+## anterior, el estado real cambió: algunas jugadas de los hijos ya no son legales
+## (o caen fuera del top-K) y los priors deben recalcularse con el prior híbrido de
+## la raíz sobre el NUEVO estado. Aquí:
+##   - podamos los hijos cuya jugada no aparece entre las legales del nuevo estado
+##     (evita que most_visited_child devuelva una jugada ahora ilegal), y
+##   - refrescamos el prior de los que se conservan, para que el PUCT sea coherente
+##     con los hijos que se expandan durante esta búsqueda.
+## Las visitas/valor/availability acumulados se mantienen: son el warm start.
+static func _reroot_refresh(root: AIRealMCTSNode, root_state: AIRealState,
+		own_hand: Array[Card], config: AIConfig, root_priors: Dictionary) -> void:
+	var entries := _entries(root_state, own_hand, OWNER_SELF, config, root_priors)
+	var legal := {}
+	for e in entries:
+		legal[AIRealMCTSNode.move_key(e.move)] = e.prior
+	var kept: Array[AIRealMCTSNode] = []
+	var kept_map := {}
+	for ch in root.children:
+		var key := AIRealMCTSNode.move_key(ch.move)
+		if legal.has(key):
+			ch.prior = legal[key]
+			kept.append(ch)
+			kept_map[key] = ch
+	root.children = kept
+	root.child_by_key = kept_map
 
 
 # ---------------------------------------------------------------------------

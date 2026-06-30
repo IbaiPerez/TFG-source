@@ -25,7 +25,10 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	# Consumimos el input para que ESC no se propague al menu de pausa, que
+	# abriria "encima" de esta vista.
 	if event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
 		hide()
 
 

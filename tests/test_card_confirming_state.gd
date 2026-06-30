@@ -207,3 +207,23 @@ func test_dragging_targeted_card_without_targets_returns_to_base():
 		"carta TILE-targeted sin targets debe volver a BASE en lugar de CONFIRMING")
 	assert_signal_emitted_with_parameters(state, "transition_requested",
 		[state, CardState.State.BASE])
+
+
+func test_dragging_esc_cancels_to_base():
+	# ESC mientras se arrastra una carta debe cancelar el arrastre (volver a
+	# BASE) en lugar de dejar la carta colgada y abrir el menu de pausa.
+	var card := _make_upgrade_card()
+	var cui := _spawn_card_ui(card)
+	var state = _spawn_dragging(cui)
+
+	var event := InputEventAction.new()
+	event.action = "ui_cancel"
+	event.pressed = true
+
+	watch_signals(state)
+	state.on_input(event)
+
+	assert_signal_emitted(state, "transition_requested",
+		"ESC durante el arrastre debe pedir volver a BASE")
+	assert_signal_emitted_with_parameters(state, "transition_requested",
+		[state, CardState.State.BASE])

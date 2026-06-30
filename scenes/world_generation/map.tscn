@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://dxw5gc7xqbkqj"]
+[gd_scene load_steps=29 format=3 uid="uid://dxw5gc7xqbkqj"]
 
 [ext_resource type="Script" uid="uid://byck58typyfki" path="res://scripts/world_gen/map.gd" id="1_e8i6t"]
 [ext_resource type="Script" uid="uid://bcsfis7fcjm3n" path="res://scripts/camera/camera_3d.gd" id="1_fam8b"]
@@ -19,6 +19,7 @@
 [ext_resource type="Texture2D" uid="uid://cm7qosdsmoqiq" path="res://assets/backgrounds/wood_table/wood_table_001/wood_table_001_diff_4k.jpg" id="17_wood"]
 [ext_resource type="Script" uid="uid://el3e3fe5i2li" path="res://scripts/empire/ai_controller.gd" id="18_aicontrl"]
 [ext_resource type="Resource" uid="uid://ce6x81inn56h5" path="res://resources/ai/ai_config_mcts_heuristic.tres" id="19_aiconf"]
+[ext_resource type="PackedScene" path="res://scenes/UI/menus/pause_menu.tscn" id="20_pm"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
 shading_mode = 0
@@ -130,6 +131,8 @@ main_camera = NodePath("../../Camera/Camera3D")
 script = ExtResource("3_64aj6")
 
 [node name="UI" parent="Scene/UI_layer" instance=ExtResource("2_3j08d")]
+
+[node name="PauseMenu" parent="Scene/UI_layer" instance=ExtResource("20_pm")]
 
 [node name="Hand" type="HBoxContainer" parent="Scene/UI_layer"]
 custom_minimum_size = Vector2(600, 120)
