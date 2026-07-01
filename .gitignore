@@ -30,6 +30,7 @@ _ai_docs/
 
 # Overleaf / TFG LaTeX project (managed in Overleaf, not in this repo)
 tfg_latex/
+tfg_latex_overleaf.zip
 
 # LaTeX build artifacts (in case any .tex lives elsewhere)
 *.aux
