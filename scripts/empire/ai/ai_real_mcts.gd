@@ -18,9 +18,16 @@ class_name AIRealMCTS
 ## subconjunto en los nodos del rival (Cowling 2012 §IV-B).
 ##
 ## Interruptor `mcts_heuristic_rollout` (AIConfig):
-##   true  → prior P = score_move normalizado, política de rollout = score_move.
+##   true  → prior P = AIRealEvalStrong.score_move normalizado (heurística FUERTE,
+##            espejo de score_option, a TODA profundidad), política de rollout igual.
 ##   false → prior uniforme (1/K), política de rollout aleatoria.
 ## (La alternancia ▲▽ del árbol es estructural y no depende del interruptor.)
+##
+## F3c.4 (2026-07-01): el prior/rollout usan AIRealEvalStrong (heurística fuerte
+## sobre el snapshot) en vez de la aproximación AIRealEval.score_move — así la guía
+## heurística (ingrediente decisivo medido) actúa en todo el árbol, no solo en la
+## raíz. `root_priors` (score_option REAL) se mantiene: en la raíz es el suelo
+## ground-truth y solo mejora sobre el espejo del snapshot.
 
 const OWNER_SELF := AIRealState.OWNER_SELF
 const OWNER_RIVAL := AIRealState.OWNER_RIVAL
@@ -247,12 +254,12 @@ static func _puct_select(node: AIRealMCTSNode, avail_children: Array[AIRealMCTSN
 # Generación de jugadas + prior (top-K)
 # ---------------------------------------------------------------------------
 
-## Jugadas legales del jugador en el estado, podadas a top-K por score_move y con
-## prior P normalizado (proporcional a score_move si heurístico; uniforme si no).
-## Siempre incluye PASS (no se poda).
+## Jugadas legales del jugador en el estado, podadas a top-K por el prior fuerte
+## (AIRealEvalStrong.score_move) y con prior P normalizado (proporcional a ese
+## score si heurístico; uniforme si no). Siempre incluye PASS (no se poda).
 ## Si `root_priors` no está vacío, el prior crudo de cada jugada sale de ahí
-## (heurística real score_option, vía move_key); las jugadas sin entrada caen a
-## score_move. Es el prior HÍBRIDO de la raíz.
+## (heurística real score_option, vía move_key); las jugadas sin entrada caen al
+## prior fuerte del snapshot. Es el prior HÍBRIDO de la raíz.
 static func _entries(state: AIRealState, hand: Array[Card], player: int,
 		config: AIConfig, root_priors: Dictionary = {}) -> Array[Entry]:
 	var raw_moves := AIRealOptions.enumerate(state, hand, player)
@@ -263,9 +270,9 @@ static func _entries(state: AIRealState, hand: Array[Card], player: int,
 		e.move = m
 		if use_root:
 			e.raw = root_priors.get(AIRealMCTSNode.move_key(m),
-				AIRealEval.score_move(m, state, player))
+				AIRealEvalStrong.score_move(m, state, player))
 		else:
-			e.raw = AIRealEval.score_move(m, state, player)
+			e.raw = AIRealEvalStrong.score_move(m, state, player)
 		scored.append(e)
 	scored.sort_custom(func(a: Entry, b: Entry) -> bool: return a.raw > b.raw)
 	var k := config.mcts_action_pruning_k
