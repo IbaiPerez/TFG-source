@@ -32,17 +32,29 @@ func _ready() -> void:
 	generate_world()
 
 
-# Randomize if no seed has been set
+# Prepara TODAS las fuentes de aleatoriedad a partir de la semilla, de modo que
+# "misma semilla + misma forma ⇒ mismo mundo". Si no se fijó semilla (map_seed==0),
+# se genera una concreta y se GUARDA en settings.map_seed, para que el mundo quede
+# reproducible (basta anotar la semilla para recrearlo).
 func init_seed():
 	if settings.map_seed == 0 or settings.map_seed == null:
-		GameLogger.debug("Randomizing seed")
-		settings.biome_noise.seed = randi() #New map_seed for this generation
-		settings.mountain_noise.seed = randi()
-		settings.ocean_noise.seed = randi()
+		settings.map_seed = randi()
+		GameLogger.info("Semilla de mundo generada: %d" % settings.map_seed)
 	else:
-		settings.biome_noise.seed = settings.map_seed
-		settings.mountain_noise.seed = settings.map_seed
-		settings.ocean_noise.seed = settings.map_seed
+		GameLogger.debug("Semilla de mundo fijada: %d" % settings.map_seed)
+
+	# Los tres ruidos comparten la semilla: FastNoiseLite ya diferencia el patrón
+	# por el tipo/frecuencia configurados en cada recurso, no por la semilla.
+	settings.biome_noise.seed = settings.map_seed
+	settings.mountain_noise.seed = settings.map_seed
+	settings.ocean_noise.seed = settings.map_seed
+
+	# Semilla de la RNG GLOBAL: hace deterministas TODAS las llamadas
+	# randi/randf/pick_random/shuffle de la generación (recursos naturales en
+	# TileFactory, elección de imperio y tiles iniciales en EmpireCreator) y de ahí
+	# en adelante. Antes solo se sembraban los ruidos, así que recursos y colocación
+	# de imperios variaban entre partidas con la MISMA semilla.
+	seed(settings.map_seed)
 
 ## Start of world_generation, time each step
 func generate_world():
