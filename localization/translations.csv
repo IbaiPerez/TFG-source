@@ -81,6 +81,7 @@ GENERIC_CARD,card,carta
 TILE_NO_RESOURCE,No resource,Sin recurso
 TILE_NO_CONTROLLER,No controller,Sin controlador
 TILE_DEMOLISH_CONFIRM_NAMED,Demolish %s? This action cannot be undone.,¿Demoler %s? Esta acción no se puede deshacer.
+TILE_DEMOLISH_TITLE,Demolish building,Demoler edificio
 LOC_UNCOLONIZED,Uncolonized,Sin colonizar
 LOC_VILLAGE,Village,Aldea
 LOC_TOWN,Town,Ciudad
@@ -243,6 +244,20 @@ ABIL_MEDICI_DESC,"The power of money opens every door. Your gold production incr
 ABIL_BABYLON_NAME,Hanging Gardens,Jardines Colgantes
 ABIL_BABYLON_DESC,"The fertility and trade of Mesopotamia make your civilization prosper. Wheat tiles produce +2 additional food, each time you play a Build card you receive +3 gold, and your global gold production increases by 10% thanks to the Trade Routes of Mesopotamia. Also, you can build the Ziggurat, a balanced exclusive building.","La fertilidad y el comercio de Mesopotamia hacen prosperar tu civilizacion. Las casillas con Trigo producen +2 comida adicional, cada vez que juegas una carta de Construccion recibes +3 oro, y tu produccion de oro global aumenta un 10% gracias a las Rutas Comerciales de Mesopotamia. Ademas, puedes construir el Zigurat, un edificio exclusivo equilibrado."
 ABIL_MONGOL_NAME,Nomad Horde,Horda Nómada
+MODF_PERCENT_GOLD,%s global gold production,%s producción de oro global
+MODF_PERCENT_FOOD,%s global food production,%s producción de comida global
+MODF_FLAT_GOLD,%s gold per turn,%s de oro por turno
+MODF_FLAT_FOOD,%s food per turn,%s de comida por turno
+MODF_TILE_FOOD,%s food on %s tiles,%s comida en casillas con %s
+MODF_TILE_GOLD,%s gold on %s tiles,%s oro en casillas con %s
+MODF_TROOP_MAINT,%s troop upkeep,%s de mantenimiento de tropas
+MODF_TROOP_MAINT_CAVALRY,%s cavalry upkeep,%s de mantenimiento de caballería
+MODF_BUILD_COST,%s building construction cost,%s de coste de construcción
+MODF_CARD_RETURN,%s chance to recover %s,%s de probabilidad de recuperar %s
+MODF_GOLD_ON_CARD,%s gold each time you play %s,%s de oro cada vez que juegas %s
+MODF_EXCLUSIVE_BUILDING,Exclusive building: %s,Edificio exclusivo: %s
+CARD_COLONIZE_NAME,Colonize,Colonizar
+CARD_BUILD_NAME,Build,Construir
 ABIL_MONGOL_DESC,"The nomadic spirit of the steppes drives your expansion. Your Livestock tiles produce +1 additional food and each time you play Colonize there is a 30% chance it returns to your hand. Also, your cavalry costs 25% less to maintain.","El espiritu nomada de las estepas impulsa tu expansion. Tus casillas con Ganado producen +1 comida adicional y cada vez que juegas Colonizar hay un 30% de probabilidad de que vuelva a tu mano. Ademas, tu caballeria cuesta un 25% menos de mantener."
 TROOP_CAVALRY_NAME,Cavalry,Caballería
 TROOP_HEAVY_NAME,Heavy Infantry,Infantería Pesada

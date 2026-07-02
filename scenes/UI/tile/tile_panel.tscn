@@ -36,7 +36,6 @@ theme_override_constants/separation = 12
 [node name="ProvinceNameLabel" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
 label_settings = SubResource("LabelSettings_province")
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "Nombre Provincia"
 horizontal_alignment = 1
 
@@ -124,7 +123,7 @@ theme_override_constants/v_separation = 8
 columns = 3
 
 [node name="DemolishConfirmDialog" type="ConfirmationDialog" parent="."]
-title = "Demoler edificio"
+title = "TILE_DEMOLISH_TITLE"
 ok_button_text = "UI_DEMOLISH"
 cancel_button_text = "UI_CANCEL"
 dialog_text = "TILE_DEMOLISH_CONFIRM"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://chkt8mhljf7ue"]
+[gd_scene load_steps=14 format=3 uid="uid://chkt8mhljf7ue"]
 
 [ext_resource type="Script" uid="uid://cgmoodqwgdltf" path="res://scripts/ui/general_ui.gd" id="1_frbhi"]
 [ext_resource type="Resource" uid="uid://cwfokudqrj6s1" path="res://resources/stats/initial_stats.tres" id="2_1r63k"]
@@ -13,8 +13,6 @@
 [ext_resource type="PackedScene" uid="uid://daiactionlog1" path="res://scenes/UI/ai_action_log.tscn" id="11_ailog"]
 [ext_resource type="PackedScene" path="res://scenes/UI/rival_stats_ui.tscn" id="12_rivalstats"]
 
-[sub_resource type="Theme" id="Theme_dsvdl"]
-
 [sub_resource type="ButtonGroup" id="ButtonGroup_map_modes"]
 
 [node name="UI" type="Control"]
@@ -25,7 +23,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme = SubResource("Theme_dsvdl")
 script = ExtResource("1_frbhi")
 stats = ExtResource("2_1r63k")
 
@@ -159,13 +156,16 @@ horizontal_alignment = 1
 [node name="DiscardPileButton" parent="." node_paths=PackedStringArray("counter") instance=ExtResource("5_lgojk")]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 2
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1170.0
+offset_left = -110.0
 offset_top = -135.0
-offset_right = 1210.0
+offset_right = -70.0
 offset_bottom = -95.0
+grow_horizontal = 0
 grow_vertical = 0
 texture_normal = ExtResource("8_disc")
 counter = NodePath("Counter")
@@ -182,13 +182,16 @@ horizontal_alignment = 1
 [node name="PlayedPileButton" parent="." node_paths=PackedStringArray("counter") instance=ExtResource("5_lgojk")]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 2
+anchors_preset = 3
+anchor_left = 1.0
 anchor_top = 1.0
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1120.0
+offset_left = -160.0
 offset_top = -135.0
-offset_right = 1160.0
+offset_right = -120.0
 offset_bottom = -95.0
+grow_horizontal = 0
 grow_vertical = 0
 texture_normal = ExtResource("9_played")
 counter = NodePath("Counter")

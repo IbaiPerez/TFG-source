@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://vrviitccvw80"]
+[gd_scene load_steps=9 format=3 uid="uid://vrviitccvw80"]
 
 [ext_resource type="Script" uid="uid://buet7wh6gsdbb" path="res://scripts/ui/stats_ui.gd" id="1_o6p4b"]
 [ext_resource type="Texture2D" uid="uid://d30k0vc2rh2gr" path="res://assets/gold_coins.png" id="1_o7hd0"]
+[ext_resource type="Texture2D" uid="uid://bmq78k331520w" path="res://assets/natural_resources/Wheat.svg" id="5_food"]
 [ext_resource type="PackedScene" uid="uid://mdfrspnlscn4tfg" path="res://scenes/UI/modifiers/modifiers_panel.tscn" id="3_modp"]
 [ext_resource type="PackedScene" path="res://scenes/UI/military/troop_pool_opener.tscn" id="4_troop_opener"]
 
@@ -100,6 +101,7 @@ theme_override_constants/separation = 5
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 size_flags_vertical = 4
+texture = ExtResource("5_food")
 expand_mode = 1
 stretch_mode = 5
 
