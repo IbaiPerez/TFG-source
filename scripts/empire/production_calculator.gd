@@ -125,11 +125,11 @@ func _calculate_front_surcharges() -> Dictionary:
 	if battle_front_manager == null:
 		return { "gold": 0, "food": 0 }
 	for front in battle_front_manager.active_fronts:
-		var side: StringName
+		var side: BattleFront.Side
 		if front.attacker_empire == stats.empire:
-			side = &"attacker"
+			side = BattleFront.Side.ATTACKER
 		else:
-			side = &"defender"
+			side = BattleFront.Side.DEFENDER
 		var maint := front.get_front_maintenance(side)
 		gold += maint["gold"]
 		food += maint["food"]

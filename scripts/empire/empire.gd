@@ -40,9 +40,9 @@ func reset_controlled_tiles() -> void:
 	combat_multiplier = 1.0
 
 func create_instance() -> Empire:
+	# duplicate() ya copia los @export (name, color, ability). Solo hace falta
+	# resetear el estado runtime, que no es @export y no se hereda del template.
 	var empire:Empire = self.duplicate()
-	empire.name = name
-	empire.color = color
-	empire.ability = ability
 	empire.controlled_tiles = []
+	empire.combat_multiplier = 1.0
 	return empire

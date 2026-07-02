@@ -277,7 +277,7 @@ static func _add_tactic(moves: Array, state: AIRealState, card: TacticCard,
 		p_owner: int) -> void:
 	for i in range(state.fronts.size()):
 		var front := state.fronts[i] as AIRealState.FrontSnap
-		if front.is_resolved or front.side_of(p_owner) == &"":
+		if front.is_resolved or front.side_of(p_owner) == BattleFront.Side.NONE:
 			continue
 		var m := Move.new()
 		m.kind = &"TACTIC"

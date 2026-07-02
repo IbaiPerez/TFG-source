@@ -291,22 +291,22 @@ func _update_tactic_indicator() -> void:
 		tactic_indicator_sprite.visible = false
 		return
 
-	var player_side: StringName = _get_player_side()
-	if player_side == &"":
+	var player_side: BattleFront.Side = _get_player_side()
+	if player_side == BattleFront.Side.NONE:
 		tactic_indicator_sprite.visible = false
 		return
 
 	tactic_indicator_sprite.visible = battle_front.has_active_tactic_on_side(player_side)
 
 
-func _get_player_side() -> StringName:
+func _get_player_side() -> BattleFront.Side:
 	if battle_front == null or player_empire == null:
-		return &""
+		return BattleFront.Side.NONE
 	if battle_front.attacker_empire == player_empire:
-		return &"attacker"
+		return BattleFront.Side.ATTACKER
 	if battle_front.defender_empire == player_empire:
-		return &"defender"
-	return &""
+		return BattleFront.Side.DEFENDER
+	return BattleFront.Side.NONE
 
 
 ## Resaltado para el targeting de cartas tácticas.
@@ -329,7 +329,7 @@ func _on_marker_changed(_front: BattleFront, _new_value: float) -> void:
 	_update_visual()
 
 
-func _on_bonuses_changed(_side: StringName) -> void:
+func _on_bonuses_changed(_side: BattleFront.Side) -> void:
 	_update_tactic_indicator()
 
 

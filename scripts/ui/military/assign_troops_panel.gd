@@ -9,7 +9,7 @@ signal panel_closed
 
 var battle_front: BattleFront
 var stats: Stats
-var side: StringName  ## &"attacker" o &"defender"
+var side: BattleFront.Side  ## BattleFront.Side.ATTACKER o BattleFront.Side.DEFENDER
 
 var troops_grid: GridContainer
 var pool_label: Label
@@ -23,9 +23,9 @@ func setup(front: BattleFront, p_stats: Stats) -> void:
 
 	# Determinar qué bando es el jugador en este frente
 	if front.attacker_empire == stats.empire:
-		side = &"attacker"
+		side = BattleFront.Side.ATTACKER
 	elif front.defender_empire == stats.empire:
-		side = &"defender"
+		side = BattleFront.Side.DEFENDER
 	else:
 		# El jugador no participa en este frente
 		queue_free()
@@ -103,7 +103,7 @@ func _populate_pool() -> void:
 
 	# Mostrar info
 	var troops_in_front: int
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		troops_in_front = battle_front.attacker_troops.size()
 	else:
 		troops_in_front = battle_front.defender_troops.size()

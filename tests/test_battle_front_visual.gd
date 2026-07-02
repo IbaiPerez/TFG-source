@@ -349,8 +349,8 @@ func test_tactic_indicator_hidden_without_player_empire() -> void:
 	var front: BattleFront = setup["front"]
 	var visual: BattleFrontVisual = setup["visual"]
 
-	front.add_bonus(&"attacker", _make_tactic_bonus())
-	front.add_bonus(&"defender", _make_tactic_bonus())
+	front.add_bonus(BattleFront.Side.ATTACKER, _make_tactic_bonus())
+	front.add_bonus(BattleFront.Side.DEFENDER, _make_tactic_bonus())
 	assert_false(visual.tactic_indicator_sprite.visible,
 		"Sin player_empire el indicador debe permanecer oculto")
 
@@ -365,8 +365,8 @@ func test_tactic_indicator_hidden_when_player_does_not_participate() -> void:
 	var front: BattleFront = setup["front"]
 	var visual: BattleFrontVisual = setup["visual"]
 
-	front.add_bonus(&"attacker", _make_tactic_bonus())
-	front.add_bonus(&"defender", _make_tactic_bonus())
+	front.add_bonus(BattleFront.Side.ATTACKER, _make_tactic_bonus())
+	front.add_bonus(BattleFront.Side.DEFENDER, _make_tactic_bonus())
 	assert_false(visual.tactic_indicator_sprite.visible,
 		"Si el jugador no participa, el indicador debe quedar oculto")
 
@@ -379,7 +379,7 @@ func test_tactic_indicator_visible_when_player_attacker_has_tactic() -> void:
 	var front: BattleFront = setup["front"]
 	var visual: BattleFrontVisual = setup["visual"]
 
-	front.add_bonus(&"attacker", _make_tactic_bonus())
+	front.add_bonus(BattleFront.Side.ATTACKER, _make_tactic_bonus())
 	assert_true(visual.tactic_indicator_sprite.visible,
 		"Táctica en el bando del jugador (atacante) debe encender el indicador")
 
@@ -392,7 +392,7 @@ func test_tactic_indicator_hidden_when_only_opponent_has_tactic() -> void:
 	var front: BattleFront = setup["front"]
 	var visual: BattleFrontVisual = setup["visual"]
 
-	front.add_bonus(&"defender", _make_tactic_bonus())
+	front.add_bonus(BattleFront.Side.DEFENDER, _make_tactic_bonus())
 	assert_false(visual.tactic_indicator_sprite.visible,
 		"Táctica del rival NO debe encender el indicador del jugador")
 
@@ -405,7 +405,7 @@ func test_tactic_indicator_visible_when_player_defender_has_tactic() -> void:
 	var front: BattleFront = setup["front"]
 	var visual: BattleFrontVisual = setup["visual"]
 
-	front.add_bonus(&"defender", _make_tactic_bonus())
+	front.add_bonus(BattleFront.Side.DEFENDER, _make_tactic_bonus())
 	assert_true(visual.tactic_indicator_sprite.visible,
 		"Táctica en el bando del jugador (defensor) debe encender el indicador")
 
@@ -422,11 +422,11 @@ func test_tactic_indicator_updates_on_bonuses_changed() -> void:
 	assert_false(visual.tactic_indicator_sprite.visible)
 
 	# Añadir táctica del jugador → indicador se enciende.
-	front.add_bonus(&"attacker", _make_tactic_bonus())
+	front.add_bonus(BattleFront.Side.ATTACKER, _make_tactic_bonus())
 	assert_true(visual.tactic_indicator_sprite.visible)
 
 	# Limpiar tácticas del jugador → indicador se apaga.
-	front.clear_tactics_for_side(&"attacker")
+	front.clear_tactics_for_side(BattleFront.Side.ATTACKER)
 	assert_false(visual.tactic_indicator_sprite.visible,
 		"Al limpiar la táctica del jugador el indicador debe apagarse")
 
@@ -439,7 +439,7 @@ func test_tactic_indicator_ignores_non_tactic_bonuses() -> void:
 	var front: BattleFront = setup["front"]
 	var visual: BattleFrontVisual = setup["visual"]
 
-	front.add_bonus(&"attacker", {"attack": 10.0})
+	front.add_bonus(BattleFront.Side.ATTACKER, {"attack": 10.0})
 	assert_false(visual.tactic_indicator_sprite.visible,
 		"Bonus plano sin tactic_name no debe contar como táctica")
 

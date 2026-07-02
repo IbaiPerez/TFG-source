@@ -160,8 +160,8 @@ func test_panel_shows_assigned_troops_in_stats() -> void:
 	var front := BattleFront.new(tile_a, tile_b, empire_a, empire_b)
 
 	# Asignar tropas antes de mostrar para que _update_display las recoja
-	front.assign_troop(_create_troop("Milicia", 4, 1), &"attacker")
-	front.assign_troop(_create_troop("Lanceros", 2, 3), &"attacker")
+	front.assign_troop(_create_troop("Milicia", 4, 1), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop("Lanceros", 2, 3), BattleFront.Side.ATTACKER)
 
 	var panel: BattleFrontPanel = BATTLE_FRONT_PANEL.instantiate()
 	panel.setup(front, empire_a)
@@ -186,9 +186,9 @@ func test_panel_shows_maintenance_cost_per_side() -> void:
 	var front := BattleFront.new(tile_a, tile_b, empire_a, empire_b)
 
 	# Tres tropas → mantenimiento progresivo: 5+10+15 = 30 oro / 30 comida
-	front.assign_troop(_create_troop("T1"), &"attacker")
-	front.assign_troop(_create_troop("T2"), &"attacker")
-	front.assign_troop(_create_troop("T3"), &"attacker")
+	front.assign_troop(_create_troop("T1"), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop("T2"), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop("T3"), BattleFront.Side.ATTACKER)
 
 	var panel: BattleFrontPanel = BATTLE_FRONT_PANEL.instantiate()
 	panel.setup(front, empire_a)
@@ -270,7 +270,7 @@ func test_assign_panel_determines_correct_side() -> void:
 	var panel := AssignTroopsPanel.new()
 	panel.setup(front, stats)
 	add_child(panel)
-	assert_eq(panel.side, &"attacker", "Jugador es atacante")
+	assert_eq(panel.side, BattleFront.Side.ATTACKER, "Jugador es atacante")
 	panel.queue_free()
 
 	# Jugador es defensor
@@ -278,7 +278,7 @@ func test_assign_panel_determines_correct_side() -> void:
 	var panel2 := AssignTroopsPanel.new()
 	panel2.setup(front2, stats)
 	add_child(panel2)
-	assert_eq(panel2.side, &"defender", "Jugador es defensor")
+	assert_eq(panel2.side, BattleFront.Side.DEFENDER, "Jugador es defensor")
 	panel2.queue_free()
 
 

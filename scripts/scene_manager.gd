@@ -267,11 +267,11 @@ func _on_assign_troop_requested(front: BattleFront, player_handler: PlayerHandle
 	assign_panel.setup(front, player_handler.stats)
 	assign_panel.troop_assigned.connect(
 		func(troop: Troop):
-			var side: StringName
+			var side: BattleFront.Side
 			if front.attacker_empire == player_handler.stats.empire:
-				side = &"attacker"
+				side = BattleFront.Side.ATTACKER
 			else:
-				side = &"defender"
+				side = BattleFront.Side.DEFENDER
 			player_handler.battle_front_manager.assign_troop_to_front(front, troop, side)
 	)
 	ui_layer.add_child(assign_panel)

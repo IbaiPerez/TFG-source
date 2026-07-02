@@ -131,15 +131,15 @@ func apply_to_front(front: BattleFront, stats: Stats) -> void:
 	if front == null or stats == null:
 		return
 
-	var side: StringName
+	var side: BattleFront.Side
 	var enemy_tile: Tile
 	var own_tile: Tile
 	if front.attacker_empire == stats.empire:
-		side = &"attacker"
+		side = BattleFront.Side.ATTACKER
 		enemy_tile = front.defender_tile
 		own_tile = front.attacker_tile
 	else:
-		side = &"defender"
+		side = BattleFront.Side.DEFENDER
 		enemy_tile = front.attacker_tile
 		own_tile = front.defender_tile
 

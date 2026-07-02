@@ -217,14 +217,14 @@ class FrontSnap:
 	func involves(p_owner: int) -> bool:
 		return attacker_owner == p_owner or defender_owner == p_owner
 
-	## Devuelve el bando (&"attacker"/&"defender") desde el que participa `p_owner`,
-	## o &"" si no participa.
-	func side_of(p_owner: int) -> StringName:
+	## Devuelve el bando (BattleFront.Side.ATTACKER/BattleFront.Side.DEFENDER) desde el que participa `p_owner`,
+	## o BattleFront.Side.NONE si no participa.
+	func side_of(p_owner: int) -> BattleFront.Side:
 		if attacker_owner == p_owner:
-			return &"attacker"
+			return BattleFront.Side.ATTACKER
 		if defender_owner == p_owner:
-			return &"defender"
-		return &""
+			return BattleFront.Side.DEFENDER
+		return BattleFront.Side.NONE
 
 	func clone() -> FrontSnap:
 		var f := FrontSnap.new()

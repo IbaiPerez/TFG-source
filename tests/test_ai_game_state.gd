@@ -72,7 +72,7 @@ func test_clone_copies_all_scalar_fields() -> void:
 
 func test_clone_copies_fronts_independently() -> void:
 	var s := _make_state()
-	s.fronts.append(AIGameState.FrontSnapshot.of(&"attacker", 3.0, 12.0))
+	s.fronts.append(AIGameState.FrontSnapshot.of(BattleFront.Side.ATTACKER, 3.0, 12.0))
 	var c := s.clone()
 	(c.fronts[0] as AIGameState.FrontSnapshot).marker = 99.0
 	assert_eq((s.fronts[0] as AIGameState.FrontSnapshot).marker, 3.0,
@@ -92,14 +92,14 @@ func test_clone_copies_hand_independently() -> void:
 # ============================================================
 
 func test_front_snapshot_factory() -> void:
-	var f := AIGameState.FrontSnapshot.of(&"defender", -5.0, 10.0)
-	assert_eq(f.own_side,  &"defender")
+	var f := AIGameState.FrontSnapshot.of(BattleFront.Side.DEFENDER, -5.0, 10.0)
+	assert_eq(f.own_side,  BattleFront.Side.DEFENDER)
 	assert_eq(f.marker,    -5.0)
 	assert_eq(f.threshold, 10.0)
 
 
 func test_front_snapshot_clone() -> void:
-	var f := AIGameState.FrontSnapshot.of(&"attacker", 2.0, 8.0)
+	var f := AIGameState.FrontSnapshot.of(BattleFront.Side.ATTACKER, 2.0, 8.0)
 	var c := f.clone()
 	c.marker = 99.0
 	assert_eq(f.marker, 2.0, "clone de FrontSnapshot debe ser independiente")

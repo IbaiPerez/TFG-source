@@ -64,17 +64,17 @@ func after_each() -> void:
 func test_pressure_formula_basic() -> void:
 	# Sin tropas y con biomas simétricos: ambas presiones son iguales (y nulas,
 	# porque el bioma ya no aporta ataque plano).
-	var atk_pressure := front.get_pressure(&"attacker")
-	var def_pressure := front.get_pressure(&"defender")
+	var atk_pressure := front.get_pressure(BattleFront.Side.ATTACKER)
+	var def_pressure := front.get_pressure(BattleFront.Side.DEFENDER)
 	assert_eq(atk_pressure, def_pressure, "Presiones deben ser iguales con biomas simétricos")
 	assert_eq(atk_pressure, 0.0, "Sin tropas no hay presión")
 
 
 func test_pressure_with_troops() -> void:
 	var troop := _create_troop(10, 0)
-	front.assign_troop(troop, &"attacker")
+	front.assign_troop(troop, BattleFront.Side.ATTACKER)
 
-	var atk_pressure := front.get_pressure(&"attacker")
+	var atk_pressure := front.get_pressure(BattleFront.Side.ATTACKER)
 	# atk efectivo de la tropa = 10 (sin enemigos, multiplicador efectividad 1.0)
 	# bioma de la tile contraria (Grassland) → ×1.2
 	# atk total = 10 × 1.2 = 12.0
@@ -86,9 +86,9 @@ func test_pressure_with_troops() -> void:
 func test_no_defender_troops_means_zero_counter_pressure() -> void:
 	# Sin tropas en defensa, el defensor no genera presión sin importar el bioma.
 	var troop := _create_troop(10, 0)
-	front.assign_troop(troop, &"attacker")
+	front.assign_troop(troop, BattleFront.Side.ATTACKER)
 
-	var def_pressure := front.get_pressure(&"defender")
+	var def_pressure := front.get_pressure(BattleFront.Side.DEFENDER)
 	assert_eq(def_pressure, 0.0,
 		"Sin tropas defensoras la presión del defensor es 0 (el bioma no aporta plano)")
 
@@ -97,22 +97,22 @@ func test_defense_diminishing_returns() -> void:
 	# Atacante con ataque fijo. Comprobamos que añadir defensa reduce la
 	# presión cada vez menos (rendimientos decrecientes) por la fórmula
 	# atk / (1 + def_enemiga).
-	front.assign_troop(_create_troop(20, 0), &"attacker")
+	front.assign_troop(_create_troop(20, 0), BattleFront.Side.ATTACKER)
 
 	var t1 := _create_troop(0, 3)
 	var t2 := _create_troop(0, 3)
 	var t3 := _create_troop(0, 6)
 
-	var pressure_at_0 := front.get_pressure(&"attacker")
+	var pressure_at_0 := front.get_pressure(BattleFront.Side.ATTACKER)
 
-	front.assign_troop(t1, &"defender")
-	var pressure_at_3 := front.get_pressure(&"attacker")
+	front.assign_troop(t1, BattleFront.Side.DEFENDER)
+	var pressure_at_3 := front.get_pressure(BattleFront.Side.ATTACKER)
 
-	front.assign_troop(t2, &"defender")
-	var pressure_at_6 := front.get_pressure(&"attacker")
+	front.assign_troop(t2, BattleFront.Side.DEFENDER)
+	var pressure_at_6 := front.get_pressure(BattleFront.Side.ATTACKER)
 
-	front.assign_troop(t3, &"defender")
-	var pressure_at_12 := front.get_pressure(&"attacker")
+	front.assign_troop(t3, BattleFront.Side.DEFENDER)
+	var pressure_at_12 := front.get_pressure(BattleFront.Side.ATTACKER)
 
 	var improvement_0_to_3 := pressure_at_0 - pressure_at_3
 	var improvement_3_to_6 := pressure_at_3 - pressure_at_6
@@ -132,7 +132,7 @@ func test_marker_starts_at_zero() -> void:
 
 func test_tick_moves_marker() -> void:
 	var troop := _create_troop(10, 2)
-	front.assign_troop(troop, &"attacker")
+	front.assign_troop(troop, BattleFront.Side.ATTACKER)
 	front.tick()
 	assert_gt(front.marker, 0.0, "Con ventaja atacante, el marcador debe moverse positivo")
 
@@ -140,8 +140,8 @@ func test_tick_moves_marker() -> void:
 func test_symmetric_forces_marker_stays_near_zero() -> void:
 	var t1 := _create_troop(5, 5)
 	var t2 := _create_troop(5, 5)
-	front.assign_troop(t1, &"attacker")
-	front.assign_troop(t2, &"defender")
+	front.assign_troop(t1, BattleFront.Side.ATTACKER)
+	front.assign_troop(t2, BattleFront.Side.DEFENDER)
 	front.tick()
 	assert_almost_eq(front.marker, 0.0, 0.01, "Fuerzas simétricas: marcador apenas se mueve")
 
@@ -152,7 +152,7 @@ func test_cannot_resolve_before_min_duration() -> void:
 	front.min_duration = 3
 	front.threshold = 1.0  # Umbral muy bajo para forzar resolución rápida
 	var troop := _create_troop(50, 0)
-	front.assign_troop(troop, &"attacker")
+	front.assign_troop(troop, BattleFront.Side.ATTACKER)
 
 	front.tick()  # Turno 1
 	assert_false(front.is_resolved, "No debe resolverse en turno 1 (min_duration=3)")
@@ -164,7 +164,7 @@ func test_resolves_after_min_duration_and_threshold() -> void:
 	front.min_duration = 1
 	front.threshold = 0.5
 	var troop := _create_troop(50, 0)
-	front.assign_troop(troop, &"attacker")
+	front.assign_troop(troop, BattleFront.Side.ATTACKER)
 
 	var resolved := front.tick()
 	assert_true(resolved, "Debe resolverse tras alcanzar umbral y duración mínima")
@@ -177,7 +177,7 @@ func test_attacker_wins_with_positive_marker() -> void:
 	front.min_duration = 1
 	front.threshold = 0.1
 	var troop := _create_troop(50, 50)
-	front.assign_troop(troop, &"attacker")
+	front.assign_troop(troop, BattleFront.Side.ATTACKER)
 
 	var result := [false]
 	front.front_resolved.connect(func(_f, attacker_won): result[0] = attacker_won)
@@ -191,7 +191,7 @@ func test_defender_wins_with_negative_marker() -> void:
 	front.min_duration = 1
 	front.threshold = 0.1
 	var troop := _create_troop(50, 50)
-	front.assign_troop(troop, &"defender")
+	front.assign_troop(troop, BattleFront.Side.DEFENDER)
 
 	var result := [true]
 	front.front_resolved.connect(func(_f, attacker_won): result[0] = attacker_won)
@@ -204,21 +204,21 @@ func test_defender_wins_with_negative_marker() -> void:
 # --- Tests de bonuses de cartas tácticas ---
 
 func test_flat_attack_bonus() -> void:
-	var base_pressure := front.get_pressure(&"attacker")
-	front.add_bonus(&"attacker", { "attack": 5.0, "duration": 2 })
-	var boosted_pressure := front.get_pressure(&"attacker")
+	var base_pressure := front.get_pressure(BattleFront.Side.ATTACKER)
+	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 5.0, "duration": 2 })
+	var boosted_pressure := front.get_pressure(BattleFront.Side.ATTACKER)
 	assert_gt(boosted_pressure, base_pressure, "Bonus de ataque debe aumentar presión")
 
 
 func test_bonus_expires_after_duration() -> void:
-	front.add_bonus(&"attacker", { "attack": 100.0, "duration": 1 })
+	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 100.0, "duration": 1 })
 	assert_eq(front.attacker_bonuses.size(), 1)
 	front.tick()
 	assert_eq(front.attacker_bonuses.size(), 0, "Bonus debe expirar tras 1 turno")
 
 
 func test_permanent_bonus_persists() -> void:
-	front.add_bonus(&"attacker", { "attack": 5.0 })  # Sin "duration"
+	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 5.0 })  # Sin "duration"
 	front.tick()
 	front.tick()
 	assert_eq(front.attacker_bonuses.size(), 1, "Bonus sin duración debe persistir")
@@ -237,7 +237,7 @@ func test_active_registry_clears_on_resolve() -> void:
 	# Forzar resolución
 	front.min_duration = 1
 	front.threshold = 0.1
-	front.assign_troop(_create_troop(50, 0), &"attacker")
+	front.assign_troop(_create_troop(50, 0), BattleFront.Side.ATTACKER)
 	front.tick()
 	assert_true(front.is_resolved, "Sanity check: el frente debe haberse resuelto")
 
@@ -262,32 +262,32 @@ func test_is_tile_in_active_front_returns_false_for_unrelated_tile() -> void:
 # --- Tests de stats de tropas asignadas (info para la UI) ---
 
 func test_assigned_troops_attack_sums_only_troop_attack() -> void:
-	front.assign_troop(_create_troop(4, 1), &"attacker")
-	front.assign_troop(_create_troop(6, 2), &"attacker")
+	front.assign_troop(_create_troop(4, 1), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(6, 2), BattleFront.Side.ATTACKER)
 	# Sin tropas en defensa
-	assert_eq(front.get_assigned_troops_attack(&"attacker"), 10,
+	assert_eq(front.get_assigned_troops_attack(BattleFront.Side.ATTACKER), 10,
 		"Debe sumar atk de las tropas asignadas (4+6=10)")
-	assert_eq(front.get_assigned_troops_attack(&"defender"), 0,
+	assert_eq(front.get_assigned_troops_attack(BattleFront.Side.DEFENDER), 0,
 		"Sin tropas asignadas el atk de tropas debe ser 0")
 
 
 func test_assigned_troops_defense_sums_only_troop_defense() -> void:
-	front.assign_troop(_create_troop(0, 5), &"defender")
-	front.assign_troop(_create_troop(0, 7), &"defender")
-	assert_eq(front.get_assigned_troops_defense(&"defender"), 12,
+	front.assign_troop(_create_troop(0, 5), BattleFront.Side.DEFENDER)
+	front.assign_troop(_create_troop(0, 7), BattleFront.Side.DEFENDER)
+	assert_eq(front.get_assigned_troops_defense(BattleFront.Side.DEFENDER), 12,
 		"Debe sumar def de las tropas asignadas (5+7=12)")
-	assert_eq(front.get_assigned_troops_defense(&"attacker"), 0,
+	assert_eq(front.get_assigned_troops_defense(BattleFront.Side.ATTACKER), 0,
 		"Sin tropas asignadas la def de tropas debe ser 0")
 
 
 func test_assigned_troops_stats_ignore_biome_and_bonuses() -> void:
 	# El atk total tiene bioma + bonuses; el de tropas asignadas no.
-	front.assign_troop(_create_troop(3, 0), &"attacker")
-	front.add_bonus(&"attacker", { "attack": 50.0 })
+	front.assign_troop(_create_troop(3, 0), BattleFront.Side.ATTACKER)
+	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 50.0 })
 
-	assert_eq(front.get_assigned_troops_attack(&"attacker"), 3,
+	assert_eq(front.get_assigned_troops_attack(BattleFront.Side.ATTACKER), 3,
 		"Las tropas asignadas no deben incluir bioma ni bonuses")
-	assert_gt(front.get_total_attack(&"attacker"), 3.0,
+	assert_gt(front.get_total_attack(BattleFront.Side.ATTACKER), 3.0,
 		"El total sí debe seguir incluyendo bioma y bonuses")
 
 
@@ -297,18 +297,18 @@ func test_front_maintenance_scales_progressively() -> void:
 	var t1 := _create_troop(3, 3)
 	var t2 := _create_troop(3, 3)
 	var t3 := _create_troop(3, 3)
-	front.assign_troop(t1, &"attacker")
-	front.assign_troop(t2, &"attacker")
-	front.assign_troop(t3, &"attacker")
+	front.assign_troop(t1, BattleFront.Side.ATTACKER)
+	front.assign_troop(t2, BattleFront.Side.ATTACKER)
+	front.assign_troop(t3, BattleFront.Side.ATTACKER)
 
-	var maint := front.get_front_maintenance(&"attacker")
+	var maint := front.get_front_maintenance(BattleFront.Side.ATTACKER)
 	# 5 + 10 + 15 = 30
 	assert_eq(maint["gold"], 30, "Mantenimiento progresivo: 5+10+15 = 30 oro")
 	assert_eq(maint["food"], 30, "Mantenimiento progresivo: 5+10+15 = 30 comida")
 
 
 func test_front_maintenance_empty() -> void:
-	var maint := front.get_front_maintenance(&"attacker")
+	var maint := front.get_front_maintenance(BattleFront.Side.ATTACKER)
 	assert_eq(maint["gold"], 0)
 	assert_eq(maint["food"], 0)
 
@@ -321,9 +321,9 @@ func test_casualties_proportional() -> void:
 
 	# Atacante aplastante
 	for i in range(5):
-		front.assign_troop(_create_troop(10, 10), &"attacker")
+		front.assign_troop(_create_troop(10, 10), BattleFront.Side.ATTACKER)
 	for i in range(3):
-		front.assign_troop(_create_troop(1, 1), &"defender")
+		front.assign_troop(_create_troop(1, 1), BattleFront.Side.DEFENDER)
 
 	front.tick()
 	assert_true(front.is_resolved)
@@ -348,10 +348,10 @@ func test_effective_attack_strong_matchup_increases_total_attack() -> void:
 	# Tropas con efectividad ×1.5 → atk efectivo = 15.
 	# Bioma de la tile contraria (Grassland) → multiplicador ATK ×1.2.
 	# atk total = 15 × 1.2 = 18.0
-	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), &"attacker")
-	front.assign_troop(_create_troop(1, 0, "Dis", Troop.TroopType.A_DISTANCIA), &"defender")
+	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(1, 0, "Dis", Troop.TroopType.A_DISTANCIA), BattleFront.Side.DEFENDER)
 
-	var atk := front.get_total_attack(&"attacker")
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(atk, 10.0 * 1.5 * 1.2, 0.01,
 		"Caballería vs A Distancia: efectividad ×1.5 y bioma grassland ×1.2")
 
@@ -359,10 +359,10 @@ func test_effective_attack_strong_matchup_increases_total_attack() -> void:
 func test_effective_attack_weak_matchup_decreases_total_attack() -> void:
 	# Caballería vs piqueros → efectividad ×0.7. Bioma Grassland ×1.2.
 	# atk total = 10 × 0.7 × 1.2 = 8.4
-	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), &"attacker")
-	front.assign_troop(_create_troop(1, 6, "Piq", Troop.TroopType.PIQUEROS), &"defender")
+	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(1, 6, "Piq", Troop.TroopType.PIQUEROS), BattleFront.Side.DEFENDER)
 
-	var atk := front.get_total_attack(&"attacker")
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(atk, 10.0 * 0.7 * 1.2, 0.01,
 		"Caballería vs Piqueros: efectividad ×0.7 y bioma grassland ×1.2")
 
@@ -370,9 +370,9 @@ func test_effective_attack_weak_matchup_decreases_total_attack() -> void:
 func test_effective_attack_neutral_when_no_enemy_troops() -> void:
 	# Sin enemigos: matchup neutro ×1.0. Bioma Grassland ×1.2.
 	# atk total = 10 × 1.0 × 1.2 = 12.0
-	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), &"attacker")
+	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
 
-	var atk := front.get_total_attack(&"attacker")
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(atk, 10.0 * 1.2, 0.01,
 		"Sin tropas enemigas el atk efectivo es la suma plana (×1.0) y se aplica el bioma")
 
@@ -380,11 +380,11 @@ func test_effective_attack_neutral_when_no_enemy_troops() -> void:
 func test_effective_attack_does_not_modify_buildings_or_bonuses() -> void:
 	# El bonus plano de 5 al ataque NO se ve afectado por efectividad ni por
 	# el multiplicador de bioma. Solo el aporte de tropas pasa por ambos.
-	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), &"attacker")
-	front.assign_troop(_create_troop(1, 0, "Dis", Troop.TroopType.A_DISTANCIA), &"defender")
-	front.add_bonus(&"attacker", { "attack": 5.0 })
+	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(1, 0, "Dis", Troop.TroopType.A_DISTANCIA), BattleFront.Side.DEFENDER)
+	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 5.0 })
 
-	var atk := front.get_total_attack(&"attacker")
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	# Tropas: 10 × 1.5 (efectividad) × 1.2 (bioma) = 18; bonus plano: +5 → 23
 	assert_almost_eq(atk, 10.0 * 1.5 * 1.2 + 5.0, 0.01,
 		"El bonus plano no pasa por matriz de efectividad ni por multiplicador de bioma")
@@ -394,11 +394,11 @@ func test_effective_attack_weighted_average_against_mixed_enemy() -> void:
 	# Caballería vs 1 a distancia + 1 piquero (50/50).
 	# Multiplicador medio = 0.5×1.5 + 0.5×0.7 = 1.10
 	# atk total = 10 × 1.10 × 1.2 (bioma) = 13.2
-	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), &"attacker")
-	front.assign_troop(_create_troop(1, 0, "Dis", Troop.TroopType.A_DISTANCIA), &"defender")
-	front.assign_troop(_create_troop(1, 0, "Piq", Troop.TroopType.PIQUEROS), &"defender")
+	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(1, 0, "Dis", Troop.TroopType.A_DISTANCIA), BattleFront.Side.DEFENDER)
+	front.assign_troop(_create_troop(1, 0, "Piq", Troop.TroopType.PIQUEROS), BattleFront.Side.DEFENDER)
 
-	var atk := front.get_total_attack(&"attacker")
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(atk, 10.0 * 1.10 * 1.2, 0.01,
 		"Mezcla 50/50 fuerte+débil debe dar multiplicador medio 1.10 (y bioma ×1.2)")
 
@@ -406,10 +406,10 @@ func test_effective_attack_weighted_average_against_mixed_enemy() -> void:
 func test_defense_is_not_affected_by_effectiveness() -> void:
 	# La defensa no pasa por la matriz de efectividad — solo el ataque.
 	# Tropa atacante con def=6 en Grassland → multiplicador DEF propio ×0.9.
-	front.assign_troop(_create_troop(0, 6, "Cab", Troop.TroopType.CABALLERIA), &"attacker")
-	front.assign_troop(_create_troop(0, 0, "Piq", Troop.TroopType.PIQUEROS), &"defender")
+	front.assign_troop(_create_troop(0, 6, "Cab", Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(0, 0, "Piq", Troop.TroopType.PIQUEROS), BattleFront.Side.DEFENDER)
 
-	var def := front.get_total_defense(&"attacker")
+	var def := front.get_total_defense(BattleFront.Side.ATTACKER)
 	assert_almost_eq(def, 6.0 * 0.9, 0.01,
 		"La defensa solo aplica el multiplicador de bioma propio, no la matriz de efectividad")
 
@@ -437,15 +437,15 @@ func test_biome_attack_multiplier_uses_enemy_tile() -> void:
 	BattleFront.clear_active_instances()
 	front = _make_front(Tile.biome_type.Mountain, Tile.biome_type.Grassland)
 
-	front.assign_troop(_create_troop(10, 0), &"attacker")
-	front.assign_troop(_create_troop(10, 0), &"defender")
+	front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(10, 0), BattleFront.Side.DEFENDER)
 
 	# Sin enemigos del mismo tipo → matchup neutro; sólo bioma actúa.
 	# Atacante: 10 × 1.2 (Grassland) = 12.0
 	# Defensor: 10 × 0.6 (Mountain)  = 6.0
-	assert_almost_eq(front.get_total_attack(&"attacker"), 12.0, 0.01,
+	assert_almost_eq(front.get_total_attack(BattleFront.Side.ATTACKER), 12.0, 0.01,
 		"ATK del atacante usa el bioma de la tile DEFENSORA (Grassland → ×1.2)")
-	assert_almost_eq(front.get_total_attack(&"defender"), 6.0, 0.01,
+	assert_almost_eq(front.get_total_attack(BattleFront.Side.DEFENDER), 6.0, 0.01,
 		"ATK del defensor usa el bioma de la tile ATACANTE (Mountain → ×0.6)")
 
 
@@ -455,12 +455,12 @@ func test_biome_defense_multiplier_uses_own_tile() -> void:
 	BattleFront.clear_active_instances()
 	front = _make_front(Tile.biome_type.Mountain, Tile.biome_type.Desert)
 
-	front.assign_troop(_create_troop(0, 10), &"attacker")
-	front.assign_troop(_create_troop(0, 10), &"defender")
+	front.assign_troop(_create_troop(0, 10), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(0, 10), BattleFront.Side.DEFENDER)
 
-	assert_almost_eq(front.get_total_defense(&"attacker"), 10.0 * 1.5, 0.01,
+	assert_almost_eq(front.get_total_defense(BattleFront.Side.ATTACKER), 10.0 * 1.5, 0.01,
 		"DEF del atacante usa el bioma de su PROPIA tile (Mountain → ×1.5)")
-	assert_almost_eq(front.get_total_defense(&"defender"), 10.0 * 0.85, 0.01,
+	assert_almost_eq(front.get_total_defense(BattleFront.Side.DEFENDER), 10.0 * 0.85, 0.01,
 		"DEF del defensor usa el bioma de su PROPIA tile (Desert → ×0.85)")
 
 
@@ -479,9 +479,9 @@ func test_biome_attack_multiplier_per_biome_values() -> void:
 	for biome in expected.keys():
 		BattleFront.clear_active_instances()
 		front = _make_front(Tile.biome_type.Tundra, biome)
-		front.assign_troop(_create_troop(10, 0), &"attacker")
+		front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
 		var expected_atk: float = 10.0 * expected[biome]
-		assert_almost_eq(front.get_total_attack(&"attacker"), expected_atk, 0.01,
+		assert_almost_eq(front.get_total_attack(BattleFront.Side.ATTACKER), expected_atk, 0.01,
 			"Bioma %s: ATK esperado %s" % [biome, expected_atk])
 
 
@@ -500,9 +500,9 @@ func test_biome_defense_multiplier_per_biome_values() -> void:
 		BattleFront.clear_active_instances()
 		# Tile contraria neutra para no contaminar.
 		front = _make_front(biome, Tile.biome_type.Tundra)
-		front.assign_troop(_create_troop(0, 10), &"attacker")
+		front.assign_troop(_create_troop(0, 10), BattleFront.Side.ATTACKER)
 		var expected_def: float = 10.0 * expected[biome]
-		assert_almost_eq(front.get_total_defense(&"attacker"), expected_def, 0.01,
+		assert_almost_eq(front.get_total_defense(BattleFront.Side.ATTACKER), expected_def, 0.01,
 			"Bioma %s: DEF esperada %s" % [biome, expected_def])
 
 
@@ -511,10 +511,10 @@ func test_biome_does_not_scale_flat_bonus() -> void:
 	# El bonus plano debe quedarse íntegro; sólo las tropas se escalan por bioma.
 	BattleFront.clear_active_instances()
 	front = _make_front(Tile.biome_type.Tundra, Tile.biome_type.Mountain)
-	front.assign_troop(_create_troop(10, 0), &"attacker")
-	front.add_bonus(&"attacker", { "attack": 100.0 })
+	front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
+	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 100.0 })
 
-	var atk := front.get_total_attack(&"attacker")
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	# Tropas: 10 × 0.6 = 6;  bonus plano: 100 → total = 106
 	assert_almost_eq(atk, 10.0 * 0.6 + 100.0, 0.01,
 		"El bonus plano no se ve afectado por el multiplicador de bioma")
@@ -526,12 +526,12 @@ func test_no_troops_means_zero_attack_and_defense_in_any_biome() -> void:
 	BattleFront.clear_active_instances()
 	front = _make_front(Tile.biome_type.Mountain, Tile.biome_type.Grassland)
 
-	assert_eq(front.get_total_attack(&"attacker"), 0.0,
+	assert_eq(front.get_total_attack(BattleFront.Side.ATTACKER), 0.0,
 		"Sin tropas no hay ataque, da igual el bioma")
-	assert_eq(front.get_total_defense(&"attacker"), 0.0,
+	assert_eq(front.get_total_defense(BattleFront.Side.ATTACKER), 0.0,
 		"Sin tropas no hay defensa, da igual el bioma")
-	assert_eq(front.get_total_attack(&"defender"), 0.0)
-	assert_eq(front.get_total_defense(&"defender"), 0.0)
+	assert_eq(front.get_total_attack(BattleFront.Side.DEFENDER), 0.0)
+	assert_eq(front.get_total_defense(BattleFront.Side.DEFENDER), 0.0)
 
 
 # ============================================================
@@ -542,8 +542,8 @@ func test_combat_multiplier_default_does_not_change_attack() -> void:
 	# combat_multiplier = 1.0 (default) = sin penalizacion. La salida es la
 	# misma que sin la fix, garantiza retrocompat para empires economicamente
 	# sanas.
-	front.assign_troop(_create_troop(10, 0), &"attacker")
-	var atk := front.get_total_attack(&"attacker")
+	front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	# Grassland atacando Grassland: multiplicador biome = 1.20.
 	assert_almost_eq(atk, 10.0 * 1.20, 0.01,
 		"Con combat_multiplier=1.0 el ATK es el de tropas × biome, sin penalty")
@@ -553,8 +553,8 @@ func test_combat_multiplier_halves_troop_attack() -> void:
 	# Imperio en deficit: combat_multiplier = 0.5 (50% penalty). El ATK
 	# de las tropas se reduce a la mitad.
 	atk_empire.combat_multiplier = 0.5
-	front.assign_troop(_create_troop(10, 0), &"attacker")
-	var atk := front.get_total_attack(&"attacker")
+	front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(atk, 10.0 * 1.20 * 0.5, 0.01,
 		"combat_multiplier=0.5 → ATK escalado al 50%")
 
@@ -562,8 +562,8 @@ func test_combat_multiplier_halves_troop_attack() -> void:
 func test_combat_multiplier_halves_troop_defense() -> void:
 	# Mismo principio para defensa, mirando al defender_empire.
 	def_empire.combat_multiplier = 0.5
-	front.assign_troop(_create_troop(0, 10), &"defender")
-	var def := front.get_total_defense(&"defender")
+	front.assign_troop(_create_troop(0, 10), BattleFront.Side.DEFENDER)
+	var def := front.get_total_defense(BattleFront.Side.DEFENDER)
 	# Defender en Grassland: multiplicador biome defense = 0.90.
 	assert_almost_eq(def, 10.0 * 0.90 * 0.5, 0.01,
 		"combat_multiplier=0.5 → DEF escalada al 50%")
@@ -573,10 +573,10 @@ func test_combat_multiplier_does_not_affect_flat_bonus() -> void:
 	# El multiplier solo afecta a la contribucion de tropas; bonuses
 	# tacticos planos siguen al 100%. Verificamos con un bonus de +100 ATK.
 	atk_empire.combat_multiplier = 0.1  # Peor caso
-	front.assign_troop(_create_troop(10, 0), &"attacker")
-	front.add_bonus(&"attacker", { "attack": 100.0 })
+	front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
+	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 100.0 })
 
-	var atk := front.get_total_attack(&"attacker")
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	# Tropas: 10 × 1.20 × 0.1 = 1.2;  bonus plano: 100 → total = 101.2
 	assert_almost_eq(atk, 10.0 * 1.20 * 0.1 + 100.0, 0.01,
 		"El bonus plano debe quedar intacto aunque combat_multiplier sea 0.1")
@@ -587,11 +587,11 @@ func test_combat_multiplier_independent_per_side() -> void:
 	# propio multiplier, no se cruzan.
 	atk_empire.combat_multiplier = 0.3
 	def_empire.combat_multiplier = 1.0
-	front.assign_troop(_create_troop(10, 0), &"attacker")
-	front.assign_troop(_create_troop(0, 10), &"defender")
+	front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
+	front.assign_troop(_create_troop(0, 10), BattleFront.Side.DEFENDER)
 
-	var atk := front.get_total_attack(&"attacker")
-	var def := front.get_total_defense(&"defender")
+	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
+	var def := front.get_total_defense(BattleFront.Side.DEFENDER)
 	assert_almost_eq(atk, 10.0 * 1.20 * 0.3, 0.01)
 	assert_almost_eq(def, 10.0 * 0.90 * 1.0, 0.01)
 

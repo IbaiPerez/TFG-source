@@ -88,8 +88,8 @@ func _update_display() -> void:
 	_update_tug_bar()
 
 	# Stats por bando
-	_update_side_stats(&"attacker", attacker_stats_label)
-	_update_side_stats(&"defender", defender_stats_label)
+	_update_side_stats(BattleFront.Side.ATTACKER, attacker_stats_label)
+	_update_side_stats(BattleFront.Side.DEFENDER, defender_stats_label)
 
 	# Tropas
 	_update_troops_display(battle_front.attacker_troops, attacker_troops_container, attacker_color)
@@ -133,7 +133,7 @@ func _update_tug_bar() -> void:
 		tug_indicator.position.x = 2.0 + t * (bar_width - 4.0) - tug_indicator.size.x / 2.0
 
 
-func _update_side_stats(side: StringName, label: RichTextLabel) -> void:
+func _update_side_stats(side: BattleFront.Side, label: RichTextLabel) -> void:
 	var atk := battle_front.get_total_attack(side)
 	var def := battle_front.get_total_defense(side)
 	var pressure := battle_front.get_pressure(side)
@@ -143,8 +143,8 @@ func _update_side_stats(side: StringName, label: RichTextLabel) -> void:
 
 	# Multiplicador medio efectivo contra la composición enemiga.
 	# Sirve para mostrar al jugador si su lineup está siendo super/no efectivo.
-	var own_troops: Array[Troop] = battle_front.attacker_troops if side == &"attacker" else battle_front.defender_troops
-	var enemy_troops: Array[Troop] = battle_front.defender_troops if side == &"attacker" else battle_front.attacker_troops
+	var own_troops: Array[Troop] = battle_front.attacker_troops if side == BattleFront.Side.ATTACKER else battle_front.defender_troops
+	var enemy_troops: Array[Troop] = battle_front.defender_troops if side == BattleFront.Side.ATTACKER else battle_front.attacker_troops
 	var effective_troops_atk: float = TroopEffectiveness.get_effective_attack(own_troops, enemy_troops)
 	var effectiveness_mult: float = 1.0
 	if troops_atk > 0:
@@ -178,8 +178,8 @@ func _update_side_stats(side: StringName, label: RichTextLabel) -> void:
 ## Construye una lista textual de las tácticas activas en el bando indicado.
 ## Cada línea muestra el nombre, los tipos afectados y los bonus efectivos
 ## (% y/o plano), incluyendo ya el modificador de bioma capturado.
-func _render_active_tactics(side: StringName) -> Array[String]:
-	var bonuses: Array = battle_front.attacker_bonuses if side == &"attacker" else battle_front.defender_bonuses
+func _render_active_tactics(side: BattleFront.Side) -> Array[String]:
+	var bonuses: Array = battle_front.attacker_bonuses if side == BattleFront.Side.ATTACKER else battle_front.defender_bonuses
 	var lines: Array[String] = []
 	for bonus in bonuses:
 		if bonus.tactic_name == "":
@@ -272,12 +272,12 @@ func _on_marker_changed(front: BattleFront, _new_value: float) -> void:
 		_update_display()
 
 
-func _on_troop_assigned(front: BattleFront, _troop: Troop, _side: StringName) -> void:
+func _on_troop_assigned(front: BattleFront, _troop: Troop, _side: BattleFront.Side) -> void:
 	if front == battle_front:
 		_update_display()
 
 
-func _on_bonus_applied(front: BattleFront, _side: StringName) -> void:
+func _on_bonus_applied(front: BattleFront, _side: BattleFront.Side) -> void:
 	if front == battle_front:
 		_update_display()
 

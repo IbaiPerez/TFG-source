@@ -28,7 +28,7 @@ static func build_snapshot() -> Dictionary:
 	if player_handler == null:
 		return {}
 
-	var turn_manager_node := map_node.get_node_or_null("TurnManager") as TurnManager
+	var turn_manager_node := map_node.get_node_or_null(MapScenePaths.TURN_MANAGER) as TurnManager
 	if turn_manager_node == null:
 		return {}
 
@@ -62,7 +62,7 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 	if snapshot.is_empty():
 		return false
 
-	var tile_parent := map_node.get_node_or_null("Scene/TileParent") as Node3D
+	var tile_parent := map_node.get_node_or_null(MapScenePaths.TILE_PARENT) as Node3D
 	if tile_parent == null:
 		push_warning("[GameStateSerializer] No se encontró Scene/TileParent")
 		return false
@@ -120,8 +120,8 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 			continue
 
 		# El reglamento de eventos vive en res://resources/turn_events/.
-		# Lo cargamos igual que map.gd hace en el flujo normal.
-		stats.available_events = _load_turn_events()
+		# Mismo punto de carga que usa map.gd en el flujo normal.
+		stats.available_events = TurnEventLoader.load_all()
 
 		var is_player:bool = empire_entry.get("is_player", false)
 		var controller:EmpireController = _spawn_controller(map_node, is_player)
@@ -136,7 +136,7 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 		if is_player:
 			player_stats = stats
 			# Conectar la mano del jugador a su stats restaurada.
-			var ui_layer := map_node.get_node_or_null("Scene/UI_layer")
+			var ui_layer := map_node.get_node_or_null(MapScenePaths.UI_LAYER)
 			if ui_layer:
 				ui_layer.set("stats", stats)
 			# Restaurar la mano y el contador de cartas jugadas.
@@ -188,7 +188,7 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 	turn_manager.current_index = int(tm_data.get("current_index", 0))
 
 	# 8) UI inicial (igual que en flujo normal post-generación).
-	var ui_layer:UILayer = map_node.get_node_or_null("Scene/UI_layer")
+	var ui_layer:UILayer = map_node.get_node_or_null(MapScenePaths.UI_LAYER)
 	if ui_layer and ui_layer.ui:
 		ui_layer.ui.initialize_card_pile_ui()
 
@@ -204,7 +204,7 @@ static func _resource_path_or_empty(resource:Variant) -> String:
 
 
 static func _read_map_seed(map_node:Node) -> int:
-	var wg:Node = map_node.get_node_or_null("Node/WorldGenerator")
+	var wg:Node = map_node.get_node_or_null(MapScenePaths.WORLD_GENERATOR)
 	if wg == null:
 		return 0
 	var settings:Variant = wg.get("settings")
@@ -284,7 +284,7 @@ static func _instantiate_empires(empires_data:Array) -> Dictionary:
 
 static func _setup_turn_manager(map_node:Node3D) -> TurnManager:
 	var turn_manager := TurnManager.new()
-	turn_manager.name = "TurnManager"
+	turn_manager.name = MapScenePaths.TURN_MANAGER
 	map_node.add_child(turn_manager)
 
 	# Reconectar las señales de fin de turno del jugador.
@@ -297,20 +297,20 @@ static func _setup_turn_manager(map_node:Node3D) -> TurnManager:
 
 static func _spawn_controller(map_node:Node3D, is_player:bool) -> EmpireController:
 	if is_player:
-		var existing:Node = map_node.get_node_or_null("Node/PlayerHandler")
+		var existing:Node = map_node.get_node_or_null(MapScenePaths.PLAYER_HANDLER)
 		if existing is PlayerHandler:
 			return existing as PlayerHandler
 		var ph := PlayerHandler.new()
-		ph.name = "PlayerHandler"
-		map_node.get_node("Node").add_child(ph)
+		ph.name = MapScenePaths.PLAYER_HANDLER_NAME
+		map_node.get_node(MapScenePaths.NODE).add_child(ph)
 		return ph
 	else:
-		var existing: Node = map_node.get_node_or_null("Node/AIController")
+		var existing: Node = map_node.get_node_or_null(MapScenePaths.AI_CONTROLLER)
 		if existing is AIController:
 			return existing as AIController
 		var ai := AIController.new()
-		ai.name = "AIController_%d" % map_node.get_node("Node").get_child_count()
-		map_node.get_node("Node").add_child(ai)
+		ai.name = "AIController_%d" % map_node.get_node(MapScenePaths.NODE).get_child_count()
+		map_node.get_node(MapScenePaths.NODE).add_child(ai)
 		return ai
 
 
@@ -351,22 +351,3 @@ static func _controller_for_empire(turn_manager:TurnManager, empire:Empire) -> E
 		if ctrl.stats and ctrl.stats.empire == empire:
 			return ctrl
 	return null
-
-
-## Carga eventos de turno desde res://resources/turn_events/ (mismo flujo
-## que map.gd._load_turn_events).
-static func _load_turn_events() -> Array[TurnEvent]:
-	var events:Array[TurnEvent] = []
-	var dir := DirAccess.open("res://resources/turn_events/")
-	if dir == null:
-		return events
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var event := load("res://resources/turn_events/" + file_name) as TurnEvent
-			if event:
-				events.append(event)
-		file_name = dir.get_next()
-	dir.list_dir_end()
-	return events

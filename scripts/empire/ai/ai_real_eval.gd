@@ -202,10 +202,10 @@ static func _military_urgency(state: AIRealState, p_owner: int) -> float:
 		if front.is_resolved:
 			continue
 		var side := front.side_of(p_owner)
-		if side == &"":
+		if side == BattleFront.Side.NONE:
 			continue
 		urgency = maxf(urgency, 1.5)
-		var our_marker := front.marker if side == &"attacker" else -front.marker
+		var our_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
 		if our_marker < 0.0:
 			urgency = maxf(urgency, 2.5)
 	return urgency

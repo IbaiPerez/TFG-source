@@ -106,9 +106,13 @@ func _process_turn_start() -> void:
 	var calc := ProductionCalculator.new(stats, modifier_manager, battle_front_manager)
 	var result := calc.calculate_turn()
 
+	# Las tres escrituras se agrupan en una sola emisión de stats_changed
+	# (evita re-renders de UI redundantes al inicio de cada turno).
+	stats.begin_update()
 	stats.gold_per_turn = result["gold"]
 	stats.food = result["food"]
 	stats.total_gold += stats.gold_per_turn
+	stats.end_update()
 
 	# Penalizacion de combate por economia en deficit (Opcion 3).
 	# Tras fijar gpt/food del turno, derivamos el combat_multiplier del
@@ -188,8 +192,13 @@ func _on_tile_conquered(tile:Tile):
 	tile.building_demolished.connect(_on_building_demolished)
 
 func _on_tile_lost(tile:Tile):
-	stats.gold_per_turn -= tile.natural_resource.gold_produced
-	stats.food -= tile.natural_resource.food_produced
+	# Simétrico con _on_tile_conquered: restamos la produccion COMPLETA del tile
+	# (recurso natural + edificios − consumo de la localizacion), no solo el
+	# recurso natural. Restar de menos inflaba el gold/food por turno mostrado
+	# hasta que el recalculo completo de ProductionCalculator lo corregia al
+	# inicio del siguiente turno.
+	stats.gold_per_turn -= tile.gold_production
+	stats.food -= tile.food_production
 	tile.building_completed.disconnect(_on_building_completed)
 	tile.building_demolished.disconnect(_on_building_demolished)
 

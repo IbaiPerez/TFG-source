@@ -18,11 +18,11 @@ class_name AIGameState
 
 ## Snapshot de un frente activo desde la perspectiva propia.
 class FrontSnapshot:
-	var own_side: StringName    ## &"attacker" o &"defender"
+	var own_side: BattleFront.Side    ## BattleFront.Side.ATTACKER o BattleFront.Side.DEFENDER
 	var marker: float
 	var threshold: float
 
-	static func of(p_side: StringName, p_marker: float, p_threshold: float) -> FrontSnapshot:
+	static func of(p_side: BattleFront.Side, p_marker: float, p_threshold: float) -> FrontSnapshot:
 		var f := AIGameState.FrontSnapshot.new()
 		f.own_side = p_side
 		f.marker = p_marker
@@ -112,11 +112,11 @@ static func from_context(ctx: AITurnContext) -> AIGameState:
 		for front in BattleFront.get_active_instances():
 			if front == null or front.is_resolved:
 				continue
-			var side: StringName
+			var side: BattleFront.Side
 			if front.attacker_empire == stats.empire:
-				side = &"attacker"
+				side = BattleFront.Side.ATTACKER
 			elif front.defender_empire == stats.empire:
-				side = &"defender"
+				side = BattleFront.Side.DEFENDER
 			else:
 				continue
 			s.fronts.append(

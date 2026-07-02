@@ -5,11 +5,17 @@ class_name BattleFront
 ## El marcador empieza en 0.0 y se mueve hacia +umbral (gana atacante)
 ## o -umbral (gana defensor).
 
+## Bando de un frente. Sustituye a los antiguos marcadores StringName de texto
+## por un enum con seguridad de tipos. El orden de la API se conserva: el
+## atacante primero. `NONE` es el centinela para "no participa en este frente"
+## (antes se representaba con la cadena vacía).
+enum Side { ATTACKER, DEFENDER, NONE }
+
 signal front_resolved(front: BattleFront, attacker_won: bool)
 signal marker_changed(front: BattleFront, new_value: float)
 ## Emitida cuando la lista de bonuses de un bando cambia (añadido o eliminado).
 ## Permite que la UI y los visuales 3D refresquen sin polling.
-signal bonuses_changed(side: StringName)
+signal bonuses_changed(side: BattleFront.Side)
 
 ## Tiles enfrentadas
 var attacker_tile: Tile
@@ -44,10 +50,13 @@ var attacker_troops: Array[Troop] = []
 var defender_troops: Array[Troop] = []
 
 ## Bonus temporales de cartas tácticas activas.
-## Contienen instancias TacticBonus; `add_bonus` convierte Dictionaries legacy.
-## Declarados como Array sin tipo para compatibilidad con código que asigna
-## arrays de Dictionaries directamente (p.ej. el serializador al cargar).
-## Internamente, _as_tactic_bonus() garantiza acceso tipado en cada operación.
+## En runtime SIEMPRE contienen instancias TacticBonus: `add_bonus` convierte los
+## Dictionaries legacy y `BattleFrontSerializer._restore_bonuses` reconstruye
+## TacticBonus al cargar. Aun así el Array se declara SIN TIPO a propósito: hay
+## código (y tests) que asignan un array de Dictionaries directamente a estos
+## campos —p.ej. test_battle_front_serializer, que valida el saneado de la ruta
+## legacy—. `_as_tactic_bonus()` garantiza acceso tipado en cada operación, así
+## que ambos formatos conviven de forma segura.
 var attacker_bonuses: Array = []
 var defender_bonuses: Array = []
 
@@ -95,14 +104,14 @@ static func clear_active_instances() -> void:
 ## edificios y los bonuses de cartas tácticas no se ven afectados por el
 ## bioma base — los bonuses tienen su propio modificador capturado al jugar
 ## la carta.
-func get_total_attack(side: StringName) -> float:
+func get_total_attack(side: BattleFront.Side) -> float:
 	var own_tile: Tile
 	var enemy_tile: Tile
 	var troops: Array[Troop]
 	var enemy_troops: Array[Troop]
 	var bonuses: Array
 
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		own_tile = attacker_tile
 		enemy_tile = defender_tile
 		troops = attacker_troops
@@ -163,12 +172,12 @@ func get_total_attack(side: StringName) -> float:
 ## **propia** (defender en bosque/montaña refuerza a las tropas; defender en
 ## pradera/desierto las debilita). Los edificios y bonuses tácticos no pasan
 ## por este multiplicador — los bonuses tienen su propio modificador de bioma.
-func get_total_defense(side: StringName) -> float:
+func get_total_defense(side: BattleFront.Side) -> float:
 	var own_tile: Tile
 	var troops: Array[Troop]
 	var bonuses: Array
 
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		own_tile = attacker_tile
 		troops = attacker_troops
 		bonuses = attacker_bonuses
@@ -223,9 +232,9 @@ func get_total_defense(side: StringName) -> float:
 ## Suma el ataque base de las tropas asignadas a un bando (sin bioma,
 ## edificios ni bonuses). Útil para informar al jugador de cuánta fuerza
 ## ha comprometido en el frente.
-func get_assigned_troops_attack(side: StringName) -> int:
+func get_assigned_troops_attack(side: BattleFront.Side) -> int:
 	var total: int = 0
-	var troops: Array[Troop] = attacker_troops if side == &"attacker" else defender_troops
+	var troops: Array[Troop] = attacker_troops if side == BattleFront.Side.ATTACKER else defender_troops
 	for troop in troops:
 		total += troop.attack
 	return total
@@ -233,24 +242,24 @@ func get_assigned_troops_attack(side: StringName) -> int:
 
 ## Suma la defensa base de las tropas asignadas a un bando (sin bioma,
 ## edificios ni bonuses).
-func get_assigned_troops_defense(side: StringName) -> int:
+func get_assigned_troops_defense(side: BattleFront.Side) -> int:
 	var total: int = 0
-	var troops: Array[Troop] = attacker_troops if side == &"attacker" else defender_troops
+	var troops: Array[Troop] = attacker_troops if side == BattleFront.Side.ATTACKER else defender_troops
 	for troop in troops:
 		total += troop.defense
 	return total
 
 
 ## Calcula la presión de un bando: atk / (1 + def_enemiga).
-func get_pressure(side: StringName) -> float:
+func get_pressure(side: BattleFront.Side) -> float:
 	var atk: float
 	var enemy_def: float
-	if side == &"attacker":
-		atk = get_total_attack(&"attacker")
-		enemy_def = get_total_defense(&"defender")
+	if side == BattleFront.Side.ATTACKER:
+		atk = get_total_attack(BattleFront.Side.ATTACKER)
+		enemy_def = get_total_defense(BattleFront.Side.DEFENDER)
 	else:
-		atk = get_total_attack(&"defender")
-		enemy_def = get_total_defense(&"attacker")
+		atk = get_total_attack(BattleFront.Side.DEFENDER)
+		enemy_def = get_total_defense(BattleFront.Side.ATTACKER)
 	return atk / (1.0 + enemy_def)
 
 
@@ -262,8 +271,8 @@ func tick() -> bool:
 	turns_elapsed += 1
 
 	# Calcular movimiento del marcador
-	var atk_pressure := get_pressure(&"attacker")
-	var def_pressure := get_pressure(&"defender")
+	var atk_pressure := get_pressure(BattleFront.Side.ATTACKER)
+	var def_pressure := get_pressure(BattleFront.Side.DEFENDER)
 	var movement := atk_pressure - def_pressure
 	marker += movement
 	marker_changed.emit(self, marker)
@@ -290,8 +299,8 @@ func can_resolve() -> bool:
 
 
 ## Umbral efectivo en el turno actual. Decae linealmente desde `threshold`
-## (umbral inicial, p.ej. 15) hasta `MIN_THRESHOLD` (10) durante los primeros
-## `THRESHOLD_DECAY_TURNS` (30) turnos del frente. A partir de ahi se queda
+## (umbral inicial, por defecto 10) hasta `MIN_THRESHOLD` (5) durante los primeros
+## `THRESHOLD_DECAY_TURNS` (10) turnos del frente. A partir de ahi se queda
 ## clavado en `MIN_THRESHOLD`.
 ##
 ## How to apply: usar este metodo en cualquier comparacion contra el umbral
@@ -309,8 +318,8 @@ func get_current_threshold() -> float:
 
 
 ## Asigna una tropa a un bando. Las tropas quedan comprometidas.
-func assign_troop(troop: Troop, side: StringName) -> void:
-	if side == &"attacker":
+func assign_troop(troop: Troop, side: BattleFront.Side) -> void:
+	if side == BattleFront.Side.ATTACKER:
 		attacker_troops.append(troop)
 	else:
 		defender_troops.append(troop)
@@ -320,13 +329,13 @@ func assign_troop(troop: Troop, side: StringName) -> void:
 ## Acepta un TacticBonus o un Dictionary (compatibilidad legacy para tests y
 ## código existente). Los Dictionaries se convierten internamente a TacticBonus.
 ## Emite `bonuses_changed` para que UI y visuales puedan refrescar.
-func add_bonus(side: StringName, bonus: Variant) -> void:
+func add_bonus(side: BattleFront.Side, bonus: Variant) -> void:
 	var typed_bonus: TacticBonus
 	if bonus is TacticBonus:
 		typed_bonus = bonus
 	else:
 		typed_bonus = TacticBonus.from_dict(bonus as Dictionary)
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		attacker_bonuses.append(typed_bonus)
 	else:
 		defender_bonuses.append(typed_bonus)
@@ -342,8 +351,8 @@ func add_bonus(side: StringName, bonus: Variant) -> void:
 ##
 ## Devuelve cuántas tácticas se eliminaron (0 si no había). Sólo emite
 ## `bonuses_changed` si hubo cambios reales.
-func clear_tactics_for_side(side: StringName) -> int:
-	var bonuses: Array = attacker_bonuses if side == &"attacker" else defender_bonuses
+func clear_tactics_for_side(side: BattleFront.Side) -> int:
+	var bonuses: Array = attacker_bonuses if side == BattleFront.Side.ATTACKER else defender_bonuses
 	var removed: int = 0
 	var i := bonuses.size() - 1
 	while i >= 0:
@@ -358,8 +367,8 @@ func clear_tactics_for_side(side: StringName) -> int:
 
 
 ## Indica si el bando tiene alguna táctica activa (bonus con tactic_name no vacío).
-func has_active_tactic_on_side(side: StringName) -> bool:
-	var bonuses: Array = attacker_bonuses if side == &"attacker" else defender_bonuses
+func has_active_tactic_on_side(side: BattleFront.Side) -> bool:
+	var bonuses: Array = attacker_bonuses if side == BattleFront.Side.ATTACKER else defender_bonuses
 	for raw_b in bonuses:
 		var b := _as_tactic_bonus(raw_b)
 		if b.tactic_name != "":
@@ -370,14 +379,14 @@ func has_active_tactic_on_side(side: StringName) -> bool:
 ## Indica si alguno de los dos bandos tiene una táctica activa.
 ## Útil para el indicador visual del frente en el mapa 3D.
 func has_any_active_tactic() -> bool:
-	return has_active_tactic_on_side(&"attacker") or has_active_tactic_on_side(&"defender")
+	return has_active_tactic_on_side(BattleFront.Side.ATTACKER) or has_active_tactic_on_side(BattleFront.Side.DEFENDER)
 
 
 ## Calcula el coste de mantenimiento extra por frente (escalado progresivo).
 ## Retorna { "gold": int, "food": int } para un bando.
-func get_front_maintenance(side: StringName) -> Dictionary:
+func get_front_maintenance(side: BattleFront.Side) -> Dictionary:
 	var troops: Array[Troop]
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		troops = attacker_troops
 	else:
 		troops = defender_troops
@@ -419,8 +428,8 @@ func calculate_casualties() -> Dictionary:
 		return { "attacker_losses": 0, "defender_losses": 0 }
 
 	# Ratio de bajas basado en la presión relativa final
-	var atk_pressure := get_pressure(&"attacker")
-	var def_pressure := get_pressure(&"defender")
+	var atk_pressure := get_pressure(BattleFront.Side.ATTACKER)
+	var def_pressure := get_pressure(BattleFront.Side.DEFENDER)
 	var total_pressure := atk_pressure + def_pressure
 
 	if total_pressure == 0.0:
@@ -507,8 +516,8 @@ func _get_biome_defense_multiplier(tile: Tile) -> float:
 ## Devuelve el `combat_multiplier` del imperio del bando indicado.
 ## Si por algun motivo el empire es null (tests aislados, frente
 ## construido a mano sin imperio), devolvemos 1.0 — sin penalizacion.
-func _get_side_combat_multiplier(side: StringName) -> float:
-	var empire: Empire = attacker_empire if side == &"attacker" else defender_empire
+func _get_side_combat_multiplier(side: BattleFront.Side) -> float:
+	var empire: Empire = attacker_empire if side == BattleFront.Side.ATTACKER else defender_empire
 	if empire == null:
 		return 1.0
 	return empire.combat_multiplier

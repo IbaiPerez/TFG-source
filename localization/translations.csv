@@ -473,3 +473,6 @@ EVT_WISE_TRAVELERS_CH1_DESC,+1 card per turn permanently.,+1 carta por turno de 
 PAUSE_TITLE,Game Paused,Partida en pausa
 PAUSE_CONTINUE,Continue,Continuar
 PAUSE_MAIN_MENU,Main Menu,Menú Principal
+GAMEOVER_TITLE,Game Over,Fin de partida
+GAMEOVER_VICTORY,Victory! %s has dominated the map.,¡Victoria! %s ha dominado el mapa.
+GAMEOVER_DEFEAT,Defeat. %s has won the game.,Derrota. %s ha ganado la partida.

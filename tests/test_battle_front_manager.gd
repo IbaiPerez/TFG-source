@@ -179,7 +179,7 @@ func test_assign_troop_to_front() -> void:
 	var troop := _create_troop()
 	stats.troop_pool.append(troop)
 
-	var success := manager.assign_troop_to_front(front, troop, &"attacker")
+	var success := manager.assign_troop_to_front(front, troop, BattleFront.Side.ATTACKER)
 	assert_true(success)
 	assert_eq(front.attacker_troops.size(), 1)
 	assert_eq(stats.troop_pool.size(), 0, "Tropa debe salir del pool")
@@ -189,7 +189,7 @@ func test_assign_troop_not_in_pool() -> void:
 	var front := manager.open_front(atk_tile, def_tile)
 	var troop := _create_troop()  # No está en el pool
 
-	var success := manager.assign_troop_to_front(front, troop, &"attacker")
+	var success := manager.assign_troop_to_front(front, troop, BattleFront.Side.ATTACKER)
 	assert_false(success, "No debe asignar tropa que no está en el pool")
 
 
@@ -199,7 +199,7 @@ func test_assign_troop_to_resolved_front() -> void:
 	var troop := _create_troop()
 	stats.troop_pool.append(troop)
 
-	var success := manager.assign_troop_to_front(front, troop, &"attacker")
+	var success := manager.assign_troop_to_front(front, troop, BattleFront.Side.ATTACKER)
 	assert_false(success, "No debe asignar a frente resuelto")
 
 
@@ -228,7 +228,7 @@ func test_assign_as_defender_to_external_front_works() -> void:
 	var troop := _create_troop()
 	def_stats.troop_pool.append(troop)
 
-	var success := def_manager.assign_troop_to_front(external_front, troop, &"defender")
+	var success := def_manager.assign_troop_to_front(external_front, troop, BattleFront.Side.DEFENDER)
 	assert_true(success,
 		"Defensor legitimo debe poder asignar a frente externo (no en su manager)")
 	assert_eq(external_front.defender_troops.size(), 1)
@@ -243,7 +243,7 @@ func test_assign_rejects_wrong_side_for_participant() -> void:
 	var troop := _create_troop()
 	stats.troop_pool.append(troop)
 
-	var success := manager.assign_troop_to_front(front, troop, &"defender")
+	var success := manager.assign_troop_to_front(front, troop, BattleFront.Side.DEFENDER)
 	assert_false(success,
 		"Atacante no puede asignar tropas como defensor de su propio frente")
 	assert_eq(front.defender_troops.size(), 0)
@@ -265,9 +265,9 @@ func test_assign_rejects_non_participant() -> void:
 	var troop := _create_troop()
 	third_stats.troop_pool.append(troop)
 
-	assert_false(third_manager.assign_troop_to_front(front, troop, &"attacker"),
+	assert_false(third_manager.assign_troop_to_front(front, troop, BattleFront.Side.ATTACKER),
 		"Un imperio ajeno no debe poder asignar como atacante")
-	assert_false(third_manager.assign_troop_to_front(front, troop, &"defender"),
+	assert_false(third_manager.assign_troop_to_front(front, troop, BattleFront.Side.DEFENDER),
 		"Un imperio ajeno no debe poder asignar como defensor")
 	assert_eq(third_stats.troop_pool.size(), 1)
 	BattleFront.clear_active_instances()

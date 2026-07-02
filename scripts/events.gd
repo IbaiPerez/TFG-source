@@ -1,31 +1,18 @@
 extends Node
 
-## Bus de eventos global del juego (canonico).
+## Bus de eventos global del juego (canonico y unico).
 ##
-## NOTA arquitectonica (refactor H1): este archivo concentra historicamente
-## todas las señales del juego (god-object con 40+ señales y ~46 ficheros
-## dependientes). Para reducir el acoplamiento sin romper el codigo
-## existente se han añadido buses tematicos como autoloads paralelos:
+## Concentra todas las señales del juego. Es, de hecho, un god-object (40+
+## señales, ~50 ficheros dependientes), un compromiso consciente: en un juego
+## por turnos de este tamaño un unico bus global mantiene el cableado simple y
+## legible frente al coste de trocearlo.
 ##
-##   - `MapEvents`       (tiles, posicion, map mode)
-##   - `CardEvents`      (cartas: aim, play, return, seleccion)
-##   - `MilitaryEvents`  (frentes de batalla, tropas, cartas militares)
-##   - `TurnEvents`      (turno, eventos de turno/tienda, feedback IA)
-##   - `UIEvents`        (navegacion entre escenas/menus)
-##   - `GameEvents`      (generacion de mundo, modifiers globales)
-##
-## Cada bus tematico se suscribe en su `_ready()` a las señales relevantes
-## de este `Events` y las re-emite. Asi:
-##
-##   - El codigo existente sigue funcionando: `Events.tile_selected.emit(...)`
-##     y `Events.tile_selected.connect(...)` no cambian.
-##   - El codigo nuevo puede usar el bus tematico:
-##     `MapEvents.tile_selected.connect(...)` — recibe los eventos emitidos
-##     desde `Events` igualmente.
-##   - La migracion puede hacerse fichero a fichero sin big-bang.
-##
-## Las constantes `StringName` de cada bus tematico (e.g. MapEvents.TILE_SELECTED)
-## evitan typos en .connect/.emit cuando se opera por nombre.
+## NOTA historica: hubo un intento (refactor H1) de dividirlo en buses tematicos
+## paralelos (MapEvents, CardEvents, MilitaryEvents, ...) que se suscribian a
+## este `Events` y re-emitian. Nunca llegaron a adoptarse (0 consumidores), asi
+## que solo añadian indireccion y doble emision; se eliminaron. Si en el futuro
+## se quiere desacoplar, hagase migrando consumidores de verdad, no creando
+## buses espejo sin uso.
 
 signal game_over(winner: Empire)
 
@@ -112,6 +99,6 @@ signal ai_turn_ended(controller:EmpireController)
 signal battle_front_opened(front:BattleFront)
 signal battle_front_resolved(front:BattleFront, attacker_won:bool)
 signal battle_front_marker_changed(front:BattleFront, new_value:float)
-signal troop_assigned_to_front(front:BattleFront, troop:Troop, side:StringName)
-signal battle_front_bonus_applied(front:BattleFront, side:StringName)
+signal troop_assigned_to_front(front:BattleFront, troop:Troop, side:BattleFront.Side)
+signal battle_front_bonus_applied(front:BattleFront, side:BattleFront.Side)
 signal battle_front_selected(front:BattleFront)

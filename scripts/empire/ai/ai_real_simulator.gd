@@ -81,9 +81,9 @@ static func recompute_economy(state: AIRealState, p_owner: int) -> void:
 		if front.is_resolved:
 			continue
 		var side := front.side_of(p_owner)
-		if side == &"":
+		if side == BattleFront.Side.NONE:
 			continue
-		var troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		for i in range(troops.size()):
 			var sc := (i + 1) * 5
 			surcharge_gold += sc
@@ -261,12 +261,12 @@ static func apply_tactic(state: AIRealState, front: AIRealState.FrontSnap,
 	if front == null or card == null or front.is_resolved:
 		return
 	var side := front.side_of(p_owner)
-	if side == &"":
+	if side == BattleFront.Side.NONE:
 		return
 
 	# Biomas relevantes: ATK mira la tile contraria, DEF la propia.
-	var own_tile_id := front.attacker_tile_id if side == &"attacker" else front.defender_tile_id
-	var enemy_tile_id := front.defender_tile_id if side == &"attacker" else front.attacker_tile_id
+	var own_tile_id := front.attacker_tile_id if side == BattleFront.Side.ATTACKER else front.defender_tile_id
+	var enemy_tile_id := front.defender_tile_id if side == BattleFront.Side.ATTACKER else front.attacker_tile_id
 	var atk_biome_mod := _tactic_biome_modifier(state, card, enemy_tile_id)
 	var def_biome_mod := _tactic_biome_modifier(state, card, own_tile_id)
 
@@ -282,7 +282,7 @@ static func apply_tactic(state: AIRealState, front: AIRealState.FrontSnap,
 	bonus.defense_per_troop = card.defense_per_troop
 	bonus.attack_biome_modifier = atk_biome_mod
 	bonus.defense_biome_modifier = def_biome_mod
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		front.attacker_bonuses.append(bonus)
 	else:
 		front.defender_bonuses.append(bonus)
@@ -308,10 +308,10 @@ static func assign_troops_to_fronts(state: AIRealState,
 		if front.is_resolved:
 			continue
 		var side := front.side_of(p_owner)
-		if side == &"":
+		if side == BattleFront.Side.NONE:
 			continue
 		var base_urg := _front_base_urgency(front, side)
-		var cur := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var cur := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		var full_urg := base_urg * (2.0 if cur.is_empty() else 1.0)
 		entries.append({"front": front, "side": side, "base_urgency": base_urg, "urgency": full_urg})
 	if entries.is_empty():
@@ -323,8 +323,8 @@ static func assign_troops_to_fronts(state: AIRealState,
 		if emp.troop_pool.is_empty():
 			return
 		var front: AIRealState.FrontSnap = entry.front
-		var side: StringName = entry.side
-		var troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var side: BattleFront.Side = entry.side
+		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		while troops.size() < MIN_TROOPS_PER_FRONT and not emp.troop_pool.is_empty():
 			if not _assign_best_troop(emp, front, side):
 				break
@@ -336,8 +336,8 @@ static func assign_troops_to_fronts(state: AIRealState,
 		if entry.base_urgency <= 1.5:
 			continue
 		var front: AIRealState.FrontSnap = entry.front
-		var side: StringName = entry.side
-		var troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var side: BattleFront.Side = entry.side
+		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		while troops.size() < MIN_TROOPS_PER_FRONT + 2 and not emp.troop_pool.is_empty():
 			if not _assign_best_troop(emp, front, side):
 				break
@@ -422,8 +422,8 @@ static func _tick_front(state: AIRealState, front: AIRealState.FrontSnap) -> boo
 	if front.is_resolved:
 		return false
 	front.turns_elapsed += 1
-	var atk_pressure := _front_pressure(state, front, &"attacker")
-	var def_pressure := _front_pressure(state, front, &"defender")
+	var atk_pressure := _front_pressure(state, front, BattleFront.Side.ATTACKER)
+	var def_pressure := _front_pressure(state, front, BattleFront.Side.DEFENDER)
 	front.marker += atk_pressure - def_pressure
 	_tick_bonuses(front.attacker_bonuses)
 	_tick_bonuses(front.defender_bonuses)
@@ -457,15 +457,15 @@ static func _front_can_resolve(front: AIRealState.FrontSnap) -> bool:
 
 ## Presión de un bando (espejo de BattleFront.get_pressure): atk / (1 + def_enemiga).
 static func _front_pressure(state: AIRealState, front: AIRealState.FrontSnap,
-		side: StringName) -> float:
+		side: BattleFront.Side) -> float:
 	var atk: float
 	var enemy_def: float
-	if side == &"attacker":
-		atk = _front_total_attack(state, front, &"attacker")
-		enemy_def = _front_total_defense(state, front, &"defender")
+	if side == BattleFront.Side.ATTACKER:
+		atk = _front_total_attack(state, front, BattleFront.Side.ATTACKER)
+		enemy_def = _front_total_defense(state, front, BattleFront.Side.DEFENDER)
 	else:
-		atk = _front_total_attack(state, front, &"defender")
-		enemy_def = _front_total_defense(state, front, &"attacker")
+		atk = _front_total_attack(state, front, BattleFront.Side.DEFENDER)
+		enemy_def = _front_total_defense(state, front, BattleFront.Side.ATTACKER)
 	return atk / (1.0 + enemy_def)
 
 
@@ -473,13 +473,13 @@ static func _front_pressure(state: AIRealState, front: AIRealState.FrontSnap,
 ## efectividad por tipo, escaladas por bioma de la tile contraria y combat
 ## multiplier, más bonuses tácticos. Edificios de ataque: 0 (reservado en el juego).
 static func _front_total_attack(state: AIRealState, front: AIRealState.FrontSnap,
-		side: StringName) -> float:
+		side: BattleFront.Side) -> float:
 	var troops: Array[Troop]
 	var enemy_troops: Array[Troop]
 	var enemy_tile_id: int
 	var bonuses: Array[TacticBonus]
 	var owner: int
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		troops = front.attacker_troops
 		enemy_troops = front.defender_troops
 		enemy_tile_id = front.defender_tile_id
@@ -520,12 +520,12 @@ static func _front_total_attack(state: AIRealState, front: AIRealState.FrontSnap
 ## defensivos de la tile propia + defensa de tropas escalada por bioma propio y
 ## combat multiplier, más bonuses tácticos.
 static func _front_total_defense(state: AIRealState, front: AIRealState.FrontSnap,
-		side: StringName) -> float:
+		side: BattleFront.Side) -> float:
 	var troops: Array[Troop]
 	var own_tile_id: int
 	var bonuses: Array[TacticBonus]
 	var owner: int
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		troops = front.attacker_troops
 		own_tile_id = front.attacker_tile_id
 		bonuses = front.attacker_bonuses
@@ -588,8 +588,8 @@ static func _calculate_casualties(state: AIRealState,
 	var def_total := float(front.defender_troops.size())
 	if atk_total == 0.0 and def_total == 0.0:
 		return {"attacker_losses": 0, "defender_losses": 0}
-	var atk_pressure := _front_pressure(state, front, &"attacker")
-	var def_pressure := _front_pressure(state, front, &"defender")
+	var atk_pressure := _front_pressure(state, front, BattleFront.Side.ATTACKER)
+	var def_pressure := _front_pressure(state, front, BattleFront.Side.DEFENDER)
 	if atk_pressure + def_pressure == 0.0:
 		return {"attacker_losses": 0, "defender_losses": 0}
 
@@ -747,8 +747,8 @@ static func _sum_defense_of_targeted(troops: Array[Troop], bonus: TacticBonus) -
 
 ## Elimina las tácticas activas (bonus con tactic_name no vacío) de un bando
 ## (espejo de BattleFront.clear_tactics_for_side).
-static func _clear_tactics_for_side(front: AIRealState.FrontSnap, side: StringName) -> void:
-	var bonuses: Array[TacticBonus] = front.attacker_bonuses if side == &"attacker" \
+static func _clear_tactics_for_side(front: AIRealState.FrontSnap, side: BattleFront.Side) -> void:
+	var bonuses: Array[TacticBonus] = front.attacker_bonuses if side == BattleFront.Side.ATTACKER \
 		else front.defender_bonuses
 	var i := bonuses.size() - 1
 	while i >= 0:
@@ -802,8 +802,8 @@ static func _tile_in_active_front(state: AIRealState, tile_id: int) -> bool:
 
 ## Urgencia base de un frente para un bando (espejo de
 ## AIController._front_base_urgency).
-static func _front_base_urgency(front: AIRealState.FrontSnap, side: StringName) -> float:
-	var ai_marker := front.marker if side == &"attacker" else -front.marker
+static func _front_base_urgency(front: AIRealState.FrontSnap, side: BattleFront.Side) -> float:
+	var ai_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
 	var thr := front.current_threshold()
 	if ai_marker < -thr * 0.5: return 3.0
 	if ai_marker < 0.0:         return 2.0
@@ -815,11 +815,11 @@ static func _front_base_urgency(front: AIRealState.FrontSnap, side: StringName) 
 ## Elige la mejor tropa del pool para el rol y la asigna al frente (espejo de
 ## AIController._assign_best_troop: defensor → max defensa; atacante → max ataque).
 static func _assign_best_troop(emp: AIRealState.EmpireSnap,
-		front: AIRealState.FrontSnap, side: StringName) -> bool:
+		front: AIRealState.FrontSnap, side: BattleFront.Side) -> bool:
 	if emp.troop_pool.is_empty():
 		return false
 	var sorted_pool := emp.troop_pool.duplicate()
-	if side == &"defender":
+	if side == BattleFront.Side.DEFENDER:
 		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
 	else:
 		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)
@@ -828,7 +828,7 @@ static func _assign_best_troop(emp: AIRealState.EmpireSnap,
 	if idx < 0:
 		return false
 	emp.troop_pool.remove_at(idx)
-	if side == &"attacker":
+	if side == BattleFront.Side.ATTACKER:
 		front.attacker_troops.append(best)
 	else:
 		front.defender_troops.append(best)

@@ -3,10 +3,13 @@ class_name AIController
 
 ## Controlador de IA para imperios no-jugador.
 ##
-## Versión 1: decide aleatoriamente entre todas las jugadas legales que
-## puede tomar este turno (incluyendo la opción "no jugar nada"). El
-## propósito es validar el flujo completo (efectos, fin de turno, eventos
-## futuros) antes de meter heurísticas reales.
+## Decide cada jugada del turno con el algoritmo configurado en `ai_config`:
+##   - MCTS (por defecto): SO-ISMCTS sobre un estado real determinizado
+##     (`AIRealState`), con la heurística fuerte como prior/poda en la raíz y
+##     reutilización de subárbol intra-turno (warm start). Ver `_pick_best_option_mcts`.
+##   - HEURISTIC: puntúa cada opción con `AIHeuristic.score_option` y elige la
+##     mejor. Es también el fallback cuando MCTS degenera (`_pick_best_option`).
+## En ambos casos la opción "no jugar nada" (PASS) compite como una jugada más.
 ##
 ## Bucle por turno:
 ##   1. _process_turn_start() — producción y modificadores.
@@ -468,15 +471,15 @@ func _assign_troops_to_fronts() -> void:
 	for front in BattleFront.get_active_instances():
 		if front == null or front.is_resolved:
 			continue
-		var side: StringName
+		var side: BattleFront.Side
 		if front.attacker_empire == stats.empire:
-			side = &"attacker"
+			side = BattleFront.Side.ATTACKER
 		elif front.defender_empire == stats.empire:
-			side = &"defender"
+			side = BattleFront.Side.DEFENDER
 		else:
 			continue
 		var base_urg := _front_base_urgency(front, side)
-		var cur_troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var cur_troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		var full_urg := base_urg * (2.0 if cur_troops.is_empty() else 1.0)
 		entries.append({ "front": front, "side": side, "base_urgency": base_urg, "urgency": full_urg })
 
@@ -490,8 +493,8 @@ func _assign_troops_to_fronts() -> void:
 		if stats.troop_pool.is_empty():
 			return
 		var front: BattleFront = entry.front
-		var side: StringName = entry.side
-		var troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var side: BattleFront.Side = entry.side
+		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		while troops.size() < MIN_TROOPS_PER_FRONT and not stats.troop_pool.is_empty():
 			if not _assign_best_troop(front, side):
 				break
@@ -503,8 +506,8 @@ func _assign_troops_to_fronts() -> void:
 		if entry.base_urgency <= 1.5:
 			continue
 		var front: BattleFront = entry.front
-		var side: StringName = entry.side
-		var troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var side: BattleFront.Side = entry.side
+		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		while troops.size() < MIN_TROOPS_PER_FRONT + 2 and not stats.troop_pool.is_empty():
 			if not _assign_best_troop(front, side):
 				break
@@ -513,8 +516,8 @@ func _assign_troops_to_fronts() -> void:
 ## Urgencia base del frente para nuestro bando, sin multiplicador por troop_count.
 ## 3.0 = perdiendo gravemente | 2.0 = perdiendo | 1.5 = equilibrio
 ## 0.8 = ganando              | 0.3 = casi resuelto
-func _front_base_urgency(front: BattleFront, side: StringName) -> float:
-	var ai_marker := front.marker if side == &"attacker" else -front.marker
+func _front_base_urgency(front: BattleFront, side: BattleFront.Side) -> float:
+	var ai_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
 	var thr := front.get_current_threshold()
 	if ai_marker < -thr * 0.5: return 3.0
 	if ai_marker < 0.0:         return 2.0
@@ -525,11 +528,11 @@ func _front_base_urgency(front: BattleFront, side: StringName) -> float:
 
 ## Elige la mejor tropa del pool para el rol dado y la asigna al frente.
 ## Defensor → max defense; Atacante → max attack.
-func _assign_best_troop(front: BattleFront, side: StringName) -> bool:
+func _assign_best_troop(front: BattleFront, side: BattleFront.Side) -> bool:
 	if stats.troop_pool.is_empty():
 		return false
 	var sorted_pool := stats.troop_pool.duplicate()
-	if side == &"defender":
+	if side == BattleFront.Side.DEFENDER:
 		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
 	else:
 		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)

@@ -289,10 +289,10 @@ static func _score_recruit(move: AIRealOptions.Move, state: AIRealState,
 		if front.is_resolved:
 			continue
 		var side := front.side_of(p_owner)
-		if side == &"":
+		if side == BattleFront.Side.NONE:
 			continue
 		has_front = true
-		var side_troops := front.attacker_troops if side == &"attacker" else front.defender_troops
+		var side_troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		max_own_troops = maxi(max_own_troops, side_troops.size())
 	if has_front:
 		var n_after := max_own_troops + 1
@@ -341,9 +341,9 @@ static func _complement_bonus(troop: Troop, pool: Array[Troop], state: AIRealSta
 		if front.is_resolved:
 			continue
 		var eside := front.side_of(enemy)
-		if eside == &"":
+		if eside == BattleFront.Side.NONE:
 			continue
-		var rtroops := front.attacker_troops if eside == &"attacker" else front.defender_troops
+		var rtroops := front.attacker_troops if eside == BattleFront.Side.ATTACKER else front.defender_troops
 		for t in rtroops:
 			if t.type not in rival_types:
 				rival_types.append(t.type)
@@ -415,9 +415,9 @@ static func _max_front_pressure(state: AIRealState, p_owner: int) -> float:
 		if front.is_resolved:
 			continue
 		var side := front.side_of(p_owner)
-		if side == &"":
+		if side == BattleFront.Side.NONE:
 			continue
-		var ai_marker := front.marker if side == &"attacker" else -front.marker
+		var ai_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
 		var pressure := clampf(-ai_marker / front.threshold, 0.0, 1.0)
 		max_p = maxf(max_p, pressure)
 	return max_p
@@ -616,9 +616,9 @@ static func _score_tactic(move: AIRealOptions.Move, state: AIRealState,
 	if front == null or front.is_resolved:
 		return 0.0
 	var side := front.side_of(p_owner)
-	if side == &"":
+	if side == BattleFront.Side.NONE:
 		return 0.0
-	var is_attacker := side == &"attacker"
+	var is_attacker := side == BattleFront.Side.ATTACKER
 	var tactic := move.card as TacticCard
 	var own_troops := front.attacker_troops if is_attacker else front.defender_troops
 

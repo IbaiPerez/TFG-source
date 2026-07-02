@@ -107,9 +107,9 @@ func _assert_front_parity(atk_biome: int, def_biome: int,
 	var def_tile := _make_real_tile(def_biome, def_buildings)
 	var front := BattleFront.new(atk_tile, def_tile, atk_emp, def_emp)
 	for tr in atk_troops:
-		front.assign_troop(tr, &"attacker")
+		front.assign_troop(tr, BattleFront.Side.ATTACKER)
 	for tr in def_troops:
-		front.assign_troop(tr, &"defender")
+		front.assign_troop(tr, BattleFront.Side.DEFENDER)
 
 	# --- Simulación ---
 	var state := AIRealState.new()
@@ -193,8 +193,8 @@ func test_front_parity_resolves_same_turn_and_winner() -> void:
 	var atk_tile := _make_real_tile(Tile.biome_type.Grassland)
 	var def_tile := _make_real_tile(Tile.biome_type.Grassland)
 	var front := BattleFront.new(atk_tile, def_tile, atk_emp, def_emp)
-	for tr in atk: front.assign_troop(tr, &"attacker")
-	for tr in def: front.assign_troop(tr, &"defender")
+	for tr in atk: front.assign_troop(tr, BattleFront.Side.ATTACKER)
+	for tr in def: front.assign_troop(tr, BattleFront.Side.DEFENDER)
 
 	var state := AIRealState.new()
 	state.tiles[0] = _make_snap(0, Tile.biome_type.Grassland, AIRealState.OWNER_SELF)
@@ -357,7 +357,7 @@ func test_assign_best_troop_by_role_attacker() -> void:
 	var strong := _make_troop(Troop.TroopType.INFANTERIA_LIGERA, 12, 2)
 	s.own.troop_pool = [weak, strong]
 	# Atacante: primera tropa asignada debe ser la de mayor ataque.
-	AIRealSimulator._assign_best_troop(s.own, front, &"attacker")
+	AIRealSimulator._assign_best_troop(s.own, front, BattleFront.Side.ATTACKER)
 	assert_eq(front.attacker_troops[0], strong, "Atacante asigna primero la de mayor ataque")
 
 

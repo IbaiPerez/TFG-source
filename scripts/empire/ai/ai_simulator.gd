@@ -76,7 +76,7 @@ static func _front_advantage(state: AIGameState) -> float:
 	var sum := 0.0
 	for f in state.fronts:
 		var snap := f as AIGameState.FrontSnapshot
-		var our_marker := snap.marker if snap.own_side == &"attacker" else -snap.marker
+		var our_marker := snap.marker if snap.own_side == BattleFront.Side.ATTACKER else -snap.marker
 		sum += clampf(our_marker / maxf(snap.threshold, 1.0), -1.0, 1.0)
 	return sum
 
@@ -350,13 +350,13 @@ static func _apply_option(s: AIGameState, opt: Dictionary) -> void:
 			_advance_front_markers(s, opt.get("marker_delta", 0.0))
 		"OPEN_FRONT":
 			# Añadimos un frente nuevo en equilibrio como estimación.
-			s.fronts.append(AIGameState.FrontSnapshot.of(&"attacker", 0.0, 12.0))
+			s.fronts.append(AIGameState.FrontSnapshot.of(BattleFront.Side.ATTACKER, 0.0, 12.0))
 
 
 static func _advance_front_markers(s: AIGameState, delta: float) -> void:
 	for f in s.fronts:
 		var snap := f as AIGameState.FrontSnapshot
-		if snap.own_side == &"attacker":
+		if snap.own_side == BattleFront.Side.ATTACKER:
 			snap.marker = minf(snap.marker + delta, snap.threshold * 1.5)
 		else:
 			snap.marker = maxf(snap.marker - delta, -snap.threshold * 1.5)
@@ -398,8 +398,8 @@ static func _score_option(opt: Dictionary, s: AIGameState) -> float:
 		# Elevar si se está perdiendo en algún frente
 		for f in s.fronts:
 			var snap := f as AIGameState.FrontSnapshot
-			var losing := (snap.own_side == &"attacker" and snap.marker < 0.0) \
-				or (snap.own_side == &"defender" and snap.marker > 0.0)
+			var losing := (snap.own_side == BattleFront.Side.ATTACKER and snap.marker < 0.0) \
+				or (snap.own_side == BattleFront.Side.DEFENDER and snap.marker > 0.0)
 			if losing:
 				mil_urgency = 2.5
 				break

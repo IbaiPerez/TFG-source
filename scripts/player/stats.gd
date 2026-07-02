@@ -7,6 +7,39 @@ signal troop_recruited(troop:Troop)
 signal troop_lost(troop:Troop)
 signal troop_pool_changed(new_size:int)
 
+## Agrupamiento de emisiones de `stats_changed`. Fuera de un batch cada setter
+## emite al momento (comportamiento de siempre). Dentro de un batch
+## (begin_update/end_update) las emisiones se coalescen en UNA sola al cerrar,
+## evitando que un bloque que escribe varias stats seguidas (p.ej.
+## EmpireController._process_turn_start: gold_per_turn + food + total_gold)
+## dispare varios re-renders de UI redundantes.
+##
+## Es síncrono y reentrante (cuenta anidamiento): NO usa call_deferred, así que
+## los listeners reciben la señal en el mismo frame. GDScript no tiene `finally`,
+## por lo que begin/end debe rodear bloques acotados y sin `await` que puedan
+## abortar a medias.
+var _update_batch_depth: int = 0
+var _stats_changed_pending: bool = false
+
+
+func begin_update() -> void:
+	_update_batch_depth += 1
+
+
+func end_update() -> void:
+	if _update_batch_depth > 0:
+		_update_batch_depth -= 1
+	if _update_batch_depth == 0 and _stats_changed_pending:
+		_stats_changed_pending = false
+		stats_changed.emit()
+
+
+func _emit_stats_changed() -> void:
+	if _update_batch_depth > 0:
+		_stats_changed_pending = true
+	else:
+		stats_changed.emit()
+
 @export var initial_gold:int
 @export var initial_gold_per_turn:int
 @export var starting_deck:CardPile
@@ -68,19 +101,19 @@ var shop_exclusive_pool:Array[UnlockedCardEntry] = []
 
 func set_cards_per_turn(value:int) -> void:
 	cards_per_turn = clampi(value,1,20)
-	stats_changed.emit()
+	_emit_stats_changed()
 
 func set_gold(value:int) -> void:
 	total_gold = value
-	stats_changed.emit()
+	_emit_stats_changed()
 
 func set_gold_per_turn(value:int) -> void:
 	gold_per_turn = value
-	stats_changed.emit()
+	_emit_stats_changed()
 
 func set_food(value:int) -> void:
 	food = value
-	stats_changed.emit()
+	_emit_stats_changed()
 
 
 func add_possible_building(building:Building) -> void:
@@ -89,7 +122,7 @@ func add_possible_building(building:Building) -> void:
 	possible_buildings.append(building)
 	_sync_build_cards()
 	possible_buildings_changed.emit()
-	stats_changed.emit()
+	_emit_stats_changed()
 
 
 func remove_possible_building(building:Building) -> void:
@@ -98,7 +131,7 @@ func remove_possible_building(building:Building) -> void:
 	possible_buildings.erase(building)
 	_sync_build_cards()
 	possible_buildings_changed.emit()
-	stats_changed.emit()
+	_emit_stats_changed()
 
 
 func _sync_build_cards() -> void:
@@ -186,7 +219,7 @@ func recruit_troop(troop:Troop) -> bool:
 	types_ever_recruited[troop.type] = int(types_ever_recruited.get(troop.type, 0)) + 1
 	troop_recruited.emit(troop)
 	troop_pool_changed.emit(troop_pool.size())
-	stats_changed.emit()
+	_emit_stats_changed()
 	return true
 
 
@@ -196,7 +229,7 @@ func remove_troop(troop:Troop) -> void:
 		troop_pool.remove_at(idx)
 		troop_lost.emit(troop)
 		troop_pool_changed.emit(troop_pool.size())
-		stats_changed.emit()
+		_emit_stats_changed()
 
 
 ## Comprueba si se puede reclutar la tropa AHORA. Tres condiciones:

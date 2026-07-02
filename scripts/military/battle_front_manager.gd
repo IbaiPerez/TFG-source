@@ -92,7 +92,7 @@ func tick_all_fronts() -> void:
 ## defensor llega aqui con `front not in active_fronts` aunque legitima-
 ## mente participe. Para admitir ambos casos validamos por participacion
 ## y por coherencia `empire ↔ side`.
-func assign_troop_to_front(front: BattleFront, troop: Troop, side: StringName) -> bool:
+func assign_troop_to_front(front: BattleFront, troop: Troop, side: BattleFront.Side) -> bool:
 	if front.is_resolved:
 		return false
 
@@ -100,8 +100,8 @@ func assign_troop_to_front(front: BattleFront, troop: Troop, side: StringName) -
 	# rellenar. Esto bloquea, p.ej., a un atacante que intentara meter
 	# tropas como `defender` en un frente donde es el agresor.
 	var is_valid_participant: bool = (
-		(side == &"attacker" and front.attacker_empire == stats.empire)
-		or (side == &"defender" and front.defender_empire == stats.empire)
+		(side == BattleFront.Side.ATTACKER and front.attacker_empire == stats.empire)
+		or (side == BattleFront.Side.DEFENDER and front.defender_empire == stats.empire)
 	)
 	if not is_valid_participant:
 		return false
@@ -121,7 +121,7 @@ func assign_troop_to_front(front: BattleFront, troop: Troop, side: StringName) -
 
 ## Aplica un bonus de carta táctica a un frente.
 ## Acepta un TacticBonus o un Dictionary (compatibilidad legacy).
-func apply_bonus_to_front(front: BattleFront, side: StringName, bonus: Variant) -> void:
+func apply_bonus_to_front(front: BattleFront, side: BattleFront.Side, bonus: Variant) -> void:
 	if front.is_resolved:
 		return
 	front.add_bonus(side, bonus)
@@ -130,7 +130,7 @@ func apply_bonus_to_front(front: BattleFront, side: StringName, bonus: Variant) 
 
 ## Obtiene el coste total de mantenimiento extra por tropas en frentes.
 ## Retorna { "gold": int, "food": int }.
-func get_total_front_maintenance(side: StringName) -> Dictionary:
+func get_total_front_maintenance(side: BattleFront.Side) -> Dictionary:
 	var total_gold: int = 0
 	var total_food: int = 0
 	for front in active_fronts:
@@ -149,12 +149,12 @@ func get_front_for_tile(tile: Tile) -> BattleFront:
 
 
 ## Obtiene todos los frentes donde este imperio participa como un bando específico.
-func get_fronts_as(side: StringName) -> Array[BattleFront]:
+func get_fronts_as(side: BattleFront.Side) -> Array[BattleFront]:
 	var result: Array[BattleFront] = []
 	for front in active_fronts:
-		if side == &"attacker" and front.attacker_empire == stats.empire:
+		if side == BattleFront.Side.ATTACKER and front.attacker_empire == stats.empire:
 			result.append(front)
-		elif side == &"defender" and front.defender_empire == stats.empire:
+		elif side == BattleFront.Side.DEFENDER and front.defender_empire == stats.empire:
 			result.append(front)
 	return result
 
