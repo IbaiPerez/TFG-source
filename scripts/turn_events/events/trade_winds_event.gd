@@ -19,7 +19,7 @@ func _init():
 	choice.description = tr("EVT_TRADE_WINDS_CH1_DESC")
 	choice.effects = [
 		ScaledStatModifierEffect.new(
-			"trade_winds_gold", "Vientos de Comercio",
+			"trade_winds_gold", "EVT_TRADE_WINDS_TITLE",
 			StatModifier.StatType.PERCENT_GOLD,
 			15.0, 0.3, 0.0, 3
 		)

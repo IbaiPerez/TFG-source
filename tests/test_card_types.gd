@@ -1,6 +1,19 @@
 extends GutTest
 ## Tests para los tipos específicos de cartas: GenerateGoldCard, CardDrawCard, ColonizeCard, BuildCard.
 
+# Los tooltips comparan contra texto en español ("una"). Fijamos el locale
+# para que no dependan del idioma guardado en user://settings.cfg o del SO.
+var _prev_locale: String
+
+
+func before_all() -> void:
+	_prev_locale = TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+
+
+func after_all() -> void:
+	TranslationServer.set_locale(_prev_locale)
+
 
 # --- GenerateGoldCard ---
 

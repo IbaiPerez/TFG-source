@@ -255,7 +255,19 @@ MODF_TROOP_MAINT_CAVALRY,%s cavalry upkeep,%s de mantenimiento de caballería
 MODF_BUILD_COST,%s building construction cost,%s de coste de construcción
 MODF_CARD_RETURN,%s chance to recover %s,%s de probabilidad de recuperar %s
 MODF_GOLD_ON_CARD,%s gold each time you play %s,%s de oro cada vez que juegas %s
+MODF_CARDS_PER_TURN,%s cards per turn,%s cartas por turno
+MODF_CARD_DRAW_BONUS,%s extra cards on draw,%s cartas extra al robar
+MODF_TROOPS_PER_RECRUIT,%s extra troops per recruit,%s tropas extra por recluta
+MODF_TROOPS_PER_RECRUIT_TYPE,%s extra %s per recruit,%s %s extra por recluta
 MODF_EXCLUSIVE_BUILDING,Exclusive building: %s,Edificio exclusivo: %s
+MOD_BANKING_GOLD_NAME,Florentine Bank: Gold,Banca Florentina: Oro
+MOD_BANKING_BUILD_NAME,Florentine Bank: Construction,Banca Florentina: Construcción
+MOD_GARDENS_WHEAT_NAME,Hanging Gardens: Wheat,Jardines Colgantes: Trigo
+MOD_GARDENS_GOLDBUILD_NAME,Hanging Gardens: Construction,Jardines Colgantes: Construcción
+MOD_BABYLON_TRADE_NAME,Mesopotamian Trade Routes,Rutas de Mesopotamia
+MOD_HORDE_LIVESTOCK_NAME,Nomad Horde: Livestock,Horda Nómada: Ganado
+MOD_HORDE_COLONIZE_NAME,Nomad Horde: Colonize,Horda Nómada: Colonizar
+MOD_HORDE_CAVALRY_NAME,Nomad Horde: Maintenance,Horda Nómada: Mantenimiento
 CARD_COLONIZE_NAME,Colonize,Colonizar
 CARD_BUILD_NAME,Build,Construir
 ABIL_MONGOL_DESC,"The nomadic spirit of the steppes drives your expansion. Your Livestock tiles produce +1 additional food and each time you play Colonize there is a 30% chance it returns to your hand. Also, your cavalry costs 25% less to maintain.","El espiritu nomada de las estepas impulsa tu expansion. Tus casillas con Ganado producen +1 comida adicional y cada vez que juegas Colonizar hay un 30% de probabilidad de que vuelva a tu mano. Ademas, tu caballeria cuesta un 25% menos de mantener."

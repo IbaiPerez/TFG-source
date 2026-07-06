@@ -10,14 +10,14 @@ func create_modifiers() -> Array[Modifier]:
 
 	# +15% oro global
 	var gold_mod := StatModifier.new(
-		"banking_gold", "Banca Florentina: Oro",
+		"banking_gold", "MOD_BANKING_GOLD_NAME",
 		StatModifier.StatType.PERCENT_GOLD, 15.0, -1
 	)
 	mods.append(gold_mod)
 
 	# -20% coste de construccion (20% descuento)
 	var cost_mod := BuildCostModifier.new(
-		"banking_build_cost", "Banca Florentina: Construccion",
+		"banking_build_cost", "MOD_BANKING_BUILD_NAME",
 		20.0, -1
 	)
 	mods.append(cost_mod)

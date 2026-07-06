@@ -56,7 +56,8 @@ func _on_mouse_entered() -> void:
 	else:
 		dur_text = "[color=#5a3a12]%s[/color]" % (tr("MOD_TURNS_LEFT") % modifier.duration)
 
-	var text := "[b]%s[/b]\n\n%s\n\n%s" % [tr(modifier.name), tr(modifier.description), dur_text]
+	var text := "[b]%s[/b]\n\n%s\n\n%s" % [
+		tr(modifier.name), EmpireModifierFormatter.describe_modifier(modifier), dur_text]
 	tooltip.show_tooltip(text)
 
 

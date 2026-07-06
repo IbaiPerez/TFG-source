@@ -20,7 +20,7 @@ func _init():
 	suffer.description = tr("EVT_DROUGHT_CH1_DESC")
 	suffer.effects = [
 		ScaledStatModifierEffect.new(
-			"drought_food", "Sequia",
+			"drought_food", "EVT_DROUGHT_TITLE",
 			StatModifier.StatType.PERCENT_FOOD,
 			-15.0, -0.2, 0.0, 5
 		)

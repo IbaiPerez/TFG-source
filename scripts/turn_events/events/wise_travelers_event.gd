@@ -20,7 +20,7 @@ func _init():
 	choice.effects = [
 		ApplyModifierEffect.new(
 			StatModifier.new(
-				"wise_travelers_cards", "Sabios Viajeros",
+				"wise_travelers_cards", "EVT_WISE_TRAVELERS_TITLE",
 				StatModifier.StatType.CARDS_PER_TURN, 1.0, -1
 			)
 		)

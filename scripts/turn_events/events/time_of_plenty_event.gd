@@ -19,7 +19,7 @@ func _init():
 	choice.description = tr("EVT_TIME_OF_PLENTY_CH1_DESC")
 	choice.effects = [
 		ScaledStatModifierEffect.new(
-			"time_of_plenty_food", "Tiempo de Abundancia",
+			"time_of_plenty_food", "EVT_TIME_OF_PLENTY_TITLE",
 			StatModifier.StatType.PERCENT_FOOD,
 			20.0, 0.3, 0.0, 3
 		)

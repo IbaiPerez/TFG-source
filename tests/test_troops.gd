@@ -2,7 +2,21 @@ extends GutTest
 
 ## Tests para el sistema de tropas: reclutamiento, pool, mantenimiento.
 
+# Las etiquetas de tipo de tropa comparan contra texto en español
+# ("A Distancia"). Fijamos el locale para que no dependa del idioma
+# guardado en user://settings.cfg o del SO.
+var _prev_locale: String
+
 var stats: Stats
+
+
+func before_all() -> void:
+	_prev_locale = TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+
+
+func after_all() -> void:
+	TranslationServer.set_locale(_prev_locale)
 
 
 func _create_troop(atk: int, def: int, gold_cost: int = 20,

@@ -20,7 +20,7 @@ func _init():
 	suffer.description = tr("EVT_BAD_HARVEST_CH1_DESC")
 	suffer.effects = [
 		ScaledStatModifierEffect.new(
-			"bad_harvest_food", "Mala Cosecha",
+			"bad_harvest_food", "EVT_BAD_HARVEST_TITLE",
 			StatModifier.StatType.FLAT_FOOD,
 			-10.0, -0.3, 0.0, 3
 		)

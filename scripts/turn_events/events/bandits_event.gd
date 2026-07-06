@@ -21,7 +21,7 @@ func _init():
 	suffer.description = tr("EVT_BANDITS_CH1_DESC")
 	suffer.effects = [
 		ScaledStatModifierEffect.new(
-			"bandits_gold", "Bandidos",
+			"bandits_gold", "EVT_BANDITS_TITLE",
 			StatModifier.StatType.FLAT_GOLD,
 			-8.0, -0.3, 0.0, 3
 		)

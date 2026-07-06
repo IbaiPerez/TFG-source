@@ -11,6 +11,19 @@ var def_tile: Tile
 var atk_empire: Empire
 var def_empire: Empire
 
+# El tooltip compara contra nombres de bioma en español ("Pradera"). Fijamos
+# el locale para que no dependa del idioma guardado en user://settings.cfg o del SO.
+var _prev_locale: String
+
+
+func before_all() -> void:
+	_prev_locale = TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+
+
+func after_all() -> void:
+	TranslationServer.set_locale(_prev_locale)
+
 
 func _create_tile(biome: Tile.biome_type) -> Tile:
 	var tile := Tile.new()

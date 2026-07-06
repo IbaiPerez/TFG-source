@@ -22,7 +22,7 @@ func _init():
 	invest.effects = [
 		ApplyModifierEffect.new(
 			StatModifier.new(
-				"trade_agreement_gold", "Tratado Comercial",
+				"trade_agreement_gold", "EVT_TRADE_AGREEMENT_TITLE",
 				StatModifier.StatType.PERCENT_GOLD, 10.0, -1
 			)
 		)

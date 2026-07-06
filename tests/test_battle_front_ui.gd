@@ -8,6 +8,20 @@ var empire_a: Empire
 var empire_b: Empire
 var stats: Stats
 
+# Los tests de stats comparan contra texto en español ("Tropas:", "Mant.",
+# "oro", "comida"). Fijamos el locale aqui para que no dependan del idioma
+# guardado en user://settings.cfg o del idioma del SO.
+var _prev_locale: String
+
+
+func before_all() -> void:
+	_prev_locale = TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+
+
+func after_all() -> void:
+	TranslationServer.set_locale(_prev_locale)
+
 
 func _create_troop(troop_name: String, atk: int = 3, def: int = 3) -> Troop:
 	var troop := Troop.new()

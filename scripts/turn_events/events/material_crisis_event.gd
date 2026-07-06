@@ -20,7 +20,7 @@ func _init():
 	suffer.description = tr("EVT_MATERIAL_CRISIS_CH1_DESC")
 	suffer.effects = [
 		ScaledBuildCostModifierEffect.new(
-			"material_crisis_cost", "Crisis de Materiales",
+			"material_crisis_cost", "EVT_MATERIAL_CRISIS_TITLE",
 			-25.0, 0.0, 4
 		)
 	]

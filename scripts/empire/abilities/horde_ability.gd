@@ -14,7 +14,7 @@ func create_modifiers() -> Array[Modifier]:
 	# +1 comida en casillas con Ganado
 	if livestock_resource:
 		var food_mod := StatModifier.new(
-			"horde_livestock_food", "Horda Nomada: Ganado",
+			"horde_livestock_food", "MOD_HORDE_LIVESTOCK_NAME",
 			StatModifier.StatType.TILE_RESOURCE_FOOD, 1.0, -1,
 			null, livestock_resource
 		)
@@ -22,14 +22,14 @@ func create_modifiers() -> Array[Modifier]:
 
 	# Colonizar vuelve a la mano con 30% de probabilidad
 	var return_mod := CardReturnModifier.new(
-		"horde_colonize_return", "Horda Nomada: Colonizar",
+		"horde_colonize_return", "MOD_HORDE_COLONIZE_NAME",
 		"Colonize", 0.3, -1
 	)
 	mods.append(return_mod)
 
 	# -25% mantenimiento solo de caballería (jinetes ligeros nómadas)
 	var maint_mod := StatModifier.new(
-		"horde_cavalry_maintenance", "Horda Nomada: Mantenimiento",
+		"horde_cavalry_maintenance", "MOD_HORDE_CAVALRY_NAME",
 		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT, -25.0, -1,
 		null, null, Troop.TroopType.CABALLERIA
 	)

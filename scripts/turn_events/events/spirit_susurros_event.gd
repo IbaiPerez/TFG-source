@@ -17,7 +17,7 @@ func _init():
 	choice.description = tr("EVT_SPIRIT_SUSURROS_CH1_DESC")
 	choice.effects = [
 		ScaledStatModifierEffect.new(
-			"spirit_susurros", "Susurros Ancestrales",
+			"spirit_susurros", "EVT_SPIRIT_SUSURROS_TITLE",
 			StatModifier.StatType.CARDS_PER_TURN,
 			1.0, 0.0, 0.0, 3
 		)

@@ -20,7 +20,7 @@ func _init():
 	suffer.description = tr("EVT_LOCUST_CH1_DESC")
 	suffer.effects = [
 		ScaledStatModifierEffect.new(
-			"locust_plague_food", "Plaga de Langostas",
+			"locust_plague_food", "EVT_LOCUST_TITLE",
 			StatModifier.StatType.PERCENT_FOOD,
 			-20.0, 0.0, 0.0, 4
 		)

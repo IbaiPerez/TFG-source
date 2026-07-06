@@ -18,7 +18,7 @@ func _init():
 	choice.description = tr("EVT_TRAVELING_ARTISANS_CH1_DESC")
 	choice.effects = [
 		ScaledBuildCostModifierEffect.new(
-			"artisans_discount", "Artesanos Ambulantes",
+			"artisans_discount", "EVT_TRAVELING_ARTISANS_TITLE",
 			15.0, 0.0, 4
 		)
 	]

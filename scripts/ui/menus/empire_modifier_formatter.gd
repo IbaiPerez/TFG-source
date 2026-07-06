@@ -26,7 +26,7 @@ static func describe_ability(ability: EmpireAbility) -> Array[String]:
 	if ability == null:
 		return lines
 	for mod in ability.create_modifiers():
-		var line := _describe_modifier(mod)
+		var line := describe_modifier(mod)
 		if line != "":
 			lines.append(line)
 	for building in ability.exclusive_buildings:
@@ -35,7 +35,11 @@ static func describe_ability(ability: EmpireAbility) -> Array[String]:
 	return lines
 
 
-static func _describe_modifier(mod: Modifier) -> String:
+## Devuelve la linea BBCode localizada y coloreada de un modifier suelto.
+## Reutilizada tanto por la pantalla de seleccion de imperio (describe_ability)
+## como por el tooltip del panel de modificadores en partida (ModifierIcon),
+## para que ambos sitios muestren siempre el mismo texto localizado.
+static func describe_modifier(mod: Modifier) -> String:
 	if mod is StatModifier:
 		return _describe_stat(mod)
 	if mod is BuildCostModifier:
@@ -79,6 +83,17 @@ static func _describe_stat(mod: StatModifier) -> String:
 			if mod.troop_type_filter == Troop.TroopType.CABALLERIA:
 				return _t("MODF_TROOP_MAINT_CAVALRY") % body
 			return _t("MODF_TROOP_MAINT") % body
+		StatModifier.StatType.CARDS_PER_TURN:
+			return _t("MODF_CARDS_PER_TURN") % _c(COL_BLUE, "%+d" % v)
+		StatModifier.StatType.CARD_DRAW_BONUS:
+			return _t("MODF_CARD_DRAW_BONUS") % _c(COL_BLUE, "%+d" % v)
+		StatModifier.StatType.TROOPS_PER_RECRUIT:
+			if mod.troop_type_filter >= 0:
+				return _t("MODF_TROOPS_PER_RECRUIT_TYPE") % [
+					_c(COL_BLUE, "%+d" % v),
+					_c(COL_BLUE, Troop.type_label_for(mod.troop_type_filter)),
+				]
+			return _t("MODF_TROOPS_PER_RECRUIT") % _c(COL_BLUE, "%+d" % v)
 	# StatType sin plantilla dedicada: descripcion auto del modifier.
 	return mod.description
 

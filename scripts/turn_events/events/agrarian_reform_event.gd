@@ -20,12 +20,12 @@ func _init():
 	reform.description = tr("EVT_AGRARIAN_CH1_DESC")
 	reform.effects = [
 		ScaledStatModifierEffect.new(
-			"agrarian_reform_gold", "Reforma Agraria",
+			"agrarian_reform_gold", "EVT_AGRARIAN_TITLE",
 			StatModifier.StatType.PERCENT_GOLD,
 			-15.0, -0.2, 0.0, 4
 		),
 		ScaledStatModifierEffect.new(
-			"agrarian_reform_food", "Reforma Agraria",
+			"agrarian_reform_food", "EVT_AGRARIAN_TITLE",
 			StatModifier.StatType.PERCENT_FOOD,
 			20.0, 0.3, 0.0, 4
 		),

@@ -20,12 +20,12 @@ func _init():
 	trade.description = tr("EVT_CATTLE_FAIR_CH1_DESC")
 	trade.effects = [
 		ScaledStatModifierEffect.new(
-			"cattle_fair_food", "Feria de Ganado",
+			"cattle_fair_food", "EVT_CATTLE_FAIR_TITLE",
 			StatModifier.StatType.FLAT_FOOD,
 			-8.0, -0.2, 0.0, 3
 		),
 		ScaledStatModifierEffect.new(
-			"cattle_fair_gold", "Feria de Ganado",
+			"cattle_fair_gold", "EVT_CATTLE_FAIR_TITLE",
 			StatModifier.StatType.PERCENT_GOLD,
 			15.0, 0.2, 0.0, 3
 		),

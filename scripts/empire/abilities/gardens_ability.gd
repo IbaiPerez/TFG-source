@@ -14,7 +14,7 @@ func create_modifiers() -> Array[Modifier]:
 	# +2 comida en casillas con trigo
 	if wheat_resource:
 		var food_mod := StatModifier.new(
-			"gardens_wheat_food", "Jardines Colgantes: Trigo",
+			"gardens_wheat_food", "MOD_GARDENS_WHEAT_NAME",
 			StatModifier.StatType.TILE_RESOURCE_FOOD, 2.0, -1,
 			null, wheat_resource
 		)
@@ -22,14 +22,14 @@ func create_modifiers() -> Array[Modifier]:
 
 	# +3 oro cada vez que se juega Build Card
 	var gold_on_build := GoldOnCardModifier.new(
-		"gardens_gold_on_build", "Jardines Colgantes: Construccion",
+		"gardens_gold_on_build", "MOD_GARDENS_GOLDBUILD_NAME",
 		"Build Card", 3, -1
 	)
 	mods.append(gold_on_build)
 
 	# +10% produccion de oro global (Rutas Comerciales de Mesopotamia)
 	var trade_mod := StatModifier.new(
-		"babylonian_trade_gold", "Rutas de Mesopotamia",
+		"babylonian_trade_gold", "MOD_BABYLON_TRADE_NAME",
 		StatModifier.StatType.PERCENT_GOLD, 10.0, -1
 	)
 	mods.append(trade_mod)

@@ -3,7 +3,20 @@ extends GutTest
 ## Tests para TroopSlot y RecruitPanel — el panel de selección de tropas
 ## que aparece al jugar la carta de reclutamiento.
 
+# El coste mostrado compara contra texto en español ("oro"). Fijamos el
+# locale para que no dependa del idioma guardado en user://settings.cfg o del SO.
+var _prev_locale: String
+
 var stats: Stats
+
+
+func before_all() -> void:
+	_prev_locale = TranslationServer.get_locale()
+	TranslationServer.set_locale("es")
+
+
+func after_all() -> void:
+	TranslationServer.set_locale(_prev_locale)
 
 
 func _create_troop(troop_name: String, atk: int = 3, def: int = 3,

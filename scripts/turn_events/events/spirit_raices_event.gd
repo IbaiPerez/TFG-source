@@ -17,7 +17,7 @@ func _init():
 	choice.description = tr("EVT_SPIRIT_RAICES_CH1_DESC")
 	choice.effects = [
 		ScaledBuildCostModifierEffect.new(
-			"spirit_raices", "Raíces Protectoras",
+			"spirit_raices", "EVT_SPIRIT_RAICES_TITLE",
 			15.0, 0.0, 3
 		)
 	]

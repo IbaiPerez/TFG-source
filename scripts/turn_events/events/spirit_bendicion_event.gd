@@ -17,7 +17,7 @@ func _init():
 	choice.description = tr("EVT_SPIRIT_BENDICION_CH1_DESC")
 	choice.effects = [
 		ScaledStatModifierEffect.new(
-			"spirit_bendicion", "Bendición Natural",
+			"spirit_bendicion", "EVT_SPIRIT_BENDICION_TITLE",
 			StatModifier.StatType.PERCENT_FOOD,
 			25.0, 0.0, 0.0, 3
 		)
