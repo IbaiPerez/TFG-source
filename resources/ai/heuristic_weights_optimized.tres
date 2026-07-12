@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="HeuristicWeights" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/empire/ai/heuristic_weights.gd" id="1_l0kmo"]
+
+[resource]
+script = ExtResource("1_l0kmo")
+mil_urg_base_idle = 0.2942849263548851
+mil_urg_base_active = 1.5593328326940536
+deck_thin_large = 11.496211767196655
+encircle_high = 1.8144551031291485
+encircle_mid = 4.2439048290252686
+encircle_low = 6.174120187759399
+encircle_min = 2.5692945
+tr_lead_factor = 0.47068298
+tr_econ_factor = 0.5877472653985023
+gold_weight_pos = 2.6391964
+gold_weight_maint = 0.625
+defense_weight = 5.720366716384888
+build_resource_match = 2.3659577518701553
+build_border = 1.4103742
+unlock_gold = 1.6396549
+unlock_food = 2.9072615802288055
+unlock_defense = 1.9879701733589172
+unlock_cap = 23.688669443130493
+recruit_atkdef_weight = 8.150763183832169
+openfront_gold = 6.267055697739124
+openfront_food = 2.3313062861561775
+openfront_base_strategic = 4.1162047
+openfront_base_mu = 3.0211703460663557
+openfront_source_building = 5.633809328079224
+openfront_source_food = 1.3794250339269638
+tactic_base = 3.0
+colonize_food = 5.447746455669403
+colonize_expansion = 1.9402188
+changeloc_resource_bonus = 12.7273035
+changeloc_slot = 19.67195987701416
+se_flat_gold = 5.547330260276794
+se_card_draw = 6.245001435279846
+se_tpr_base = 6.7832430601119995
+se_tpr_mu = 21.443959593772888

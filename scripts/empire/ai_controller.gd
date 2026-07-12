@@ -155,6 +155,7 @@ func _run_turn() -> void:
 	ctx.world_view = _build_world_view()
 	ctx.deck_observer = _deck_observer
 	ctx.config = ai_config
+	ctx.weights = ai_config.heuristic_weights if ai_config != null else null
 	var _adj_cond := AdjacentCondition.new()
 	_adj_cond.empire = stats.empire
 	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
@@ -229,7 +230,8 @@ func _evaluate_and_resolve_event(empire_name: String) -> void:
 	if event == null:
 		return
 	GameLogger.debug("[IA] %s recibe evento: %s" % [empire_name, event.title])
-	AIEventResolver.resolve(event, context, _rng, turn_event_manager)
+	AIEventResolver.resolve(event, context, _rng, turn_event_manager,
+			ai_config.heuristic_weights if ai_config != null else null)
 
 
 func end_turn() -> void:
@@ -266,6 +268,11 @@ func _pick_best_option(options: Array[AIPlayOption], ctx: AITurnContext) -> AIPl
 	if options.is_empty():
 		return null
 	var cfg := ctx.config
+	if cfg != null and cfg.mode == AIConfig.Mode.RANDOM:
+		# Política aleatoria: una opción legal al azar (incluye PASS). Rival de
+		# referencia débil para el fitness del optimizador; usa ctx.rng para que
+		# la partida siga siendo determinista con seed fijo.
+		return options[ctx.rng.randi_range(0, options.size() - 1)]
 	if cfg != null and cfg.mode == AIConfig.Mode.MCTS:
 		var picked := _pick_best_option_mcts(options, ctx, cfg)
 		# Si MCTS no devuelve jugada (sin acciones modelables), caemos a heurística.

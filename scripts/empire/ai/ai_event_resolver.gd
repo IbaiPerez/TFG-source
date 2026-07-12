@@ -24,7 +24,8 @@ class_name AIEventResolver
 
 ## Punto de entrada. Llama desde AIController tras evaluar el evento.
 static func resolve(event: TurnEvent, context: EventContext,
-		rng: RandomNumberGenerator, manager: TurnEventManager) -> void:
+		rng: RandomNumberGenerator, manager: TurnEventManager,
+		weights: HeuristicWeights = null) -> void:
 	if event == null or context == null:
 		return
 
@@ -32,6 +33,9 @@ static func resolve(event: TurnEvent, context: EventContext,
 	# globales (BattleFront.get_active_instances() es estático, no requiere bfm).
 	var hctx := AITurnContext.new()
 	hctx.stats = context.stats
+	# Propagar los pesos de la heurística del imperio (candidato del optimizador
+	# o perfil de dificultad). null → hctx.get_weights() usará el default.
+	hctx.weights = weights
 	# Calcular tiles colonizables reales para que score_card_for_deck y
 	# pick_card_to_remove tomen decisiones informadas sobre ColonizeCard.
 	# Sin esto, colonizable_tiles_count queda en -1 (unknown) y ColonizeCard

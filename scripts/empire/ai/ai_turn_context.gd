@@ -21,6 +21,8 @@ var deck_observer: AIDeckObserver       ## Observador de cartas del rival (Fase 
                                         ## null en tests unitarios sin rival real.
 var config: AIConfig                    ## Configuración del algoritmo (modo, iters MCTS…).
                                         ## null → comportamiento por defecto (heurística).
+var weights: HeuristicWeights           ## Pesos de la heurística activos este turno.
+                                        ## null → se resuelve desde config o el default cacheado.
 
 ## Tiles sin controller adyacentes a tiles propias. -1 = desconocido (tests).
 var colonizable_tiles_count: int = -1
@@ -53,6 +55,17 @@ var _cache_deck_size: int = 0
 
 func invalidate_decision_cache() -> void:
 	_cache_valid = false
+
+
+## Pesos de la heurística efectivos: los explícitos del contexto, si no los de
+## AIConfig.heuristic_weights, y como último recurso el default cacheado. Nunca
+## devuelve null, de modo que AIHeuristic siempre tiene pesos con los que operar.
+func get_weights() -> HeuristicWeights:
+	if weights != null:
+		return weights
+	if config != null and config.heuristic_weights != null:
+		return config.heuristic_weights
+	return HeuristicWeights.get_default()
 
 
 static func create(p_controller: Node, p_rng: RandomNumberGenerator) -> AITurnContext:

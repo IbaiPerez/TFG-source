@@ -10,10 +10,18 @@ class_name AIConfig
 enum Mode {
 	HEURISTIC,  ## Solo heurística de Fase B: rápida, determinista, ~41µs/opción.
 	MCTS,       ## Monte Carlo Tree Search con política de rollout configurable.
+	RANDOM,     ## Política aleatoria (elige una opción legal al azar, incluido PASS).
+	            ## Rival de referencia débil para el fitness del optimizador de pesos.
 }
 
 ## Algoritmo de decisión principal.
 @export var mode: Mode = Mode.MCTS
+
+## Pesos de la heurística (AIHeuristic). null → usa los valores por defecto
+## codificados en HeuristicWeights. Asignar un .tres distinto permite perfiles
+## de dificultad y, sobre todo, que el optimizador (SA/GA) enfrente candidatos
+## de pesos contra la baseline sin tocar código.
+@export var heuristic_weights: HeuristicWeights = null
 
 ## Solo relevante si mode == MCTS.
 ## Controla si la heurística (Fase B) guía la búsqueda en tres puntos:
