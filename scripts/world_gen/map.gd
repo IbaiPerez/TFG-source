@@ -2,6 +2,11 @@ extends Node3D
 
 @export var stats:Stats
 
+## Config de IA por defecto para imperios adicionales (N>1): MCTS dirigido por
+## los pesos optimizados (campeón). El imperio i==0 reutiliza el nodo de escena,
+## cuyo ai_config ya apunta al mismo recurso; esto cubre los creados en código.
+const AI_CONFIG_OPTIMIZED := preload("res://resources/ai/ai_config_mcts_optimized.tres")
+
 var generation_settings:GenerationSettings
 
 ## Si es false, _ready() solo limpia BattleFront y no inicia la partida.
@@ -118,6 +123,7 @@ func _create_ai_controllers() -> void:
 		else:
 			ai = AIController.new()
 			ai.name = "AIController_%s" % empire.name
+			ai.ai_config = AI_CONFIG_OPTIMIZED
 			$Node.add_child(ai)
 
 		ai.start_game(ai_stats)

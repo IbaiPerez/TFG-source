@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AIConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://bcliuv78l28as" path="res://scripts/empire/ai/ai_config.gd" id="1_aiconfig"]
+[ext_resource type="Resource" path="res://resources/ai/heuristic_weights_optimized.tres" id="2_weights"]
+
+[resource]
+script = ExtResource("1_aiconfig")
+mcts_time_budget_ms = 1000
+heuristic_weights = ExtResource("2_weights")

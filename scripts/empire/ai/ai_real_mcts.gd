@@ -264,15 +264,18 @@ static func _entries(state: AIRealState, hand: Array[Card], player: int,
 		config: AIConfig, root_priors: Dictionary = {}) -> Array[Entry]:
 	var raw_moves := AIRealOptions.enumerate(state, hand, player)
 	var use_root := not root_priors.is_empty()
+	# Pesos de la heurística que guían el MCTS a TODA profundidad (prior/rollout):
+	# los del config (campeón desplegado) o el default si no hay ninguno.
+	var w := config.heuristic_weights if config.heuristic_weights != null else HeuristicWeights.get_default()
 	var scored: Array[Entry] = []
 	for m in raw_moves:
 		var e := Entry.new()
 		e.move = m
 		if use_root:
 			e.raw = root_priors.get(AIRealMCTSNode.move_key(m),
-				AIRealEvalStrong.score_move(m, state, player))
+				AIRealEvalStrong.score_move(m, state, player, w))
 		else:
-			e.raw = AIRealEvalStrong.score_move(m, state, player)
+			e.raw = AIRealEvalStrong.score_move(m, state, player, w)
 		scored.append(e)
 	scored.sort_custom(func(a: Entry, b: Entry) -> bool: return a.raw > b.raw)
 	var k := config.mcts_action_pruning_k
