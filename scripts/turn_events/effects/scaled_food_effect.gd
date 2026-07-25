@@ -16,5 +16,6 @@ func _init(p_base:float, p_turn_factor:float = 0.0, p_food_percent:float = 0.0):
 
 
 func execute(context:EventContext, _chosen_card:Card = null) -> void:
-	var amount := int(base + context.turn_number * turn_factor + context.food * food_percent)
+	var amount := int(ScaledValue.evaluate(base, turn_factor, food_percent,
+		context.turn_number, context.food))
 	context.stats.food += amount

@@ -103,7 +103,7 @@ static func apply(state: AIRealState, move: Move, p_owner: int = AIRealState.OWN
 
 static func _add_colonize(moves: Array, state: AIRealState, card: ColonizeCard,
 		p_owner: int) -> void:
-	# Tiles sin colonizar adyacentes a una casilla propia (AdjacentCondition).
+	# Tiles sin colonizar adyacentes a una casilla propia (AdjacentRule).
 	# Iteramos las casillas PROPIAS y recogemos sus vecinas libres (dedup), igual
 	# que open_front/eventos: así solo dependemos de la dirección propio→vecino.
 	var seen := {}
@@ -324,12 +324,7 @@ static func _can_afford_troop(emp: AIRealState.EmpireSnap, troop: Troop) -> bool
 ## Tropas por play efectivas (espejo de RecruitCard.get_effective_troops_per_play).
 static func _troops_per_play(card: RecruitCard, troop: Troop,
 		emp: AIRealState.EmpireSnap) -> int:
-	var bonus := 0
-	for mod in emp.modifiers:
-		if mod is StatModifier \
-				and (mod as StatModifier).type == StatModifier.StatType.TROOPS_PER_RECRUIT \
-				and (mod as StatModifier).applies_to_troop(troop):
-			bonus += int((mod as StatModifier).value)
+	var bonus := ModifierQuery.troops_per_recruit_bonus(emp.modifiers, troop)
 	return maxi(1, card.base_troops_per_play + bonus)
 
 

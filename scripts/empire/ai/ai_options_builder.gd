@@ -85,7 +85,7 @@ static func _add_colonize_options(card: ColonizeCard,
 
 
 ## ChangeLocationTypeCard (Urban Project y similares): 1 opción por
-## tile válida según ChangeLocationTypeCondition. La condición ya filtra:
+## tile válida según ChangeLocationTypeRule. La condición ya filtra:
 ##   - target.controller == empire
 ##   - location.type + 1 == card.location_type.type
 ##   - stats.food >= card.location_type.food_consumption
@@ -223,7 +223,7 @@ static func _add_recover_options(card: RecoverCard,
 
 ## OpenFrontCard: 1 opción por par (tile_enemiga × tile_propia adyacente).
 ## Antes de enumerar, inyectamos battle_front_manager en la carta para que
-## EnemyAdjacentCondition pueda filtrar tiles ya en frente.
+## EnemyAdjacentRule pueda filtrar tiles ya en frente.
 ## También respetamos el límite de frentes simultáneos del bfm.
 static func _add_open_front_options(card: OpenFrontCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
@@ -233,7 +233,7 @@ static func _add_open_front_options(card: OpenFrontCard,
 		return
 
 	# Inyectar el bfm para que get_valid_targets pueda filtrar por
-	# tiles ya en frente. Necesario también porque EnemyAdjacentCondition
+	# tiles ya en frente. Necesario también porque EnemyAdjacentRule
 	# lo lee de la carta.
 	card.battle_front_manager = ctx.battle_front_manager
 

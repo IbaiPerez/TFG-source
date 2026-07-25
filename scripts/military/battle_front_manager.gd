@@ -8,9 +8,9 @@ var stats: Stats
 var active_fronts: Array[BattleFront] = []
 
 ## Configuración base (modificable por eventos/edificios)
-var base_max_fronts: int = 1
+var base_max_fronts: int = GameBalance.MAX_FRONTS_BASE
 var extra_max_fronts: int = 0
-var tiles_per_extra_front: int = 5
+var tiles_per_extra_front: int = GameBalance.TILES_PER_EXTRA_FRONT
 
 
 func _ready() -> void:

@@ -350,7 +350,7 @@ func test_open_front_card_apply_effects() -> void:
 	manager.queue_free()
 
 
-# --- Tests EnemyAdjacentCondition ---
+# --- Tests EnemyAdjacentRule ---
 
 func test_enemy_adjacent_condition_valid() -> void:
 	var own_tile := _create_tile(Tile.biome_type.Grassland, empire)
@@ -359,7 +359,7 @@ func test_enemy_adjacent_condition_valid() -> void:
 	enemy_tile.neighbors = [own_tile]
 	empire.controlled_tiles = [own_tile]
 
-	var condition := EnemyAdjacentCondition.new()
+	var condition := EnemyAdjacentRule.new()
 	condition.empire = empire
 
 	assert_true(condition.is_valid_target(enemy_tile))
@@ -376,7 +376,7 @@ func test_enemy_adjacent_condition_ignores_uncontrolled() -> void:
 	empty_tile.neighbors = [own_tile]
 	empire.controlled_tiles = [own_tile]
 
-	var condition := EnemyAdjacentCondition.new()
+	var condition := EnemyAdjacentRule.new()
 	condition.empire = empire
 
 	assert_false(condition.is_valid_target(empty_tile), "Tiles sin controlador no son targets")
@@ -401,7 +401,7 @@ func test_enemy_adjacent_condition_excludes_own_tile_in_active_front() -> void:
 	add_child(manager)
 	manager.open_front(own_tile, enemy_tile)  # own_tile ya comprometida
 
-	var condition := EnemyAdjacentCondition.new()
+	var condition := EnemyAdjacentRule.new()
 	condition.empire = empire
 
 	# Con own_tile ya en frente, ningún vecino enemigo es atacable desde ella
@@ -439,7 +439,7 @@ func test_enemy_adjacent_condition_excludes_tile_in_front_as_defender() -> void:
 	add_child(third_manager)
 	third_manager.open_front(third_tile, enemy_tile)
 
-	var condition := EnemyAdjacentCondition.new()
+	var condition := EnemyAdjacentRule.new()
 	condition.empire = empire
 
 	# enemy_tile está en el registro como defensora → no debe ser target

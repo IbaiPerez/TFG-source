@@ -30,7 +30,7 @@ var marker: float = 0.0
 
 ## Control de tiempo
 var turns_elapsed: int = 0
-var min_duration: int = 3
+var min_duration: int = GameBalance.FRONT_MIN_DURATION
 
 ## Umbral inicial del frente. El umbral efectivo se calcula con
 ## `get_current_threshold()` y va decreciendo desde `threshold` (default 10)
@@ -41,9 +41,9 @@ var min_duration: int = 3
 ## se resolvian. Bajando el techo a 10 y el minimo a 5 con decay de 10
 ## turnos, los frentes estancados se resuelven antes del turno 15 en la
 ## mayoria de casos, evitando LATE games bloqueados.
-var threshold: float = 10.0
-const MIN_THRESHOLD: float = 5.0
-const THRESHOLD_DECAY_TURNS: int = 10
+var threshold: float = GameBalance.FRONT_INITIAL_THRESHOLD
+const MIN_THRESHOLD: float = GameBalance.FRONT_MIN_THRESHOLD
+const THRESHOLD_DECAY_TURNS: int = GameBalance.FRONT_THRESHOLD_DECAY_TURNS
 
 ## Tropas asignadas por bando (arrays de Troop)
 var attacker_troops: Array[Troop] = []
@@ -124,46 +124,13 @@ func get_total_attack(side: BattleFront.Side) -> float:
 		enemy_troops = attacker_troops
 		bonuses = defender_bonuses
 
-	var total: float = 0.0
-
-	# Bonus de edificios militares (en la tile propia)
-	total += _get_building_attack(own_tile)
-
-	# Stats de tropas con efectividad por tipo aplicada (ataque efectivo)
-	# escaladas por el modificador de bioma de la tile **contraria** y por
-	# el `combat_multiplier` del imperio del bando (penalizacion economica
-	# por deficit en oro/comida — Opcion 3 del rebalanceo). Edificios y
-	# bonuses tacticos NO se ven afectados por la penalizacion economica.
-	var troops_attack := TroopEffectiveness.get_effective_attack(troops, enemy_troops)
-	var combat_mult := _get_side_combat_multiplier(side)
-	var biome_atk_mult := _get_biome_attack_multiplier(enemy_tile)
-	total += troops_attack * biome_atk_mult * combat_mult
-
-	# Bonuses de cartas tácticas
-	var flat_bonus: float = 0.0
-	var percent_bonus: float = 0.0
-	for raw_bonus in bonuses:
-		var bonus := _as_tactic_bonus(raw_bonus)
-		flat_bonus += bonus.attack
-		percent_bonus += bonus.attack_percent
-		# Bonus plano por tipo de tropa: attack_per_troop × tropas afectadas (NO pasa por matriz).
-		if bonus.attack_per_troop != 0.0:
-			var count := _count_bonus_targets(troops, bonus)
-			flat_bonus += bonus.attack_per_troop * count
-		# Bonus porcentual por tipo de tropa: % aplicado al ATAQUE EFECTIVO de las
-		# tropas afectadas (sí pasa por la matriz piedra-papel-tijera). El modificador
-		# de bioma capturado al jugar la carta escala el resultado.
-		if bonus.attack_percent_per_type != 0.0:
-			var pct: float = bonus.attack_percent_per_type / 100.0
-			var biome_mod: float = bonus.attack_biome_modifier
-			var affected_eff_atk := _sum_effective_attack_of_targeted(troops, enemy_troops, bonus)
-			flat_bonus += affected_eff_atk * pct * biome_mod
-
-	total += flat_bonus
-	if percent_bonus != 0.0:
-		total *= (1.0 + percent_bonus / 100.0)
-
-	return maxf(total, 0.0)
+	# El bioma escala el ATK efectivo por la tile CONTRARIA; combat_mult es la
+	# penalización económica del imperio del bando. Edificios y bonuses no pasan
+	# por esos multiplicadores (ver CombatMath.total_attack).
+	return CombatMath.total_attack(troops, enemy_troops, bonuses,
+		_get_biome_attack_multiplier(enemy_tile),
+		_get_side_combat_multiplier(side),
+		_get_building_attack(own_tile))
 
 
 ## Calcula la defensa total de un bando.
@@ -186,47 +153,12 @@ func get_total_defense(side: BattleFront.Side) -> float:
 		troops = defender_troops
 		bonuses = defender_bonuses
 
-	var total: float = 0.0
-
-	# Bonus de edificios militares (en la tile propia)
-	total += _get_building_defense(own_tile)
-
-	# Stats de tropas escalados por el modificador de bioma de la tile propia
-	# y por el `combat_multiplier` del imperio del bando (penalizacion
-	# economica por deficit en oro/comida — Opcion 3). Edificios y bonuses
-	# tacticos NO se ven afectados.
-	var troops_defense: float = 0.0
-	for troop in troops:
-		troops_defense += troop.defense
-	var combat_mult := _get_side_combat_multiplier(side)
-	var biome_def_mult := _get_biome_defense_multiplier(own_tile)
-	total += troops_defense * biome_def_mult * combat_mult
-
-	# Bonuses de cartas tácticas
-	var flat_bonus: float = 0.0
-	var percent_bonus: float = 0.0
-	for raw_bonus in bonuses:
-		var bonus := _as_tactic_bonus(raw_bonus)
-		flat_bonus += bonus.defense
-		percent_bonus += bonus.defense_percent
-		# Bonus plano por tipo de tropa.
-		if bonus.defense_per_troop != 0.0:
-			var count := _count_bonus_targets(troops, bonus)
-			flat_bonus += bonus.defense_per_troop * count
-		# Bonus porcentual por tipo de tropa: % aplicado a la DEFENSA BASE de
-		# las tropas afectadas. El modificador de bioma capturado al jugar la
-		# carta escala el resultado.
-		if bonus.defense_percent_per_type != 0.0:
-			var pct: float = bonus.defense_percent_per_type / 100.0
-			var biome_mod: float = bonus.defense_biome_modifier
-			var affected_def := _sum_defense_of_targeted(troops, bonus)
-			flat_bonus += affected_def * pct * biome_mod
-
-	total += flat_bonus
-	if percent_bonus != 0.0:
-		total *= (1.0 + percent_bonus / 100.0)
-
-	return maxf(total, 0.0)
+	# El bioma escala la DEF de tropas por la tile PROPIA; combat_mult es la
+	# penalización económica. Edificios y bonuses no pasan por esos multiplicadores.
+	return CombatMath.total_defense(troops, bonuses,
+		_get_biome_defense_multiplier(own_tile),
+		_get_side_combat_multiplier(side),
+		_get_building_defense(own_tile))
 
 
 ## Suma el ataque base de las tropas asignadas a un bando (sin bioma,
@@ -260,7 +192,7 @@ func get_pressure(side: BattleFront.Side) -> float:
 	else:
 		atk = get_total_attack(BattleFront.Side.DEFENDER)
 		enemy_def = get_total_defense(BattleFront.Side.ATTACKER)
-	return atk / (1.0 + enemy_def)
+	return CombatMath.pressure(atk, enemy_def)
 
 
 ## Procesa un turno del frente. Retorna true si el frente se resuelve.
@@ -308,13 +240,7 @@ func can_resolve() -> bool:
 ## directamente a `threshold` solo es valido para inicializacion, persistencia
 ## (save/load) o cuando se quiere el valor de configuracion, no el efectivo.
 func get_current_threshold() -> float:
-	# Casos triviales: decay desactivado, o el inicial ya es <= MIN_THRESHOLD
-	# (configuracion de test con thresholds pequeños). En ambos casos, no
-	# decaemos — el threshold solo baja, nunca sube.
-	if THRESHOLD_DECAY_TURNS <= 0 or threshold <= MIN_THRESHOLD:
-		return threshold
-	var t: float = clampf(float(turns_elapsed) / float(THRESHOLD_DECAY_TURNS), 0.0, 1.0)
-	return lerpf(threshold, MIN_THRESHOLD, t)
+	return CombatMath.current_threshold(threshold, turns_elapsed)
 
 
 ## Asigna una tropa a un bando. Las tropas quedan comprometidas.
@@ -395,7 +321,7 @@ func get_front_maintenance(side: BattleFront.Side) -> Dictionary:
 	var extra_food: int = 0
 	for i in range(troops.size()):
 		# Recargo progresivo: +5, +10, +15... por cada tropa adicional
-		var surcharge: int = (i + 1) * 5
+		var surcharge: int = (i + 1) * GameBalance.FRONT_SURCHARGE_PER_TROOP
 		extra_gold += surcharge
 		extra_food += surcharge
 	return { "gold": extra_gold, "food": extra_food }
@@ -412,47 +338,15 @@ func get_resolved_casualties() -> Dictionary:
 func calculate_casualties() -> Dictionary:
 	if not is_resolved:
 		return { "attacker_losses": 0, "defender_losses": 0 }
-
-	# Usamos el umbral del turno en que se resolvio. Como `_resolve` se llama
-	# en el mismo tick que detecta la resolucion, `get_current_threshold()`
-	# devuelve el valor decaido apropiado para escalar la dominancia.
+	# Usamos el umbral del turno en que se resolvio. Como `_resolve` se llama en el
+	# mismo tick que detecta la resolucion, `get_current_threshold()` devuelve el
+	# valor decaido apropiado para escalar la dominancia.
 	var effective_threshold := get_current_threshold()
-	var attacker_won := marker >= effective_threshold
-
-	# La presión acumulada recibida determina las bajas
-	# El bando que recibió más presión pierde mayor porcentaje
-	var atk_total := float(attacker_troops.size())
-	var def_total := float(defender_troops.size())
-
-	if atk_total == 0 and def_total == 0:
-		return { "attacker_losses": 0, "defender_losses": 0 }
-
-	# Ratio de bajas basado en la presión relativa final
 	var atk_pressure := get_pressure(BattleFront.Side.ATTACKER)
 	var def_pressure := get_pressure(BattleFront.Side.DEFENDER)
-	var total_pressure := atk_pressure + def_pressure
-
-	if total_pressure == 0.0:
-		return { "attacker_losses": 0, "defender_losses": 0 }
-
-	# El perdedor pierde entre 60-100% de tropas, el ganador entre 20-50%
-	var winner_loss_ratio: float
-	var loser_loss_ratio: float
-
-	var dominance := absf(marker) / effective_threshold  # 1.0 = justo en el umbral, >1 = aplastante
-	loser_loss_ratio = clampf(0.6 + dominance * 0.2, 0.6, 1.0)
-	winner_loss_ratio = clampf(0.5 - dominance * 0.15, 0.2, 0.5)
-
-	var atk_losses: int
-	var def_losses: int
-	if attacker_won:
-		atk_losses = int(ceilf(atk_total * winner_loss_ratio))
-		def_losses = int(ceilf(def_total * loser_loss_ratio))
-	else:
-		atk_losses = int(ceilf(atk_total * loser_loss_ratio))
-		def_losses = int(ceilf(def_total * winner_loss_ratio))
-
-	return { "attacker_losses": atk_losses, "defender_losses": def_losses }
+	return CombatMath.casualties(marker, effective_threshold,
+		attacker_troops.size(), defender_troops.size(),
+		atk_pressure, def_pressure)
 
 
 ## --- Métodos privados ---
@@ -492,9 +386,7 @@ func _tick_bonuses(bonuses: Array) -> void:
 ## Convierte un bonus (TacticBonus o Dictionary) en TacticBonus tipado.
 ## Llamada en cada acceso para mantener compatibilidad con ambos formatos.
 func _as_tactic_bonus(raw: Variant) -> TacticBonus:
-	if raw is TacticBonus:
-		return raw as TacticBonus
-	return TacticBonus.from_dict(raw as Dictionary)
+	return CombatMath.as_tactic_bonus(raw)
 
 
 ## Multiplicador que aplica al ATK efectivo del bando que ATACA esta tile.
@@ -536,74 +428,3 @@ func _get_building_defense(tile: Tile) -> float:
 ## Reservado para futuros edificios con bonus de ataque.
 func _get_building_attack(_tile: Tile) -> float:
 	return 0.0
-
-
-## Cuenta cuántas tropas de un bando tienen un nombre específico.
-func _count_troops_by_name(troops: Array[Troop], troop_name: String) -> int:
-	var count := 0
-	for troop in troops:
-		if troop.name == troop_name:
-			count += 1
-	return count
-
-
-## Cuenta cuántas tropas de un bando son de un tipo (Troop.TroopType) concreto.
-func _count_troops_by_type(troops: Array[Troop], troop_type: int) -> int:
-	var count := 0
-	for troop in troops:
-		if troop.type == troop_type:
-			count += 1
-	return count
-
-
-## Devuelve cuántas tropas del bando son afectadas por un bonus dirigido.
-## Acepta tres formas (orden de precedencia):
-##   - troop_types (array no vacío) → lista de Troop.TroopType.
-##   - troop_type  (>= 0)           → un único Troop.TroopType.
-##   - troop_name  (no vacío)       → nombre cosmético (legacy).
-## Si el bonus no especifica ninguno, devuelve 0.
-func _count_bonus_targets(troops: Array[Troop], bonus: TacticBonus) -> int:
-	if not bonus.troop_types.is_empty():
-		var count := 0
-		var allowed: Array[int] = bonus.troop_types
-		for troop in troops:
-			if troop.type in allowed:
-				count += 1
-		return count
-	if bonus.troop_type >= 0:
-		return _count_troops_by_type(troops, bonus.troop_type)
-	if bonus.troop_name != "":
-		return _count_troops_by_name(troops, bonus.troop_name)
-	return 0
-
-
-## Indica si una tropa concreta es objetivo del bonus dado.
-func _is_troop_targeted_by_bonus(troop: Troop, bonus: TacticBonus) -> bool:
-	if not bonus.troop_types.is_empty():
-		return troop.type in bonus.troop_types
-	if bonus.troop_type >= 0:
-		return troop.type == bonus.troop_type
-	if bonus.troop_name != "":
-		return troop.name == bonus.troop_name
-	return false
-
-
-## Suma el ataque efectivo (después de aplicar la matriz de efectividad
-## contra la composición enemiga) de las tropas del bando que son objetivo
-## del bonus.
-func _sum_effective_attack_of_targeted(troops: Array[Troop],
-		enemy_troops: Array[Troop], bonus: TacticBonus) -> float:
-	var total: float = 0.0
-	for troop in troops:
-		if _is_troop_targeted_by_bonus(troop, bonus):
-			total += TroopEffectiveness.get_effective_attack_for_troop(troop, enemy_troops)
-	return total
-
-
-## Suma la defensa base de las tropas del bando que son objetivo del bonus.
-func _sum_defense_of_targeted(troops: Array[Troop], bonus: TacticBonus) -> float:
-	var total: float = 0.0
-	for troop in troops:
-		if _is_troop_targeted_by_bonus(troop, bonus):
-			total += float(troop.defense)
-	return total

@@ -38,7 +38,7 @@ class_name AIRealSimulator
 ## Los modifiers del rival no se modelan (ocultos); para él Σmodifiers = ∅, que
 ## reproduce el comportamiento base de F2.
 static func recompute_economy(state: AIRealState, p_owner: int) -> void:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return
 	var mods := emp.modifiers
@@ -49,27 +49,23 @@ static func recompute_economy(state: AIRealState, p_owner: int) -> void:
 	for id in state.tiles:
 		var t := state.tiles[id] as AIRealState.TileSnap
 		if t.owner == p_owner:
-			base_gold += t.gold_production() + _tile_gold_bonus(mods, t)
-			base_food += t.food_production() + _tile_food_bonus(mods, t)
-	base_gold += _flat_gold(mods)
-	base_food += _flat_food(mods)
+			base_gold += t.gold_production() + ModifierQuery.tile_gold_bonus(mods, t.natural_resource)
+			base_food += t.food_production() + ModifierQuery.tile_food_bonus(mods, t.natural_resource)
+	base_gold += ModifierQuery.flat_gold(mods)
+	base_food += ModifierQuery.flat_food(mods)
 
-	# 2. Modificadores porcentuales: solo sobre la producción positiva (espejo de
-	#    ProductionCalculator._calculate_base_production).
-	var gold_positive := maxi(base_gold, 0)
-	var gold_negative := mini(base_gold, 0)
-	var food_positive := maxi(base_food, 0)
-	var food_negative := mini(base_food, 0)
-	var prod_gold := int(gold_positive * (1.0 + _percent_gold(mods) / 100.0)) + gold_negative
-	var prod_food := int(food_positive * (1.0 + _percent_food(mods) / 100.0)) + food_negative
+	# 2. Modificadores porcentuales: solo sobre la producción positiva (misma
+	#    aritmética que ProductionCalculator, vía ProductionMath).
+	var prod_gold := ProductionMath.apply_percent(base_gold, ModifierQuery.percent_gold(mods))
+	var prod_food := ProductionMath.apply_percent(base_food, ModifierQuery.percent_food(mods))
 
 	# 3. Mantenimiento base de las tropas del pool, con descuento porcentual
-	#    clampeado (espejo de ProductionCalculator._calculate_troop_maintenance).
+	#    clampeado (misma aritmética que ProductionCalculator, vía ProductionMath).
 	var maint_gold := 0
 	var maint_food := 0
 	for troop in emp.troop_pool:
-		var percent := _troop_maintenance_percent(mods, troop)
-		var multiplier := ModifierManager.clamp_cost_multiplier(1.0 + percent / 100.0)
+		var percent := ModifierQuery.troop_maintenance_percent(mods, troop)
+		var multiplier := ProductionMath.maintenance_multiplier(percent)
 		maint_gold += int(troop.maintenance_gold * multiplier)
 		maint_food += int(troop.maintenance_food * multiplier)
 
@@ -85,7 +81,7 @@ static func recompute_economy(state: AIRealState, p_owner: int) -> void:
 			continue
 		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
 		for i in range(troops.size()):
-			var sc := (i + 1) * 5
+			var sc := (i + 1) * GameBalance.FRONT_SURCHARGE_PER_TROOP
 			surcharge_gold += sc
 			surcharge_food += sc
 
@@ -135,7 +131,7 @@ static func apply_build(state: AIRealState, tile_id: int, building: Building,
 		return
 	t = _writable(state, tile_id)   # COW antes de mutar
 	t.buildings.append(building)
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp != null:
 		emp.gold -= _effective_build_cost(building, emp)
 	recompute_economy(state, p_owner)
@@ -161,7 +157,7 @@ static func apply_upgrade(state: AIRealState, tile_id: int,
 	t = _writable(state, tile_id)   # COW antes de mutar (el índice se conserva)
 	t.buildings.remove_at(idx)
 	t.buildings.insert(idx, new_building)
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp != null:
 		emp.gold -= _effective_build_cost(new_building, emp)
 	recompute_economy(state, p_owner)
@@ -195,7 +191,7 @@ static func apply_change_location(state: AIRealState, tile_id: int,
 ## a la producción por turno.
 static func apply_generate_gold(state: AIRealState, amount: int,
 		p_owner: int = AIRealState.OWNER_SELF) -> void:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp != null:
 		emp.gold += amount
 
@@ -210,7 +206,7 @@ static func apply_generate_gold(state: AIRealState, amount: int,
 ## RecruitCard.get_effective_troops_per_play; sin modifiers es 1.
 static func apply_recruit(state: AIRealState, troop: Troop, count: int = 1,
 		p_owner: int = AIRealState.OWNER_SELF) -> void:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null or troop == null:
 		return
 	for _i in range(count):
@@ -292,17 +288,16 @@ static func apply_tactic(state: AIRealState, front: AIRealState.FrontSnap,
 # Asignación de tropas a frentes (espejo de AIController._assign_troops_to_fronts)
 # ---------------------------------------------------------------------------
 
-## Reparte las tropas del pool de `p_owner` entre sus frentes, priorizando por
-## urgencia (espejo de AIController._assign_troops_to_fronts v2): primera pasada
-## hasta MIN_TROOPS_PER_FRONT (3); segunda pasada hasta MIN+2 en frentes que se
-## pierden activamente. Defensor → max defensa; atacante → max ataque.
+## Reparte las tropas del pool de `p_owner` entre sus frentes usando la política
+## compartida TroopAssignmentPolicy (misma urgencia y dos pasadas que el juego
+## real); aquí solo construimos los slots sobre los FrontSnap del estado.
 static func assign_troops_to_fronts(state: AIRealState,
 		p_owner: int = AIRealState.OWNER_SELF) -> void:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null or emp.troop_pool.is_empty():
 		return
 
-	var entries: Array = []
+	var slots: Array = []
 	for f in state.fronts:
 		var front := f as AIRealState.FrontSnap
 		if front.is_resolved:
@@ -310,42 +305,52 @@ static func assign_troops_to_fronts(state: AIRealState,
 		var side := front.side_of(p_owner)
 		if side == BattleFront.Side.NONE:
 			continue
-		var base_urg := _front_base_urgency(front, side)
-		var cur := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
-		var full_urg := base_urg * (2.0 if cur.is_empty() else 1.0)
-		entries.append({"front": front, "side": side, "base_urgency": base_urg, "urgency": full_urg})
-	if entries.is_empty():
-		return
-	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.urgency > b.urgency)
+		var own_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
+		var slot := _SnapFrontSlot.new(emp, front, side)
+		slot.base_urgency = TroopAssignmentPolicy.base_urgency(
+			own_marker, front.current_threshold())
+		slots.append(slot)
 
-	# Primera pasada: llenar hasta MIN_TROOPS_PER_FRONT.
-	for entry in entries:
+	TroopAssignmentPolicy.assign(slots)
+
+
+## Slot de asignación sobre un FrontSnap (ver TroopAssignmentPolicy). Extrae la
+## mejor tropa del pool del EmpireSnap y la añade al bando correspondiente.
+class _SnapFrontSlot extends RefCounted:
+	var emp: AIRealState.EmpireSnap
+	var front: AIRealState.FrontSnap
+	var side: BattleFront.Side
+	var base_urgency: float = 0.0
+
+	func _init(p_emp: AIRealState.EmpireSnap, p_front: AIRealState.FrontSnap,
+			p_side: BattleFront.Side) -> void:
+		emp = p_emp
+		front = p_front
+		side = p_side
+
+	func troop_count() -> int:
+		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER \
+			else front.defender_troops
+		return troops.size()
+
+	func assign_best() -> bool:
 		if emp.troop_pool.is_empty():
-			return
-		var front: AIRealState.FrontSnap = entry.front
-		var side: BattleFront.Side = entry.side
-		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
-		while troops.size() < MIN_TROOPS_PER_FRONT and not emp.troop_pool.is_empty():
-			if not _assign_best_troop(emp, front, side):
-				break
-
-	# Segunda pasada: reforzar frentes que se pierden activamente.
-	for entry in entries:
-		if emp.troop_pool.is_empty():
-			return
-		if entry.base_urgency <= 1.5:
-			continue
-		var front: AIRealState.FrontSnap = entry.front
-		var side: BattleFront.Side = entry.side
-		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
-		while troops.size() < MIN_TROOPS_PER_FRONT + 2 and not emp.troop_pool.is_empty():
-			if not _assign_best_troop(emp, front, side):
-				break
-
-
-## Mínimo de tropas por frente en la primera pasada (espejo de
-## AIController.MIN_TROOPS_PER_FRONT).
-const MIN_TROOPS_PER_FRONT: int = 3
+			return false
+		var sorted_pool := emp.troop_pool.duplicate()
+		if side == BattleFront.Side.DEFENDER:
+			sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
+		else:
+			sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)
+		var best: Troop = sorted_pool[0]
+		var idx := emp.troop_pool.find(best)
+		if idx < 0:
+			return false
+		emp.troop_pool.remove_at(idx)
+		if side == BattleFront.Side.ATTACKER:
+			front.attacker_troops.append(best)
+		else:
+			front.defender_troops.append(best)
+		return true
 
 
 # ---------------------------------------------------------------------------
@@ -455,7 +460,7 @@ static func _front_can_resolve(front: AIRealState.FrontSnap) -> bool:
 	return absf(front.marker) >= front.current_threshold()
 
 
-## Presión de un bando (espejo de BattleFront.get_pressure): atk / (1 + def_enemiga).
+## Presión de un bando (delega en CombatMath.pressure).
 static func _front_pressure(state: AIRealState, front: AIRealState.FrontSnap,
 		side: BattleFront.Side) -> float:
 	var atk: float
@@ -466,12 +471,11 @@ static func _front_pressure(state: AIRealState, front: AIRealState.FrontSnap,
 	else:
 		atk = _front_total_attack(state, front, BattleFront.Side.DEFENDER)
 		enemy_def = _front_total_defense(state, front, BattleFront.Side.ATTACKER)
-	return atk / (1.0 + enemy_def)
+	return CombatMath.pressure(atk, enemy_def)
 
 
-## Ataque total de un bando (espejo de BattleFront.get_total_attack): tropas con
-## efectividad por tipo, escaladas por bioma de la tile contraria y combat
-## multiplier, más bonuses tácticos. Edificios de ataque: 0 (reservado en el juego).
+## Ataque total de un bando: resuelve bioma/combat_mult desde el snapshot y delega
+## el cálculo en CombatMath (mismo motor que el juego real). Edificios de ataque: 0.
 static func _front_total_attack(state: AIRealState, front: AIRealState.FrontSnap,
 		side: BattleFront.Side) -> float:
 	var troops: Array[Troop]
@@ -492,33 +496,13 @@ static func _front_total_attack(state: AIRealState, front: AIRealState.FrontSnap
 		bonuses = front.defender_bonuses
 		owner = front.defender_owner
 
-	var total := 0.0
-	var troops_attack := TroopEffectiveness.get_effective_attack(troops, enemy_troops)
-	var combat_mult := _combat_multiplier_of(state, owner)
-	var biome_atk_mult := _biome().get_attack_multiplier(_biome_of(state, enemy_tile_id))
-	total += troops_attack * biome_atk_mult * combat_mult
-
-	var flat_bonus := 0.0
-	var percent_bonus := 0.0
-	for bonus in bonuses:
-		flat_bonus += bonus.attack
-		percent_bonus += bonus.attack_percent
-		if bonus.attack_per_troop != 0.0:
-			flat_bonus += bonus.attack_per_troop * _count_bonus_targets(troops, bonus)
-		if bonus.attack_percent_per_type != 0.0:
-			var pct := bonus.attack_percent_per_type / 100.0
-			var biome_mod := bonus.attack_biome_modifier
-			var affected := _sum_effective_attack_of_targeted(troops, enemy_troops, bonus)
-			flat_bonus += affected * pct * biome_mod
-	total += flat_bonus
-	if percent_bonus != 0.0:
-		total *= (1.0 + percent_bonus / 100.0)
-	return maxf(total, 0.0)
+	return CombatMath.total_attack(troops, enemy_troops, bonuses,
+		_biome().get_attack_multiplier(_biome_of(state, enemy_tile_id)),
+		_combat_multiplier_of(state, owner))
 
 
-## Defensa total de un bando (espejo de BattleFront.get_total_defense): edificios
-## defensivos de la tile propia + defensa de tropas escalada por bioma propio y
-## combat multiplier, más bonuses tácticos.
+## Defensa total de un bando: resuelve edificios/bioma/combat_mult desde el
+## snapshot y delega el cálculo en CombatMath.
 static func _front_total_defense(state: AIRealState, front: AIRealState.FrontSnap,
 		side: BattleFront.Side) -> float:
 	var troops: Array[Troop]
@@ -536,30 +520,10 @@ static func _front_total_defense(state: AIRealState, front: AIRealState.FrontSna
 		bonuses = front.defender_bonuses
 		owner = front.defender_owner
 
-	var total := _building_defense_of(state, own_tile_id)
-	var troops_defense := 0.0
-	for troop in troops:
-		troops_defense += troop.defense
-	var combat_mult := _combat_multiplier_of(state, owner)
-	var biome_def_mult := _biome().get_defense_multiplier(_biome_of(state, own_tile_id))
-	total += troops_defense * biome_def_mult * combat_mult
-
-	var flat_bonus := 0.0
-	var percent_bonus := 0.0
-	for bonus in bonuses:
-		flat_bonus += bonus.defense
-		percent_bonus += bonus.defense_percent
-		if bonus.defense_per_troop != 0.0:
-			flat_bonus += bonus.defense_per_troop * _count_bonus_targets(troops, bonus)
-		if bonus.defense_percent_per_type != 0.0:
-			var pct := bonus.defense_percent_per_type / 100.0
-			var biome_mod := bonus.defense_biome_modifier
-			var affected := _sum_defense_of_targeted(troops, bonus)
-			flat_bonus += affected * pct * biome_mod
-	total += flat_bonus
-	if percent_bonus != 0.0:
-		total *= (1.0 + percent_bonus / 100.0)
-	return maxf(total, 0.0)
+	return CombatMath.total_defense(troops, bonuses,
+		_biome().get_defense_multiplier(_biome_of(state, own_tile_id)),
+		_combat_multiplier_of(state, owner),
+		_building_defense_of(state, own_tile_id))
 
 
 ## Resuelve un frente (espejo de BattleFront._resolve + BattleFrontManager
@@ -578,34 +542,16 @@ static func _resolve_front(state: AIRealState, front: AIRealState.FrontSnap) -> 
 	_return_surviving_troops(state, front, casualties)
 
 
-## Espejo de BattleFront.calculate_casualties: ratio de bajas según dominancia
-## del marcador sobre el umbral efectivo.
+## Bajas al resolver el frente: computa las presiones desde el snapshot y delega
+## en CombatMath.casualties (mismo motor que el juego real).
 static func _calculate_casualties(state: AIRealState,
 		front: AIRealState.FrontSnap) -> Dictionary:
 	var effective_threshold := front.current_threshold()
-	var attacker_won := front.marker >= effective_threshold
-	var atk_total := float(front.attacker_troops.size())
-	var def_total := float(front.defender_troops.size())
-	if atk_total == 0.0 and def_total == 0.0:
-		return {"attacker_losses": 0, "defender_losses": 0}
 	var atk_pressure := _front_pressure(state, front, BattleFront.Side.ATTACKER)
 	var def_pressure := _front_pressure(state, front, BattleFront.Side.DEFENDER)
-	if atk_pressure + def_pressure == 0.0:
-		return {"attacker_losses": 0, "defender_losses": 0}
-
-	var dominance := absf(front.marker) / effective_threshold
-	var loser_loss_ratio := clampf(0.6 + dominance * 0.2, 0.6, 1.0)
-	var winner_loss_ratio := clampf(0.5 - dominance * 0.15, 0.2, 0.5)
-
-	var atk_losses: int
-	var def_losses: int
-	if attacker_won:
-		atk_losses = int(ceilf(atk_total * winner_loss_ratio))
-		def_losses = int(ceilf(def_total * loser_loss_ratio))
-	else:
-		atk_losses = int(ceilf(atk_total * loser_loss_ratio))
-		def_losses = int(ceilf(def_total * winner_loss_ratio))
-	return {"attacker_losses": atk_losses, "defender_losses": def_losses}
+	return CombatMath.casualties(front.marker, effective_threshold,
+		front.attacker_troops.size(), front.defender_troops.size(),
+		atk_pressure, def_pressure)
 
 
 ## Aplica la conquista de una casilla (espejo de BattleFrontManager._apply_conquest):
@@ -634,10 +580,10 @@ static func _return_surviving_troops(state: AIRealState,
 	for _i in range(mini(def_losses, def_survivors.size())):
 		def_survivors.pop_back()
 
-	var atk_emp := _empire_of(state, front.attacker_owner)
+	var atk_emp := state.empire(front.attacker_owner)
 	if atk_emp != null:
 		atk_emp.troop_pool.append_array(atk_survivors)
-	var def_emp := _empire_of(state, front.defender_owner)
+	var def_emp := state.empire(front.defender_owner)
 	if def_emp != null:
 		def_emp.troop_pool.append_array(def_survivors)
 
@@ -645,14 +591,6 @@ static func _return_surviving_troops(state: AIRealState,
 # ---------------------------------------------------------------------------
 # Internals
 # ---------------------------------------------------------------------------
-
-static func _empire_of(state: AIRealState, p_owner: int) -> AIRealState.EmpireSnap:
-	if p_owner == AIRealState.OWNER_SELF:
-		return state.own
-	if p_owner == AIRealState.OWNER_RIVAL:
-		return state.rival
-	return null
-
 
 ## Copy-on-write: devuelve una copia PRIVADA de la casilla en este estado, lista
 ## para mutar sin afectar a los clones que comparten el TileSnap (ver
@@ -665,7 +603,7 @@ static func _writable(state: AIRealState, tile_id: int) -> AIRealState.TileSnap:
 
 ## combat_multiplier del imperio dueño de un bando (1.0 si no hay imperio).
 static func _combat_multiplier_of(state: AIRealState, p_owner: int) -> float:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	return emp.combat_multiplier if emp != null else 1.0
 
 
@@ -686,63 +624,9 @@ static func _building_defense_of(state: AIRealState, tile_id: int) -> float:
 	return total
 
 
-## Instancia compartida de BiomeConfig (multiplicadores inmutables). Lazy.
-static var _biome_config: BiomeConfig = null
+## Instancia compartida de BiomeConfig (multiplicadores inmutables).
 static func _biome() -> BiomeConfig:
-	if _biome_config == null:
-		_biome_config = BiomeConfig.new()
-	return _biome_config
-
-
-## Cuenta cuántas tropas del bando son objetivo de un bonus (espejo de
-## BattleFront._count_bonus_targets: troop_types > troop_type > troop_name).
-static func _count_bonus_targets(troops: Array[Troop], bonus: TacticBonus) -> int:
-	if not bonus.troop_types.is_empty():
-		var count := 0
-		for troop in troops:
-			if troop.type in bonus.troop_types:
-				count += 1
-		return count
-	if bonus.troop_type >= 0:
-		var count := 0
-		for troop in troops:
-			if troop.type == bonus.troop_type:
-				count += 1
-		return count
-	if bonus.troop_name != "":
-		var count := 0
-		for troop in troops:
-			if troop.name == bonus.troop_name:
-				count += 1
-		return count
-	return 0
-
-
-static func _is_troop_targeted_by_bonus(troop: Troop, bonus: TacticBonus) -> bool:
-	if not bonus.troop_types.is_empty():
-		return troop.type in bonus.troop_types
-	if bonus.troop_type >= 0:
-		return troop.type == bonus.troop_type
-	if bonus.troop_name != "":
-		return troop.name == bonus.troop_name
-	return false
-
-
-static func _sum_effective_attack_of_targeted(troops: Array[Troop],
-		enemy_troops: Array[Troop], bonus: TacticBonus) -> float:
-	var total := 0.0
-	for troop in troops:
-		if _is_troop_targeted_by_bonus(troop, bonus):
-			total += TroopEffectiveness.get_effective_attack_for_troop(troop, enemy_troops)
-	return total
-
-
-static func _sum_defense_of_targeted(troops: Array[Troop], bonus: TacticBonus) -> float:
-	var total := 0.0
-	for troop in troops:
-		if _is_troop_targeted_by_bonus(troop, bonus):
-			total += float(troop.defense)
-	return total
+	return BiomeConfig.shared()
 
 
 ## Elimina las tácticas activas (bonus con tactic_name no vacío) de un bando
@@ -785,7 +669,8 @@ static func _active_front_count(state: AIRealState, p_owner: int) -> int:
 ## Máximo de frentes simultáneos (espejo de BattleFrontManager.get_max_fronts:
 ## base 1 + tiles/5 + extra 0).
 static func _get_max_fronts(state: AIRealState, p_owner: int) -> int:
-	return 1 + int(state.count_tiles(p_owner) / 5)
+	return GameBalance.MAX_FRONTS_BASE \
+		+ int(state.count_tiles(p_owner) / GameBalance.TILES_PER_EXTRA_FRONT)
 
 
 ## True si la casilla participa en algún frente activo (regla global, espejo de
@@ -798,41 +683,6 @@ static func _tile_in_active_front(state: AIRealState, tile_id: int) -> bool:
 		if front.attacker_tile_id == tile_id or front.defender_tile_id == tile_id:
 			return true
 	return false
-
-
-## Urgencia base de un frente para un bando (espejo de
-## AIController._front_base_urgency).
-static func _front_base_urgency(front: AIRealState.FrontSnap, side: BattleFront.Side) -> float:
-	var ai_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
-	var thr := front.current_threshold()
-	if ai_marker < -thr * 0.5: return 3.0
-	if ai_marker < 0.0:         return 2.0
-	if ai_marker < thr * 0.4:   return 1.5
-	if ai_marker < thr * 0.7:   return 0.8
-	return 0.3
-
-
-## Elige la mejor tropa del pool para el rol y la asigna al frente (espejo de
-## AIController._assign_best_troop: defensor → max defensa; atacante → max ataque).
-static func _assign_best_troop(emp: AIRealState.EmpireSnap,
-		front: AIRealState.FrontSnap, side: BattleFront.Side) -> bool:
-	if emp.troop_pool.is_empty():
-		return false
-	var sorted_pool := emp.troop_pool.duplicate()
-	if side == BattleFront.Side.DEFENDER:
-		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
-	else:
-		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)
-	var best: Troop = sorted_pool[0]
-	var idx := emp.troop_pool.find(best)
-	if idx < 0:
-		return false
-	emp.troop_pool.remove_at(idx)
-	if side == BattleFront.Side.ATTACKER:
-		front.attacker_troops.append(best)
-	else:
-		front.defender_troops.append(best)
-	return true
 
 
 ## Recurso real de la localización Village (mismo que usa TilesTracker al
@@ -863,13 +713,16 @@ static func _building_survives(building: Building, new_loc_type: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Consultas de modificadores (F2.5a — espejo de ModifierManager)
+# Consultas de modificadores (F2.5a)
 # ---------------------------------------------------------------------------
+# La agregación de modifiers vive en ModifierQuery (compartida con el juego real
+# vía ModifierManager). Aquí solo quedan el coste de construcción efectivo y el
+# tick de duración, específicos del snapshot.
 
 ## Coste de construcción efectivo de un edificio para un imperio, aplicando el
 ## multiplicador de BuildCostModifier (espejo de Building.get_effective_construction_cost).
 static func _effective_build_cost(building: Building, emp: AIRealState.EmpireSnap) -> int:
-	return int(building.construction_cost * _build_cost_multiplier(emp.modifiers))
+	return int(building.construction_cost * ModifierQuery.build_cost_multiplier(emp.modifiers))
 
 
 ## Decrementa la duración de los modifiers y elimina los expirados (espejo de
@@ -883,87 +736,3 @@ static func _tick_modifiers(emp: AIRealState.EmpireSnap) -> void:
 			if mod.duration == 0:
 				emp.modifiers.remove_at(i)
 		i -= 1
-
-
-static func _flat_gold(mods: Array[Modifier]) -> int:
-	var total := 0
-	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.FLAT_GOLD:
-			total += int(mod.value)
-	return total
-
-
-static func _flat_food(mods: Array[Modifier]) -> int:
-	var total := 0
-	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.FLAT_FOOD:
-			total += int(mod.value)
-	return total
-
-
-static func _percent_gold(mods: Array[Modifier]) -> float:
-	var total := 0.0
-	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.PERCENT_GOLD:
-			total += mod.value
-	return total
-
-
-static func _percent_food(mods: Array[Modifier]) -> float:
-	var total := 0.0
-	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.PERCENT_FOOD:
-			total += mod.value
-	return total
-
-
-## Bonus de oro por recurso natural de una casilla (espejo de
-## ModifierManager.get_tile_gold_bonus: TILE_RESOURCE_GOLD con target_resource
-## igual al recurso de la casilla).
-static func _tile_gold_bonus(mods: Array[Modifier], t: AIRealState.TileSnap) -> int:
-	var total := 0
-	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.TILE_RESOURCE_GOLD:
-			if t.natural_resource == mod.target_resource:
-				total += int(mod.value)
-	return total
-
-
-static func _tile_food_bonus(mods: Array[Modifier], t: AIRealState.TileSnap) -> int:
-	var total := 0
-	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.TILE_RESOURCE_FOOD:
-			if t.natural_resource == mod.target_resource:
-				total += int(mod.value)
-	return total
-
-
-## Descuento porcentual de mantenimiento aplicable a una tropa (espejo de
-## ModifierManager.get_troop_maintenance_percent: respeta el troop_type_filter).
-static func _troop_maintenance_percent(mods: Array[Modifier], troop: Troop) -> float:
-	var total := 0.0
-	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.TROOP_MAINTENANCE_PERCENT:
-			if mod.applies_to_troop(troop):
-				total += mod.value
-	return total
-
-
-## Multiplicador de coste de construcción (espejo de
-## ModifierManager.get_build_cost_multiplier: 1 − Σ% descuento, clampeado).
-static func _build_cost_multiplier(mods: Array[Modifier]) -> float:
-	var total_percent := 0.0
-	for mod in mods:
-		if mod is BuildCostModifier:
-			total_percent += mod.percent
-	return ModifierManager.clamp_cost_multiplier(1.0 - total_percent / 100.0)
-
-
-## Bonus de cartas por turno de los modifiers (espejo de
-## ModifierManager.get_cards_per_turn_bonus). Lo usará la fase de robo en F3.
-static func _cards_per_turn_bonus(mods: Array[Modifier]) -> int:
-	var total := 0
-	for mod in mods:
-		if mod is StatModifier and mod.type == StatModifier.StatType.CARDS_PER_TURN:
-			total += int(mod.value)
-	return total

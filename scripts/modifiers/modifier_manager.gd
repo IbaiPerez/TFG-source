@@ -59,119 +59,53 @@ func tick() -> void:
 		remove_modifier(mod)
 
 
-# --- Consultas de StatModifier (produccion) ---
+# --- Consultas (delegadas a ModifierQuery sobre active_modifiers) ---
+# La lógica de agregación vive en ModifierQuery para no duplicarla con el motor
+# de simulación de la IA (AIRealSimulator), que la consulta sobre su snapshot.
 
 func get_flat_gold() -> int:
-	var total := 0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.FLAT_GOLD:
-			total += int(mod.value)
-	return total
+	return ModifierQuery.flat_gold(active_modifiers)
 
 
 func get_percent_gold() -> float:
-	var total := 0.0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.PERCENT_GOLD:
-			total += mod.value
-	return total
+	return ModifierQuery.percent_gold(active_modifiers)
 
 
 func get_flat_food() -> int:
-	var total := 0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.FLAT_FOOD:
-			total += int(mod.value)
-	return total
+	return ModifierQuery.flat_food(active_modifiers)
 
 
 func get_percent_food() -> float:
-	var total := 0.0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.PERCENT_FOOD:
-			total += mod.value
-	return total
+	return ModifierQuery.percent_food(active_modifiers)
 
 
 func get_tile_gold_bonus(tile:Tile) -> int:
-	var total := 0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.TILE_RESOURCE_GOLD:
-			if tile.natural_resource == mod.target_resource:
-				total += int(mod.value)
-	return total
+	return ModifierQuery.tile_gold_bonus(active_modifiers, tile.natural_resource)
 
 
 func get_tile_food_bonus(tile:Tile) -> int:
-	var total := 0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.TILE_RESOURCE_FOOD:
-			if tile.natural_resource == mod.target_resource:
-				total += int(mod.value)
-	return total
+	return ModifierQuery.tile_food_bonus(active_modifiers, tile.natural_resource)
 
 
 func get_cards_per_turn_bonus() -> int:
-	var total := 0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.CARDS_PER_TURN:
-			total += int(mod.value)
-	return total
+	return ModifierQuery.cards_per_turn_bonus(active_modifiers)
 
 
 func get_card_draw_bonus() -> int:
-	var total := 0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.CARD_DRAW_BONUS:
-			total += int(mod.value)
-	return total
+	return ModifierQuery.card_draw_bonus(active_modifiers)
 
 
-## Suma de modifiers activos del tipo TROOPS_PER_RECRUIT que aplican a la
-## tropa dada. Modifiers sin filtro (troop_type_filter == -1) cuentan siempre;
-## modifiers con filtro solo cuentan si la tropa coincide.
-## Pasar troop=null equivale a pedir solo los modifiers sin filtro.
 func get_troops_per_recruit_bonus(troop: Troop = null) -> int:
-	var total := 0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.TROOPS_PER_RECRUIT:
-			if mod.applies_to_troop(troop):
-				total += int(mod.value)
-	return total
+	return ModifierQuery.troops_per_recruit_bonus(active_modifiers, troop)
 
 
-## Suma porcentual de modifiers del tipo TROOP_MAINTENANCE_PERCENT que aplican
-## a la tropa dada. Modifiers sin filtro (troop_type_filter == -1) aplican a
-## todas; modifiers con filtro solo a tropas del tipo indicado.
-## Pasar troop=null equivale a pedir solo los modifiers sin filtro.
 func get_troop_maintenance_percent(troop: Troop = null) -> float:
-	var total := 0.0
-	for mod in active_modifiers:
-		if mod is StatModifier and mod.type == StatModifier.StatType.TROOP_MAINTENANCE_PERCENT:
-			if mod.applies_to_troop(troop):
-				total += mod.value
-	return total
+	return ModifierQuery.troop_maintenance_percent(active_modifiers, troop)
 
-
-# --- Consulta de BuildCostModifier ---
 
 func get_build_cost_multiplier() -> float:
-	var total_percent := 0.0
-	for mod in active_modifiers:
-		if mod is BuildCostModifier:
-			total_percent += mod.percent
-	## 20% descuento -> 0.8, -15% encarecimiento -> 1.15
-	## Clampeado a >= MIN_COST_MULTIPLIER para que apilar descuentos no
-	## pueda hacer la construccion gratuita ni negativa. Los
-	## encarecimientos (multiplier > 1) NO se topan.
-	return clamp_cost_multiplier(1.0 - (total_percent / 100.0))
+	return ModifierQuery.build_cost_multiplier(active_modifiers)
 
-
-# --- Consulta de CardReturnModifier ---
 
 func should_return_to_hand(card:Card) -> bool:
-	for mod in active_modifiers:
-		if mod is CardReturnModifier:
-			if mod.should_return(card):
-				return true
-	return false
+	return ModifierQuery.should_return_to_hand(active_modifiers, card)

@@ -23,11 +23,5 @@ func _init():
 		HasRecruitedTroopOfTypeCondition.new(Troop.TroopType.A_DISTANCIA, 1),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_UNLOCK_ARROW_RAIN_CH1_LABEL")
-	choice.description = tr("EVT_UNLOCK_ARROW_RAIN_CH1_DESC")
-	choice.effects = [
-		AddCardEffect.new(TACTIC_CARD),
-		AddToCardPoolEffect.new(TACTIC_CARD, 5.0, -0.1, 1.5),
-	]
-	choices = [choice]
+	choices = [make_card_unlock_choice(TACTIC_CARD,
+		"EVT_UNLOCK_ARROW_RAIN_CH1_LABEL", "EVT_UNLOCK_ARROW_RAIN_CH1_DESC", 5.0, -0.1, 1.5)]

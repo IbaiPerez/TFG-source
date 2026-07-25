@@ -21,7 +21,7 @@ func _init(p_id:String, p_name:String, p_base:float, p_turn_factor:float, p_dura
 
 
 func execute(context:EventContext, _chosen_card:Card = null) -> void:
-	var final_percent := base_percent + context.turn_number * turn_factor
+	var final_percent := ScaledValue.evaluate(base_percent, turn_factor, 0.0, context.turn_number)
 	var mod := BuildCostModifier.new(
 		modifier_id, modifier_name, final_percent, duration
 	)

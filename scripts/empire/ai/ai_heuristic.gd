@@ -59,9 +59,6 @@ static func prepare_decision_cache(ctx: AITurnContext) -> void:
 	ctx._cache_fu       = _food_urgency(ctx.stats.food, phase, w)
 	ctx._cache_surplus  = _resource_surplus_factor(ctx, phase)
 	ctx._cache_expansion = _expansion_factor(ctx)
-	ctx._cache_buildable_slots  = _buildable_slots(ctx)
-	ctx._cache_upgradeable      = _upgradeable_buildings(ctx)
-	ctx._cache_deck_size        = _current_deck_size(ctx)
 
 	# Frentes activos: calcular una sola vez y reutilizar en _military_urgency
 	# y en _max_front_pressure para evitar la llamada repetida a get_active_instances().
@@ -697,7 +694,7 @@ static func _score_open_front(option: AIOpenFrontOption, ctx: AITurnContext,
 				if b != null:
 					rival_def += float(b.flat_defense_bonus)
 			if enemy.mesh_data != null:
-				rival_def *= _get_biome_cfg().get_defense_multiplier(enemy.mesh_data.type)
+				rival_def *= BiomeConfig.shared().get_defense_multiplier(enemy.mesh_data.type)
 			# Tropas del rival ya asignadas a un frente en esa tile (visibles).
 			var all_fronts := ctx._cache_active_fronts if ctx._cache_valid \
 				else BattleFront.get_active_instances()
@@ -1349,15 +1346,7 @@ static func _build_cost_factor(cost: int, total_gold: int,
 static func _attack_biome_factor(tile: Tile) -> float:
 	if tile == null or tile.mesh_data == null:
 		return 1.0
-	return _get_biome_cfg().get_attack_multiplier(tile.mesh_data.type)
-
-
-static var _biome_cfg: BiomeConfig = null
-
-static func _get_biome_cfg() -> BiomeConfig:
-	if _biome_cfg == null:
-		_biome_cfg = BiomeConfig.new()
-	return _biome_cfg
+	return BiomeConfig.shared().get_attack_multiplier(tile.mesh_data.type)
 
 
 # ---------------------------------------------------------------------------
@@ -1439,46 +1428,3 @@ static func score_state(own_stats: Stats, world_view: AIWorldView,
 			 + w_k * k_score
 
 	return tanh(raw * w.state_tanh_scale)
-
-
-## Selecciona una opción usando muestreo softmax sobre los scores.
-## temperature = 0 → argmax determinista (igual que _pick_best_option).
-## temperature > 0 → distribución ponderada (exploración en rollouts MCTS).
-## top_k: considerar solo las top_k opciones por score antes del muestreo.
-static func pick_option_softmax(options: Array[AIPlayOption],
-		ctx: AITurnContext, temperature: float = 0.3,
-		top_k: int = 10, rng: RandomNumberGenerator = null) -> AIPlayOption:
-	if options.is_empty():
-		return null
-
-	# Puntuar y ordenar descendente.
-	var scored: Array[Dictionary] = []
-	for opt in options:
-		scored.append({"option": opt, "score": score_option(opt, ctx)})
-	scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return a["score"] > b["score"])
-
-	if scored.size() > top_k:
-		scored = scored.slice(0, top_k)
-
-	if temperature <= 0.0:
-		return scored[0]["option"]
-
-	# Softmax estabilizado: shift por max_score evita overflow en exp().
-	var max_score: float = scored[0]["score"]
-	var weights: Array[float] = []
-	var total_weight := 0.0
-	for entry in scored:
-		var w := exp((entry["score"] - max_score) / temperature)
-		weights.append(w)
-		total_weight += w
-
-	# Muestreo por inversión de CDF.
-	var r := (rng.randf() if rng != null else randf()) * total_weight
-	var cum := 0.0
-	for i in range(weights.size()):
-		cum += weights[i]
-		if r <= cum:
-			return scored[i]["option"]
-
-	return scored[0]["option"]

@@ -1,5 +1,5 @@
-extends Condition
-class_name BuildCondition
+extends TargetRule
+class_name BuildRule
 
 var buildings:Array[Building] = []
 var stats:Stats

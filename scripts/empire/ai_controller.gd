@@ -53,7 +53,8 @@ var turn_manager: TurnManager
 
 ## Mínimo de tropas por frente que la heurística garantiza en la primera pasada.
 ## La segunda pasada puede añadir hasta +2 en frentes donde se pierde.
-const MIN_TROOPS_PER_FRONT: int = 3
+## Alias público (lo leen los tests) de la constante de TroopAssignmentPolicy.
+const MIN_TROOPS_PER_FRONT: int = TroopAssignmentPolicy.MIN_TROOPS_PER_FRONT
 
 var _rng: RandomNumberGenerator
 var _drawn_cards: Array[Card] = []
@@ -156,7 +157,7 @@ func _run_turn() -> void:
 	ctx.deck_observer = _deck_observer
 	ctx.config = ai_config
 	ctx.weights = ai_config.heuristic_weights if ai_config != null else null
-	var _adj_cond := AdjacentCondition.new()
+	var _adj_cond := AdjacentRule.new()
 	_adj_cond.empire = stats.empire
 	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
 	ctx.total_map_tiles = WorldMap.map.size()
@@ -467,14 +468,15 @@ func _build_world_view() -> AIWorldView:
 ##      activamente (base_urgency > 1.5, es decir, marker negativo).
 ##
 ## Pre: solo lo llama AIController; el jugador asigna via BattleFrontPanel.
+## El algoritmo (urgencia + dos pasadas) vive en TroopAssignmentPolicy, compartido
+## con el simulador MCTS; aquí solo construimos los slots sobre los BattleFront reales.
 func _assign_troops_to_fronts() -> void:
 	if battle_front_manager == null:
 		return
 	if stats == null or stats.troop_pool.is_empty():
 		return
 
-	# Recopilar frentes donde participamos con urgencia calculada
-	var entries: Array = []
+	var slots: Array = []
 	for front in BattleFront.get_active_instances():
 		if front == null or front.is_resolved:
 			continue
@@ -485,62 +487,42 @@ func _assign_troops_to_fronts() -> void:
 			side = BattleFront.Side.DEFENDER
 		else:
 			continue
-		var base_urg := _front_base_urgency(front, side)
-		var cur_troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
-		var full_urg := base_urg * (2.0 if cur_troops.is_empty() else 1.0)
-		entries.append({ "front": front, "side": side, "base_urgency": base_urg, "urgency": full_urg })
+		var own_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
+		var slot := _LiveFrontSlot.new(front, side, stats, battle_front_manager)
+		slot.base_urgency = TroopAssignmentPolicy.base_urgency(
+			own_marker, front.get_current_threshold())
+		slots.append(slot)
 
-	if entries.is_empty():
-		return
+	TroopAssignmentPolicy.assign(slots)
 
-	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.urgency > b.urgency)
 
-	# Primera pasada: llenar hasta MIN_TROOPS_PER_FRONT
-	for entry in entries:
+## Slot de asignación sobre un BattleFront real (ver TroopAssignmentPolicy).
+## Defensor → max defense; Atacante → max attack. Asigna vía el BattleFrontManager.
+class _LiveFrontSlot extends RefCounted:
+	var front: BattleFront
+	var side: BattleFront.Side
+	var stats: Stats
+	var bfm: BattleFrontManager
+	var base_urgency: float = 0.0
+
+	func _init(p_front: BattleFront, p_side: BattleFront.Side, p_stats: Stats,
+			p_bfm: BattleFrontManager) -> void:
+		front = p_front
+		side = p_side
+		stats = p_stats
+		bfm = p_bfm
+
+	func troop_count() -> int:
+		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER \
+			else front.defender_troops
+		return troops.size()
+
+	func assign_best() -> bool:
 		if stats.troop_pool.is_empty():
-			return
-		var front: BattleFront = entry.front
-		var side: BattleFront.Side = entry.side
-		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
-		while troops.size() < MIN_TROOPS_PER_FRONT and not stats.troop_pool.is_empty():
-			if not _assign_best_troop(front, side):
-				break
-
-	# Segunda pasada: reforzar frentes donde se pierde activamente
-	for entry in entries:
-		if stats.troop_pool.is_empty():
-			return
-		if entry.base_urgency <= 1.5:
-			continue
-		var front: BattleFront = entry.front
-		var side: BattleFront.Side = entry.side
-		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
-		while troops.size() < MIN_TROOPS_PER_FRONT + 2 and not stats.troop_pool.is_empty():
-			if not _assign_best_troop(front, side):
-				break
-
-
-## Urgencia base del frente para nuestro bando, sin multiplicador por troop_count.
-## 3.0 = perdiendo gravemente | 2.0 = perdiendo | 1.5 = equilibrio
-## 0.8 = ganando              | 0.3 = casi resuelto
-func _front_base_urgency(front: BattleFront, side: BattleFront.Side) -> float:
-	var ai_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
-	var thr := front.get_current_threshold()
-	if ai_marker < -thr * 0.5: return 3.0
-	if ai_marker < 0.0:         return 2.0
-	if ai_marker < thr * 0.4:   return 1.5
-	if ai_marker < thr * 0.7:   return 0.8
-	return 0.3
-
-
-## Elige la mejor tropa del pool para el rol dado y la asigna al frente.
-## Defensor → max defense; Atacante → max attack.
-func _assign_best_troop(front: BattleFront, side: BattleFront.Side) -> bool:
-	if stats.troop_pool.is_empty():
-		return false
-	var sorted_pool := stats.troop_pool.duplicate()
-	if side == BattleFront.Side.DEFENDER:
-		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
-	else:
-		sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)
-	return battle_front_manager.assign_troop_to_front(front, sorted_pool[0], side)
+			return false
+		var sorted_pool := stats.troop_pool.duplicate()
+		if side == BattleFront.Side.DEFENDER:
+			sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
+		else:
+			sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)
+		return bfm.assign_troop_to_front(front, sorted_pool[0], side)

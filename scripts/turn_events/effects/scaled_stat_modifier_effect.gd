@@ -31,7 +31,8 @@ func _init(p_id:String, p_name:String, p_type:StatModifier.StatType,
 
 func execute(context:EventContext, _chosen_card:Card = null) -> void:
 	var stat_ref := _get_stat_reference(context)
-	var final_value := base_value + context.turn_number * turn_factor + stat_ref * stat_percent
+	var final_value := ScaledValue.evaluate(base_value, turn_factor, stat_percent,
+		context.turn_number, stat_ref)
 
 	var mod := StatModifier.new(
 		modifier_id, modifier_name, stat_type, final_value, duration

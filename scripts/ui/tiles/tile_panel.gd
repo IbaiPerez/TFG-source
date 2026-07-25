@@ -51,25 +51,8 @@ func setup(value:Tile) -> void:
 		controller_color_rect.color = Color.TRANSPARENT
 		controller_label.text = tr("TILE_NO_CONTROLLER")
 	
-	if tile.gold_production < 0:
-		gold_produced.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
-		gold_produced.text = str(tile.gold_production)
-	elif tile.gold_production == 0:
-		gold_produced.add_theme_color_override("font_color", UITheme.VALUE_NEUTRAL)
-		gold_produced.text = str(tile.gold_production)
-	else:
-		gold_produced.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
-		gold_produced.text = "+" + str(tile.gold_production)
-
-	if tile.food_production < 0:
-		food_produced.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
-		food_produced.text = str(tile.food_production)
-	elif tile.food_production == 0:
-		food_produced.add_theme_color_override("font_color", UITheme.VALUE_NEUTRAL)
-		food_produced.text = str(tile.food_production)
-	else:
-		food_produced.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
-		food_produced.text = "+" + str(tile.food_production)
+	UITheme.apply_signed(gold_produced, tile.gold_production, true)
+	UITheme.apply_signed(food_produced, tile.food_production, true)
 	
 	location_label.text = tr("LOC_" + Tile.location_type.find_key(tile.location.type).to_upper())
 	
@@ -78,8 +61,7 @@ func setup(value:Tile) -> void:
 
 func _setup_buildings() -> void:
 
-	for child in building_grid.get_children():
-		child.queue_free()
+	UILayout.clear_children(building_grid)
 
 	var slots:int = tile.max_buildings
 	var can_demolish:bool = _player_controls_tile()

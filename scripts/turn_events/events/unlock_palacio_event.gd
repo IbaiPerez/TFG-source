@@ -19,11 +19,5 @@ func _init():
 		ControlledTilesCondition.new(25, Comparison.Type.GREATER_EQUAL),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_UNLOCK_PALACIO_CH1_LABEL")
-	choice.description = tr("EVT_UNLOCK_PALACIO_CH1_DESC")
-	choice.effects = [
-		AddCardEffect.new(BUILD_PALACIO_CARD),
-		AddToCardPoolEffect.new(BUILD_PALACIO_CARD, 3.0, 0.15, 2.0),
-	]
-	choices = [choice]
+	choices = [make_card_unlock_choice(BUILD_PALACIO_CARD,
+		"EVT_UNLOCK_PALACIO_CH1_LABEL", "EVT_UNLOCK_PALACIO_CH1_DESC", 3.0, 0.15, 2.0)]

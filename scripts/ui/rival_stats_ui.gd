@@ -28,19 +28,12 @@ func update_stats(p_stats: Stats) -> void:
 
 	gold_value.text = str(p_stats.total_gold)
 
-	if p_stats.gold_per_turn >= 0:
-		gold_per_turn.text = "+" + tr("FMT_PER_TURN") % p_stats.gold_per_turn
-		gold_per_turn.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
-	else:
-		gold_per_turn.text = tr("FMT_PER_TURN") % p_stats.gold_per_turn
-		gold_per_turn.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
+	# gold_per_turn usa un formato propio (FMT_PER_TURN); solo el color se comparte.
+	var gpt := p_stats.gold_per_turn
+	gold_per_turn.text = ("+" if gpt >= 0 else "") + tr("FMT_PER_TURN") % gpt
+	gold_per_turn.add_theme_color_override("font_color", UITheme.signed_color(gpt))
 
-	if p_stats.food >= 0:
-		food_value.text = "+%d" % p_stats.food
-		food_value.add_theme_color_override("font_color", UITheme.VALUE_POSITIVE)
-	else:
-		food_value.text = str(p_stats.food)
-		food_value.add_theme_color_override("font_color", UITheme.VALUE_NEGATIVE)
+	UITheme.apply_signed(food_value, p_stats.food)
 
 	var bonus := 0
 	if p_stats.modifier_manager != null:

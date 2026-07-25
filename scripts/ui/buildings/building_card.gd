@@ -86,8 +86,7 @@ func _set_building(value:Building) -> void:
 	_populate_effects(value.effects)
 
 func _populate_effects(effects:Array[BuildingEffect]) -> void:
-	for child in effects_container.get_children():
-		child.queue_free()
+	UILayout.clear_children(effects_container)
 	
 	if effects.is_empty():
 		effects_separator.visible = false

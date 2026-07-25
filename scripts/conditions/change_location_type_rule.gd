@@ -1,5 +1,5 @@
-extends Condition
-class_name ChangeLocationTypeCondition
+extends TargetRule
+class_name ChangeLocationTypeRule
 
 var location_type:LocationType
 var stats:Stats

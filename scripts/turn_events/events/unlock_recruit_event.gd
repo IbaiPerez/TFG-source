@@ -29,16 +29,9 @@ func _init():
 		HasAdjacentEnemyCondition.new(),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_UNLOCK_RECRUIT_CH1_LABEL")
-	choice.description = tr("EVT_UNLOCK_RECRUIT_CH1_DESC")
-	choice.effects = [
-		AddCardEffect.new(RECRUIT_CARD),
-		AddToCardPoolEffect.new(RECRUIT_CARD, 8.0, -0.1, 3.0),
-		# El Cuartel queda disponible para construir desde el momento que se
-		# permite reclutar: cada Cuartel construido suma +1 al numero de
-		# tropas por play de Recruit Y mete una carta Recruit adicional al
-		# deck, asi que escala tanto throughput como frecuencia de plays.
-		UnlockBuildingEffect.new(CUARTEL_BUILDING),
-	]
-	choices = [choice]
+	# El Cuartel queda disponible para construir desde que se permite reclutar:
+	# cada Cuartel suma +1 tropas/play de Recruit Y mete una carta Recruit adicional
+	# al deck, escalando tanto throughput como frecuencia de plays.
+	choices = [make_card_unlock_choice(RECRUIT_CARD,
+		"EVT_UNLOCK_RECRUIT_CH1_LABEL", "EVT_UNLOCK_RECRUIT_CH1_DESC", 8.0, -0.1, 3.0,
+		[UnlockBuildingEffect.new(CUARTEL_BUILDING)])]

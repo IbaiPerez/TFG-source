@@ -8,7 +8,7 @@ class_name TurnManager
 signal round_started(round_number:int)
 signal round_ended(round_number:int)
 
-const DOMINATION_THRESHOLD := 0.70
+const DOMINATION_THRESHOLD := GameBalance.VICTORY_TILE_SHARE
 
 var controllers:Array[EmpireController] = []
 var current_index:int = -1

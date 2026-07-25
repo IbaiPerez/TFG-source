@@ -357,7 +357,8 @@ func test_assign_best_troop_by_role_attacker() -> void:
 	var strong := _make_troop(Troop.TroopType.INFANTERIA_LIGERA, 12, 2)
 	s.own.troop_pool = [weak, strong]
 	# Atacante: primera tropa asignada debe ser la de mayor ataque.
-	AIRealSimulator._assign_best_troop(s.own, front, BattleFront.Side.ATTACKER)
+	var slot := AIRealSimulator._SnapFrontSlot.new(s.own, front, BattleFront.Side.ATTACKER)
+	slot.assign_best()
 	assert_eq(front.attacker_troops[0], strong, "Atacante asigna primero la de mayor ataque")
 
 

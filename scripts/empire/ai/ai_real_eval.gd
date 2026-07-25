@@ -96,8 +96,8 @@ static func is_terminal(state: AIRealState) -> bool:
 	var my_tiles := state.count_tiles(AIRealState.OWNER_SELF)
 	var rival_tiles := state.count_tiles(AIRealState.OWNER_RIVAL)
 	var total := float(maxi(state.total_map_tiles, my_tiles + rival_tiles + 1))
-	if float(my_tiles) / total >= 0.70: return true
-	if float(rival_tiles) / total >= 0.70: return true
+	if float(my_tiles) / total >= GameBalance.VICTORY_TILE_SHARE: return true
+	if float(rival_tiles) / total >= GameBalance.VICTORY_TILE_SHARE: return true
 	return my_tiles == 0 or rival_tiles == 0
 
 
@@ -112,15 +112,16 @@ static func detect_phase(state: AIRealState,
 	var tiles := state.count_tiles(p_owner)
 	if state.total_map_tiles > 0:
 		var share := float(tiles) / float(state.total_map_tiles)
-		var late_gpt := int(350.0 * float(state.total_map_tiles) / 127.0)
-		if share >= 0.30 or gpt >= late_gpt:
+		var late_gpt := int(float(GameBalance.PHASE_LATE_GPT) * float(state.total_map_tiles) \
+			/ float(GameBalance.DEFAULT_MAP_TILE_COUNT))
+		if share >= GameBalance.PHASE_LATE_SHARE or gpt >= late_gpt:
 			return AIGamePhase.Phase.LATE
-		if share < 0.08 and gpt < 100:
+		if share < GameBalance.PHASE_EARLY_SHARE and gpt < GameBalance.PHASE_EARLY_GPT:
 			return AIGamePhase.Phase.EARLY
 		return AIGamePhase.Phase.MID
-	if gpt >= 350 or tiles >= 30:
+	if gpt >= GameBalance.PHASE_LATE_GPT or tiles >= GameBalance.PHASE_LATE_TILES_LEGACY:
 		return AIGamePhase.Phase.LATE
-	if gpt < 100 and tiles < 12:
+	if gpt < GameBalance.PHASE_EARLY_GPT and tiles < GameBalance.PHASE_EARLY_TILES_LEGACY:
 		return AIGamePhase.Phase.EARLY
 	return AIGamePhase.Phase.MID
 

@@ -68,19 +68,19 @@ func _make_building(p_name: String = "Mine", p_cost: int = 50) -> Building:
 # ============================================================
 
 func test_base_condition_returns_empty_targets():
-	var cond := Condition.new()
+	var cond := TargetRule.new()
 	assert_eq(cond.valid_targets().size(), 0)
 
 
 func test_base_condition_is_valid_false():
-	var cond := Condition.new()
+	var cond := TargetRule.new()
 	var node := Node.new()
 	assert_false(cond.is_valid_target(node))
 	node.free()
 
 
 # ============================================================
-#  BuildCondition
+#  BuildRule
 # ============================================================
 
 func test_build_condition_valid_for_owned_tile():
@@ -88,7 +88,7 @@ func test_build_condition_valid_for_owned_tile():
 	var tile := _make_tile(stats.empire)
 	add_child_autoqfree(tile)
 	var building := _make_building("Mine", 50)
-	var cond := BuildCondition.new()
+	var cond := BuildRule.new()
 	cond.buildings = [building]
 	cond.stats = stats
 	assert_true(cond.is_valid_target(tile))
@@ -100,7 +100,7 @@ func test_build_condition_invalid_for_enemy_tile():
 	var tile := _make_tile(enemy)
 	add_child_autoqfree(tile)
 	var building := _make_building("Mine", 50)
-	var cond := BuildCondition.new()
+	var cond := BuildRule.new()
 	cond.buildings = [building]
 	cond.stats = stats
 	assert_false(cond.is_valid_target(tile))
@@ -108,7 +108,7 @@ func test_build_condition_invalid_for_enemy_tile():
 
 func test_build_condition_invalid_for_non_tile():
 	var stats := _make_stats()
-	var cond := BuildCondition.new()
+	var cond := BuildRule.new()
 	cond.buildings = [_make_building()]
 	cond.stats = stats
 	var node := Node.new()
@@ -120,7 +120,7 @@ func test_build_condition_invalid_no_buildings():
 	var stats := _make_stats()
 	var tile := _make_tile(stats.empire)
 	add_child_autoqfree(tile)
-	var cond := BuildCondition.new()
+	var cond := BuildRule.new()
 	cond.buildings = []
 	cond.stats = stats
 	assert_false(cond.is_valid_target(tile))
@@ -131,7 +131,7 @@ func test_build_condition_invalid_not_enough_gold():
 	var tile := _make_tile(stats.empire)
 	add_child_autoqfree(tile)
 	var building := _make_building("Mine", 50)
-	var cond := BuildCondition.new()
+	var cond := BuildRule.new()
 	cond.buildings = [building]
 	cond.stats = stats
 	assert_false(cond.is_valid_target(tile))
@@ -145,7 +145,7 @@ func test_build_condition_valid_targets():
 	add_child_autoqfree(t2)
 	stats.empire.controlled_tiles = [t1, t2]
 	var building := _make_building("Mine", 50)
-	var cond := BuildCondition.new()
+	var cond := BuildRule.new()
 	cond.buildings = [building]
 	cond.stats = stats
 	var targets := cond.valid_targets()
@@ -153,7 +153,7 @@ func test_build_condition_valid_targets():
 
 
 # ============================================================
-#  AdjacentCondition
+#  AdjacentRule
 # ============================================================
 
 func test_adjacent_condition_valid_target():
@@ -166,7 +166,7 @@ func test_adjacent_condition_valid_target():
 	owned.neighbors = [unowned]
 	empire.controlled_tiles = [owned]
 
-	var cond := AdjacentCondition.new()
+	var cond := AdjacentRule.new()
 	cond.empire = empire
 	assert_true(cond.is_valid_target(unowned))
 
@@ -177,7 +177,7 @@ func test_adjacent_condition_invalid_already_owned():
 	add_child_autoqfree(owned)
 	empire.controlled_tiles = [owned]
 
-	var cond := AdjacentCondition.new()
+	var cond := AdjacentRule.new()
 	cond.empire = empire
 	assert_false(cond.is_valid_target(owned), "Already-controlled tile is not valid")
 
@@ -191,7 +191,7 @@ func test_adjacent_condition_invalid_not_adjacent():
 	far.neighbors = []  # not adjacent to owned
 	empire.controlled_tiles = [owned]
 
-	var cond := AdjacentCondition.new()
+	var cond := AdjacentRule.new()
 	cond.empire = empire
 	assert_false(cond.is_valid_target(far))
 
@@ -209,14 +209,14 @@ func test_adjacent_condition_valid_targets():
 	adj2.neighbors = [owned]
 	empire.controlled_tiles = [owned]
 
-	var cond := AdjacentCondition.new()
+	var cond := AdjacentRule.new()
 	cond.empire = empire
 	var targets := cond.valid_targets()
 	assert_eq(targets.size(), 2)
 
 
 # ============================================================
-#  UpgradeBuildingCondition
+#  UpgradeBuildingRule
 # ============================================================
 
 func test_upgrade_condition_valid():
@@ -229,7 +229,7 @@ func test_upgrade_condition_valid():
 	tile.buildings = [old_b]
 	stats.empire.controlled_tiles = [tile]
 
-	var cond := UpgradeBuildingCondition.new()
+	var cond := UpgradeBuildingRule.new()
 	cond.stats = stats
 	assert_true(cond.is_valid_target(tile))
 
@@ -242,7 +242,7 @@ func test_upgrade_condition_invalid_no_upgradable():
 	b.upgrades_to = []
 	tile.buildings = [b]
 
-	var cond := UpgradeBuildingCondition.new()
+	var cond := UpgradeBuildingRule.new()
 	cond.stats = stats
 	assert_false(cond.is_valid_target(tile))
 

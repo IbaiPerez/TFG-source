@@ -26,3 +26,24 @@ func is_available(context:EventContext) -> bool:
 ## Sobrescribir en subclases que necesiten configurar choices dinámicamente.
 func prepare(_context:EventContext) -> void:
 	pass
+
+
+## Fábrica del choice típico de un evento de desbloqueo de carta: añade la carta a
+## la mano (AddCardEffect) y al pool con su curva de peso (AddToCardPoolEffect),
+## más `extra_effects` opcionales (p.ej. UnlockBuildingEffect). Traduce las claves
+## i18n con tr() al construir, igual que hacían los _init() de cada evento. Reúne
+## en un solo sitio el bloque que se repetía en ~14 clases unlock_*.
+func make_card_unlock_choice(card:Card, label_key:String, desc_key:String,
+		pool_base:float, pool_per_turn:float, pool_min:float,
+		extra_effects:Array = []) -> TurnEventChoice:
+	var choice := TurnEventChoice.new()
+	choice.label = tr(label_key)
+	choice.description = tr(desc_key)
+	var effects:Array[TurnEventEffect] = [
+		AddCardEffect.new(card),
+		AddToCardPoolEffect.new(card, pool_base, pool_per_turn, pool_min),
+	]
+	for e in extra_effects:
+		effects.append(e as TurnEventEffect)
+	choice.effects = effects
+	return choice

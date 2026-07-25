@@ -16,7 +16,8 @@ func _init(p_base:float, p_turn_factor:float = 0.0, p_gpt_percent:float = 0.0):
 
 
 func _calculate(context:EventContext) -> int:
-	return int(base_gold + context.turn_number * turn_factor + context.gold_per_turn * gpt_percent)
+	return int(ScaledValue.evaluate(base_gold, turn_factor, gpt_percent,
+		context.turn_number, context.gold_per_turn))
 
 
 func can_pay(context:EventContext) -> bool:

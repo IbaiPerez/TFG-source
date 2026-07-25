@@ -47,6 +47,15 @@ func _init() -> void:
 		}
 
 
+## Instancia compartida (multiplicadores inmutables). Evita que cada consumidor
+## (heurística, simulador MCTS, frentes) cargue su propia copia read-only.
+static var _shared: BiomeConfig = null
+static func shared() -> BiomeConfig:
+	if _shared == null:
+		_shared = BiomeConfig.new()
+	return _shared
+
+
 ## Multiplicador de ataque para el bioma dado (tile que se intenta conquistar).
 ## Biomas no listados devuelven 1.0 (neutro).
 func get_attack_multiplier(biome: int) -> float:

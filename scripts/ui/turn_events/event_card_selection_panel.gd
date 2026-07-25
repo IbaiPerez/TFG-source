@@ -5,8 +5,6 @@ class_name EventCardSelectionPanel
 ## Muestra las cartas candidatas y permite elegir una.
 ## Emite señales globales para comunicarse con TurnEventPanel.
 
-const CARD_MENU_UI = preload("uid://bt76i1liwhags")
-
 @onready var title: Label = %Title
 @onready var cards_container: GridContainer = %CardsContainer
 @onready var back_button: Button = %BackButton
@@ -35,14 +33,10 @@ func _input(event: InputEvent) -> void:
 
 
 func _on_request(candidates:Array[Card]) -> void:
-	for child in cards_container.get_children():
-		child.queue_free()
+	UILayout.clear_children(cards_container)
 
 	for card:Card in candidates:
-		var card_ui := CARD_MENU_UI.instantiate() as CardMenuUi
-		cards_container.add_child(card_ui)
-		card_ui.card = card
-		card_ui.tooltip_requested.connect(_on_card_selected)
+		CardUIFactory.create(card, cards_container, _on_card_selected)
 
 	show()
 

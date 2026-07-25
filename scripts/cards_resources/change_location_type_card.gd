@@ -16,13 +16,13 @@ func apply_effects(targets:Array[Node],stats:Stats) -> void:
 	effect.execute(targets)
 
 func get_valid_targets(stats:Stats) -> Array[Node]:
-	var condition := ChangeLocationTypeCondition.new()
+	var condition := ChangeLocationTypeRule.new()
 	condition.location_type = location_type
 	condition.stats = stats
 	return condition.valid_targets()
 
 func is_valid_target(node:Node,stats:Stats) -> bool:
-	var condition := ChangeLocationTypeCondition.new()
+	var condition := ChangeLocationTypeRule.new()
 	condition.location_type = location_type
 	condition.stats = stats
 	return condition.is_valid_target(node)

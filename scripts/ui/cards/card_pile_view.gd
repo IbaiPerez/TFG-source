@@ -1,8 +1,6 @@
 extends Control
 class_name CardPileView
 
-const CARD_MENU_UI = preload("uid://bt76i1liwhags")
-
 @export var card_pile:CardPile
 
 @onready var title: Label = %Title
@@ -18,8 +16,7 @@ const CARD_MENU_UI = preload("uid://bt76i1liwhags")
 func _ready() -> void:
 	back_button.pressed.connect(hide)
 
-	for card:Node in cards_container.get_children():
-		card.queue_free()
+	UILayout.clear_children(cards_container)
 
 	card_tooltip_popup.hide_tooltip()
 
@@ -42,9 +39,8 @@ func _input(event: InputEvent) -> void:
 			hide()
 
 func show_current_view(new_title:String, randomized:bool = false) -> void:
-	for card:Node in cards_container.get_children():
-		card.queue_free()
-	
+	UILayout.clear_children(cards_container)
+
 	card_tooltip_popup.hide_tooltip()
 	title.text = tr(new_title)
 	_update_view.call_deferred(randomized)
@@ -63,10 +59,7 @@ func _update_view(randomized:bool) -> void:
 		empty_state_container.hide()
 		scroll_container.show()
 		for card:Card in all_cards:
-			var new_card := CARD_MENU_UI.instantiate() as CardMenuUi
-			cards_container.add_child(new_card)
-			new_card.card = card
-			new_card.tooltip_requested.connect(card_tooltip_popup.show_tooltip)
+			CardUIFactory.create(card, cards_container, card_tooltip_popup.show_tooltip)
 
 	show()
 	

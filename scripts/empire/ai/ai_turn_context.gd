@@ -48,9 +48,6 @@ var _cache_active_fronts: Array[BattleFront] = []
 var _cache_has_active_front: bool = false
 var _cache_has_adjacent_enemy: bool = false
 var _cache_front_pressure: float = 0.0
-var _cache_buildable_slots: int = 0
-var _cache_upgradeable: int = 0
-var _cache_deck_size: int = 0
 
 
 func invalidate_decision_cache() -> void:

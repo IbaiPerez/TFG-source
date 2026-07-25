@@ -26,17 +26,18 @@ static func detect(stats: Stats, total_map_tiles: int = 0) -> Phase:
 		var share := float(tiles) / float(total_map_tiles)
 		# LATE: ≥30% del mapa O GPT escalado al tamaño del mapa.
 		# El umbral GPT escala linealmente con el mapa (127 tiles = default r=6).
-		var late_gpt := int(350.0 * float(total_map_tiles) / 127.0)
-		if share >= 0.30 or gpt >= late_gpt:
+		var late_gpt := int(float(GameBalance.PHASE_LATE_GPT) * float(total_map_tiles) \
+			/ float(GameBalance.DEFAULT_MAP_TILE_COUNT))
+		if share >= GameBalance.PHASE_LATE_SHARE or gpt >= late_gpt:
 			return Phase.LATE
 		# EARLY: <8% del mapa Y economía inicial.
-		if share < 0.08 and gpt < 100:
+		if share < GameBalance.PHASE_EARLY_SHARE and gpt < GameBalance.PHASE_EARLY_GPT:
 			return Phase.EARLY
 		return Phase.MID
 
 	# Fallback legacy (sin info del mapa):
-	if gpt >= 350 or tiles >= 30:
+	if gpt >= GameBalance.PHASE_LATE_GPT or tiles >= GameBalance.PHASE_LATE_TILES_LEGACY:
 		return Phase.LATE
-	if gpt < 100 and tiles < 12:
+	if gpt < GameBalance.PHASE_EARLY_GPT and tiles < GameBalance.PHASE_EARLY_TILES_LEGACY:
 		return Phase.EARLY
 	return Phase.MID

@@ -18,12 +18,12 @@ func apply_effects(targets:Array[Node],stats:Stats) -> void:
 	effect.execute(targets)
 
 func get_valid_targets(stats:Stats) -> Array[Node]:
-	var condition := UpgradeBuildingCondition.new()
+	var condition := UpgradeBuildingRule.new()
 	condition.stats = stats
 	return condition.valid_targets()
 
 func is_valid_target(node:Node,stats:Stats) -> bool:
-	var condition := UpgradeBuildingCondition.new()
+	var condition := UpgradeBuildingRule.new()
 	condition.stats = stats
 	return condition.is_valid_target(node)
 	

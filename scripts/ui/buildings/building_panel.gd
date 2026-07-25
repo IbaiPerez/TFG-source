@@ -78,8 +78,7 @@ func set_buildings(value:Array[Building]) -> void:
 
 
 func _clear_grid() -> void:
-	for child in buildings_grid.get_children():
-		child.queue_free()
+	UILayout.clear_children(buildings_grid)
 	_slots.clear()
 
 

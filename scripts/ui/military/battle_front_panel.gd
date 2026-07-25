@@ -213,9 +213,7 @@ func _effectiveness_color_hex(mult: float) -> String:
 
 
 func _update_troops_display(troops: Array[Troop], container: VBoxContainer, color: Color) -> void:
-	# Limpiar
-	for child in container.get_children():
-		child.queue_free()
+	UILayout.clear_children(container)
 
 	if troops.is_empty():
 		var empty_label := Label.new()

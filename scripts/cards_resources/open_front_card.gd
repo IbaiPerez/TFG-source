@@ -24,14 +24,14 @@ func _build_tooltip() -> String:
 
 
 func get_valid_targets(stats: Stats) -> Array[Node]:
-	var condition := EnemyAdjacentCondition.new()
+	var condition := EnemyAdjacentRule.new()
 	condition.empire = stats.empire
 	condition.battle_front_manager = battle_front_manager
 	return condition.valid_targets()
 
 
 func is_valid_target(node: Node, stats: Stats) -> bool:
-	var condition := EnemyAdjacentCondition.new()
+	var condition := EnemyAdjacentRule.new()
 	condition.empire = stats.empire
 	condition.battle_front_manager = battle_front_manager
 	return condition.is_valid_target(node)

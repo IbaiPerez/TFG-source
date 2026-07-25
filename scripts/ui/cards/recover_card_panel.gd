@@ -5,8 +5,6 @@ class_name RecoverCardPanel
 ## Muestra las cartas de la played_pile y permite elegir una para
 ## devolverla a la mano. Emite card_confirmed con la carta elegida.
 
-const CARD_MENU_UI = preload("uid://bt76i1liwhags")
-
 signal card_confirmed(card:Card)
 
 @export var card_pile:CardPile
@@ -42,10 +40,7 @@ func _populate() -> void:
 	if not card_pile:
 		return
 	for card:Card in card_pile.cards:
-		var card_ui := CARD_MENU_UI.instantiate() as CardMenuUi
-		cards_container.add_child(card_ui)
-		card_ui.card = card
-		card_ui.tooltip_requested.connect(_on_card_selected)
+		CardUIFactory.create(card, cards_container, _on_card_selected)
 
 	show()
 

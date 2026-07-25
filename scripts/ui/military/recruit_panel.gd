@@ -77,8 +77,7 @@ func _populate_grid() -> void:
 		return
 
 	# Limpiar
-	for child in troops_grid.get_children():
-		child.queue_free()
+	UILayout.clear_children(troops_grid)
 	_slots.clear()
 
 	for troop in available_troops:

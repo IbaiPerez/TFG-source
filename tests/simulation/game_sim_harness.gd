@@ -340,7 +340,7 @@ func _spawn_ai_controllers() -> void:
 
 	# Registro mínimo de controllers para que cada IA vea al rival vía
 	# AIController._build_world_view() — IMPRESCINDIBLE para el MCTS: sin un
-	# rival visible, AIGameState.from_context deja rival_tiles=0 y la
+	# rival visible, AIRealState.from_context deja rival_tiles=0 y la
 	# evaluación da 1.0 (victoria) en todo estado, degenerando la búsqueda.
 	# También habilita el deck observer (_ensure_observer_ready).
 	#

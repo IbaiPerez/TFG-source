@@ -1,5 +1,5 @@
-extends Condition
-class_name UpgradeBuildingCondition
+extends TargetRule
+class_name UpgradeBuildingRule
 
 var stats:Stats
 

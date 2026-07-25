@@ -191,10 +191,10 @@ func test_count_troops_by_name() -> void:
 	front.assign_troop(_create_troop("Piqueros", 1, 6), BattleFront.Side.ATTACKER)
 	front.assign_troop(_create_troop("Milicia", 3, 3), BattleFront.Side.ATTACKER)
 
-	assert_eq(front._count_troops_by_name(front.attacker_troops, "Milicia"), 3)
-	assert_eq(front._count_troops_by_name(front.attacker_troops, "Caballería"), 1)
-	assert_eq(front._count_troops_by_name(front.attacker_troops, "Piqueros"), 1)
-	assert_eq(front._count_troops_by_name(front.attacker_troops, "Elite"), 0)
+	assert_eq(CombatMath.count_troops_by_name(front.attacker_troops, "Milicia"), 3)
+	assert_eq(CombatMath.count_troops_by_name(front.attacker_troops, "Caballería"), 1)
+	assert_eq(CombatMath.count_troops_by_name(front.attacker_troops, "Piqueros"), 1)
+	assert_eq(CombatMath.count_troops_by_name(front.attacker_troops, "Elite"), 0)
 
 
 # ============================================================
@@ -206,11 +206,11 @@ func test_count_troops_by_type() -> void:
 	front.assign_troop(_create_troop("B", 3, 3, Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
 	front.assign_troop(_create_troop("C", 1, 6, Troop.TroopType.PIQUEROS), BattleFront.Side.ATTACKER)
 
-	assert_eq(front._count_troops_by_type(front.attacker_troops,
+	assert_eq(CombatMath.count_troops_by_type(front.attacker_troops,
 		Troop.TroopType.CABALLERIA), 2)
-	assert_eq(front._count_troops_by_type(front.attacker_troops,
+	assert_eq(CombatMath.count_troops_by_type(front.attacker_troops,
 		Troop.TroopType.PIQUEROS), 1)
-	assert_eq(front._count_troops_by_type(front.attacker_troops,
+	assert_eq(CombatMath.count_troops_by_type(front.attacker_troops,
 		Troop.TroopType.A_DISTANCIA), 0)
 
 
@@ -275,7 +275,7 @@ func test_count_bonus_targets_with_array_of_types() -> void:
 
 	# Falange-style: PIQ + LIG.
 	var bonus := TacticBonus.from_dict({"troop_types": [Troop.TroopType.PIQUEROS, Troop.TroopType.INFANTERIA_LIGERA]})
-	assert_eq(front._count_bonus_targets(front.attacker_troops, bonus), 2,
+	assert_eq(CombatMath.count_bonus_targets(front.attacker_troops, bonus), 2,
 		"Debe contar tropas que coincidan con alguno de los tipos del array")
 
 

@@ -1,5 +1,5 @@
-extends Condition
-class_name EnemyAdjacentCondition
+extends TargetRule
+class_name EnemyAdjacentRule
 
 ## Condición que filtra tiles controladas por otro imperio
 ## y adyacentes a tiles del imperio propio.

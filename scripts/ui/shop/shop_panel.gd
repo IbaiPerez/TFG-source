@@ -4,8 +4,6 @@ class_name ShopPanel
 ## Panel de tienda. Muestra items comprables y opcion de purga.
 ## Se integra en el flujo de eventos: al cerrar emite shop_event_resolved.
 
-const CARD_MENU_UI = preload("uid://bt76i1liwhags")
-
 enum Mode { BUY, PURGE }
 
 @onready var title_label: Label = %TitleLabel
@@ -75,8 +73,7 @@ func _set_mode(mode:Mode) -> void:
 
 
 func _populate_items() -> void:
-	for child in items_container.get_children():
-		child.queue_free()
+	UILayout.clear_children(items_container)
 
 	for item in shop_config.items:
 		if not item.is_available():
@@ -90,10 +87,7 @@ func _add_shop_item_ui(item:ShopItem) -> void:
 	container.set_meta("shop_item", item)
 
 	# Carta visual
-	var card_ui:CardMenuUi = CARD_MENU_UI.instantiate()
-	container.add_child(card_ui)
-	card_ui.card = item.card
-	card_ui.tooltip_requested.connect(card_tooltip_popup.show_tooltip)
+	CardUIFactory.create(item.card, container, card_tooltip_popup.show_tooltip)
 
 	# Precio
 	var price_label := Label.new()
@@ -124,8 +118,7 @@ func _add_shop_item_ui(item:ShopItem) -> void:
 
 
 func _populate_purge_view() -> void:
-	for child in purge_container.get_children():
-		child.queue_free()
+	UILayout.clear_children(purge_container)
 
 	card_tooltip_popup.hide_tooltip()
 
@@ -146,10 +139,7 @@ func _populate_purge_view() -> void:
 		var container := VBoxContainer.new()
 		container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 
-		var card_ui:CardMenuUi = CARD_MENU_UI.instantiate()
-		container.add_child(card_ui)
-		card_ui.card = card
-		card_ui.tooltip_requested.connect(card_tooltip_popup.show_tooltip)
+		CardUIFactory.create(card, container, card_tooltip_popup.show_tooltip)
 
 		var purge_button := Button.new()
 		purge_button.text = tr("UI_REMOVE")

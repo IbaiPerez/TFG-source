@@ -33,7 +33,7 @@ const MEGALOPOLIS: LocationType = preload("res://resources/location_type/megalop
 ## Espejo de TurnEventManager.evaluate + AIEventResolver.resolve.
 static func process_turn_event(state: AIRealState, p_owner: int,
 		rng: RandomNumberGenerator) -> TurnEvent:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null or emp.available_events.is_empty():
 		return null
 
@@ -149,7 +149,7 @@ static func conditions_met(event: TurnEvent, state: AIRealState, p_owner: int) -
 
 
 static func _condition_met(cond: TurnEventCondition, state: AIRealState, p_owner: int) -> bool:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return false
 
@@ -169,17 +169,17 @@ static func _condition_met(cond: TurnEventCondition, state: AIRealState, p_owner
 		return Comparison.evaluate(state.turn_number, c.op, c.threshold)
 	if cond is DeckSizeCondition:
 		var c := cond as DeckSizeCondition
-		return Comparison.evaluate(emp.deck.size(), c.op, c.count)
+		return Comparison.evaluate(emp.deck.size(), c.op, c.threshold)
 	if cond is ActiveModifiersCondition:
 		# Aproximación: el snapshot solo modela los modifiers económicos.
 		var c := cond as ActiveModifiersCondition
-		return Comparison.evaluate(emp.modifiers.size(), c.op, c.count)
+		return Comparison.evaluate(emp.modifiers.size(), c.op, c.threshold)
 	if cond is CardCountCondition:
 		var c := cond as CardCountCondition
-		return Comparison.evaluate(_count_cards_by_id(emp, c.card_id), c.op, c.count)
+		return Comparison.evaluate(_count_cards_by_id(emp, c.card_id), c.op, c.threshold)
 	if cond is CardTypeCountCondition:
 		var c := cond as CardTypeCountCondition
-		return Comparison.evaluate(_count_cards_by_type(emp, c.card_type), c.op, c.count)
+		return Comparison.evaluate(_count_cards_by_type(emp, c.card_type), c.op, c.threshold)
 	if cond is HasTroopsCondition:
 		return emp.troop_pool.size() >= (cond as HasTroopsCondition).min_count
 	if cond is HasActiveFrontsCondition:
@@ -193,13 +193,13 @@ static func _condition_met(cond: TurnEventCondition, state: AIRealState, p_owner
 		return (cond as UniqueEventOccurredCondition).event_id in emp.used_unique_events
 	if cond is ControlledTilesCondition:
 		var c := cond as ControlledTilesCondition
-		return Comparison.evaluate(_count_tiles_matching(state, p_owner, c), c.op, c.count)
+		return Comparison.evaluate(_count_tiles_matching(state, p_owner, c), c.op, c.threshold)
 	if cond is UrbanizedTilesCondition:
 		var c := cond as UrbanizedTilesCondition
-		return Comparison.evaluate(_count_urbanized(state, p_owner), c.op, c.count)
+		return Comparison.evaluate(_count_urbanized(state, p_owner), c.op, c.threshold)
 	if cond is BuildingCountCondition:
 		var c := cond as BuildingCountCondition
-		return Comparison.evaluate(_count_buildings(state, p_owner), c.op, c.count)
+		return Comparison.evaluate(_count_buildings(state, p_owner), c.op, c.threshold)
 	if cond is TownWithBuildingsCondition:
 		var c := cond as TownWithBuildingsCondition
 		return _has_town_with_buildings(state, p_owner, c.min_buildings, c.op)
@@ -321,7 +321,7 @@ static func _has_adjacent_enemy(state: AIRealState, p_owner: int) -> bool:
 
 static func _resolve_event(event: TurnEvent, state: AIRealState, p_owner: int,
 		rng: RandomNumberGenerator) -> void:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 
 	# La tienda se resuelve aparte (compras/purgas), igual que AIEventResolver.
 	if event is ShopEvent:
@@ -384,8 +384,8 @@ static func _cost_gold(cost: TurnEventCost, emp: AIRealState.EmpireSnap,
 		state: AIRealState) -> int:
 	if cost is ScaledGoldCost:
 		var sc := cost as ScaledGoldCost
-		return int(sc.base_gold + state.turn_number * sc.turn_factor
-			+ emp.gold_per_turn * sc.gpt_percent)
+		return int(ScaledValue.evaluate(sc.base_gold, sc.turn_factor, sc.gpt_percent,
+			state.turn_number, emp.gold_per_turn))
 	return cost.gold
 
 
@@ -407,13 +407,13 @@ static func _score_choice(choice: TurnEventChoice, emp: AIRealState.EmpireSnap,
 			score += (effect as FoodEventEffect).amount * 0.5 * fu
 		elif effect is ScaledGoldEffect:
 			var e := effect as ScaledGoldEffect
-			var amt := e.base + state.turn_number * e.turn_factor \
-				+ emp.gold_per_turn * e.gpt_percent
+			var amt := ScaledValue.evaluate(e.base, e.turn_factor, e.gpt_percent,
+				state.turn_number, emp.gold_per_turn)
 			score += amt * 0.4 * gu
 		elif effect is ScaledFoodEffect:
 			var e := effect as ScaledFoodEffect
-			var amt := e.base + state.turn_number * e.turn_factor \
-				+ emp.food * e.food_percent
+			var amt := ScaledValue.evaluate(e.base, e.turn_factor, e.food_percent,
+				state.turn_number, emp.food)
 			score += amt * 0.5 * fu
 		elif effect is AddCardEffect:
 			score += 8.0
@@ -463,7 +463,7 @@ static func _deck_thinning_value(emp: AIRealState.EmpireSnap) -> float:
 
 static func _apply_choice(choice: TurnEventChoice, state: AIRealState, p_owner: int,
 		rng: RandomNumberGenerator) -> void:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if choice.cost != null:
 		_apply_cost(choice.cost, emp, state)
 	for effect in choice.effects:
@@ -483,7 +483,7 @@ static func _apply_cost(cost: TurnEventCost, emp: AIRealState.EmpireSnap,
 
 static func _apply_effect(effect: TurnEventEffect, state: AIRealState, p_owner: int,
 		rng: RandomNumberGenerator) -> void:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 
 	if effect is GoldEventEffect:
 		emp.gold += (effect as GoldEventEffect).amount
@@ -491,23 +491,24 @@ static func _apply_effect(effect: TurnEventEffect, state: AIRealState, p_owner: 
 		emp.food += (effect as FoodEventEffect).amount
 	elif effect is ScaledGoldEffect:
 		var e := effect as ScaledGoldEffect
-		emp.gold += int(e.base + state.turn_number * e.turn_factor
-			+ emp.gold_per_turn * e.gpt_percent)
+		emp.gold += int(ScaledValue.evaluate(e.base, e.turn_factor, e.gpt_percent,
+			state.turn_number, emp.gold_per_turn))
 	elif effect is ScaledFoodEffect:
 		var e := effect as ScaledFoodEffect
-		emp.food += int(e.base + state.turn_number * e.turn_factor
-			+ emp.food * e.food_percent)
+		emp.food += int(ScaledValue.evaluate(e.base, e.turn_factor, e.food_percent,
+			state.turn_number, emp.food))
 	elif effect is ApplyModifierEffect:
 		_add_modifier(emp, (effect as ApplyModifierEffect).modifier.duplicate_modifier())
 	elif effect is ScaledStatModifierEffect:
 		var e := effect as ScaledStatModifierEffect
 		var ref_stat := _scaled_stat_reference(e, emp)
-		var value := e.base_value + state.turn_number * e.turn_factor + ref_stat * e.stat_percent
+		var value := ScaledValue.evaluate(e.base_value, e.turn_factor, e.stat_percent,
+			state.turn_number, ref_stat)
 		_add_modifier(emp, StatModifier.new(e.modifier_id, e.modifier_name,
 			e.stat_type, value, e.duration))
 	elif effect is ScaledBuildCostModifierEffect:
 		var e := effect as ScaledBuildCostModifierEffect
-		var percent := e.base_percent + state.turn_number * e.turn_factor
+		var percent := ScaledValue.evaluate(e.base_percent, e.turn_factor, 0.0, state.turn_number)
 		_add_modifier(emp, BuildCostModifier.new(e.modifier_id, e.modifier_name,
 			percent, e.duration))
 	elif effect is AddCardEffect:
@@ -857,14 +858,6 @@ static func _count_same_script(deck: Array[Card], card: Card) -> int:
 # ============================================================
 #  Internals
 # ============================================================
-
-static func _empire_of(state: AIRealState, p_owner: int) -> AIRealState.EmpireSnap:
-	if p_owner == AIRealState.OWNER_SELF:
-		return state.own
-	if p_owner == AIRealState.OWNER_RIVAL:
-		return state.rival
-	return null
-
 
 static func _active_front_count(state: AIRealState, p_owner: int) -> int:
 	var n := 0

@@ -1,5 +1,5 @@
-extends Condition
-class_name AdjacentCondition
+extends TargetRule
+class_name AdjacentRule
 
 var empire:Empire
 

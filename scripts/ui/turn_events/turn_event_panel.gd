@@ -59,8 +59,7 @@ func setup(p_event:TurnEvent, p_context:EventContext,
 
 
 func _populate_choices() -> void:
-	for child in choices_container.get_children():
-		child.queue_free()
+	UILayout.clear_children(choices_container)
 
 	for choice in event.choices:
 		_add_choice_button(choice, choice.is_affordable(context))

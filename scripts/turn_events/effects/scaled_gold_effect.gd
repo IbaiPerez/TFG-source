@@ -16,5 +16,6 @@ func _init(p_base:float, p_turn_factor:float = 0.0, p_gpt_percent:float = 0.0):
 
 
 func execute(context:EventContext, _chosen_card:Card = null) -> void:
-	var amount := int(base + context.turn_number * turn_factor + context.gold_per_turn * gpt_percent)
+	var amount := int(ScaledValue.evaluate(base, turn_factor, gpt_percent,
+		context.turn_number, context.gold_per_turn))
 	context.stats.total_gold += amount

@@ -17,11 +17,5 @@ func _init():
 		BuildingCountCondition.new(4, Comparison.Type.GREATER_EQUAL),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_UNLOCK_UPGRADE_CH1_LABEL")
-	choice.description = tr("EVT_UNLOCK_UPGRADE_CH1_DESC")
-	choice.effects = [
-		AddCardEffect.new(UPGRADE_CARD),
-		AddToCardPoolEffect.new(UPGRADE_CARD, 8.0, -0.1, 3.0),
-	]
-	choices = [choice]
+	choices = [make_card_unlock_choice(UPGRADE_CARD,
+		"EVT_UNLOCK_UPGRADE_CH1_LABEL", "EVT_UNLOCK_UPGRADE_CH1_DESC", 8.0, -0.1, 3.0)]

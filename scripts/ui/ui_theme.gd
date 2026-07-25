@@ -32,6 +32,28 @@ const DISABLED_MUTED := Color(0.50, 0.50, 0.50, 1.0)
 const EMPTY_MUTED    := Color(0.60, 0.40, 0.40, 1.0)
 
 
+## Color según el signo de un valor: negativo → rojo, positivo → verde.
+## Con `zero_is_neutral`, el 0 usa el color neutro (producción de casilla); si no,
+## el 0 cuenta como positivo (p.ej. "+0" por turno).
+static func signed_color(value: float, zero_is_neutral := false) -> Color:
+	if value < 0.0:
+		return VALUE_NEGATIVE
+	if zero_is_neutral and value == 0.0:
+		return VALUE_NEUTRAL
+	return VALUE_POSITIVE
+
+
+## Escribe en `label` un valor con signo y aplica su color: prefijo "+" para los
+## valores no negativos (salvo el 0 neutro) y color según el signo. Unifica el
+## bloque if v<0 / elif v==0 / else repetido en los paneles de stats y casilla.
+static func apply_signed(label: Label, value: int, zero_is_neutral := false) -> void:
+	label.add_theme_color_override("font_color", signed_color(value, zero_is_neutral))
+	if value < 0 or (zero_is_neutral and value == 0):
+		label.text = str(value)
+	else:
+		label.text = "+" + str(value)
+
+
 static func make_panel_style(
 		border_color: Color = BORDER_BROWN,
 		border_width: int = 4,

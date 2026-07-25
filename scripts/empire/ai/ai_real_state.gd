@@ -1,24 +1,20 @@
 extends RefCounted
 class_name AIRealState
 
-## Snapshot RICO y clonable del estado real del juego para la búsqueda MCTS
-## (Fase C v2 — sustituye al AIGameState escalar de v1).
+## Snapshot RICO y clonable del estado real del juego para la búsqueda MCTS.
 ##
-## A diferencia de AIGameState (que colapsaba todo a magnitudes escalares:
-## own_tiles, own_gpt…), este estado conserva la estructura POR-TILE: qué
-## casilla tiene cada recurso, quién la controla, qué edificios tiene y a qué
-## casillas es adyacente. Esto permite que el árbol MCTS ramifique sobre
-## colocaciones CONCRETAS (colonizar la tile A vs la B) y que cada colocación
-## produzca consecuencias futuras reales (su producción, los edificios que
-## habilita, los frentes que abre). Ver _ai_docs/PLAN_MCTS_ESTADO_REAL.md §2.
+## Conserva la estructura POR-TILE (qué casilla tiene cada recurso, quién la
+## controla, qué edificios tiene y a qué casillas es adyacente) para que el árbol
+## MCTS ramifique sobre colocaciones CONCRETAS (colonizar la tile A vs la B) y
+## cada colocación produzca consecuencias futuras reales (su producción, los
+## edificios que habilita, los frentes que abre).
 ##
 ## Datos puros: sin nodos de escena, sin señales, sin el singleton BattleFront.
 ## Los Building/Card/Troop/NaturalResource son recursos read-only compartidos
-## (no se clonan: solo se copian las referencias, igual que en AIGameState).
+## (no se clonan: solo se copian las referencias).
 ##
-## ALCANCE F1 (esta entrega): tiles + economía base (sin modificadores, sin
-## tropas, sin frentes, sin habilidad de imperio). Los campos fronts/troop_pool
-## existen pero quedan vacíos hasta F2/F2.5.
+## Modela: tiles + economía (con modificadores y habilidad de imperio) + tropas
+## + frentes de batalla + eventos/tienda.
 
 
 # ── Identificadores de propietario ───────────────────────────────────────────
@@ -204,14 +200,10 @@ class FrontSnap:
 	var min_duration: int = 3
 	var is_resolved: bool = false
 
-	## Umbral efectivo del turno actual (espejo de BattleFront.get_current_threshold):
-	## decae linealmente de `threshold` a BattleFront.MIN_THRESHOLD en
-	## BattleFront.THRESHOLD_DECAY_TURNS turnos.
+	## Umbral efectivo del turno actual (mismo motor que el juego real,
+	## vía CombatMath.current_threshold).
 	func current_threshold() -> float:
-		if BattleFront.THRESHOLD_DECAY_TURNS <= 0 or threshold <= BattleFront.MIN_THRESHOLD:
-			return threshold
-		var t := clampf(float(turns_elapsed) / float(BattleFront.THRESHOLD_DECAY_TURNS), 0.0, 1.0)
-		return lerpf(threshold, BattleFront.MIN_THRESHOLD, t)
+		return CombatMath.current_threshold(threshold, turns_elapsed)
 
 	## True si este frente involucra al imperio `p_owner` (como atacante o defensor).
 	func involves(p_owner: int) -> bool:
@@ -429,6 +421,16 @@ func clone() -> AIRealState:
 
 
 # ── Consultas derivadas ──────────────────────────────────────────────────────
+
+## Snapshot del imperio de `p_owner` (OWNER_SELF / OWNER_RIVAL), o null si no
+## corresponde a ninguno (OWNER_NONE). Fuente única para todos los espejos.
+func empire(p_owner: int) -> EmpireSnap:
+	if p_owner == OWNER_SELF:
+		return own
+	if p_owner == OWNER_RIVAL:
+		return rival
+	return null
+
 
 ## Número de casillas controladas por `owner` (OWNER_SELF / OWNER_RIVAL).
 func count_tiles(p_owner: int) -> int:

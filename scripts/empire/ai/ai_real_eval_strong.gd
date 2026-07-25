@@ -71,7 +71,7 @@ static func _score_colonize(move: AIRealOptions.Move, state: AIRealState,
 	var t := state.tiles.get(move.tile_id) as AIRealState.TileSnap
 	if t == null:
 		return 0.0
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return 0.0
 	var phase := AIRealEval.detect_phase(state, p_owner)
@@ -174,7 +174,7 @@ static func _territory_race_factor(state: AIRealState, p_owner: int,
 
 
 ## Tiles sin colonizar adyacentes al territorio de `p_owner` (espejo del conteo de
-## AdjacentCondition.valid_targets que AIController pasa como colonizable_tiles_count).
+## AdjacentRule.valid_targets que AIController pasa como colonizable_tiles_count).
 static func _colonizable_count(state: AIRealState, p_owner: int) -> int:
 	var seen := {}
 	for id in state.tiles:
@@ -203,7 +203,7 @@ static func _score_build(move: AIRealOptions.Move, state: AIRealState,
 	var b := move.building
 	if b == null:
 		return 0.0
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return 0.0
 	var phase := AIRealEval.detect_phase(state, p_owner)
@@ -241,7 +241,7 @@ static func _score_upgrade(move: AIRealOptions.Move, state: AIRealState,
 	var nb := move.new_building
 	if ob == null or nb == null:
 		return 0.0
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return 0.0
 	var phase := AIRealEval.detect_phase(state, p_owner)
@@ -272,7 +272,7 @@ static func _score_recruit(move: AIRealOptions.Move, state: AIRealState,
 	var troop := move.troop
 	if troop == null:
 		return 0.0
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return 0.0
 	var phase := AIRealEval.detect_phase(state, p_owner)
@@ -533,7 +533,7 @@ static func _build_cost_factor(cost: int, total_gold: int, w: HeuristicWeights) 
 ## (edificios defensivos + tropas visibles en frentes sobre esa tile).
 static func _score_open_front(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return 0.0
 	var enemy_tile := state.tiles.get(move.def_tile_id) as AIRealState.TileSnap
@@ -659,7 +659,7 @@ static func _score_tactic(move: AIRealOptions.Move, state: AIRealState,
 ## GENERATE_GOLD: oro inmediato one-shot; vale menos que gold_per_turn.
 static func _score_generate_gold(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return 0.0
 	var phase := AIRealEval.detect_phase(state, p_owner)
@@ -671,7 +671,7 @@ static func _score_generate_gold(move: AIRealOptions.Move, state: AIRealState,
 ## (draw+discard), que se usa como proxy.
 static func _score_card_draw(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return 0.0
 	return float(move.amount) * w.draw_weight * _deck_urgency(emp, w)
@@ -696,7 +696,7 @@ static func _score_change_location(move: AIRealOptions.Move, state: AIRealState,
 	var new_loc := move.location
 	if t == null or new_loc == null:
 		return 0.0
-	var emp := _empire_of(state, p_owner)
+	var emp := state.empire(p_owner)
 	if emp == null:
 		return 0.0
 	var phase := AIRealEval.detect_phase(state, p_owner)
@@ -770,15 +770,3 @@ static func _food_urgency(food: int, phase: AIGamePhase.Phase, w: HeuristicWeigh
 			if food < w.food_urg_mid_t1:  return w.food_urg_mid_v1
 			if food < w.food_urg_mid_t2:  return w.food_urg_mid_v2
 			return w.food_urg_mid_v3
-
-
-# ---------------------------------------------------------------------------
-# Internals
-# ---------------------------------------------------------------------------
-
-static func _empire_of(state: AIRealState, p_owner: int) -> AIRealState.EmpireSnap:
-	if p_owner == OWNER_SELF:
-		return state.own
-	if p_owner == OWNER_RIVAL:
-		return state.rival
-	return null

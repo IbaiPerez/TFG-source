@@ -98,8 +98,7 @@ func _populate_pool() -> void:
 		return
 
 	# Limpiar
-	for child in troops_grid.get_children():
-		child.queue_free()
+	UILayout.clear_children(troops_grid)
 
 	# Mostrar info
 	var troops_in_front: int

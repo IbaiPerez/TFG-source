@@ -18,13 +18,13 @@ func apply_effects(targets:Array[Node],stats:Stats) -> void:
 	effect.execute(targets)
 
 func is_valid_target(node:Node,stats:Stats) -> bool:
-	var condition := BuildCondition.new()
+	var condition := BuildRule.new()
 	condition.buildings = buildings
 	condition.stats = stats
 	return condition.is_valid_target(node)
 
 func get_valid_targets(stats:Stats) -> Array[Node]:
-	var condition := BuildCondition.new()
+	var condition := BuildRule.new()
 	condition.buildings = buildings
 	condition.stats = stats
 	return condition.valid_targets()

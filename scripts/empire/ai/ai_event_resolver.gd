@@ -17,11 +17,6 @@ class_name AIEventResolver
 ## Marca el evento como `unique` en stats.used_unique_events si aplica.
 
 
-## Umbral de purga de tienda: ahora es dinámico (ver AIHeuristic.dynamic_purge_threshold).
-## La constante ya no se usa; se mantiene como referencia de diseño.
-## const PURGE_SCORE_THRESHOLD := 8.0  # ← reemplazado por umbral dinámico
-
-
 ## Punto de entrada. Llama desde AIController tras evaluar el evento.
 static func resolve(event: TurnEvent, context: EventContext,
 		rng: RandomNumberGenerator, manager: TurnEventManager,
@@ -41,7 +36,7 @@ static func resolve(event: TurnEvent, context: EventContext,
 	# Sin esto, colonizable_tiles_count queda en -1 (unknown) y ColonizeCard
 	# puede ser eliminada erróneamente por eventos en fase LATE.
 	if context.stats != null and context.stats.empire != null:
-		var adj := AdjacentCondition.new()
+		var adj := AdjacentRule.new()
 		adj.empire = context.stats.empire
 		hctx.colonizable_tiles_count = adj.valid_targets().size()
 

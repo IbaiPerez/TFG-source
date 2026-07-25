@@ -88,13 +88,8 @@ func _calculate_base_production() -> Dictionary:
 
 	# Los modificadores porcentuales solo afectan a la produccion positiva,
 	# no a los costes de mantenimiento (produccion negativa).
-	var gold_positive := maxi(base_gold, 0)
-	var gold_negative := mini(base_gold, 0)
-	var food_positive := maxi(base_food, 0)
-	var food_negative := mini(base_food, 0)
-
-	var final_gold := int(gold_positive * (1.0 + modifier_manager.get_percent_gold() / 100.0)) + gold_negative
-	var final_food := int(food_positive * (1.0 + modifier_manager.get_percent_food() / 100.0)) + food_negative
+	var final_gold := ProductionMath.apply_percent(base_gold, modifier_manager.get_percent_gold())
+	var final_food := ProductionMath.apply_percent(base_food, modifier_manager.get_percent_food())
 
 	return { "gold": final_gold, "food": final_food }
 
@@ -107,7 +102,7 @@ func _calculate_troop_maintenance() -> Dictionary:
 	var total_food := 0
 	for troop in stats.troop_pool:
 		var percent := modifier_manager.get_troop_maintenance_percent(troop)
-		var multiplier := ModifierManager.clamp_cost_multiplier(1.0 + percent / 100.0)
+		var multiplier := ProductionMath.maintenance_multiplier(percent)
 		total_gold += int(troop.maintenance_gold * multiplier)
 		total_food += int(troop.maintenance_food * multiplier)
 	return { "gold": total_gold, "food": total_food }
