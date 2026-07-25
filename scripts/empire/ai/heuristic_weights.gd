@@ -358,7 +358,6 @@ class_name HeuristicWeights
 @export var state_food_stability_weight: float = 0.3
 @export var state_m_norm: float = 100.0
 @export var state_k_norm: float = 5.0
-@export var state_rival_cpt_default: float = 2.0
 @export var state_tanh_scale: float = 2.0
 
 
@@ -380,64 +379,123 @@ static func get_default() -> HeuristicWeights:
 # Interfaz para optimizadores
 # ===========================================================================
 
-## Subconjunto curado de campos que forman el ESPACIO DE BÚSQUEDA por defecto
-## de SA/GA: multiplicadores y magnitudes de "valor" (cuánto vale 1 de oro, de
-## defensa, de territorio…) que SÍ influyen en el juego en modo HEURISTIC.
-## Deliberadamente NO incluye:
-##   - los umbrales de las curvas de urgencia (gpt<50, food<5…): romperían su
-##     monotonía e inflarían la dimensión;
-##   - los pesos de score_state (state_w_*, state_*_norm…): score_state NO se
-##     usa en modo HEURISTIC (la partida pura usa score_option; el score_state
-##     vivo es el del mirror AIRealEval del MCTS), así que optimizarlos aquí no
-##     tendría señal de fitness. Quedan como campos por si en el futuro se
-##     optimiza el mirror del MCTS.
-## El optimizador puede optimizar cualquier campo pasando su propia lista de
-## keys a to_vector/apply_vector.
-const OPTIMIZABLE_KEYS: PackedStringArray = [
-	# Urgencias (magnitudes, no umbrales)
-	"mil_urg_base_idle", "mil_urg_base_adjacent", "mil_urg_base_active", "mil_urg_max",
+## Tabla declarativa de metadatos por campo, fuente ÚNICA para el optimizador:
+##   - "opt": true  → entra en el ESPACIO DE BÚSQUEDA por defecto (OPTIMIZABLE_KEYS).
+##   - "unit": true → acotado a [0, 1] en get_bounds (probabilidades/ratios que la
+##                    heurística ya clampa), en vez de la regla general [d*0.25, d*4].
+## Un campo sin entrada aquí NO es optimizable por defecto y usa la regla general.
+##
+## Deliberadamente NO se marcan opt los umbrales de las curvas de urgencia
+## (romperían su monotonía) ni los pesos de score_state (state_w_*/state_*_norm):
+## score_state no se usa en modo HEURISTIC, así que optimizarlos aquí no tendría
+## señal de fitness. Se listan (unit) por si se optimiza el mirror del MCTS.
+## El optimizador puede optimizar cualquier campo pasando su propia lista de keys.
+##
+## El ORDEN de las entradas opt define el layout del vector (to_vector/apply_vector).
+const SPEC := {
+	# --- Optimizables (magnitudes/multiplicadores que influyen en modo HEURISTIC) ---
+	# Urgencias
+	"mil_urg_base_idle": {"opt": true}, "mil_urg_base_adjacent": {"opt": true},
+	"mil_urg_base_active": {"opt": true}, "mil_urg_max": {"opt": true},
 	# Factores
-	"surplus_max", "build_cost_min",
-	"deck_thin_small", "deck_thin_large", "purge_thresh_small", "purge_thresh_large",
-	"encircle_high", "encircle_mid", "encircle_low", "encircle_min",
-	"tr_close_factor", "tr_lead_factor", "tr_block_factor", "tr_econ_factor",
+	"surplus_max": {"opt": true}, "build_cost_min": {"opt": true, "unit": true},
+	"deck_thin_small": {"opt": true}, "deck_thin_large": {"opt": true},
+	"purge_thresh_small": {"opt": true}, "purge_thresh_large": {"opt": true},
+	"encircle_high": {"opt": true}, "encircle_mid": {"opt": true},
+	"encircle_low": {"opt": true}, "encircle_min": {"opt": true},
+	"tr_close_factor": {"opt": true}, "tr_lead_factor": {"opt": true},
+	"tr_block_factor": {"opt": true}, "tr_econ_factor": {"opt": true, "unit": true},
 	# Edificios
-	"gold_weight_pos", "gold_weight_maint", "food_weight", "defense_weight",
-	"build_resource_match", "build_border",
-	"unlock_gold", "unlock_food", "unlock_defense", "unlock_cap",
+	"gold_weight_pos": {"opt": true}, "gold_weight_maint": {"opt": true},
+	"food_weight": {"opt": true}, "defense_weight": {"opt": true},
+	"build_resource_match": {"opt": true}, "build_border": {"opt": true},
+	"unlock_gold": {"opt": true}, "unlock_food": {"opt": true},
+	"unlock_defense": {"opt": true}, "unlock_cap": {"opt": true},
 	# Reclutamiento
-	"recruit_atkdef_weight", "recruit_cost_eff_base", "counter_bonus",
+	"recruit_atkdef_weight": {"opt": true}, "recruit_cost_eff_base": {"opt": true},
+	"counter_bonus": {"opt": true},
 	# Frente
-	"openfront_gold", "openfront_food", "openfront_base_strategic", "openfront_base_mu",
-	"openfront_source_building", "openfront_source_gold", "openfront_source_food",
+	"openfront_gold": {"opt": true}, "openfront_food": {"opt": true},
+	"openfront_base_strategic": {"opt": true}, "openfront_base_mu": {"opt": true},
+	"openfront_source_building": {"opt": true}, "openfront_source_gold": {"opt": true},
+	"openfront_source_food": {"opt": true},
 	# Cartas varias
-	"tactic_base", "tactic_urgency_scale", "draw_weight",
-	"colonize_gold", "colonize_food", "colonize_expansion", "colonize_denial",
-	"changeloc_resource_bonus", "changeloc_slot", "changeloc_consumption",
+	"tactic_base": {"opt": true}, "tactic_urgency_scale": {"opt": true},
+	"draw_weight": {"opt": true},
+	"colonize_gold": {"opt": true}, "colonize_food": {"opt": true},
+	"colonize_expansion": {"opt": true}, "colonize_denial": {"opt": true},
+	"changeloc_resource_bonus": {"opt": true}, "changeloc_slot": {"opt": true},
+	"changeloc_consumption": {"opt": true},
 	# Efectos de edificio
-	"se_flat_gold", "se_flat_food", "se_card_draw", "se_tpr_base", "se_tpr_mu",
-]
+	"se_flat_gold": {"opt": true}, "se_flat_food": {"opt": true},
+	"se_card_draw": {"opt": true}, "se_tpr_base": {"opt": true}, "se_tpr_mu": {"opt": true},
+	# --- No optimizables por defecto pero acotados a [0,1] (pesos de score_state) ---
+	"state_w_t_early": {"unit": true}, "state_w_e_early": {"unit": true},
+	"state_w_m_early": {"unit": true}, "state_w_k_early": {"unit": true},
+	"state_w_t_mid": {"unit": true}, "state_w_e_mid": {"unit": true},
+	"state_w_m_mid": {"unit": true}, "state_w_k_mid": {"unit": true},
+	"state_w_t_late": {"unit": true}, "state_w_e_late": {"unit": true},
+	"state_w_m_late": {"unit": true}, "state_w_k_late": {"unit": true},
+	"state_t_share_mix": {"unit": true},
+}
 
 
-## Rango [min, max] de búsqueda de un campo. Regla general: multiplicativo
-## alrededor del valor por defecto [d*0.25, d*4]. Los factores acotados a [0,1]
-## (probabilidades, ratios que la propia heurística clampa) se limitan a [0,1].
+## Espacio de búsqueda por defecto de SA/GA: las claves con opt:true en SPEC, en su
+## orden de declaración (define el layout del vector).
+static var OPTIMIZABLE_KEYS: PackedStringArray = _compute_optimizable_keys()
+
+static func _compute_optimizable_keys() -> PackedStringArray:
+	var out := PackedStringArray()
+	for k in SPEC:
+		if SPEC[k].get("opt", false):
+			out.append(k)
+	return out
+
+
+## Rango [min, max] de búsqueda de un campo. Los marcados "unit" en SPEC viven en
+## [0, 1]; el resto usa la regla general multiplicativa [d*0.25, d*4] (o [0,1] si
+## el default es 0).
 static func get_bounds(key: String) -> Vector2:
-	var d := float(get_default().get(key))
-	# Campos que conceptualmente viven en [0, 1].
-	const UNIT_KEYS := [
-		"build_cost_min", "tr_econ_factor",
-		"state_w_t_early", "state_w_e_early", "state_w_m_early", "state_w_k_early",
-		"state_w_t_mid", "state_w_e_mid", "state_w_m_mid", "state_w_k_mid",
-		"state_w_t_late", "state_w_e_late", "state_w_m_late", "state_w_k_late",
-	]
-	if key in UNIT_KEYS:
+	if SPEC.has(key) and SPEC[key].get("unit", false):
 		return Vector2(0.0, 1.0)
+	var d := float(get_default().get(key))
 	if d == 0.0:
 		return Vector2(0.0, 1.0)
 	var lo := d * 0.25
 	var hi := d * 4.0
 	return Vector2(minf(lo, hi), maxf(lo, hi))
+
+
+## Valida los invariantes de los pesos. Devuelve una lista de problemas (vacía =
+## OK). Comprueba la monotonía de las curvas de urgencia (umbrales no decrecientes)
+## y que los pesos de mezcla queden en [0,1]. El optimizador la llama antes de
+## evaluar un candidato para descartar configuraciones incoherentes.
+func validate() -> Array[String]:
+	var errors: Array[String] = []
+	_require_non_decreasing(errors, "gold_urg_early",
+		[gold_urg_early_t0, gold_urg_early_t1, gold_urg_early_t2])
+	_require_non_decreasing(errors, "gold_urg_mid",
+		[gold_urg_mid_t0, gold_urg_mid_t1, gold_urg_mid_t2, gold_urg_mid_t3])
+	_require_non_decreasing(errors, "gold_urg_late",
+		[gold_urg_late_t0, gold_urg_late_t1, gold_urg_late_t2, gold_urg_late_t3,
+		gold_urg_late_t4, gold_urg_late_t5, gold_urg_late_t6])
+	_require_non_decreasing(errors, "food_urg_early",
+		[food_urg_early_t0, food_urg_early_t1, food_urg_early_t2])
+	_require_non_decreasing(errors, "food_urg_mid",
+		[food_urg_mid_t0, food_urg_mid_t1, food_urg_mid_t2])
+	_require_non_decreasing(errors, "food_urg_late",
+		[food_urg_late_t0, food_urg_late_t1, food_urg_late_t2])
+	_require_non_decreasing(errors, "deck_urg", [deck_urg_t0, deck_urg_t1])
+	if state_t_share_mix < 0.0 or state_t_share_mix > 1.0:
+		errors.append("state_t_share_mix fuera de [0,1]: %.3f" % state_t_share_mix)
+	return errors
+
+
+func _require_non_decreasing(errors: Array[String], label: String, values: Array) -> void:
+	for i in range(1, values.size()):
+		if float(values[i]) < float(values[i - 1]):
+			errors.append("%s: umbral no creciente en índice %d (%.2f < %.2f)" % [
+				label, i, values[i], values[i - 1]])
 
 
 ## Serializa los campos indicados (o OPTIMIZABLE_KEYS por defecto) a un vector.

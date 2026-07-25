@@ -55,6 +55,40 @@ func test_clone_is_deep_copy() -> void:
 	assert_eq(c.gold_weight_pos, original + 123.0, "la copia sí debe reflejar el cambio")
 
 
+func test_spec_keys_are_real_properties() -> void:
+	# Cada clave de SPEC debe existir como propiedad (atrapa typos).
+	var w := HeuristicWeights.new()
+	for key in HeuristicWeights.SPEC:
+		assert_ne(w.get(key), null,
+			"SPEC declara '%s' pero no existe como propiedad" % key)
+
+
+func test_optimizable_keys_derived_from_spec() -> void:
+	# OPTIMIZABLE_KEYS = exactamente las claves de SPEC con opt:true.
+	for key in HeuristicWeights.OPTIMIZABLE_KEYS:
+		assert_true(HeuristicWeights.SPEC.has(key) and HeuristicWeights.SPEC[key].get("opt", false),
+			"'%s' está en OPTIMIZABLE_KEYS pero no marcada opt:true en SPEC" % key)
+	var opt_count := 0
+	for key in HeuristicWeights.SPEC:
+		if HeuristicWeights.SPEC[key].get("opt", false):
+			opt_count += 1
+	assert_eq(HeuristicWeights.OPTIMIZABLE_KEYS.size(), opt_count,
+		"OPTIMIZABLE_KEYS debe tener tantas claves como entradas opt:true en SPEC")
+
+
+func test_validate_passes_on_defaults() -> void:
+	var errors := HeuristicWeights.new().validate()
+	assert_eq(errors.size(), 0,
+		"los pesos por defecto deben validar sin errores: %s" % str(errors))
+
+
+func test_validate_detects_non_monotonic_urgency() -> void:
+	var w := HeuristicWeights.new()
+	w.gold_urg_early_t1 = w.gold_urg_early_t0 - 1.0  # rompe la monotonía
+	assert_gt(w.validate().size(), 0,
+		"validate() debe detectar una curva de urgencia no creciente")
+
+
 func test_partial_keys_vector() -> void:
 	var w := HeuristicWeights.new()
 	var keys := PackedStringArray(["gold_weight_pos", "food_weight"])
