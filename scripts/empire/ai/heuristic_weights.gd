@@ -332,19 +332,26 @@ class_name HeuristicWeights
 # ---------------------------------------------------------------------------
 @export_group("Estado (MCTS)")
 @export var state_victory_share: float = 0.70   ## dominación (condición terminal)
-@export var state_w_t_early: float = 0.40
-@export var state_w_e_early: float = 0.40
-@export var state_w_m_early: float = 0.15
+# Pesos por fase de la evaluación de estado del MCTS (AIRealEval.score_state).
+# Valores reforzados hacia TERRITORIO respecto a versiones previas: la victoria es
+# por dominación, y en rollouts cortos reclutar movía el valor más que colonizar.
+@export var state_w_t_early: float = 0.55
+@export var state_w_e_early: float = 0.28
+@export var state_w_m_early: float = 0.12
 @export var state_w_k_early: float = 0.05
-@export var state_w_t_mid: float = 0.30
-@export var state_w_e_mid: float = 0.35
-@export var state_w_m_mid: float = 0.25
-@export var state_w_k_mid: float = 0.10
-@export var state_w_t_late: float = 0.30
+@export var state_w_t_mid: float = 0.48
+@export var state_w_e_mid: float = 0.30
+@export var state_w_m_mid: float = 0.17
+@export var state_w_k_mid: float = 0.05
+@export var state_w_t_late: float = 0.42
 @export var state_w_e_late: float = 0.20
-@export var state_w_m_late: float = 0.40
-@export var state_w_k_late: float = 0.10
-@export var state_t_norm: float = 0.70          ## normaliza el diferencial territorial
+@export var state_w_m_late: float = 0.33
+@export var state_w_k_late: float = 0.05
+@export var state_t_norm: float = 0.70          ## normaliza el diferencial territorial (cuota)
+## Territorio: mezcla de la cuota diferencial y la ventaja ABSOLUTA de casillas,
+## para que cada colonización mueva la aguja (la cuota sola era casi insensible).
+@export var state_t_count_norm: float = 12.0    ## normaliza la ventaja absoluta de casillas
+@export var state_t_share_mix: float = 0.5      ## peso de la cuota vs la ventaja absoluta [0,1]
 @export var state_e_norm: float = 1000.0        ## normaliza el diferencial de gpt
 @export var state_food_norm: float = 20.0
 @export var state_food_stability_cap: float = 0.5

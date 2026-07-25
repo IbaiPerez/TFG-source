@@ -369,7 +369,7 @@ static func _rollout(state: AIRealState, player: int, hand: Array[Card], depth: 
 		var tr := _apply_and_transition(state, pick.move, player, hand, depth,
 			known_deck, rival_hand_size, config, rng, false)
 		player = tr["player"]; hand = tr["hand"]; depth = tr["depth"]
-	return AIRealEval.score_state(state)
+	return AIRealEval.score_state(state, config.heuristic_weights)
 
 
 ## Política de rollout: greedy por score_move (heurístico) o aleatoria.

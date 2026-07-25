@@ -1,12 +1,11 @@
 extends RefCounted
 class_name AIRealEval
 
-## Evaluación de estados y jugadas sobre AIRealState para la búsqueda MCTS v2
-## (Fase C v2 — F3a).
+## Evaluación de estados y jugadas sobre AIRealState para la búsqueda MCTS.
 ##
-##  - `score_state`: evaluación de HOJA, reimplementación fiel de
-##    AIHeuristic.score_state sobre el snapshot (diferencial propio−rival en
-##    [-1, 1] vía tanh). Es la señal que el árbol maximiza (negamax).
+##  - `score_state`: evaluación de HOJA (diferencial propio−rival en [-1, 1] vía
+##    tanh, parametrizada por HeuristicWeights). Es la señal que el árbol maximiza
+##    (negamax) y la ÚNICA score_state del proyecto.
 ##  - `score_move`: PRIOR del PUCT y política de rollout, aproximación-suelo de
 ##    AIHeuristic.score_option por tipo de jugada sobre el estado simulado (el
 ##    detalle exacto de score_option vive acoplado a la escena; aquí basta una
@@ -15,11 +14,16 @@ class_name AIRealEval
 
 
 # ---------------------------------------------------------------------------
-# Evaluación de hoja (espejo de AIHeuristic.score_state)
+# Evaluación de hoja del MCTS. Es la ÚNICA score_state del proyecto: antes había
+# un espejo muerto (AIHeuristic.score_state) con pesos y esta versión viva con los
+# valores hardcodeados. Ahora los pesos viven en HeuristicWeights (defaults =
+# valores previos), así que el resultado es idéntico y quedan optimizables.
 # ---------------------------------------------------------------------------
 
-## Valor del estado desde la perspectiva propia, en [-1, 1].
-static func score_state(state: AIRealState) -> float:
+## Valor del estado desde la perspectiva propia, en [-1, 1]. `w` null → default.
+static func score_state(state: AIRealState, w: HeuristicWeights = null) -> float:
+	if w == null:
+		w = HeuristicWeights.get_default()
 	var my_tiles := state.count_tiles(AIRealState.OWNER_SELF)
 	var rival_tiles := state.count_tiles(AIRealState.OWNER_RIVAL)
 	var total := maxi(state.total_map_tiles, my_tiles + rival_tiles + 1)
@@ -27,47 +31,63 @@ static func score_state(state: AIRealState) -> float:
 	var rival_share := float(rival_tiles) / float(total)
 
 	# Condiciones terminales.
-	if my_share >= 0.70: return 1.0
-	if rival_share >= 0.70: return -1.0
+	if my_share >= w.state_victory_share: return 1.0
+	if rival_share >= w.state_victory_share: return -1.0
 	if rival_tiles == 0: return 1.0
 	if my_tiles == 0: return -1.0
 
 	var phase := detect_phase(state)
-	# Pesos reforzados hacia TERRITORIO (F3 — retoque de eval): la victoria es
-	# por dominación (70% de tiles), pero en rollouts cortos reclutar movía el
-	# valor más que colonizar. Subir w_t y añadir el término de ventaja absoluta
-	# de casillas evita que el MCTS infra-colonice y pierda la carrera territorial.
-	var w_t := 0.55; var w_e := 0.28; var w_m := 0.12; var w_k := 0.05
+	var w_t := w.state_w_t_early; var w_e := w.state_w_e_early
+	var w_m := w.state_w_m_early; var w_k := w.state_w_k_early
 	match phase:
 		AIGamePhase.Phase.MID:
-			w_t = 0.48; w_e = 0.30; w_m = 0.17; w_k = 0.05
+			w_t = w.state_w_t_mid; w_e = w.state_w_e_mid; w_m = w.state_w_m_mid; w_k = w.state_w_k_mid
 		AIGamePhase.Phase.LATE:
-			w_t = 0.42; w_e = 0.20; w_m = 0.33; w_k = 0.05
+			w_t = w.state_w_t_late; w_e = w.state_w_e_late; w_m = w.state_w_m_late; w_k = w.state_w_k_late
 
-	# Territorio: mezcla del progreso hacia dominación (cuota) con la ventaja
-	# ABSOLUTA de casillas, para que CADA colonización mueva la aguja (la cuota
-	# sola, normalizada por el mapa entero, era casi insensible por colocación).
-	var t_share := (my_share - rival_share) / 0.70
-	var t_count := clampf(float(my_tiles - rival_tiles) / 12.0, -1.0, 1.0)
-	var t_score := clampf(0.5 * t_share + 0.5 * t_count, -1.0, 1.0)
-	var e_score := clampf(float(state.own.gold_per_turn - state.rival.gold_per_turn) / 1000.0,
+	var t_score := _territory_term(my_tiles, rival_tiles, my_share, rival_share, w)
+	var e_score := _economy_term(state, w)
+	var food_stability := clampf(float(state.own.food) / w.state_food_norm,
+		-1.0, w.state_food_stability_cap)
+	var m_score := _military_term(state, w)
+	var k_score := _deck_term(state, w)
+
+	var raw := w_t * t_score \
+			 + w_e * (e_score + food_stability * w.state_food_stability_weight) \
+			 + w_m * m_score \
+			 + w_k * k_score
+	return tanh(raw * w.state_tanh_scale)
+
+
+## Territorio: mezcla del progreso hacia dominación (cuota diferencial) con la
+## ventaja ABSOLUTA de casillas, para que CADA colonización mueva la aguja (la
+## cuota sola, normalizada por el mapa entero, era casi insensible por colocación).
+static func _territory_term(my_tiles: int, rival_tiles: int,
+		my_share: float, rival_share: float, w: HeuristicWeights) -> float:
+	var t_share := (my_share - rival_share) / w.state_t_norm
+	var t_count := clampf(float(my_tiles - rival_tiles) / w.state_t_count_norm, -1.0, 1.0)
+	return clampf(w.state_t_share_mix * t_share + (1.0 - w.state_t_share_mix) * t_count, -1.0, 1.0)
+
+
+## Economía: diferencial de oro por turno normalizado.
+static func _economy_term(state: AIRealState, w: HeuristicWeights) -> float:
+	return clampf(float(state.own.gold_per_turn - state.rival.gold_per_turn) / w.state_e_norm,
 		-1.0, 1.0)
-	var food_stability := clampf(float(state.own.food) / 20.0, -1.0, 0.5)
 
+
+## Militar: poder de tropas propias (pool) vs poder del rival visible en frentes.
+static func _military_term(state: AIRealState, w: HeuristicWeights) -> float:
 	var my_power := 0.0
 	for troop in state.own.troop_pool:
 		my_power += float(troop.attack + troop.defense)
 	var rival_power := _rival_front_power(state)
-	var m_score := clampf((my_power - rival_power) / 100.0, -1.0, 1.0)
+	return clampf((my_power - rival_power) / w.state_m_norm, -1.0, 1.0)
 
-	var k_score := clampf(float(state.own.cards_per_turn - state.rival.cards_per_turn) / 5.0,
+
+## Mazo: diferencial de cartas por turno normalizado.
+static func _deck_term(state: AIRealState, w: HeuristicWeights) -> float:
+	return clampf(float(state.own.cards_per_turn - state.rival.cards_per_turn) / w.state_k_norm,
 		-1.0, 1.0)
-
-	var raw := w_t * t_score \
-			 + w_e * (e_score + food_stability * 0.3) \
-			 + w_m * m_score \
-			 + w_k * k_score
-	return tanh(raw * 2.0)
 
 
 ## Poder de tropas del rival visible en frentes (espejo del término militar
