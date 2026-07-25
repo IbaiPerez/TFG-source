@@ -18,6 +18,7 @@ class_name SAOptimizer
 var fitness: HeuristicFitness
 var keys: PackedStringArray                ## claves a optimizar (default: OPTIMIZABLE_KEYS)
 var rng := RandomNumberGenerator.new()
+var space: SearchSpace                     ## espacio de búsqueda (comparte el rng)
 
 # --- Hiperparámetros ---------------------------------------------------------
 var iterations: int = 200
@@ -43,6 +44,7 @@ func _init(p_fitness: HeuristicFitness, p_seed: int = 12345) -> void:
 func run(start: HeuristicWeights = null) -> HeuristicWeights:
 	if keys.is_empty():
 		keys = HeuristicWeights.OPTIMIZABLE_KEYS
+	space = SearchSpace.new(keys, rng)
 	var cur := start.clone() if start != null else HeuristicWeights.new()
 	var cur_fit := await fitness.evaluate(cur)
 	best_weights = cur.clone()
@@ -69,25 +71,7 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 	return best_weights
 
 
-## Genera un vecino perturbando `dims_per_step` dimensiones al azar.
+## Genera un vecino perturbando `dims_per_step` dimensiones al azar (vía SearchSpace).
 func _neighbor(base: HeuristicWeights) -> HeuristicWeights:
-	var cand := base.clone()
-	var v := cand.to_vector(keys)
-	for i in _pick_dims():
-		var b := HeuristicWeights.get_bounds(keys[i])
-		var sigma := (b.y - b.x) * step_frac
-		v[i] = clampf(v[i] + rng.randfn(0.0, sigma), b.x, b.y)
-	cand.apply_vector(v, keys)
-	return cand
-
-
-## Índices de dimensiones a perturbar (barajado Fisher-Yates parcial).
-func _pick_dims() -> Array:
-	var n := keys.size()
-	var pool := range(n)
-	for i in range(n - 1, 0, -1):
-		var j := rng.randi_range(0, i)
-		var tmp = pool[i]
-		pool[i] = pool[j]
-		pool[j] = tmp
-	return pool.slice(0, mini(dims_per_step, n))
+	var v := space.perturb_dims(space.vector_of(base), step_frac, dims_per_step)
+	return space.apply(base, v)

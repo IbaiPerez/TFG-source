@@ -17,6 +17,8 @@ class_name GAOptimizer
 var fitness: HeuristicFitness
 var keys: PackedStringArray
 var rng := RandomNumberGenerator.new()
+var space: SearchSpace              ## espacio de búsqueda (comparte el rng)
+var _base: HeuristicWeights         ## semilla: conserva los campos NO optimizados
 
 # --- Hiperparámetros ---------------------------------------------------------
 var pop_size: int = 16
@@ -44,13 +46,14 @@ func _init(p_fitness: HeuristicFitness, p_seed: int = 999) -> void:
 func run(seed_weights: HeuristicWeights = null) -> HeuristicWeights:
 	if keys.is_empty():
 		keys = HeuristicWeights.OPTIMIZABLE_KEYS
-	var base := seed_weights.clone() if seed_weights != null else HeuristicWeights.new()
-	var base_vec := base.to_vector(keys)
+	space = SearchSpace.new(keys, rng)
+	_base = seed_weights.clone() if seed_weights != null else HeuristicWeights.new()
+	var base_vec := space.vector_of(_base)
 
 	# Población inicial: individuo 0 = base exacto (ancla); resto perturbados.
 	var pop: Array = [base_vec.duplicate()]
 	for i in range(1, pop_size):
-		pop.append(_random_near(base_vec))
+		pop.append(space.sample_near(base_vec, init_spread))
 
 	var fits: Array = []
 	fits.resize(pop_size)
@@ -81,25 +84,17 @@ func run(seed_weights: HeuristicWeights = null) -> HeuristicWeights:
 
 # --- Operadores --------------------------------------------------------------
 
+# El candidato se construye sobre `_base` (la semilla), no sobre unos pesos por
+# defecto: así los campos FUERA de `keys` conservan el valor de la semilla. Antes
+# se perdían al partir de un campeón previo (bug en encadenado de etapas).
 func _eval_vec(v: PackedFloat64Array) -> float:
-	var wgt := HeuristicWeights.new()
-	wgt.apply_vector(v, keys)
-	return await fitness.evaluate(wgt)
+	return await fitness.evaluate(space.apply(_base, v))
 
 
 func _track(v: PackedFloat64Array, f: float) -> void:
 	if f > best_fitness:
 		best_fitness = f
-		best_weights = HeuristicWeights.new()
-		best_weights.apply_vector(v, keys)
-
-
-func _random_near(base_vec: PackedFloat64Array) -> PackedFloat64Array:
-	var out := base_vec.duplicate()
-	for i in range(out.size()):
-		var b := HeuristicWeights.get_bounds(keys[i])
-		out[i] = clampf(out[i] + rng.randfn(0.0, (b.y - b.x) * init_spread), b.x, b.y)
-	return out
+		best_weights = space.apply(_base, v)
 
 
 func _tournament(pop: Array, fits: Array) -> PackedFloat64Array:
@@ -112,24 +107,11 @@ func _tournament(pop: Array, fits: Array) -> PackedFloat64Array:
 
 
 func _crossover(a: PackedFloat64Array, b: PackedFloat64Array) -> PackedFloat64Array:
-	var out := PackedFloat64Array()
-	out.resize(a.size())
-	for i in range(a.size()):
-		var lo := minf(a[i], b[i])
-		var hi := maxf(a[i], b[i])
-		var d := hi - lo
-		var val := rng.randf_range(lo - blx_alpha * d, hi + blx_alpha * d)
-		var bnd := HeuristicWeights.get_bounds(keys[i])
-		out[i] = clampf(val, bnd.x, bnd.y)
-	return out
+	return space.crossover_blx(a, b, blx_alpha)
 
 
 func _mutate(v: PackedFloat64Array) -> PackedFloat64Array:
-	for i in range(v.size()):
-		if rng.randf() < mutation_prob:
-			var bnd := HeuristicWeights.get_bounds(keys[i])
-			v[i] = clampf(v[i] + rng.randfn(0.0, (bnd.y - bnd.x) * mutation_frac), bnd.x, bnd.y)
-	return v
+	return space.mutate(v, mutation_prob, mutation_frac)
 
 
 # --- Utilidades --------------------------------------------------------------
