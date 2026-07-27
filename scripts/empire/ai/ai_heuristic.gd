@@ -409,111 +409,30 @@ static func _score_unlocked_buildings(tile: Tile, old_loc: LocationType,
 # ---------------------------------------------------------------------------
 
 static func _score_build(option: AIBuildOption, ctx: AITurnContext,
-		phase: AIGamePhase.Phase) -> float:
+		_phase: AIGamePhase.Phase) -> float:
+	# Portado al scorer compartido (§1.3.g). El tie-breaker por casilla se omite si
+	# no hay target (tile null).
 	if option.building == null:
 		return 0.0
-	var b := option.building
-	var w := ctx.get_weights()
-	var gu := ctx._cache_gu if ctx._cache_valid else _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	var fu := ctx._cache_fu if ctx._cache_valid else _food_urgency(ctx.stats.food, phase, w)
-	var mu := ctx._cache_mu if ctx._cache_valid else _military_urgency(ctx, phase)
-	# Los edificios con mantenimiento (gold_produced < 0) reciben un peso reducido
-	# para evitar que el coste anule el valor estratégico de sus efectos.
-	var gold_weight := w.gold_weight_pos if b.gold_produced >= 0 else w.gold_weight_maint
-	var score := b.gold_produced * gold_weight * gu \
-		 + b.food_produced * w.food_weight * fu \
-		 + b.flat_defense_bonus * w.defense_weight * mu \
-		 + _score_building_effects(b.effects, ctx, phase)
-	score *= _build_cost_factor(b.get_effective_construction_cost(ctx.stats), ctx.stats.total_gold, w)
-
-	# D2: tie-breaker por tile concreta — desempata entre el mismo edificio en N tiles.
 	var tile := option.targets[0] as Tile if not option.targets.is_empty() else null
-	if tile != null:
-		# Micro-bonus si el edificio explota el recurso natural de esta tile específica.
-		if b.required_natural_resource != null \
-				and b.required_natural_resource == tile.natural_resource:
-			score += w.build_resource_match
-		# Micro-bonus por posición fronteriza (valor defensivo/estratégico).
-		for nb in tile.neighbors:
-			var nt := nb as Tile
-			if nt != null and nt.controller != null \
-					and nt.controller != ctx.stats.empire:
-				score += w.build_border
-				break
-
-	return score
+	return AIMoveScorer.score_build(LiveStateView.new(ctx), option.building, tile)
 
 
 static func _score_upgrade(option: AIUpgradeBuildingOption, ctx: AITurnContext,
-		phase: AIGamePhase.Phase) -> float:
+		_phase: AIGamePhase.Phase) -> float:
+	# Portado al scorer compartido (§1.3.g).
 	if option.old_building == null or option.new_building == null:
 		return 0.0
-	var w := ctx.get_weights()
-	var gu := ctx._cache_gu if ctx._cache_valid else _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	var fu := ctx._cache_fu if ctx._cache_valid else _food_urgency(ctx.stats.food, phase, w)
-	var mu := ctx._cache_mu if ctx._cache_valid else _military_urgency(ctx, phase)
-	var dg := option.new_building.gold_produced - option.old_building.gold_produced
-	var df := option.new_building.food_produced - option.old_building.food_produced
-	var dd := option.new_building.flat_defense_bonus - option.old_building.flat_defense_bonus
-	var dg_weight := w.gold_weight_pos if dg >= 0 else w.gold_weight_maint
-	var score := dg * dg_weight * gu + df * w.food_weight * fu + dd * w.defense_weight * mu \
-		 + _score_building_effects(option.new_building.effects, ctx, phase) \
-		 - _score_building_effects(option.old_building.effects, ctx, phase)
-	return score * _build_cost_factor(
-		option.new_building.get_effective_construction_cost(ctx.stats), ctx.stats.total_gold, w)
+	return AIMoveScorer.score_upgrade(
+		LiveStateView.new(ctx), option.old_building, option.new_building)
 
 
 static func _score_recruit(option: AIRecruitOption, ctx: AITurnContext,
-		phase: AIGamePhase.Phase) -> float:
+		_phase: AIGamePhase.Phase) -> float:
+	# Portado al scorer compartido (§1.3.g).
 	if option.troop == null:
 		return 0.0
-	var w := ctx.get_weights()
-	# No reclutar si el mantenimiento hundiría la comida o el gpt en negativo.
-	# ctx.stats.food y gold_per_turn ya incluyen el mantenimiento actual;
-	# restamos el coste adicional de esta tropa para ver el estado resultante.
-	if ctx.stats.food - option.troop.maintenance_food < w.recruit_food_veto_margin:
-		return w.recruit_veto_score
-	if ctx.stats.gold_per_turn - option.troop.maintenance_gold < 0:
-		return w.recruit_veto_score
-
-	# D6b: proyección de recargo cuadrático de frente.
-	# Con n tropas en un bando el coste es 5·n·(n+1)/2 de comida/turno.
-	# Si hay frentes activos y la nueva tropa aumentaría el recargo hasta
-	# dejar la comida por debajo del margen de seguridad, vetar el reclutamiento.
-	var fronts := ctx._cache_active_fronts if ctx._cache_valid \
-		else _get_own_active_fronts(ctx)
-	if not fronts.is_empty():
-		var max_own_troops := 0
-		for front in fronts:
-			var is_att := front.attacker_empire == ctx.stats.empire
-			var is_def := front.defender_empire == ctx.stats.empire
-			if not is_att and not is_def:
-				continue
-			var side_troops: Array[Troop] = front.attacker_troops if is_att else front.defender_troops
-			max_own_troops = maxi(max_own_troops, side_troops.size())
-		var n_after := max_own_troops + 1
-		var n_before := max_own_troops
-		var delta_charge := w.recruit_front_charge_per_troop * n_after * (n_after + 1) / 2.0 \
-						  - w.recruit_front_charge_per_troop * n_before * (n_before + 1) / 2.0
-		if ctx.stats.food - delta_charge < w.recruit_front_food_margin:
-			return w.recruit_veto_score
-	var mu := ctx._cache_mu if ctx._cache_valid else _military_urgency(ctx, phase)
-	var comp := _complement_bonus(option.troop, ctx.stats.troop_pool, ctx)
-	# Rendimiento decreciente: pool grande (sin frentes) reduce el valor de seguir reclutando.
-	# 0 tropas → ×1.0 | 25 tropas → ×0.5 | 50 tropas → ×0.33
-	var saturation := 1.0 / (1.0 + ctx.stats.troop_pool.size() * w.recruit_saturation_k)
-	var surplus := ctx._cache_surplus if ctx._cache_valid else _resource_surplus_factor(ctx, phase)
-	# Factor de coste-eficiencia: favorece tropas baratas relativas al precio base.
-	# maxi(..., 1) evita división por cero con tropas de test que tienen coste = 0.
-	var cost_eff := sqrt(w.recruit_cost_eff_base / float(maxi(option.troop.recruitment_cost_gold, 1)))
-	# Penalización por saturación de tipo: evita monocultura.
-	# 0 de ese tipo → ×1.0 | 5 de ese tipo → ×0.50 | 10 de ese tipo → ×0.33
-	var type_count := 0
-	for t in ctx.stats.troop_pool:
-		if t.type == option.troop.type:
-			type_count += 1
-	var type_diversity := 1.0 / (1.0 + float(type_count) * w.recruit_type_diversity_k)
-	return float(option.troop.attack + option.troop.defense) * w.recruit_atkdef_weight * mu * comp * saturation * surplus * cost_eff * type_diversity
+	return AIMoveScorer.score_recruit(LiveStateView.new(ctx), option.troop)
 
 
 ## Bonus de complementariedad: favorece tropas que equilibran el pool actual
@@ -548,143 +467,34 @@ static func _complement_bonus(troop: Troop, pool: Array[Troop],
 
 
 static func _score_open_front(option: AIOpenFrontOption, ctx: AITurnContext,
-		phase: AIGamePhase.Phase) -> float:
+		_phase: AIGamePhase.Phase) -> float:
+	# Portado al scorer compartido (§1.3.g). El veto por 0 tropas libres vive dentro
+	# del scorer; la ganabilidad/valor-origen (con sus divergencias) los resuelve la vista.
 	if option.enemy_tile == null:
 		return 0.0
-
-	# Sin tropas libres no tiene sentido abrir un frente: nadie lo defiende.
-	# troop_pool contiene solo las tropas NO asignadas a frentes activos.
-	var free_troops := ctx.stats.troop_pool.size()
-	if free_troops == 0:
-		return 0.0
-	var w := ctx.get_weights()
-	# Con pocas tropas el score se reduce; con muchas se amplifica (agresividad).
-	# 3 tropas → ×0.5 | 6 tropas → ×1.0 | 9+ tropas → ×1.5 (capped)
-	var pool_factor := clampf(float(free_troops) / w.openfront_pool_divisor, 0.0, w.openfront_pool_cap)
-
-	var enemy := option.enemy_tile
-	var gold_val := 0
-	var food_val := 0
-	if enemy.natural_resource != null:
-		gold_val = enemy.natural_resource.gold_produced
-		food_val = enemy.natural_resource.food_produced
-
-	var mu := ctx._cache_mu if ctx._cache_valid else _military_urgency(ctx, phase)
-	# Valor base territorial: evita que tiles sin producción directa (Salt, Iron,
-	# Stone, Sand…) puntúen 0 y PASS gane por empate en _pick_best_option.
-	var base_strategic := w.openfront_base_strategic + mu * w.openfront_base_mu
-	var tile_val := gold_val * w.openfront_gold + food_val * w.openfront_food + base_strategic
-
-	# Abrir un frente añade recargos de oro Y comida cada turno.
-	# Si ya estamos ajustados en cualquiera de los dos, es muy arriesgado.
-	var gpt := ctx.stats.gold_per_turn
-	var food := ctx.stats.food
-	var econ_safety := 1.0
-	if gpt < 0 or food < 0:
-		econ_safety = w.openfront_econ_unsafe
-	else:
-		match phase:
-			AIGamePhase.Phase.EARLY:
-				if gpt < w.openfront_econ_early_gpt or food < w.openfront_econ_early_food: econ_safety = w.openfront_econ_caution
-			AIGamePhase.Phase.MID:
-				if gpt < w.openfront_econ_mid_gpt or food < w.openfront_econ_mid_food: econ_safety = w.openfront_econ_caution
-			AIGamePhase.Phase.LATE:
-				if gpt < w.openfront_econ_late_gpt or food < w.openfront_econ_late_food: econ_safety = w.openfront_econ_caution
-
-	var biome_factor := _attack_biome_factor(enemy)
-	var surplus := ctx._cache_surplus if ctx._cache_valid else _resource_surplus_factor(ctx, phase)
-
-	# D4: estimación de ganabilidad basada en info pública del rival.
-	# win_factor = P(ganar este frente) estimada según ataque propio vs defensa visible.
-	var win_factor := w.openfront_win_default  # default neutro (leve ventaja del atacante por elegir cuándo/dónde)
-	if ctx.world_view != null:
-		var rival := ctx.world_view.get_rival_view()
-		if rival != null and rival.empire != null:
-			# Ataque propio: suma de fuerza de tropas libres × bioma de ataque.
-			var own_atk := 0.0
-			for t in ctx.stats.troop_pool:
-				own_atk += float(t.attack)
-			own_atk *= biome_factor
-
-			# Defensa del rival: edificios defensivos + bioma de la tile enemiga.
-			var rival_def := 0.0
-			for b in enemy.buildings:
-				if b != null:
-					rival_def += float(b.flat_defense_bonus)
-			if enemy.mesh_data != null:
-				rival_def *= BiomeConfig.shared().get_defense_multiplier(enemy.mesh_data.type)
-			# Tropas del rival ya asignadas a un frente en esa tile (visibles).
-			var all_fronts := ctx._cache_active_fronts if ctx._cache_valid \
-				else BattleFront.get_active_instances()
-			for front in all_fronts:
-				if front.is_resolved:
-					continue
-				if front.defender_tile == enemy \
-						and front.defender_empire == rival.empire:
-					for t in front.defender_troops:
-						rival_def += float(t.defense)
-					break
-
-			if own_atk + rival_def > 0.0:
-				var ratio := own_atk / maxf(rival_def, 1.0)
-				win_factor = clampf(ratio / (ratio + 1.0), w.openfront_win_min, w.openfront_win_max)
-			else:
-				win_factor = w.openfront_win_neutral
-
-	# Valor de la tile origen (riesgo del atacante si pierde el frente).
-	var source_value := 0.0
-	var source := option.source_tile
-	if source != null:
-		source_value = float(source.buildings.size()) * w.openfront_source_building
-		if source.natural_resource != null:
-			source_value += source.natural_resource.gold_produced * w.openfront_source_gold \
-						  + source.natural_resource.food_produced * w.openfront_source_food
-
-	# D2+D4+D3a: score final integra ganabilidad, riesgo de origen y carrera territorial.
-	# P(win)×valor_enemigo − P(lose)×valor_origen captura el riesgo/beneficio real.
-	return (tile_val * win_factor - source_value * (1.0 - win_factor)) \
-		* econ_safety * mu * biome_factor * pool_factor * surplus \
-		* _territory_race_factor(ctx, &"open_front")
+	return AIMoveScorer.score_open_front(
+		LiveStateView.new(ctx), option.enemy_tile, option.source_tile)
 
 
 static func _score_tactic(option: AITacticOption, ctx: AITurnContext,
-		phase: AIGamePhase.Phase) -> float:
+		_phase: AIGamePhase.Phase) -> float:
+	# Portado al scorer compartido (§1.3.g). El wrapper descompone el BattleFront de
+	# la opción (tropas propias, marcador, umbral, casilla relevante: ATK mira la tile
+	# enemiga, DEF la propia).
 	if option.front == null:
 		return 0.0
-	var tactic := option.card as TacticCard
 	var is_attacker := option.front.attacker_empire == ctx.stats.empire
 	var own_troops: Array[Troop] = option.front.attacker_troops \
 		if is_attacker else option.front.defender_troops
-
-	# D1: si la carta especifica tipos concretos, comprobar cuántas tropas
-	# del bando los cumplen. Si ninguna coincide → PASS gana.
-	# Si affected_troop_types está vacío la táctica afecta a todas → ratio 1.0.
-	var troop_ratio := 1.0
-	if tactic != null and not tactic.affected_troop_types.is_empty():
-		var affected_count := 0
-		for t in own_troops:
-			if t.type in tactic.affected_troop_types:
-				affected_count += 1
-		if affected_count == 0:
-			return 0.0
-		troop_ratio = float(affected_count) / float(maxi(own_troops.size(), 1))
-
-	# Bioma relevante: ATK mira la tile enemiga, DEF la propia.
 	var relevant_tile: Tile = option.front.defender_tile \
 		if is_attacker else option.front.attacker_tile
-	var biome_mod := 1.0
-	if tactic != null and (tactic.attack_percent_per_type > 0.0 or tactic.attack_per_troop > 0.0):
-		biome_mod = _attack_biome_factor(relevant_tile)
-
-	var w := ctx.get_weights()
-	var mu := ctx._cache_mu if ctx._cache_valid else _military_urgency(ctx, phase)
 	var ai_marker := option.front.marker if is_attacker else -option.front.marker
-	var urgency := clampf(-ai_marker / option.front.threshold, 0.0, 1.0)
-	return (w.tactic_base + urgency * w.tactic_urgency_scale) * mu * troop_ratio * biome_mod
+	return AIMoveScorer.score_tactic(LiveStateView.new(ctx), option.card as TacticCard,
+		own_troops, ai_marker, option.front.threshold, relevant_tile)
 
 
 static func _score_draw(option: AIDrawCardOption, ctx: AITurnContext) -> float:
-	return option.amount * ctx.get_weights().draw_weight * _deck_urgency(ctx)
+	return AIMoveScorer.score_card_draw(LiveStateView.new(ctx), option.amount)
 
 
 ## Valora recuperar una carta concreta del played_pile.
@@ -709,10 +519,9 @@ static func _score_simple(option: AIPlayOption, ctx: AITurnContext,
 		return _score_colonize(option, ctx, phase)
 
 	if card is GenerateGoldCard:
-		var w := ctx.get_weights()
-		var gu := _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-		# Oro inmediato vale menos que gold_per_turn (es one-shot)
-		return (card as GenerateGoldCard).amount * w.simple_gold_weight * gu
+		# Oro inmediato vale menos que gold_per_turn (es one-shot).
+		return AIMoveScorer.score_generate_gold(
+			LiveStateView.new(ctx), (card as GenerateGoldCard).amount)
 
 	if card is ChangeLocationTypeCard:
 		return _score_change_location(option, ctx, phase)
@@ -727,44 +536,15 @@ static func _score_simple(option: AIPlayOption, ctx: AITurnContext,
 ## (ambos tienen food_consumption = 0). El delta es exactamente el food_production
 ## del recurso natural. Por eso usamos tile.food_production directamente.
 static func _score_colonize(option: AIPlayOption, ctx: AITurnContext,
-		phase: AIGamePhase.Phase) -> float:
+		_phase: AIGamePhase.Phase) -> float:
+	# Portado al scorer compartido (§1.3.g). El wrapper conserva los guardas
+	# (hay target y es Tile) y construye la vista viva; la fase la calcula la vista.
 	if option.targets.is_empty():
 		return 0.0
 	var tile := option.targets[0] as Tile
 	if tile == null:
 		return 0.0
-	var w := ctx.get_weights()
-	var gu := ctx._cache_gu if ctx._cache_valid else _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	var fu := ctx._cache_fu if ctx._cache_valid else _food_urgency(ctx.stats.food, phase, w)
-	# Bonus territorial: escala con la presión de expansión real (tiles adyacentes
-	# libres), sin depender de la fase. En un mapa grande con muchas tiles libres
-	# el bonus sigue siendo alto aunque el número de turno sea elevado.
-	# 0.0 cuando no hay tiles (PASS dominará); colonize_expansion cuando hay muchas (max bonus).
-	var expansion_bonus := (ctx._cache_expansion if ctx._cache_valid else _expansion_factor(ctx)) * w.colonize_expansion
-	# Bonus de frontera: cada tile nueva que esta colonización desbloquea
-	# puntúa extra, escalado por la presión de encierro. Las tiles que abren
-	# corredores hacia espacio libre dominan a las que solo rellenan huecos.
-	var frontier_bonus := float(_frontier_value(tile, ctx)) * _encirclement_pressure(ctx)
-
-	# D3b: bonus de negación — colonizar una tile adyacente al rival reduce su
-	# espacio de expansión (suma cero territorial). Amplificado en modo cierre.
-	var denial_bonus := 0.0
-	if ctx.world_view != null:
-		var rival := ctx.world_view.get_rival_view()
-		if rival != null and rival.empire != null:
-			for nb in tile.neighbors:
-				var nt := nb as Tile
-				if nt != null and nt.controller == rival.empire:
-					denial_bonus = w.colonize_denial
-					break
-
-	# D3a: escalar toda la colonización según la carrera territorial.
-	var base_score := tile.gold_production * w.colonize_gold * gu \
-		 + tile.food_production * w.colonize_food * fu \
-		 + expansion_bonus \
-		 + frontier_bonus \
-		 + denial_bonus
-	return base_score * _territory_race_factor(ctx, &"colonize")
+	return AIMoveScorer.score_colonize(LiveStateView.new(ctx), tile)
 
 
 ## Tiles nuevas que se volverían colonizables exclusivamente gracias a colonizar
@@ -812,80 +592,27 @@ static func _encirclement_pressure(ctx: AITurnContext) -> float:
 ## Town→Megalópolis: +5 food_consumption adicional y +2 building slots más.
 ## El delta real de food_consumption se lee de los recursos, no está hardcodeado.
 static func _score_change_location(option: AIPlayOption, ctx: AITurnContext,
-		phase: AIGamePhase.Phase) -> float:
+		_phase: AIGamePhase.Phase) -> float:
+	# Portado al scorer compartido (§1.3.g). La fórmula COMPLETA (penalización por
+	# demolición + bonus de recurso mejorado que sobrevive + bonus de desbloqueo) vive
+	# en LiveStateView.change_location_adjust.
 	if option.targets.is_empty():
 		return 0.0
 	var tile := option.targets[0] as Tile
 	var card := option.card as ChangeLocationTypeCard
 	if tile == null or card == null or card.location_type == null or tile.location == null:
 		return 0.0
-
-	var new_loc := card.location_type
-	var old_loc := tile.location
-	var delta_consumption := new_loc.food_consumption - old_loc.food_consumption
-	var delta_slots     := new_loc.max_building  - old_loc.max_building
-
-	var w := ctx.get_weights()
-	# Veto duro: la comida resultante no puede ser negativa.
-	var new_food := ctx.stats.food - delta_consumption
-	if new_food < 0:
-		return w.changeloc_veto
-
-	var gu := ctx._cache_gu if ctx._cache_valid else _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	var fu := ctx._cache_fu if ctx._cache_valid else _food_urgency(ctx.stats.food, phase, w)
-	var mu := ctx._cache_mu if ctx._cache_valid else _military_urgency(ctx, phase)
-
-	# --- 1. Penalización por edificios que serán demolidos ---
-	# Un edificio se destruye si su allowed_location_type no está vacío
-	# y no incluye el nuevo tipo (replica lógica de ChangeLocationTypeEffect).
-	var demolished_penalty := 0.0
-	var resource_building_survives := false
-	for building in tile.buildings:
-		if building == null:
-			continue
-		if _building_demolished_by(building, new_loc):
-			# Penalizar por el valor económico que se pierde con la demolición.
-			demolished_penalty += building.gold_produced * w.changeloc_demo_gold * gu \
-								+ building.food_produced * w.changeloc_demo_food * fu \
-								+ float(building.flat_defense_bonus) * w.changeloc_demo_defense
-		else:
-			# El edificio sobrevive: ¿explota el recurso natural de la tile
-			# y además es una versión mejorada (no el edificio base)?
-			if _is_upgraded_resource_building(building, tile, ctx):
-				resource_building_survives = true
-
-	# --- 2. Bonus por edificio de recurso mejorado que sobrevive al upgrade ---
-	# Si ese edificio se demoliera, el bonus no aplica (cubierto en demolished_penalty).
-	var resource_bonus := w.changeloc_resource_bonus if resource_building_survives else 0.0
-
-	# --- 3. Bonus por edificios desbloqueados en el nuevo tier ---
-	# Solo cuenta los que NO se podían construir en old_loc pero sí en new_loc,
-	# ponderados por las necesidades actuales del imperio.
-	var unlock_bonus := _score_unlocked_buildings(tile, old_loc, new_loc, ctx, gu, fu, mu)
-
-	# --- 4. Score base: slots nuevos vs coste en comida ---
-	var base := delta_slots * w.changeloc_slot \
-			  - delta_consumption * w.changeloc_consumption * _food_urgency(new_food, phase, w)
-
-	return base - demolished_penalty + resource_bonus + unlock_bonus
+	return AIMoveScorer.score_change_location(LiveStateView.new(ctx), tile, card.location_type)
 
 
 static func _score_direct_build(option: AIPlayOption, ctx: AITurnContext,
-		phase: AIGamePhase.Phase) -> float:
+		_phase: AIGamePhase.Phase) -> float:
+	# Portado al scorer compartido (§1.3.g): mismo scorer que BUILD, sin casilla
+	# concreta (tile null → sin tie-breaker), igual que el cuerpo original.
 	var card := option.card as DirectBuildCard
 	if card == null or card.buildings.is_empty() or card.buildings[0] == null:
 		return 0.0
-	var b := card.buildings[0]
-	var w := ctx.get_weights()
-	var gu := ctx._cache_gu if ctx._cache_valid else _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	var fu := ctx._cache_fu if ctx._cache_valid else _food_urgency(ctx.stats.food, phase, w)
-	var mu := ctx._cache_mu if ctx._cache_valid else _military_urgency(ctx, phase)
-	var gold_weight := w.gold_weight_pos if b.gold_produced >= 0 else w.gold_weight_maint
-	var score := b.gold_produced * gold_weight * gu \
-		 + b.food_produced * w.food_weight * fu \
-		 + b.flat_defense_bonus * w.defense_weight * mu \
-		 + _score_building_effects(b.effects, ctx, phase)
-	return score * _build_cost_factor(b.get_effective_construction_cost(ctx.stats), ctx.stats.total_gold, w)
+	return AIMoveScorer.score_build(LiveStateView.new(ctx), card.buildings[0], null)
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,230 @@
+extends AIStateView
+class_name LiveStateView
+
+## Implementación de AIStateView sobre el estado VIVO (AITurnContext: Stats/Tile/
+## BattleFront). Camino frío: la heurística real (AIHeuristic) la usa para los priors
+## de la raíz, una vez por decisión, así que el coste de construirla es irrelevante.
+
+var _ctx: AITurnContext
+
+
+func _init(ctx: AITurnContext) -> void:
+	_ctx = ctx
+
+
+func weights() -> HeuristicWeights:
+	return _ctx.get_weights()
+
+
+func gold_per_turn() -> int:
+	return _ctx.stats.gold_per_turn
+
+
+func food() -> int:
+	return _ctx.stats.food
+
+
+func phase() -> AIGamePhase.Phase:
+	return AIGamePhase.detect(_ctx.stats, _ctx.total_map_tiles)
+
+
+func deck_urgency_size() -> int:
+	return _ctx.stats.draw_pile.cards.size() if _ctx.stats.draw_pile else 0
+
+
+func gold_urgency() -> float:
+	return _ctx._cache_gu if _ctx._cache_valid \
+		else AIUrgency.gold_urgency(_ctx.stats.gold_per_turn, phase(), weights())
+
+
+func food_urgency() -> float:
+	return _ctx._cache_fu if _ctx._cache_valid \
+		else AIUrgency.food_urgency(_ctx.stats.food, phase(), weights())
+
+
+func expansion_factor() -> float:
+	return _ctx._cache_expansion if _ctx._cache_valid \
+		else AITerritory.expansion_factor(_ctx.colonizable_tiles_count, weights())
+
+
+func encirclement_pressure() -> float:
+	return AIHeuristic._encirclement_pressure(_ctx)
+
+
+func territory_race_factor(mode: StringName) -> float:
+	return AIHeuristic._territory_race_factor(_ctx, mode)
+
+
+func frontier_value(tile) -> int:
+	return AIHeuristic._frontier_value(tile as Tile, _ctx)
+
+
+func tile_gold_production(tile) -> int:
+	return (tile as Tile).gold_production
+
+
+func tile_food_production(tile) -> int:
+	return (tile as Tile).food_production
+
+
+func tile_adjacent_to_rival(tile) -> bool:
+	if _ctx.world_view == null:
+		return false
+	var rival := _ctx.world_view.get_rival_view()
+	if rival == null or rival.empire == null:
+		return false
+	for nb in (tile as Tile).neighbors:
+		var nt := nb as Tile
+		if nt != null and nt.controller == rival.empire:
+			return true
+	return false
+
+
+func military_urgency() -> float:
+	return _ctx._cache_mu if _ctx._cache_valid else AIHeuristic._military_urgency(_ctx, phase())
+
+
+func gold() -> int:
+	return _ctx.stats.total_gold
+
+
+func effective_build_cost(b: Building) -> int:
+	return b.get_effective_construction_cost(_ctx.stats)
+
+
+func score_building_effects(effects: Array[BuildingEffect], _gu: float, _fu: float, _mu: float) -> float:
+	# El valorador vivo recalcula gu/fu/mu internamente (mismos valores) → se ignoran.
+	return AIHeuristic._score_building_effects(effects, _ctx, phase())
+
+
+func tile_natural_resource(tile):
+	return (tile as Tile).natural_resource
+
+
+func tile_adjacent_to_enemy(tile) -> bool:
+	for nb in (tile as Tile).neighbors:
+		var nt := nb as Tile
+		if nt != null and nt.controller != null and nt.controller != _ctx.stats.empire:
+			return true
+	return false
+
+
+func troop_pool() -> Array[Troop]:
+	return _ctx.stats.troop_pool
+
+
+func resource_surplus_factor() -> float:
+	return _ctx._cache_surplus if _ctx._cache_valid \
+		else AIHeuristic._resource_surplus_factor(_ctx, phase())
+
+
+func complement_bonus(troop: Troop) -> float:
+	return AIHeuristic._complement_bonus(troop, _ctx.stats.troop_pool, _ctx)
+
+
+func recruit_front_max_troops() -> int:
+	# Gate del vivo: cualquier frente activo (caché=todos, o los propios sin caché).
+	var fronts := _ctx._cache_active_fronts if _ctx._cache_valid \
+		else AIHeuristic._get_own_active_fronts(_ctx)
+	if fronts.is_empty():
+		return -1
+	var max_own := 0
+	for front in fronts:
+		var is_att := front.attacker_empire == _ctx.stats.empire
+		var is_def := front.defender_empire == _ctx.stats.empire
+		if not is_att and not is_def:
+			continue
+		var side_troops: Array[Troop] = front.attacker_troops if is_att else front.defender_troops
+		max_own = maxi(max_own, side_troops.size())
+	return max_own
+
+
+func tile_resource_gold(tile) -> int:
+	var t := tile as Tile
+	return t.natural_resource.gold_produced if t.natural_resource != null else 0
+
+
+func tile_resource_food(tile) -> int:
+	var t := tile as Tile
+	return t.natural_resource.food_produced if t.natural_resource != null else 0
+
+
+func tile_attack_biome_factor(tile) -> float:
+	return AIHeuristic._attack_biome_factor(tile as Tile)
+
+
+func open_front_source_value(source_tile) -> float:
+	if source_tile == null:
+		return 0.0
+	var source := source_tile as Tile
+	var sv := float(source.buildings.size()) * _ctx.get_weights().openfront_source_building
+	if source.natural_resource != null:
+		sv += source.natural_resource.gold_produced * _ctx.get_weights().openfront_source_gold \
+			+ source.natural_resource.food_produced * _ctx.get_weights().openfront_source_food
+	return sv
+
+
+func tile_food_consumption(tile) -> int:
+	return (tile as Tile).location.food_consumption
+
+
+func tile_max_buildings(tile) -> int:
+	return (tile as Tile).location.max_building
+
+
+func change_location_adjust(base: float, tile, new_loc, gu: float, fu: float, mu: float) -> float:
+	var t := tile as Tile
+	var loc := new_loc as LocationType
+	var old_loc := t.location
+	var w := weights()
+	# Penalización por edificios que serán demolidos + bonus de recurso mejorado que
+	# sobrevive + bonus de edificios desbloueados en el nuevo tier (fórmula completa).
+	var demolished_penalty := 0.0
+	var resource_building_survives := false
+	for building in t.buildings:
+		if building == null:
+			continue
+		if AIHeuristic._building_demolished_by(building, loc):
+			demolished_penalty += building.gold_produced * w.changeloc_demo_gold * gu \
+							  + building.food_produced * w.changeloc_demo_food * fu \
+							  + float(building.flat_defense_bonus) * w.changeloc_demo_defense
+		else:
+			if AIHeuristic._is_upgraded_resource_building(building, t, _ctx):
+				resource_building_survives = true
+	var resource_bonus := w.changeloc_resource_bonus if resource_building_survives else 0.0
+	var unlock_bonus := AIHeuristic._score_unlocked_buildings(t, old_loc, loc, _ctx, gu, fu, mu)
+	return base - demolished_penalty + resource_bonus + unlock_bonus
+
+
+func open_front_win_factor(enemy_tile, biome_factor: float) -> float:
+	var w := weights()
+	var win_factor := w.openfront_win_default
+	if _ctx.world_view == null:
+		return win_factor
+	var rival := _ctx.world_view.get_rival_view()
+	if rival == null or rival.empire == null:
+		return win_factor
+	var e := enemy_tile as Tile
+	var own_atk := 0.0
+	for t in _ctx.stats.troop_pool:
+		own_atk += float(t.attack)
+	own_atk *= biome_factor
+	var rival_def := 0.0
+	for b in e.buildings:
+		if b != null:
+			rival_def += float(b.flat_defense_bonus)
+	if e.mesh_data != null:
+		rival_def *= BiomeConfig.shared().get_defense_multiplier(e.mesh_data.type)
+	var all_fronts := _ctx._cache_active_fronts if _ctx._cache_valid \
+		else BattleFront.get_active_instances()
+	for front in all_fronts:
+		if front.is_resolved:
+			continue
+		if front.defender_tile == e and front.defender_empire == rival.empire:
+			for t in front.defender_troops:
+				rival_def += float(t.defense)
+			break
+	if own_atk + rival_def > 0.0:
+		var ratio := own_atk / maxf(rival_def, 1.0)
+		return clampf(ratio / (ratio + 1.0), w.openfront_win_min, w.openfront_win_max)
+	return w.openfront_win_neutral
