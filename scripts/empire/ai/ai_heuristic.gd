@@ -89,11 +89,9 @@ static func prepare_decision_cache(ctx: AITurnContext) -> void:
 
 	ctx._cache_front_pressure = _max_front_pressure_from_list(
 		ctx._cache_active_fronts, ctx.stats.empire)
-
-	var base := w.mil_urg_base_idle
-	if ctx._cache_has_active_front:   base = w.mil_urg_base_active
-	elif ctx._cache_has_adjacent_enemy: base = w.mil_urg_base_adjacent
-	ctx._cache_mu = lerpf(base, w.mil_urg_max, ctx._cache_front_pressure)
+	ctx._cache_mu = AIUrgency.military_urgency_from(
+		ctx._cache_has_active_front, ctx._cache_has_adjacent_enemy,
+		ctx._cache_front_pressure, w)
 
 	ctx._cache_valid = true
 
@@ -126,7 +124,7 @@ static func _max_front_pressure_from_list(
 		if not is_att and not is_def:
 			continue
 		var ai_marker := front.marker if is_att else -front.marker
-		var p := clampf(-ai_marker / front.threshold, 0.0, 1.0)
+		var p := AIUrgency.front_pressure(ai_marker, front.threshold)
 		max_p = maxf(max_p, p)
 	return max_p
 
@@ -135,61 +133,23 @@ static func _max_front_pressure_from_list(
 # Señales de urgencia
 # ---------------------------------------------------------------------------
 
-## Urgencia de oro: cuánto necesitamos mejorar el gold_per_turn ahora.
-## Los umbrales son distintos por fase: 50 gpt es crisis en mid game pero
-## holgado en early (los edificios básicos cuestan 50-100, los upgrades 200-400,
-## los lategame hasta 800).
-## Nota: esta función recibe gpt y phase directamente, no ctx, por lo que
-## el caché se usa en los sitios que la llaman pasando ctx._cache_gu.
+## Urgencia de oro: cuánto necesitamos mejorar el gold_per_turn ahora. La fórmula
+## y los umbrales por fase viven en AIUrgency.gold_urgency (compartida con el
+## snapshot). Este wrapper solo aplica el default de pesos y delega.
+## Nota: recibe gpt y phase directamente, no ctx, por lo que el caché se usa en los
+## sitios que la llaman pasando ctx._cache_gu.
 static func _gold_urgency(gpt: int, phase: AIGamePhase.Phase,
 		w: HeuristicWeights = null) -> float:
 	if w == null: w = HeuristicWeights.get_default()
-	match phase:
-		AIGamePhase.Phase.EARLY:
-			if gpt < w.gold_urg_early_t0:  return w.gold_urg_early_v0
-			if gpt < w.gold_urg_early_t1:  return w.gold_urg_early_v1
-			if gpt < w.gold_urg_early_t2:  return w.gold_urg_early_v2
-			return w.gold_urg_early_v3
-		AIGamePhase.Phase.MID:
-			# Target mid: 300-400 gpt para construir/mejorar cada turno
-			if gpt < w.gold_urg_mid_t0:  return w.gold_urg_mid_v0
-			if gpt < w.gold_urg_mid_t1:  return w.gold_urg_mid_v1
-			if gpt < w.gold_urg_mid_t2:  return w.gold_urg_mid_v2
-			if gpt < w.gold_urg_mid_t3:  return w.gold_urg_mid_v3
-			return w.gold_urg_mid_v4
-		_: # LATE
-			# Rendimiento decreciente: mucho GPT → invertir en militares, no en más oro.
-			if gpt < w.gold_urg_late_t0:  return w.gold_urg_late_v0
-			if gpt < w.gold_urg_late_t1:  return w.gold_urg_late_v1
-			if gpt < w.gold_urg_late_t2:  return w.gold_urg_late_v2
-			if gpt < w.gold_urg_late_t3:  return w.gold_urg_late_v3
-			if gpt < w.gold_urg_late_t4:  return w.gold_urg_late_v4
-			if gpt < w.gold_urg_late_t5:  return w.gold_urg_late_v5
-			if gpt < w.gold_urg_late_t6:  return w.gold_urg_late_v6
-			return w.gold_urg_late_v7   # gpt ≥ 2000: oro abundante, la economía ya no es la prioridad
+	return AIUrgency.gold_urgency(gpt, phase, w)
 
 
-## Urgencia de comida: cuánto necesitamos mejorar el balance de food.
-## En mid game el margen debe ser mayor porque cada Town cuesta -5 food.
+## Urgencia de comida: cuánto necesitamos mejorar el balance de food. Delega en
+## AIUrgency.food_urgency (compartida con el snapshot).
 static func _food_urgency(food: int, phase: AIGamePhase.Phase,
 		w: HeuristicWeights = null) -> float:
 	if w == null: w = HeuristicWeights.get_default()
-	match phase:
-		AIGamePhase.Phase.EARLY:
-			if food < w.food_urg_early_t0: return w.food_urg_early_v0
-			if food < w.food_urg_early_t1: return w.food_urg_early_v1
-			if food < w.food_urg_early_t2: return w.food_urg_early_v2
-			return w.food_urg_early_v3
-		AIGamePhase.Phase.MID:
-			if food < w.food_urg_mid_t0:  return w.food_urg_mid_v0
-			if food < w.food_urg_mid_t1:  return w.food_urg_mid_v1
-			if food < w.food_urg_mid_t2:  return w.food_urg_mid_v2
-			return w.food_urg_mid_v3
-		_: # LATE
-			if food < w.food_urg_late_t0:  return w.food_urg_late_v0
-			if food < w.food_urg_late_t1:  return w.food_urg_late_v1
-			if food < w.food_urg_late_t2:  return w.food_urg_late_v2
-			return w.food_urg_late_v3
+	return AIUrgency.food_urgency(food, phase, w)
 
 
 ## Urgencia militar: combina un baseline según la amenaza real con la
@@ -224,13 +184,9 @@ static func _military_urgency(ctx: AITurnContext, _phase: AIGamePhase.Phase) -> 
 			if has_adjacent_enemy:
 				break
 
-	var w := ctx.get_weights()
-	var base := w.mil_urg_base_idle
-	if has_active_front:    base = w.mil_urg_base_active
-	elif has_adjacent_enemy: base = w.mil_urg_base_adjacent
-
 	var pressure := _max_front_pressure(ctx)
-	return lerpf(base, w.mil_urg_max, pressure)
+	return AIUrgency.military_urgency_from(has_active_front, has_adjacent_enemy,
+		pressure, ctx.get_weights())
 
 
 ## Devuelve la presión máxima de los frentes donde participa la IA (0.0–1.0).
@@ -248,18 +204,16 @@ static func _max_front_pressure(ctx: AITurnContext) -> float:
 		if not is_attacker and not is_defender:
 			continue
 		var ai_marker := front.marker if is_attacker else -front.marker
-		var pressure := clampf(-ai_marker / front.threshold, 0.0, 1.0)
+		var pressure := AIUrgency.front_pressure(ai_marker, front.threshold)
 		max_p = maxf(max_p, pressure)
 	return max_p
 
 
-## Urgencia de mazo: cuánto necesitamos más cartas disponibles.
+## Urgencia de mazo: cuánto necesitamos más cartas disponibles. El vivo mide el
+## draw_pile; los umbrales viven en AIUrgency.deck_urgency (compartida).
 static func _deck_urgency(ctx: AITurnContext) -> float:
-	var w := ctx.get_weights()
 	var draw_size := ctx.stats.draw_pile.cards.size() if ctx.stats.draw_pile else 0
-	if draw_size < w.deck_urg_t0: return w.deck_urg_v0
-	if draw_size < w.deck_urg_t1: return w.deck_urg_v1
-	return w.deck_urg_v2
+	return AIUrgency.deck_urgency(draw_size, ctx.get_weights())
 
 
 ## Número total de cartas en el mazo activo (draw + discard pile).
@@ -308,19 +262,10 @@ static func _type_saturation(card: Card, ctx: AITurnContext) -> float:
 ## y estas acciones se potencian. Requiere food >= 5 (sin margen de comida no
 ## se pueden sostener tropas aunque el oro sobre).
 static func _resource_surplus_factor(ctx: AITurnContext, phase: AIGamePhase.Phase) -> float:
-	var w := ctx.get_weights()
-	if ctx.stats == null or ctx.stats.food < w.surplus_min_food:
+	if ctx.stats == null:
 		return 1.0
-	var gpt := ctx.stats.gold_per_turn
-	var comfortable_gpt: float
-	match phase:
-		AIGamePhase.Phase.EARLY: comfortable_gpt = w.surplus_comfortable_early
-		AIGamePhase.Phase.MID:   comfortable_gpt = w.surplus_comfortable_mid
-		_:                       comfortable_gpt = w.surplus_comfortable_late  # LATE: alineado con el umbral de entrada a LATE
-	if gpt <= comfortable_gpt:
-		return 1.0
-	# 1.0 en el umbral → surplus_max cuando gpt duplica ese umbral
-	return lerpf(1.0, w.surplus_max, clampf(float(gpt - comfortable_gpt) / comfortable_gpt, 0.0, 1.0))
+	return AIEconomy.resource_surplus_factor(
+		ctx.stats.food, ctx.stats.gold_per_turn, phase, ctx.get_weights())
 
 
 ## Factor de presión expansionista [0.0, 1.0] basado en tiles colonizables
@@ -329,14 +274,8 @@ static func _resource_surplus_factor(ctx: AITurnContext, phase: AIGamePhase.Phas
 ## 0.0 = sin tiles colonizables (mapa saturado)
 ## Cuando colonizable_tiles_count == -1 (tests sin mapa) → 0.5 neutro.
 static func _expansion_factor(ctx: AITurnContext) -> float:
-	var w := ctx.get_weights()
-	var avail := ctx.colonizable_tiles_count
-	if avail < 0:   # desconocido / test sin mapa
-		return w.expansion_unknown
-	if avail == 0:
-		return 0.0
-	# expansion_reference+ tiles adyacentes = presión expansionista máxima
-	return minf(float(avail) / w.expansion_reference, 1.0)
+	# El vivo usa el conteo precomputado del contexto (puede ser -1 en tests sin mapa).
+	return AITerritory.expansion_factor(ctx.colonizable_tiles_count, ctx.get_weights())
 
 
 
@@ -583,31 +522,15 @@ static func _score_recruit(option: AIRecruitOption, ctx: AITurnContext,
 static func _complement_bonus(troop: Troop, pool: Array[Troop],
 		ctx: AITurnContext = null) -> float:
 	var w := ctx.get_weights() if ctx != null else HeuristicWeights.get_default()
-	# Base: balance atk/def del pool propio.
-	var base_bonus := 1.0
-	if not pool.is_empty():
-		var total_atk := 0
-		var total_def := 0
-		for t in pool:
-			total_atk += t.attack
-			total_def += t.defense
-		var pool_ratio := float(total_atk) / maxf(float(total_def), 1.0)
-		var troop_ratio := float(troop.attack) / maxf(float(troop.defense), 1.0)
-		if pool_ratio > w.complement_pool_hi and troop_ratio < w.complement_troop_lo:   base_bonus = w.complement_bonus_hi
-		elif pool_ratio > w.complement_pool_mid and troop_ratio < w.complement_troop_mid: base_bonus = w.complement_bonus_mid
-		elif pool_ratio < w.complement_pool_lo and troop_ratio > w.complement_troop_hi: base_bonus = w.complement_bonus_hi
-		elif pool_ratio < w.complement_pool_lomid and troop_ratio > w.complement_troop_mid: base_bonus = w.complement_bonus_mid
-
-	# D7: counter-bonus — si esta tropa es FUERTE contra algún tipo visible del rival.
-	# Usa TroopEffectiveness para no duplicar la tabla de matchups.
-	var counter_bonus := 1.0
+	# D7: recolectar tipos de tropa del rival visibles en frentes activos. Sin
+	# world_view/rival (tests) → lista vacía → counter neutro. La fórmula del
+	# complemento y del counter viven en AIMilitary (compartidas con el snapshot).
+	var rival_types: Array[int] = []
 	if ctx != null and ctx.world_view != null:
 		var rival := ctx.world_view.get_rival_view()
 		if rival != null and rival.empire != null:
-			# Recolectar tipos de tropa del rival visibles en frentes activos.
 			var all_fronts := ctx._cache_active_fronts if ctx._cache_valid \
 				else BattleFront.get_active_instances()
-			var rival_types: Array[int] = []
 			for front in all_fronts:
 				if front.is_resolved:
 					continue
@@ -619,14 +542,9 @@ static func _complement_bonus(troop: Troop, pool: Array[Troop],
 				for t in rival_side_troops:
 					if t.type not in rival_types:
 						rival_types.append(t.type)
-			# Aplicar counter_bonus si esta tropa tiene ventaja (×1.5) contra algún tipo.
-			for rt in rival_types:
-				if TroopEffectiveness.get_multiplier(troop.type, rt) \
-						>= TroopEffectiveness.MULTIPLIER_STRONG:
-					counter_bonus = w.counter_bonus
-					break
 
-	return base_bonus * counter_bonus
+	return AIMilitary.complement_bonus(troop, pool, w) \
+		* AIMilitary.counter_bonus(troop.type, rival_types, w)
 
 
 static func _score_open_front(option: AIOpenFrontOption, ctx: AITurnContext,
@@ -879,17 +797,15 @@ static func _frontier_value(tile: Tile, ctx: AITurnContext) -> int:
 ## Ratio bajo → la IA está quedando rodeada → escalar el incentivo de escapar.
 static func _encirclement_pressure(ctx: AITurnContext) -> float:
 	var w := ctx.get_weights()
+	# Sin empire o sin conteo de mapa (tests): valor neutro. La fórmula por ratio
+	# vive en AITerritory.encirclement_pressure (compartida con el snapshot).
 	if ctx.stats == null or ctx.stats.empire == null:
 		return w.encircle_default
 	var avail := ctx.colonizable_tiles_count
 	if avail < 0:
 		return w.encircle_default
 	var controlled := maxi(ctx.stats.empire.controlled_tiles.size(), 1)
-	var ratio := float(avail) / float(controlled)
-	if ratio >= w.encircle_r2: return w.encircle_high
-	if ratio >= w.encircle_r1: return w.encircle_mid
-	if ratio >= w.encircle_r05: return w.encircle_low
-	return w.encircle_min
+	return AITerritory.encirclement_pressure(avail, controlled, w)
 
 
 ## Village→Town: +5 food_consumption y +2 building slots.
@@ -1210,18 +1126,16 @@ static func _score_building_effects(effects: Array[BuildingEffect],
 			score += _score_stat_effect(effect as AddStatModifierEffect, ctx, gu, fu, mu)
 		elif effect is AddBuildCostModifierEffect:
 			# Descuento en todas las construcciones futuras: más valioso en mid.
-			var pct := (effect as AddBuildCostModifierEffect).percent
-			match phase:
-				AIGamePhase.Phase.EARLY: score += pct * w.bce_buildcost_early
-				AIGamePhase.Phase.MID:   score += pct * w.bce_buildcost_mid
-				_:                       score += pct * w.bce_buildcost_late
+			score += AIBuildingEffects.build_cost_modifier_score(
+				(effect as AddBuildCostModifierEffect).percent, phase, w)
 		elif effect is AddCardToDeckEffect:
 			var card_added := (effect as AddCardToDeckEffect).card
 			if card_added != null:
 				score += score_card_for_deck(card_added, ctx)
 		elif effect is GoldOnCard:
 			# Frecuencia desconocida: estimación conservadora (~3 plays/turno).
-			score += (effect as GoldOnCard).gold_reward * w.bce_gold_on_card * gu
+			score += AIBuildingEffects.gold_on_card_score(
+				(effect as GoldOnCard).gold_reward, gu, w)
 	return score
 
 
@@ -1230,21 +1144,10 @@ static func _score_stat_effect(effect: AddStatModifierEffect,
 		ctx: AITurnContext, gu: float, fu: float, mu: float) -> float:
 	var w := ctx.get_weights()
 	var v := effect.value
+	# Los dos casos dependientes de estado calculan su escalar SOLO en su rama; el
+	# resto delega en el helper puro compartido (AIBuildingEffects, con el snapshot).
 	match effect.stat_type:
-		StatModifier.StatType.FLAT_GOLD:
-			return v * w.se_flat_gold * gu
-		StatModifier.StatType.PERCENT_GOLD:
-			return ctx.stats.gold_per_turn * v / 100.0 * w.se_percent_gold * gu
-		StatModifier.StatType.FLAT_FOOD:
-			return v * w.se_flat_food * fu
-		StatModifier.StatType.PERCENT_FOOD:
-			return ctx.stats.food * v / 100.0 * w.se_percent_food * fu
-		StatModifier.StatType.TILE_RESOURCE_GOLD:
-			return v * w.se_tile_gold * gu
-		StatModifier.StatType.TILE_RESOURCE_FOOD:
-			return v * w.se_tile_food * fu
 		StatModifier.StatType.CARDS_PER_TURN:
-			# D8: carta extra por turno como valor de FLUJO, no de estado.
 			# Horizon estima los turnos restantes: cerca de la victoria (my_share → 0.70)
 			# el horizonte cae (la carta ya no tiene tiempo de componer).
 			var my_share_h := 0.0
@@ -1258,24 +1161,14 @@ static func _score_stat_effect(effect: AddStatModifierEffect,
 						+ colonizable_h, 1)
 					my_share_h = float(ctx.stats.empire.controlled_tiles.size()) \
 						/ float(total_h)
-			# horizon: hi (muy lejos de ganar) → lo (a punto de ganar al 70%)
-			var horizon := lerpf(w.se_cpt_horizon_lo, w.se_cpt_horizon_hi,
-				clampf(1.0 - my_share_h / w.se_cpt_share_target, 0.0, 1.0))
-			return v * (w.se_cpt_base + horizon * w.se_cpt_horizon_scale)
-			# Ejemplos: horizon=40 → v*32 | horizon=20 → v*20 | horizon=5 → v*11
-		StatModifier.StatType.CARD_DRAW_BONUS:
-			return v * w.se_card_draw
+			return AIBuildingEffects.cards_per_turn_score(v, my_share_h, w)
 		StatModifier.StatType.TROOPS_PER_RECRUIT:
-			# Escalado lineal con urgencia militar, con rendimiento decreciente SUAVE
-			# según el bonus de throughput ya acumulado en el empire.
-			# Los primeros cuarteles tienen valor pleno; a partir del 5.º baja gradualmente.
-			# 0 bonus → ×1.0 | 4 bonus → ×0.55 | 8 bonus → ×0.38 | 12 bonus → ×0.29
-			var current_bonus := _current_troops_per_recruit_bonus(ctx)
-			var dr_factor := 1.0 / (1.0 + float(current_bonus) * w.se_tpr_dr_k)
-			return v * (w.se_tpr_base + w.se_tpr_mu * mu) * dr_factor
-		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT:
-			return ctx.stats.troop_pool.size() * absf(v) * w.se_maint * mu
-	return 0.0
+			return AIBuildingEffects.troops_per_recruit_score(v, mu,
+				_current_troops_per_recruit_bonus(ctx), w)
+		_:
+			return AIBuildingEffects.stat_effect_simple(effect.stat_type, v,
+				ctx.stats.gold_per_turn, ctx.stats.food, ctx.stats.troop_pool.size(),
+				gu, fu, mu, w)
 
 
 ## Suma el bonus TROOPS_PER_RECRUIT ya activo en los edificios construidos del empire.
@@ -1308,26 +1201,12 @@ static func _territory_race_factor(ctx: AITurnContext,
 	var rival := ctx.world_view.get_rival_view()
 	if rival == null or rival.empire == null:
 		return 1.0
-	var w := ctx.get_weights()
 	var my_tiles := ctx.stats.empire.controlled_tiles.size() \
 		if ctx.stats.empire != null else 0
 	var rival_tiles := rival.empire.controlled_tiles.size()
 	var colonizable := maxi(ctx.colonizable_tiles_count, 0)
-	var total := maxi(my_tiles + rival_tiles + colonizable, 1)
-	var my_share := float(my_tiles) / float(total)
-	var rival_share := float(rival_tiles) / float(total)
-
-	if mode == &"colonize" or mode == &"open_front":
-		if my_share >= w.tr_close_share:
-			return w.tr_close_factor  # modo cierre: escalar todo lo que acerca al 70%
-		if my_share >= w.tr_lead_share:
-			return w.tr_lead_factor
-		if rival_share >= w.tr_block_share:
-			return w.tr_block_factor  # modo bloqueo: el rival se acerca al límite de victoria
-	elif mode == &"economy":
-		if my_share >= w.tr_close_share:
-			return w.tr_econ_factor  # con ventaja territorial, la economía importa menos
-	return 1.0
+	return AITerritory.territory_race_factor(
+		my_tiles, rival_tiles, colonizable, mode, ctx.get_weights())
 
 
 ## Factor de coste: penaliza edificios que consumen una fracción alta del oro.
@@ -1336,9 +1215,7 @@ static func _territory_race_factor(ctx: AITurnContext,
 static func _build_cost_factor(cost: int, total_gold: int,
 		w: HeuristicWeights = null) -> float:
 	if w == null: w = HeuristicWeights.get_default()
-	if total_gold <= 0:
-		return w.build_cost_min
-	return lerpf(1.0, w.build_cost_min, clampf(float(cost) / float(total_gold), 0.0, 1.0))
+	return AIEconomy.build_cost_factor(cost, total_gold, w)
 
 
 ## Multiplicador de dificultad de ataque según el bioma de la tile enemiga.

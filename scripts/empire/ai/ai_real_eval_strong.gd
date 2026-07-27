@@ -128,23 +128,15 @@ static func _frontier_value(state: AIRealState, tile_id: int, p_owner: int) -> i
 ## Ratio bajo → la IA se está quedando rodeada → escalar el incentivo de escapar.
 static func _encirclement_pressure(state: AIRealState, p_owner: int,
 		w: HeuristicWeights) -> float:
-	var avail := _colonizable_count(state, p_owner)
-	var controlled := maxi(state.count_tiles(p_owner), 1)
-	var ratio := float(avail) / float(controlled)
-	if ratio >= w.encircle_r2: return w.encircle_high
-	if ratio >= w.encircle_r1: return w.encircle_mid
-	if ratio >= w.encircle_r05: return w.encircle_low
-	return w.encircle_min
+	return AITerritory.encirclement_pressure(
+		_colonizable_count(state, p_owner), maxi(state.count_tiles(p_owner), 1), w)
 
 
 ## Espejo de AIHeuristic._expansion_factor: presión expansionista [0.0, 1.0] por
 ## número de tiles colonizables adyacentes (REFERENCE = 15 → presión máxima).
 static func _expansion_factor(state: AIRealState, p_owner: int,
 		w: HeuristicWeights) -> float:
-	var avail := _colonizable_count(state, p_owner)
-	if avail == 0:
-		return 0.0
-	return minf(float(avail) / w.expansion_reference, 1.0)
+	return AITerritory.expansion_factor(_colonizable_count(state, p_owner), w)
 
 
 ## Espejo de AIHeuristic._territory_race_factor: amplifica jugadas que acercan a
@@ -153,24 +145,8 @@ static func _territory_race_factor(state: AIRealState, p_owner: int,
 		mode: StringName = &"colonize", w: HeuristicWeights = null) -> float:
 	if w == null: w = HeuristicWeights.get_default()
 	var rival := OWNER_RIVAL if p_owner == OWNER_SELF else OWNER_SELF
-	var my_tiles := state.count_tiles(p_owner)
-	var rival_tiles := state.count_tiles(rival)
-	var colonizable := _colonizable_count(state, p_owner)
-	var total := maxi(my_tiles + rival_tiles + colonizable, 1)
-	var my_share := float(my_tiles) / float(total)
-	var rival_share := float(rival_tiles) / float(total)
-
-	if mode == &"colonize" or mode == &"open_front":
-		if my_share >= w.tr_close_share:
-			return w.tr_close_factor
-		if my_share >= w.tr_lead_share:
-			return w.tr_lead_factor
-		if rival_share >= w.tr_block_share:
-			return w.tr_block_factor
-	elif mode == &"economy":
-		if my_share >= w.tr_close_share:
-			return w.tr_econ_factor
-	return 1.0
+	return AITerritory.territory_race_factor(state.count_tiles(p_owner),
+		state.count_tiles(rival), _colonizable_count(state, p_owner), mode, w)
 
 
 ## Tiles sin colonizar adyacentes al territorio de `p_owner` (espejo del conteo de
@@ -323,21 +299,7 @@ static func _score_recruit(move: AIRealOptions.Move, state: AIRealState,
 ## si la tropa es fuerte contra algún tipo visible del rival en los frentes.
 static func _complement_bonus(troop: Troop, pool: Array[Troop], state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	var base_bonus := 1.0
-	if not pool.is_empty():
-		var total_atk := 0
-		var total_def := 0
-		for t in pool:
-			total_atk += t.attack
-			total_def += t.defense
-		var pool_ratio := float(total_atk) / maxf(float(total_def), 1.0)
-		var troop_ratio := float(troop.attack) / maxf(float(troop.defense), 1.0)
-		if pool_ratio > w.complement_pool_hi and troop_ratio < w.complement_troop_lo:   base_bonus = w.complement_bonus_hi
-		elif pool_ratio > w.complement_pool_mid and troop_ratio < w.complement_troop_mid: base_bonus = w.complement_bonus_mid
-		elif pool_ratio < w.complement_pool_lo and troop_ratio > w.complement_troop_hi: base_bonus = w.complement_bonus_hi
-		elif pool_ratio < w.complement_pool_lomid and troop_ratio > w.complement_troop_mid: base_bonus = w.complement_bonus_mid
-
-	var counter_bonus := 1.0
+	# Tipos de tropa del rival visibles en frentes activos.
 	var enemy := OWNER_RIVAL if p_owner == OWNER_SELF else OWNER_SELF
 	var rival_types: Array[int] = []
 	for f in state.fronts:
@@ -351,28 +313,15 @@ static func _complement_bonus(troop: Troop, pool: Array[Troop], state: AIRealSta
 		for t in rtroops:
 			if t.type not in rival_types:
 				rival_types.append(t.type)
-	for rt in rival_types:
-		if TroopEffectiveness.get_multiplier(troop.type, rt) >= TroopEffectiveness.MULTIPLIER_STRONG:
-			counter_bonus = w.counter_bonus
-			break
-	return base_bonus * counter_bonus
+	return AIMilitary.complement_bonus(troop, pool, w) \
+		* AIMilitary.counter_bonus(troop.type, rival_types, w)
 
 
 ## Espejo de AIHeuristic._resource_surplus_factor: [1.0, 3.0]; potencia lo militar
 ## cuando el oro/comida están muy por encima del umbral cómodo de la fase.
 static func _resource_surplus_factor(emp: AIRealState.EmpireSnap,
 		phase: AIGamePhase.Phase, w: HeuristicWeights) -> float:
-	if emp.food < w.surplus_min_food:
-		return 1.0
-	var gpt := emp.gold_per_turn
-	var comfortable := w.surplus_comfortable_late
-	match phase:
-		AIGamePhase.Phase.EARLY: comfortable = w.surplus_comfortable_early
-		AIGamePhase.Phase.MID:   comfortable = w.surplus_comfortable_mid
-		_:                       comfortable = w.surplus_comfortable_late
-	if gpt <= comfortable:
-		return 1.0
-	return lerpf(1.0, w.surplus_max, clampf(float(gpt - comfortable) / comfortable, 0.0, 1.0))
+	return AIEconomy.resource_surplus_factor(emp.food, emp.gold_per_turn, phase, w)
 
 
 # ---------------------------------------------------------------------------
@@ -405,10 +354,8 @@ static func _military_urgency(state: AIRealState, p_owner: int,
 			if has_adjacent_enemy:
 				break
 
-	var base := w.mil_urg_base_idle
-	if has_active_front:     base = w.mil_urg_base_active
-	elif has_adjacent_enemy: base = w.mil_urg_base_adjacent
-	return lerpf(base, w.mil_urg_max, _max_front_pressure(state, p_owner))
+	return AIUrgency.military_urgency_from(has_active_front, has_adjacent_enemy,
+		_max_front_pressure(state, p_owner), w)
 
 
 ## Presión máxima [0.0, 1.0] de los frentes donde participa p_owner (qué tan cerca
@@ -423,7 +370,7 @@ static func _max_front_pressure(state: AIRealState, p_owner: int) -> float:
 		if side == BattleFront.Side.NONE:
 			continue
 		var ai_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
-		var pressure := clampf(-ai_marker / front.threshold, 0.0, 1.0)
+		var pressure := AIUrgency.front_pressure(ai_marker, front.threshold)
 		max_p = maxf(max_p, pressure)
 	return max_p
 
@@ -445,18 +392,17 @@ static func _score_building_effects(effects: Array[BuildingEffect], state: AIRea
 			score += _score_stat_effect(effect as AddStatModifierEffect, state, p_owner,
 				emp, gu, fu, mu, w)
 		elif effect is AddBuildCostModifierEffect:
-			var pct := (effect as AddBuildCostModifierEffect).percent
-			match phase:
-				AIGamePhase.Phase.EARLY: score += pct * w.bce_buildcost_early
-				AIGamePhase.Phase.MID:   score += pct * w.bce_buildcost_mid
-				_:                       score += pct * w.bce_buildcost_late
+			score += AIBuildingEffects.build_cost_modifier_score(
+				(effect as AddBuildCostModifierEffect).percent, phase, w)
 		elif effect is AddCardToDeckEffect:
 			var card_added := (effect as AddCardToDeckEffect).card
 			if card_added != null:
-				# Reusa la aproximación-suelo ya existente sobre el snapshot.
+				# Reusa la aproximación-suelo ya existente sobre el snapshot (valorador
+				# de carta específico del snapshot; no se unifica aquí).
 				score += AIRealEvents._score_card_for_deck(card_added, emp)
 		elif effect is GoldOnCard:
-			score += (effect as GoldOnCard).gold_reward * w.bce_gold_on_card * gu
+			score += AIBuildingEffects.gold_on_card_score(
+				(effect as GoldOnCard).gold_reward, gu, w)
 	return score
 
 
@@ -464,36 +410,21 @@ static func _score_stat_effect(effect: AddStatModifierEffect, state: AIRealState
 		p_owner: int, emp: AIRealState.EmpireSnap, gu: float, fu: float, mu: float,
 		w: HeuristicWeights) -> float:
 	var v := effect.value
+	# Los dos casos dependientes de estado calculan su escalar SOLO en su rama
+	# (recorridos caros); el resto delega en el helper puro compartido.
 	match effect.stat_type:
-		StatModifier.StatType.FLAT_GOLD:
-			return v * w.se_flat_gold * gu
-		StatModifier.StatType.PERCENT_GOLD:
-			return emp.gold_per_turn * v / 100.0 * w.se_percent_gold * gu
-		StatModifier.StatType.FLAT_FOOD:
-			return v * w.se_flat_food * fu
-		StatModifier.StatType.PERCENT_FOOD:
-			return emp.food * v / 100.0 * w.se_percent_food * fu
-		StatModifier.StatType.TILE_RESOURCE_GOLD:
-			return v * w.se_tile_gold * gu
-		StatModifier.StatType.TILE_RESOURCE_FOOD:
-			return v * w.se_tile_food * fu
 		StatModifier.StatType.CARDS_PER_TURN:
-			# Valor de FLUJO: el horizonte cae al acercarse a la victoria territorial.
 			var enemy := OWNER_RIVAL if p_owner == OWNER_SELF else OWNER_SELF
 			var colonizable := _colonizable_count(state, p_owner)
 			var total := maxi(state.count_tiles(p_owner) + state.count_tiles(enemy) + colonizable, 1)
 			var my_share := float(state.count_tiles(p_owner)) / float(total)
-			var horizon := lerpf(w.se_cpt_horizon_lo, w.se_cpt_horizon_hi, clampf(1.0 - my_share / w.se_cpt_share_target, 0.0, 1.0))
-			return v * (w.se_cpt_base + horizon * w.se_cpt_horizon_scale)
-		StatModifier.StatType.CARD_DRAW_BONUS:
-			return v * w.se_card_draw
+			return AIBuildingEffects.cards_per_turn_score(v, my_share, w)
 		StatModifier.StatType.TROOPS_PER_RECRUIT:
-			var current_bonus := _current_troops_per_recruit_bonus(state, p_owner)
-			var dr_factor := 1.0 / (1.0 + float(current_bonus) * w.se_tpr_dr_k)
-			return v * (w.se_tpr_base + w.se_tpr_mu * mu) * dr_factor
-		StatModifier.StatType.TROOP_MAINTENANCE_PERCENT:
-			return emp.troop_pool.size() * absf(v) * w.se_maint * mu
-	return 0.0
+			return AIBuildingEffects.troops_per_recruit_score(v, mu,
+				_current_troops_per_recruit_bonus(state, p_owner), w)
+		_:
+			return AIBuildingEffects.stat_effect_simple(effect.stat_type, v,
+				emp.gold_per_turn, emp.food, emp.troop_pool.size(), gu, fu, mu, w)
 
 
 ## Suma el bonus TROOPS_PER_RECRUIT ya activo en los edificios propios (para el
@@ -518,9 +449,7 @@ static func _current_troops_per_recruit_bonus(state: AIRealState, p_owner: int) 
 ## Espejo de AIHeuristic._build_cost_factor: penaliza edificios que consumen una
 ## fracción alta del oro disponible. Rango 0.6 (gasto total) → 1.0 (residual).
 static func _build_cost_factor(cost: int, total_gold: int, w: HeuristicWeights) -> float:
-	if total_gold <= 0:
-		return w.build_cost_min
-	return lerpf(1.0, w.build_cost_min, clampf(float(cost) / float(total_gold), 0.0, 1.0))
+	return AIEconomy.build_cost_factor(cost, total_gold, w)
 
 
 # ---------------------------------------------------------------------------
@@ -678,10 +607,8 @@ static func _score_card_draw(move: AIRealOptions.Move, state: AIRealState,
 
 
 static func _deck_urgency(emp: AIRealState.EmpireSnap, w: HeuristicWeights) -> float:
-	var deck_size := emp.deck.size()
-	if deck_size < w.deck_urg_t0: return w.deck_urg_v0
-	if deck_size < w.deck_urg_t1: return w.deck_urg_v1
-	return w.deck_urg_v2
+	# El snapshot solo tiene el mazo combinado (draw+discard) como proxy del draw_pile.
+	return AIUrgency.deck_urgency(emp.deck.size(), w)
 
 
 ## CHANGE_LOCATION: slots nuevos vs coste en comida, con veto si la comida
@@ -727,46 +654,17 @@ static func _score_change_location(move: AIRealOptions.Move, state: AIRealState,
 
 
 # ---------------------------------------------------------------------------
-# Urgencias por fase (espejo EXACTO de AIHeuristic — difieren de las simplificadas
-# de AIRealEval, que no dependen de fase; por eso se reimplementan aquí)
+# Urgencias por fase. Delegan en AIUrgency (compartida con AIHeuristic): la fórmula
+# vive UNA sola vez. Difieren de las simplificadas de AIRealEval (prior débil), que
+# no dependen de fase. La comida ahora usa la fórmula completa MID ≠ LATE (antes se
+# colapsaba con los pesos de MID): byte-idéntico mientras food_urg_late_* ==
+# food_urg_mid_* (cierto por defecto y en el campeón), y corrige la divergencia
+# latente que el optimizador dispararía al tocar los umbrales de LATE.
 # ---------------------------------------------------------------------------
 
 static func _gold_urgency(gpt: int, phase: AIGamePhase.Phase, w: HeuristicWeights) -> float:
-	match phase:
-		AIGamePhase.Phase.EARLY:
-			if gpt < w.gold_urg_early_t0: return w.gold_urg_early_v0
-			if gpt < w.gold_urg_early_t1: return w.gold_urg_early_v1
-			if gpt < w.gold_urg_early_t2: return w.gold_urg_early_v2
-			return w.gold_urg_early_v3
-		AIGamePhase.Phase.MID:
-			if gpt < w.gold_urg_mid_t0:  return w.gold_urg_mid_v0
-			if gpt < w.gold_urg_mid_t1:  return w.gold_urg_mid_v1
-			if gpt < w.gold_urg_mid_t2:  return w.gold_urg_mid_v2
-			if gpt < w.gold_urg_mid_t3:  return w.gold_urg_mid_v3
-			return w.gold_urg_mid_v4
-		_: # LATE
-			if gpt < w.gold_urg_late_t0:  return w.gold_urg_late_v0
-			if gpt < w.gold_urg_late_t1:  return w.gold_urg_late_v1
-			if gpt < w.gold_urg_late_t2:  return w.gold_urg_late_v2
-			if gpt < w.gold_urg_late_t3:  return w.gold_urg_late_v3
-			if gpt < w.gold_urg_late_t4:  return w.gold_urg_late_v4
-			if gpt < w.gold_urg_late_t5:  return w.gold_urg_late_v5
-			if gpt < w.gold_urg_late_t6:  return w.gold_urg_late_v6
-			return w.gold_urg_late_v7
+	return AIUrgency.gold_urgency(gpt, phase, w)
 
 
-## Nota: la heurística real separa MID y LATE en la comida, pero con umbrales
-## idénticos; aquí se colapsan en una rama usando los pesos de MID (== LATE por
-## defecto; el campeón no toca umbrales de curva).
 static func _food_urgency(food: int, phase: AIGamePhase.Phase, w: HeuristicWeights) -> float:
-	match phase:
-		AIGamePhase.Phase.EARLY:
-			if food < w.food_urg_early_t0: return w.food_urg_early_v0
-			if food < w.food_urg_early_t1: return w.food_urg_early_v1
-			if food < w.food_urg_early_t2: return w.food_urg_early_v2
-			return w.food_urg_early_v3
-		_: # MID / LATE (mismos umbrales en el original)
-			if food < w.food_urg_mid_t0:  return w.food_urg_mid_v0
-			if food < w.food_urg_mid_t1:  return w.food_urg_mid_v1
-			if food < w.food_urg_mid_t2:  return w.food_urg_mid_v2
-			return w.food_urg_mid_v3
+	return AIUrgency.food_urgency(food, phase, w)

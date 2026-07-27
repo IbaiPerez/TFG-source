@@ -25,7 +25,7 @@ class_name HeuristicWeights
 
 
 # ---------------------------------------------------------------------------
-# Urgencia de oro (_gold_urgency): umbrales de gpt (t*) y valores (v*) por fase.
+# Urgencia de oro (AIUrgency.gold_urgency): umbrales de gpt (t*) y valores (v*) por fase.
 # ---------------------------------------------------------------------------
 @export_group("Urgencia oro")
 @export var gold_urg_early_t0: float = 10.0
@@ -64,7 +64,7 @@ class_name HeuristicWeights
 
 
 # ---------------------------------------------------------------------------
-# Urgencia de comida (_food_urgency).
+# Urgencia de comida (AIUrgency.food_urgency).
 # ---------------------------------------------------------------------------
 @export_group("Urgencia comida")
 @export var food_urg_early_t0: float = 0.0
@@ -103,7 +103,7 @@ class_name HeuristicWeights
 
 
 # ---------------------------------------------------------------------------
-# Urgencia de mazo (_deck_urgency).
+# Urgencia de mazo (AIUrgency.deck_urgency).
 # ---------------------------------------------------------------------------
 @export_group("Urgencia mazo")
 @export var deck_urg_t0: float = 3.0
