@@ -152,6 +152,12 @@ func tile_buildings(tile) -> Array[Building]:
 	return (tile as AIRealState.TileSnap).buildings
 
 
+## Edificios construibles del imperio (refleja unlocks). Solo el snapshot lo usa: el
+## enumerador BUILD del vivo parte de card.buildings.
+func possible_buildings() -> Array[Building]:
+	return _emp.possible_buildings
+
+
 func can_be_upgraded(_old_building: Building) -> bool:
 	# El snapshot no comprueba old.can_be_upgraded (divergencia con el vivo).
 	return true

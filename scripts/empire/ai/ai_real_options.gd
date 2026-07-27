@@ -35,6 +35,28 @@ class Move:
 		return m
 
 
+## Dispatcher por tipo de carta: Script → Callable resuelto SUBIENDO por la cadena de
+## herencia (DirectBuildCard antes que BuildCard por tipo exacto, sin depender del
+## orden de una cadena de `if`). RecoverCard no tiene handler → omitida (sin
+## played_pile en el snapshot). Todos los handlers comparten firma (moves, view, card).
+static var _handlers: Dictionary = {}
+
+
+static func _ensure_handlers() -> void:
+	if not _handlers.is_empty():
+		return
+	_handlers[DirectBuildCard]        = Callable(AIRealOptions, "_add_direct_build")
+	_handlers[UpgradeBuildingCard]    = Callable(AIRealOptions, "_add_upgrade")
+	_handlers[BuildCard]              = Callable(AIRealOptions, "_add_build")
+	_handlers[ColonizeCard]           = Callable(AIRealOptions, "_add_colonize")
+	_handlers[ChangeLocationTypeCard] = Callable(AIRealOptions, "_add_change_location")
+	_handlers[GenerateGoldCard]       = Callable(AIRealOptions, "_add_generate_gold")
+	_handlers[CardDrawCard]           = Callable(AIRealOptions, "_add_card_draw")
+	_handlers[RecruitCard]            = Callable(AIRealOptions, "_add_recruit")
+	_handlers[OpenFrontCard]          = Callable(AIRealOptions, "_add_open_front")
+	_handlers[TacticCard]             = Callable(AIRealOptions, "_add_tactic")
+
+
 ## Enumera todas las jugadas legales de `hand` sobre el estado, desde la
 ## perspectiva de `p_owner`. Mirror de AIOptionsBuilder sobre el snapshot.
 static func enumerate(state: AIRealState, hand: Array[Card],
@@ -43,33 +65,18 @@ static func enumerate(state: AIRealState, hand: Array[Card],
 	var emp := state.own if p_owner == AIRealState.OWNER_SELF else state.rival
 	if emp == null:
 		return moves
-	# Vista compartida para los enumeradores portados a AILegality (§1.4). Sin pesos
-	# (la enumeración solo usa legalidad).
+	# Vista compartida para toda la enumeración (§1.4). Sin pesos (solo legalidad).
 	var view := SnapshotStateView.new(state, p_owner)
+	_ensure_handlers()
 	for card in hand:
 		if card == null:
 			continue
-		if card is DirectBuildCard:
-			_add_direct_build(moves, view, card as DirectBuildCard)
-		elif card is UpgradeBuildingCard:
-			_add_upgrade(moves, view, card as UpgradeBuildingCard)
-		elif card is BuildCard:
-			_add_build(moves, view, emp.possible_buildings, card as BuildCard)
-		elif card is ColonizeCard:
-			_add_colonize(moves, view, card as ColonizeCard)
-		elif card is ChangeLocationTypeCard:
-			_add_change_location(moves, view, card as ChangeLocationTypeCard)
-		elif card is GenerateGoldCard:
-			_add_generate_gold(moves, card as GenerateGoldCard)
-		elif card is CardDrawCard:
-			_add_card_draw(moves, card as CardDrawCard)
-		elif card is RecruitCard:
-			_add_recruit(moves, view, card as RecruitCard)
-		elif card is OpenFrontCard:
-			_add_open_front(moves, view, card as OpenFrontCard)
-		elif card is TacticCard:
-			_add_tactic(moves, view, card as TacticCard)
-		# RecoverCard: omitida (sin played_pile en el snapshot).
+		var script := card.get_script() as Script
+		while script != null:
+			if _handlers.has(script):
+				(_handlers[script] as Callable).call(moves, view, card)
+				break
+			script = script.get_base_script()
 	return moves
 
 
@@ -114,11 +121,10 @@ static func _add_colonize(moves: Array, view: SnapshotStateView, card: ColonizeC
 		moves.append(m)
 
 
-## BUILD: legalidad unificada (§1.4). `buildings` = emp.possible_buildings (refleja
-## unlocks; divergencia con card.buildings del vivo, aislada aquí en el llamante).
-static func _add_build(moves: Array, view: SnapshotStateView,
-		buildings: Array[Building], card: BuildCard) -> void:
-	for t in AILegality.build_targets(view, buildings):
+## BUILD: legalidad unificada (§1.4). La fuente de edificios del snapshot es
+## view.possible_buildings() (refleja unlocks; divergencia con card.buildings del vivo).
+static func _add_build(moves: Array, view: SnapshotStateView, card: BuildCard) -> void:
+	for t in AILegality.build_targets(view, view.possible_buildings()):
 		var m := Move.new()
 		m.kind = &"BUILD"
 		m.card = card
@@ -168,7 +174,8 @@ static func _add_change_location(moves: Array, view: SnapshotStateView,
 		moves.append(m)
 
 
-static func _add_generate_gold(moves: Array, card: GenerateGoldCard) -> void:
+static func _add_generate_gold(moves: Array, _view: SnapshotStateView,
+		card: GenerateGoldCard) -> void:
 	var m := Move.new()
 	m.kind = &"GENERATE_GOLD"
 	m.card = card
@@ -176,7 +183,8 @@ static func _add_generate_gold(moves: Array, card: GenerateGoldCard) -> void:
 	moves.append(m)
 
 
-static func _add_card_draw(moves: Array, card: CardDrawCard) -> void:
+static func _add_card_draw(moves: Array, _view: SnapshotStateView,
+		card: CardDrawCard) -> void:
 	var m := Move.new()
 	m.kind = &"CARD_DRAW"
 	m.card = card

@@ -13,65 +13,43 @@ class_name AIOptionsBuilder
 ##    TacticCard, RecoverCard.
 
 
+## Dispatcher por tipo de carta: Script → Callable, resuelto SUBIENDO por la cadena
+## de herencia. DirectBuildCard hereda de BuildCard: su script exacto se encuentra
+## primero, así que no cae por la rama de BuildCard sin depender del ORDEN de una
+## cadena de `if card is X` (frágil al añadir cartas). Handler no encontrado → sin
+## opciones. Todos los handlers comparten firma (card, ctx, options).
+static var _handlers: Dictionary = {}
+
+
+static func _ensure_handlers() -> void:
+	if not _handlers.is_empty():
+		return
+	_handlers[DirectBuildCard]        = Callable(AIOptionsBuilder, "_add_direct_build_options")
+	_handlers[UpgradeBuildingCard]    = Callable(AIOptionsBuilder, "_add_upgrade_building_options")
+	_handlers[BuildCard]              = Callable(AIOptionsBuilder, "_add_build_options")
+	_handlers[ColonizeCard]           = Callable(AIOptionsBuilder, "_add_colonize_options")
+	_handlers[ChangeLocationTypeCard] = Callable(AIOptionsBuilder, "_add_change_location_type_options")
+	_handlers[GenerateGoldCard]       = Callable(AIOptionsBuilder, "_add_generate_gold_options")
+	_handlers[CardDrawCard]           = Callable(AIOptionsBuilder, "_add_card_draw_options")
+	_handlers[RecruitCard]            = Callable(AIOptionsBuilder, "_add_recruit_options")
+	_handlers[OpenFrontCard]          = Callable(AIOptionsBuilder, "_add_open_front_options")
+	_handlers[TacticCard]             = Callable(AIOptionsBuilder, "_add_tactic_options")
+	_handlers[RecoverCard]            = Callable(AIOptionsBuilder, "_add_recover_options")
+
+
 ## Devuelve la lista de opciones legales que la carta puede generar en este
 ## contexto. Lista vacía si la carta no es jugable ahora.
 static func build_options(card: Card, ctx: AITurnContext) -> Array[AIPlayOption]:
 	var options: Array[AIPlayOption] = []
 	if card == null:
 		return options
-
-	# DirectBuildCard hereda de BuildCard; comprobar antes para que no caiga
-	# por la rama de BuildCard genérica.
-	if card is DirectBuildCard:
-		_add_direct_build_options(card as DirectBuildCard, ctx, options)
-		return options
-
-	# UpgradeBuildingCard antes de BuildCard genérica, por si comparte
-	# herencia en el futuro (hoy no, pero defensivo).
-	if card is UpgradeBuildingCard:
-		_add_upgrade_building_options(card as UpgradeBuildingCard, ctx, options)
-		return options
-
-	if card is BuildCard:
-		_add_build_options(card as BuildCard, ctx, options)
-		return options
-
-	if card is ColonizeCard:
-		_add_colonize_options(card as ColonizeCard, ctx, options)
-		return options
-
-	# ChangeLocationTypeCard cubre Urban Project (Village → Town) y
-	# cualquier otra carta de urbanización futura. Sin este case la IA
-	# nunca urbaniza, lo que bloquea las condiciones de unlock militar
-	# (UrbanizedTilesCondition exige ≥1 Town).
-	if card is ChangeLocationTypeCard:
-		_add_change_location_type_options(card as ChangeLocationTypeCard, ctx, options)
-		return options
-
-	if card is GenerateGoldCard:
-		_add_generate_gold_options(card as GenerateGoldCard, ctx, options)
-		return options
-
-	if card is CardDrawCard:
-		_add_card_draw_options(card as CardDrawCard, ctx, options)
-		return options
-
-	if card is RecruitCard:
-		_add_recruit_options(card as RecruitCard, ctx, options)
-		return options
-
-	if card is OpenFrontCard:
-		_add_open_front_options(card as OpenFrontCard, ctx, options)
-		return options
-
-	if card is TacticCard:
-		_add_tactic_options(card as TacticCard, ctx, options)
-		return options
-
-	if card is RecoverCard:
-		_add_recover_options(card as RecoverCard, ctx, options)
-		return options
-
+	_ensure_handlers()
+	var script := card.get_script() as Script
+	while script != null:
+		if _handlers.has(script):
+			(_handlers[script] as Callable).call(card, ctx, options)
+			return options
+		script = script.get_base_script()
 	return options
 
 
