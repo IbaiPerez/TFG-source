@@ -43,29 +43,32 @@ static func enumerate(state: AIRealState, hand: Array[Card],
 	var emp := state.own if p_owner == AIRealState.OWNER_SELF else state.rival
 	if emp == null:
 		return moves
+	# Vista compartida para los enumeradores portados a AILegality (§1.4). Sin pesos
+	# (la enumeración solo usa legalidad).
+	var view := SnapshotStateView.new(state, p_owner)
 	for card in hand:
 		if card == null:
 			continue
 		if card is DirectBuildCard:
-			_add_direct_build(moves, state, card as DirectBuildCard, emp, p_owner)
+			_add_direct_build(moves, view, card as DirectBuildCard)
 		elif card is UpgradeBuildingCard:
-			_add_upgrade(moves, state, card as UpgradeBuildingCard, emp, p_owner)
+			_add_upgrade(moves, view, card as UpgradeBuildingCard)
 		elif card is BuildCard:
-			_add_build(moves, state, card as BuildCard, emp, p_owner)
+			_add_build(moves, view, emp.possible_buildings, card as BuildCard)
 		elif card is ColonizeCard:
-			_add_colonize(moves, state, card as ColonizeCard, p_owner)
+			_add_colonize(moves, view, card as ColonizeCard)
 		elif card is ChangeLocationTypeCard:
-			_add_change_location(moves, state, card as ChangeLocationTypeCard, emp, p_owner)
+			_add_change_location(moves, view, card as ChangeLocationTypeCard)
 		elif card is GenerateGoldCard:
 			_add_generate_gold(moves, card as GenerateGoldCard)
 		elif card is CardDrawCard:
 			_add_card_draw(moves, card as CardDrawCard)
 		elif card is RecruitCard:
-			_add_recruit(moves, card as RecruitCard, emp, p_owner)
+			_add_recruit(moves, view, card as RecruitCard)
 		elif card is OpenFrontCard:
-			_add_open_front(moves, state, card as OpenFrontCard, p_owner)
+			_add_open_front(moves, view, card as OpenFrontCard)
 		elif card is TacticCard:
-			_add_tactic(moves, state, card as TacticCard, p_owner)
+			_add_tactic(moves, view, card as TacticCard)
 		# RecoverCard: omitida (sin played_pile en el snapshot).
 	return moves
 
@@ -101,116 +104,67 @@ static func apply(state: AIRealState, move: Move, p_owner: int = AIRealState.OWN
 # Constructores por tipo de carta (espejo de AIOptionsBuilder sobre el snapshot)
 # ---------------------------------------------------------------------------
 
-static func _add_colonize(moves: Array, state: AIRealState, card: ColonizeCard,
-		p_owner: int) -> void:
-	# Tiles sin colonizar adyacentes a una casilla propia (AdjacentRule).
-	# Iteramos las casillas PROPIAS y recogemos sus vecinas libres (dedup), igual
-	# que open_front/eventos: así solo dependemos de la dirección propio→vecino.
-	var seen := {}
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		for nid in t.neighbor_ids:
-			if seen.has(nid):
-				continue
-			var nb := state.tiles.get(nid) as AIRealState.TileSnap
-			if nb != null and nb.owner == AIRealState.OWNER_NONE:
-				seen[nid] = true
-				var m := Move.new()
-				m.kind = &"COLONIZE"
-				m.card = card
-				m.tile_id = nid
-				moves.append(m)
-
-
-static func _add_build(moves: Array, state: AIRealState, card: BuildCard,
-		emp: AIRealState.EmpireSnap, p_owner: int) -> void:
-	# Las opciones de edificio salen de possible_buildings (refleja unlocks),
-	# no de card.buildings (que puede estar desincronizado en el snapshot).
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		for building in emp.possible_buildings:
-			if building == null:
-				continue
-			if AIRealSimulator._effective_build_cost(building, emp) > emp.gold:
-				continue
-			if not t.can_build(building):
-				continue
-			var m := Move.new()
-			m.kind = &"BUILD"
-			m.card = card
-			m.tile_id = id
-			m.building = building
-			moves.append(m)
-
-
-static func _add_direct_build(moves: Array, state: AIRealState, card: DirectBuildCard,
-		emp: AIRealState.EmpireSnap, p_owner: int) -> void:
-	if card.buildings.is_empty() or card.buildings[0] == null:
-		return
-	var building := card.buildings[0]
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		if AIRealSimulator._effective_build_cost(building, emp) > emp.gold:
-			continue
-		if not t.can_build(building):
-			continue
+static func _add_colonize(moves: Array, view: SnapshotStateView, card: ColonizeCard) -> void:
+	# Legalidad unificada (§1.4): view.colonizable_tiles() (recorrido propio→vecinos libres).
+	for tsnap in view.colonizable_tiles():
 		var m := Move.new()
-		m.kind = &"DIRECT_BUILD"
+		m.kind = &"COLONIZE"
 		m.card = card
-		m.tile_id = id
-		m.building = building
+		m.tile_id = (tsnap as AIRealState.TileSnap).id
 		moves.append(m)
 
 
-static func _add_upgrade(moves: Array, state: AIRealState, card: UpgradeBuildingCard,
-		emp: AIRealState.EmpireSnap, p_owner: int) -> void:
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		for old_b in t.buildings:
-			if old_b == null:
-				continue
-			for new_b in old_b.upgrades_to:
-				if new_b == null:
-					continue
-				if AIRealSimulator._effective_build_cost(new_b, emp) > emp.gold:
-					continue
-				if not _can_upgrade(t, old_b, new_b):
-					continue
-				var m := Move.new()
-				m.kind = &"UPGRADE"
-				m.card = card
-				m.tile_id = id
-				m.old_building = old_b
-				m.new_building = new_b
-				moves.append(m)
+## BUILD: legalidad unificada (§1.4). `buildings` = emp.possible_buildings (refleja
+## unlocks; divergencia con card.buildings del vivo, aislada aquí en el llamante).
+static func _add_build(moves: Array, view: SnapshotStateView,
+		buildings: Array[Building], card: BuildCard) -> void:
+	for t in AILegality.build_targets(view, buildings):
+		var m := Move.new()
+		m.kind = &"BUILD"
+		m.card = card
+		m.tile_id = (t["tile"] as AIRealState.TileSnap).id
+		m.building = t["building"]
+		moves.append(m)
 
 
-static func _add_change_location(moves: Array, state: AIRealState,
-		card: ChangeLocationTypeCard, emp: AIRealState.EmpireSnap, p_owner: int) -> void:
+static func _add_direct_build(moves: Array, view: SnapshotStateView,
+		card: DirectBuildCard) -> void:
+	if card.buildings.is_empty() or card.buildings[0] == null:
+		return
+	# DIRECT_BUILD: un solo edificio (buildings[0]) sobre el mismo generador que BUILD.
+	var singleton: Array[Building] = [card.buildings[0]]
+	for t in AILegality.build_targets(view, singleton):
+		var m := Move.new()
+		m.kind = &"DIRECT_BUILD"
+		m.card = card
+		m.tile_id = (t["tile"] as AIRealState.TileSnap).id
+		m.building = t["building"]
+		moves.append(m)
+
+
+static func _add_upgrade(moves: Array, view: SnapshotStateView,
+		card: UpgradeBuildingCard) -> void:
+	for t in AILegality.upgrade_targets(view):
+		var m := Move.new()
+		m.kind = &"UPGRADE"
+		m.card = card
+		m.tile_id = (t["tile"] as AIRealState.TileSnap).id
+		m.old_building = t["old"]
+		m.new_building = t["new"]
+		moves.append(m)
+
+
+static func _add_change_location(moves: Array, view: SnapshotStateView,
+		card: ChangeLocationTypeCard) -> void:
 	if card.location_type == null:
 		return
-	var target := card.location_type
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		if t.location_type + 1 != target.type:
-			continue
-		if emp.food < target.food_consumption:
-			continue
+	# Legalidad unificada (§1.4): AILegality.change_location_targets.
+	for tsnap in AILegality.change_location_targets(view, card.location_type):
 		var m := Move.new()
 		m.kind = &"CHANGE_LOCATION"
 		m.card = card
-		m.tile_id = id
-		m.location = target
+		m.tile_id = (tsnap as AIRealState.TileSnap).id
+		m.location = card.location_type
 		moves.append(m)
 
 
@@ -230,109 +184,33 @@ static func _add_card_draw(moves: Array, card: CardDrawCard) -> void:
 	moves.append(m)
 
 
-static func _add_recruit(moves: Array, card: RecruitCard,
-		emp: AIRealState.EmpireSnap, p_owner: int) -> void:
-	if card.available_troops.is_empty():
-		return
-	for troop in card.available_troops:
-		if troop == null:
-			continue
-		if not _can_afford_troop(emp, troop):
-			continue
-		var per_play := _troops_per_play(card, troop, emp)
-		if emp.gold < troop.recruitment_cost_gold * per_play:
-			continue
+static func _add_recruit(moves: Array, view: SnapshotStateView, card: RecruitCard) -> void:
+	# Legalidad unificada (§1.4): AILegality.recruit_targets sobre la vista del snapshot.
+	for t in AILegality.recruit_targets(view, card):
 		var m := Move.new()
 		m.kind = &"RECRUIT"
 		m.card = card
-		m.troop = troop
-		m.troop_count = per_play
+		m.troop = t["troop"]
+		m.troop_count = t["per_play"]
 		moves.append(m)
 
 
-static func _add_open_front(moves: Array, state: AIRealState, card: OpenFrontCard,
-		p_owner: int) -> void:
-	if AIRealSimulator._active_front_count(state, p_owner) \
-			>= AIRealSimulator._get_max_fronts(state, p_owner):
-		return
-	var enemy := AIRealState.OWNER_RIVAL if p_owner == AIRealState.OWNER_SELF \
-		else AIRealState.OWNER_SELF
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner or _tile_in_front(state, id):
-			continue
-		for nid in t.neighbor_ids:
-			var nb := state.tiles.get(nid) as AIRealState.TileSnap
-			if nb == null or nb.owner != enemy or _tile_in_front(state, nid):
-				continue
-			var m := Move.new()
-			m.kind = &"OPEN_FRONT"
-			m.card = card
-			m.tile_id = id
-			m.def_tile_id = nid
-			moves.append(m)
+static func _add_open_front(moves: Array, view: SnapshotStateView, card: OpenFrontCard) -> void:
+	# Legalidad unificada (§1.4): view.open_front_pairs (recorrido propia→enemiga).
+	for pair in view.open_front_pairs(card):
+		var m := Move.new()
+		m.kind = &"OPEN_FRONT"
+		m.card = card
+		m.tile_id = (pair["source"] as AIRealState.TileSnap).id
+		m.def_tile_id = (pair["def"] as AIRealState.TileSnap).id
+		moves.append(m)
 
 
-static func _add_tactic(moves: Array, state: AIRealState, card: TacticCard,
-		p_owner: int) -> void:
-	for i in range(state.fronts.size()):
-		var front := state.fronts[i] as AIRealState.FrontSnap
-		if front.is_resolved or front.side_of(p_owner) == BattleFront.Side.NONE:
-			continue
+static func _add_tactic(moves: Array, view: SnapshotStateView, card: TacticCard) -> void:
+	# Legalidad unificada (§1.4): view.tactic_targets() (índices de frentes elegibles).
+	for idx in view.tactic_targets():
 		var m := Move.new()
 		m.kind = &"TACTIC"
 		m.card = card
-		m.front_idx = i
+		m.front_idx = idx
 		moves.append(m)
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-## Espejo de Tile.can_upgrade (sin la comprobación de coste, que se filtra aparte).
-static func _can_upgrade(t: AIRealState.TileSnap, old_b: Building, new_b: Building) -> bool:
-	if new_b not in old_b.upgrades_to:
-		return false
-	if not new_b.allowed_biomes.is_empty() and t.biome not in new_b.allowed_biomes:
-		return false
-	if new_b.required_natural_resource != null \
-			and t.natural_resource != new_b.required_natural_resource:
-		return false
-	if not new_b.allowed_location_type.is_empty():
-		var fits := false
-		for lt in new_b.allowed_location_type:
-			if lt.type == t.location_type:
-				fits = true
-				break
-		if not fits:
-			return false
-	return true
-
-
-## Espejo de Stats.can_afford_troop sobre el snapshot.
-static func _can_afford_troop(emp: AIRealState.EmpireSnap, troop: Troop) -> bool:
-	if emp.gold < troop.recruitment_cost_gold:
-		return false
-	if emp.gold_per_turn - troop.maintenance_gold < 0:
-		return false
-	if emp.food - troop.maintenance_food < 0:
-		return false
-	return true
-
-
-## Tropas por play efectivas (espejo de RecruitCard.get_effective_troops_per_play).
-static func _troops_per_play(card: RecruitCard, troop: Troop,
-		emp: AIRealState.EmpireSnap) -> int:
-	var bonus := ModifierQuery.troops_per_recruit_bonus(emp.modifiers, troop)
-	return maxi(1, card.base_troops_per_play + bonus)
-
-
-static func _tile_in_front(state: AIRealState, tile_id: int) -> bool:
-	for f in state.fronts:
-		var front := f as AIRealState.FrontSnap
-		if front.is_resolved:
-			continue
-		if front.attacker_tile_id == tile_id or front.defender_tile_id == tile_id:
-			return true
-	return false

@@ -79,8 +79,9 @@ static func build_options(card: Card, ctx: AITurnContext) -> Array[AIPlayOption]
 
 static func _add_colonize_options(card: ColonizeCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	var valid := card.get_valid_targets(ctx.stats)
-	for target in valid:
+	# Legalidad unificada (§1.4): view.colonizable_tiles() (vivo = AdjacentRule, igual
+	# que card.get_valid_targets; snapshot = recorrido). Interfaz común, mecanismo por mundo.
+	for target in LiveStateView.new(ctx).colonizable_tiles():
 		options.append(AIPlayOption.simple(card, [target]))
 
 
@@ -91,8 +92,10 @@ static func _add_colonize_options(card: ColonizeCard,
 ##   - stats.food >= card.location_type.food_consumption
 static func _add_change_location_type_options(card: ChangeLocationTypeCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	var valid := card.get_valid_targets(ctx.stats)
-	for target in valid:
+	# Legalidad unificada (§1.4): AILegality.change_location_targets (espejo de
+	# ChangeLocationTypeRule). card.location_type null → target.type crashea igual que el
+	# original (ChangeLocationTypeRule sin guarda); en la práctica siempre está definido.
+	for target in AILegality.change_location_targets(LiveStateView.new(ctx), card.location_type):
 		options.append(AIPlayOption.simple(card, [target]))
 
 
@@ -121,44 +124,21 @@ static func _add_card_draw_options(card: CardDrawCard,
 ## can_build y oro suficiente para CADA building.
 static func _add_build_options(card: BuildCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	if card.buildings.is_empty():
-		return
-	# Recorrer tiles propias del imperio.
-	for tile in ctx.stats.empire.controlled_tiles:
-		for building in card.buildings:
-			if building == null:
-				continue
-			# Filtramos por coste EFECTIVO (con descuento de Banca
-			# Florentina, eventos, etc.). Si filtraramos por construction_cost
-			# raw, la IA con descuento descartaria edificios que en realidad
-			# se puede permitir y sub-juega.
-			if building.get_effective_construction_cost(ctx.stats) > ctx.stats.total_gold:
-				continue
-			if not tile.can_build(building):
-				continue
-			options.append(AIBuildOption.from_card(card, tile, building))
+	# Legalidad unificada (§1.4): producto cartesiano tile×building con coste
+	# efectivo + can_build. El vivo aporta card.buildings como fuente de edificios.
+	for t in AILegality.build_targets(LiveStateView.new(ctx), card.buildings):
+		options.append(AIBuildOption.from_card(card, t["tile"] as Tile, t["building"]))
 
 
 ## UpgradeBuildingCard: enumera (tile × old_building × new_building) legal.
 ## Usa Tile.can_upgrade y Building.can_be_upgraded; filtra por oro.
 static func _add_upgrade_building_options(card: UpgradeBuildingCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	for tile in ctx.stats.empire.controlled_tiles:
-		for old_building in tile.buildings:
-			if old_building == null:
-				continue
-			if not old_building.can_be_upgraded(ctx.stats):
-				continue
-			for new_building in old_building.upgrades_to:
-				if new_building == null:
-					continue
-				# Coste efectivo, mismo motivo que en BuildCard.
-				if new_building.get_effective_construction_cost(ctx.stats) > ctx.stats.total_gold:
-					continue
-				if not tile.can_upgrade(old_building, new_building):
-					continue
-				options.append(AIUpgradeBuildingOption.from_card(
-					card, tile, old_building, new_building))
+	# Legalidad unificada (§1.4): (tile × old × new) con guarda can_be_upgraded +
+	# coste efectivo + can_upgrade.
+	for t in AILegality.upgrade_targets(LiveStateView.new(ctx)):
+		options.append(AIUpgradeBuildingOption.from_card(
+			card, t["tile"] as Tile, t["old"], t["new"]))
 
 
 ## RecruitCard: 1 opción por troop disponible y asequible.
@@ -176,18 +156,9 @@ static func _add_upgrade_building_options(card: UpgradeBuildingCard,
 ##      hacer — peor uso del turno.
 static func _add_recruit_options(card: RecruitCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	if card.available_troops.is_empty():
-		return
-	for troop in card.available_troops:
-		if troop == null:
-			continue
-		if not ctx.stats.can_afford_troop(troop):
-			continue
-		var per_play := card.get_effective_troops_per_play(ctx.stats, troop)
-		var total_cost: int = troop.recruitment_cost_gold * per_play
-		if ctx.stats.total_gold < total_cost:
-			continue
-		options.append(AIRecruitOption.from_card(card, troop))
+	# Legalidad unificada (§1.4): AILegality.recruit_targets sobre la vista viva.
+	for t in AILegality.recruit_targets(LiveStateView.new(ctx), card):
+		options.append(AIRecruitOption.from_card(card, t["troop"]))
 
 
 ## TacticCard: 1 opción por cada frente activo donde la IA participa.
@@ -195,17 +166,8 @@ static func _add_recruit_options(card: RecruitCard,
 ## scene tree de visuales). El AITacticOption resuelve el visual al ejecutar.
 static func _add_tactic_options(card: TacticCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	if ctx.battle_front_manager == null:
-		return
-	for front in ctx.battle_front_manager.active_fronts:
-		if front == null or front.is_resolved:
-			continue
-		# Sólo frentes donde el imperio de la IA participa como atacante
-		# o defensor (no jugar tácticas en frentes ajenos).
-		var participates := (front.attacker_empire == ctx.stats.empire
-				or front.defender_empire == ctx.stats.empire)
-		if not participates:
-			continue
+	# Legalidad unificada (§1.4): view.tactic_targets() (frentes activos donde participamos).
+	for front in LiveStateView.new(ctx).tactic_targets():
 		options.append(AITacticOption.from_card(card, front))
 
 
@@ -227,26 +189,8 @@ static func _add_recover_options(card: RecoverCard,
 ## También respetamos el límite de frentes simultáneos del bfm.
 static func _add_open_front_options(card: OpenFrontCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	if ctx.battle_front_manager == null:
-		return
-	if not ctx.battle_front_manager.can_open_front():
-		return
-
-	# Inyectar el bfm para que get_valid_targets pueda filtrar por
-	# tiles ya en frente. Necesario también porque EnemyAdjacentRule
-	# lo lee de la carta.
-	card.battle_front_manager = ctx.battle_front_manager
-
-	var enemy_tiles := card.get_valid_targets(ctx.stats)
-	for enemy in enemy_tiles:
-		# Para cada tile enemiga válida, buscar las tiles propias
-		# adyacentes que NO estén ya en un frente activo.
-		for neighbor in (enemy as Tile).neighbors:
-			if neighbor == null:
-				continue
-			if neighbor.controller != ctx.stats.empire:
-				continue
-			if BattleFront.is_tile_in_active_front(neighbor):
-				continue
-			options.append(AIOpenFrontOption.from_card(
-				card, enemy as Tile, neighbor as Tile, ctx.battle_front_manager))
+	# Legalidad unificada (§1.4): view.open_front_pairs(card) (pares origen propio ×
+	# destino enemigo). El mundo vivo inyecta el bfm en la carta y usa EnemyAdjacentRule.
+	for pair in LiveStateView.new(ctx).open_front_pairs(card):
+		options.append(AIOpenFrontOption.from_card(
+			card, pair["def"] as Tile, pair["source"] as Tile, ctx.battle_front_manager))

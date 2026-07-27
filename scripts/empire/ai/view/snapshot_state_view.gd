@@ -13,7 +13,9 @@ var _emp: AIRealState.EmpireSnap
 var _phase: int = -1   # AIGamePhase.Phase perezosa (-1 = sin calcular)
 
 
-func _init(state: AIRealState, owner: int, w: HeuristicWeights) -> void:
+## `w` es opcional: la ENUMERACIÓN de jugadas (AIRealOptions) no usa pesos, solo
+## legalidad; el scoring (AIMoveScorer) sí pasa el `w` del config.
+func _init(state: AIRealState, owner: int, w: HeuristicWeights = null) -> void:
 	_state = state
 	_owner = owner
 	_w = w
@@ -127,6 +129,115 @@ func resource_surplus_factor() -> float:
 
 func complement_bonus(troop: Troop) -> float:
 	return AIRealEvalStrong._complement_bonus(troop, _emp.troop_pool, _state, _owner, _w)
+
+
+func troops_per_recruit_bonus(troop: Troop) -> int:
+	return ModifierQuery.troops_per_recruit_bonus(_emp.modifiers, troop)
+
+
+func owned_tiles() -> Array:
+	var result: Array = []
+	for id in _state.tiles:
+		var t := _state.tiles[id] as AIRealState.TileSnap
+		if t.owner == _owner:
+			result.append(t)
+	return result
+
+
+func can_build(tile, building: Building) -> bool:
+	return (tile as AIRealState.TileSnap).can_build(building)
+
+
+func tile_buildings(tile) -> Array[Building]:
+	return (tile as AIRealState.TileSnap).buildings
+
+
+func can_be_upgraded(_old_building: Building) -> bool:
+	# El snapshot no comprueba old.can_be_upgraded (divergencia con el vivo).
+	return true
+
+
+## Espejo de Tile.can_upgrade sobre el snapshot (compara LocationType por enum, no
+## por objeto). Sin la comprobación de coste, que se filtra aparte.
+func can_upgrade(tile, old_building: Building, new_building: Building) -> bool:
+	var t := tile as AIRealState.TileSnap
+	if new_building not in old_building.upgrades_to:
+		return false
+	if not new_building.allowed_biomes.is_empty() and t.biome not in new_building.allowed_biomes:
+		return false
+	if new_building.required_natural_resource != null \
+			and t.natural_resource != new_building.required_natural_resource:
+		return false
+	if not new_building.allowed_location_type.is_empty():
+		var fits := false
+		for lt in new_building.allowed_location_type:
+			if lt.type == t.location_type:
+				fits = true
+				break
+		if not fits:
+			return false
+	return true
+
+
+func colonizable_tiles() -> Array:
+	# Recorrido propio→vecinos libres con dedup (primer visto), como AdjacentRule.
+	var seen := {}
+	var result: Array = []
+	for id in _state.tiles:
+		var t := _state.tiles[id] as AIRealState.TileSnap
+		if t.owner != _owner:
+			continue
+		for nid in t.neighbor_ids:
+			if seen.has(nid):
+				continue
+			var nb := _state.tiles.get(nid) as AIRealState.TileSnap
+			if nb != null and nb.owner == AIRealState.OWNER_NONE:
+				seen[nid] = true
+				result.append(nb)
+	return result
+
+
+func tile_location_type(tile) -> int:
+	return (tile as AIRealState.TileSnap).location_type
+
+
+func open_front_pairs(_card) -> Array:
+	if AIRealSimulator._active_front_count(_state, _owner) \
+			>= AIRealSimulator._get_max_fronts(_state, _owner):
+		return []
+	var enemy := AIRealState.OWNER_RIVAL if _owner == AIRealState.OWNER_SELF \
+		else AIRealState.OWNER_SELF
+	var result: Array = []
+	for id in _state.tiles:
+		var t := _state.tiles[id] as AIRealState.TileSnap
+		if t.owner != _owner or _tile_in_front(id):
+			continue
+		for nid in t.neighbor_ids:
+			var nb := _state.tiles.get(nid) as AIRealState.TileSnap
+			if nb == null or nb.owner != enemy or _tile_in_front(nid):
+				continue
+			result.append({"source": t, "def": nb})
+	return result
+
+
+func tactic_targets() -> Array:
+	var result: Array = []
+	for i in range(_state.fronts.size()):
+		var front := _state.fronts[i] as AIRealState.FrontSnap
+		if front.is_resolved or front.side_of(_owner) == BattleFront.Side.NONE:
+			continue
+		result.append(i)
+	return result
+
+
+func _tile_in_front(tile_id: int) -> bool:
+	for f in _state.fronts:
+		var front := f as AIRealState.FrontSnap
+		if front.is_resolved:
+			continue
+		if front.attacker_tile_id == tile_id or front.defender_tile_id == tile_id:
+			return true
+	return false
 
 
 func recruit_front_max_troops() -> int:

@@ -112,6 +112,54 @@ func complement_bonus(_troop: Troop) -> float:
 func recruit_front_max_troops() -> int:
 	push_error("AIStateView.recruit_front_max_troops() sin implementar"); return -1
 
+## Bonus de tropas-por-reclutamiento de los modifiers activos (para el per_play de
+## la enumeración de RECRUIT). Espejo del cálculo de ModifierQuery en ambos mundos.
+func troops_per_recruit_bonus(_troop: Troop) -> int:
+	push_error("AIStateView.troops_per_recruit_bonus() sin implementar"); return 0
+
+# --- enumeración de construcción / mejora (legalidad) ---
+## Casillas propias, en el orden nativo de cada mundo (handles opacos).
+func owned_tiles() -> Array:
+	push_error("AIStateView.owned_tiles() sin implementar"); return []
+
+func can_build(_tile, _building: Building) -> bool:
+	push_error("AIStateView.can_build() sin implementar"); return false
+
+func tile_buildings(_tile) -> Array[Building]:
+	push_error("AIStateView.tile_buildings() sin implementar"); return []
+
+## True si el edificio puede mejorarse en absoluto (guarda del mundo vivo; el
+## snapshot no lo comprueba → siempre true).
+func can_be_upgraded(_old_building: Building) -> bool:
+	push_error("AIStateView.can_be_upgraded() sin implementar"); return true
+
+func can_upgrade(_tile, _old_building: Building, _new_building: Building) -> bool:
+	push_error("AIStateView.can_upgrade() sin implementar"); return false
+
+# --- enumeración de colonización / cambio de ubicación ---
+## Casillas libres colonizables (adyacentes a territorio propio), en el orden nativo
+## de cada mundo. COLONIZE usa dos mecanismos distintos (vivo: AdjacentRule; snapshot:
+## recorrido propio→vecinos-libres), por eso vive en la vista y no en AILegality.
+func colonizable_tiles() -> Array:
+	push_error("AIStateView.colonizable_tiles() sin implementar"); return []
+
+## Tipo de ubicación (enum) de la casilla, para el gating de CHANGE_LOCATION.
+func tile_location_type(_tile) -> int:
+	push_error("AIStateView.tile_location_type() sin implementar"); return 0
+
+# --- enumeración de apertura de frente / táctica ---
+## Pares (casilla propia origen, casilla enemiga destino) para abrir frente, como
+## diccionarios {"source", "def"} de handles. Vacío si no se puede abrir frente.
+## Dos mecanismos por mundo (vivo: EnemyAdjacentRule enemiga→propia; snapshot:
+## propia→enemiga), por eso vive en la vista.
+func open_front_pairs(_card) -> Array:
+	push_error("AIStateView.open_front_pairs() sin implementar"); return []
+
+## Frentes activos donde participamos, para jugar tácticas. El vivo devuelve los
+## BattleFront; el snapshot los ÍNDICES en state.fronts (cada enumerador interpreta).
+func tactic_targets() -> Array:
+	push_error("AIStateView.tactic_targets() sin implementar"); return []
+
 # --- apertura de frente ---
 ## Producción de oro/comida del RECURSO natural de la casilla (0 si no tiene). Es
 ## distinto de tile_gold_production (producción total de la casilla).

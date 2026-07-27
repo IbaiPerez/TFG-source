@@ -122,6 +122,80 @@ func complement_bonus(troop: Troop) -> float:
 	return AIHeuristic._complement_bonus(troop, _ctx.stats.troop_pool, _ctx)
 
 
+func troops_per_recruit_bonus(troop: Troop) -> int:
+	# Espejo del guarda de RecruitCard.get_effective_troops_per_play: sin
+	# modifier_manager (tests) el bonus es 0.
+	if _ctx.stats == null or _ctx.stats.modifier_manager == null:
+		return 0
+	return _ctx.stats.modifier_manager.get_troops_per_recruit_bonus(troop)
+
+
+func owned_tiles() -> Array:
+	return _ctx.stats.empire.controlled_tiles
+
+
+func can_build(tile, building: Building) -> bool:
+	return (tile as Tile).can_build(building)
+
+
+func tile_buildings(tile) -> Array[Building]:
+	return (tile as Tile).buildings
+
+
+func can_be_upgraded(old_building: Building) -> bool:
+	return old_building.can_be_upgraded(_ctx.stats)
+
+
+func can_upgrade(tile, old_building: Building, new_building: Building) -> bool:
+	return (tile as Tile).can_upgrade(old_building, new_building)
+
+
+func colonizable_tiles() -> Array:
+	# Mismo mecanismo que ColonizeCard.get_valid_targets: AdjacentRule sobre el imperio.
+	var rule := AdjacentRule.new()
+	rule.empire = _ctx.stats.empire
+	return rule.valid_targets()
+
+
+func tile_location_type(tile) -> int:
+	return (tile as Tile).location.type
+
+
+func open_front_pairs(card) -> Array:
+	var bfm = _ctx.battle_front_manager
+	if bfm == null:
+		return []
+	if not bfm.can_open_front():
+		return []
+	# Inyectar el bfm en la carta para que EnemyAdjacentRule filtre tiles ya en frente
+	# (mismo efecto colateral que el enumerador original).
+	(card as OpenFrontCard).battle_front_manager = bfm
+	var result: Array = []
+	for enemy in (card as OpenFrontCard).get_valid_targets(_ctx.stats):
+		for neighbor in (enemy as Tile).neighbors:
+			if neighbor == null:
+				continue
+			if neighbor.controller != _ctx.stats.empire:
+				continue
+			if BattleFront.is_tile_in_active_front(neighbor):
+				continue
+			result.append({"source": neighbor as Tile, "def": enemy as Tile})
+	return result
+
+
+func tactic_targets() -> Array:
+	var result: Array = []
+	if _ctx.battle_front_manager == null:
+		return result
+	for front in _ctx.battle_front_manager.active_fronts:
+		if front == null or front.is_resolved:
+			continue
+		if front.attacker_empire == _ctx.stats.empire \
+				or front.defender_empire == _ctx.stats.empire:
+			result.append(front)
+	return result
+
+
 func recruit_front_max_troops() -> int:
 	# Gate del vivo: cualquier frente activo (caché=todos, o los propios sin caché).
 	var fronts := _ctx._cache_active_fronts if _ctx._cache_valid \
