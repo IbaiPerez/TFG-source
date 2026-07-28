@@ -7,6 +7,10 @@ class_name ColonizeAdjacentEffect
 
 var preferred_biome:int = -1
 
+## Puerto de mutación (C6 §1.6.1). null → LiveWorldMutator (emite por Events, en vivo).
+## El snapshot inyectará un SnapshotWorldMutator para reusar este efecto sin el bus.
+var world_mutator: WorldMutator = null
+
 
 func _init(p_biome:int = -1):
 	preferred_biome = p_biome
@@ -15,7 +19,8 @@ func _init(p_biome:int = -1):
 func execute(context:EventContext, _chosen_card:Card = null) -> void:
 	var target := _find_target(context)
 	if target:
-		Events.change_tile_controller.emit(target, context.stats.empire)
+		var mutator := world_mutator if world_mutator != null else LiveWorldMutator.new()
+		mutator.set_controller(target, context.stats.empire)
 
 
 func _find_target(context:EventContext) -> Tile:
