@@ -103,7 +103,9 @@ func effective_build_cost(b: Building) -> int:
 
 
 func score_building_effects(effects: Array[BuildingEffect], gu: float, fu: float, mu: float) -> float:
-	return AIRealEvalStrong._score_building_effects(effects, _state, _owner, _emp, phase(), gu, fu, mu, _w)
+	# Se pasa `self` para que la rama AddCardToDeckEffect valore la carta con
+	# AIDeckScorer sin asignar otra vista en el camino caliente (C6 §1.6.5b).
+	return AIRealEvalStrong._score_building_effects(effects, _state, _owner, _emp, phase(), gu, fu, mu, _w, self)
 
 
 func tile_natural_resource(tile):
@@ -306,6 +308,61 @@ func change_location_adjust(base: float, tile, new_loc, gu: float, fu: float, _m
 				+ float(building.food_produced) * _w.changeloc_demo_food * fu \
 				+ float(building.flat_defense_bonus) * _w.changeloc_demo_defense
 	return base - demolished_penalty
+
+
+# --- valoración de carta para el mazo (C6 §1.6.5b) ---
+# El snapshot modela un ÚNICO mazo combinado (emp.deck), mientras el vivo separa
+# draw/discard; ambas medidas representan "el mazo activo" en su mundo.
+
+func same_type_card_count(card: Card) -> int:
+	var script := card.get_script() as Script
+	var count := 0
+	for c in _emp.deck:
+		if c != null and c.get_script() == script:
+			count += 1
+	return maxi(count, 1)   # ≥1, igual que el vivo (evita dividir por cero)
+
+
+func colonizable_count() -> int:
+	return AIRealEvalStrong._colonizable_count(_state, _owner)
+
+
+func upgradeable_count() -> int:
+	var count := 0
+	for id in _state.tiles:
+		var t := _state.tiles[id] as AIRealState.TileSnap
+		if t.owner != _owner:
+			continue
+		for building in t.buildings:
+			if building != null and not building.upgrades_to.is_empty():
+				count += 1
+	return count
+
+
+func buildable_slots() -> int:
+	var total := 0
+	for id in _state.tiles:
+		var t := _state.tiles[id] as AIRealState.TileSnap
+		if t.owner == _owner:
+			total += maxi(0, t.max_buildings - t.buildings.size())
+	return total
+
+
+func change_location_target_count(target_type: int) -> int:
+	var count := 0
+	for id in _state.tiles:
+		var t := _state.tiles[id] as AIRealState.TileSnap
+		if t.owner == _owner and t.location_type + 1 == target_type:
+			count += 1
+	return count
+
+
+func deck_size() -> int:
+	return _emp.deck.size()
+
+
+func recoverable_cards() -> Array[Card]:
+	return _emp.deck
 
 
 func open_front_win_factor(enemy_tile, biome_factor: float) -> float:

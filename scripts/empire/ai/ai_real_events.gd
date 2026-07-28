@@ -31,8 +31,10 @@ const MEGALOPOLIS: LocationType = preload("res://resources/location_type/megalop
 ## Punto de entrada: evalúa y resuelve (si dispara) el evento de fin de turno de
 ## `p_owner` sobre el snapshot. Devuelve el TurnEvent disparado o null.
 ## Espejo de TurnEventManager.evaluate + AIEventResolver.resolve.
+## `w` (C6 §1.6.5b) alimenta el valorador de carta unificado que usa la tienda. Es
+## opcional: sin pesos explícitos se usa el default cacheado, igual que el MCTS.
 static func process_turn_event(state: AIRealState, p_owner: int,
-		rng: RandomNumberGenerator) -> TurnEvent:
+		rng: RandomNumberGenerator, w: HeuristicWeights = null) -> TurnEvent:
 	var emp := state.empire(p_owner)
 	if emp == null or emp.available_events.is_empty():
 		return null
@@ -60,7 +62,7 @@ static func process_turn_event(state: AIRealState, p_owner: int,
 		picked = _weighted_pick_event(by_category[category], rng)
 
 	if picked != null:
-		_resolve_event(picked, state, p_owner, rng)
+		_resolve_event(picked, state, p_owner, rng, w)
 	return picked
 
 
@@ -320,12 +322,12 @@ static func _has_adjacent_enemy(state: AIRealState, p_owner: int) -> bool:
 # ============================================================
 
 static func _resolve_event(event: TurnEvent, state: AIRealState, p_owner: int,
-		rng: RandomNumberGenerator) -> void:
+		rng: RandomNumberGenerator, w: HeuristicWeights = null) -> void:
 	var emp := state.empire(p_owner)
 
 	# La tienda se resuelve aparte (compras/purgas), igual que AIEventResolver.
 	if event is ShopEvent:
-		_resolve_shop(event as ShopEvent, emp, state.turn_number, rng)
+		_resolve_shop(event as ShopEvent, state, p_owner, emp, state.turn_number, rng, w)
 		_mark_unique(event, emp)
 		return
 
@@ -676,8 +678,13 @@ static func _apply_urbanize_megalopolis(state: AIRealState, p_owner: int,
 ## tienda (unlocked + exclusivas), compra los ítems que la heurística considera
 ## valiosos y purga las cartas más débiles. El efecto que importa es que `deck`
 ## refleje las compras/purgas (PLAN §3.7); la decisión exacta es suelo heurístico.
-static func _resolve_shop(event: ShopEvent, emp: AIRealState.EmpireSnap,
-		turn: int, rng: RandomNumberGenerator) -> void:
+static func _resolve_shop(event: ShopEvent, state: AIRealState, p_owner: int,
+		emp: AIRealState.EmpireSnap, turn: int, rng: RandomNumberGenerator,
+		w: HeuristicWeights = null) -> void:
+	# Vista construida UNA vez para toda la resolución (C6 §1.6.5b): `emp` es una
+	# referencia, así que las compras/purgas que mutan el mazo se ven al instante.
+	var view := SnapshotStateView.new(state, p_owner,
+		w if w != null else HeuristicWeights.get_default())
 	var special := event.shop_type == ShopEvent.ShopType.SPECIAL
 	var num_cards := 3 if special else rng.randi_range(2, 3)
 	var base_turn := 12 if special else 8
@@ -691,7 +698,7 @@ static func _resolve_shop(event: ShopEvent, emp: AIRealState.EmpireSnap,
 	# --- Compras ---
 	for card in _weighted_pick_cards(pool, num_cards, turn, rng):
 		var price := _price_for_card(card, turn, base_turn, rng)
-		if emp.gold >= price and _should_buy(card, emp):
+		if emp.gold >= price and _should_buy(card, emp, view):
 			emp.gold -= price
 			emp.deck.append(card.duplicate())
 
@@ -699,10 +706,10 @@ static func _resolve_shop(event: ShopEvent, emp: AIRealState.EmpireSnap,
 	var purge_cost := ShopGenerator._get_purge_cost(emp.total_purges_done)
 	var purges_done := 0
 	while not emp.deck.is_empty() and purges_done < max_purges and emp.gold >= purge_cost:
-		var worst := _pick_weakest_card(emp)
+		var worst := _pick_weakest_card(emp, view)
 		if worst == null:
 			break
-		if _score_card_for_deck(worst, emp) >= _purge_threshold(emp):
+		if AIDeckScorer.score_card_for_deck(view, worst) >= _purge_threshold(emp):
 			break   # todas las cartas son suficientemente valiosas
 		emp.deck.erase(worst)
 		emp.gold -= purge_cost
@@ -757,10 +764,11 @@ static func _weighted_pick_cards(pool: Array[UnlockedCardEntry], count: int,
 ## ¿Comprar este ítem? Umbral que escala con el tamaño del mazo (espejo de
 ## AIHeuristic.should_buy_shop_item): mazo pequeño compra casi todo, mazo grande
 ## solo lo realmente valioso.
-static func _should_buy(card: Card, emp: AIRealState.EmpireSnap) -> bool:
+static func _should_buy(card: Card, emp: AIRealState.EmpireSnap,
+		view: AIStateView) -> bool:
 	var ratio := clampf(float(emp.deck.size() - 5) / 15.0, 0.0, 1.0)
 	var threshold := lerpf(5.0, 12.0, ratio)
-	return _score_card_for_deck(card, emp) >= threshold
+	return AIDeckScorer.score_card_for_deck(view, card) >= threshold
 
 
 ## Umbral de purga dinámico (espejo de AIHeuristic.dynamic_purge_threshold).
@@ -771,7 +779,7 @@ static func _purge_threshold(emp: AIRealState.EmpireSnap) -> float:
 
 ## Carta más prescindible del mazo (menor score). Protege una ColonizeCard si es
 ## la única (espejo de la protección de expansión de pick_card_to_remove).
-static func _pick_weakest_card(emp: AIRealState.EmpireSnap) -> Card:
+static func _pick_weakest_card(emp: AIRealState.EmpireSnap, view: AIStateView) -> Card:
 	var colonize_count := 0
 	for c in emp.deck:
 		if c is ColonizeCard:
@@ -781,63 +789,11 @@ static func _pick_weakest_card(emp: AIRealState.EmpireSnap) -> Card:
 	for c in emp.deck:
 		if c is ColonizeCard and colonize_count <= 1:
 			continue   # conservar al menos una ColonizeCard
-		var s := _score_card_for_deck(c, emp)
+		var s := AIDeckScorer.score_card_for_deck(view, c)
 		if s < worst_score:
 			worst_score = s
 			worst = c
 	return worst
-
-
-## Valor aproximado de una carta para el mazo (suelo heurístico, espejo
-## simplificado de AIHeuristic.score_card_for_deck sobre el snapshot: no dispone
-## del detalle de tiles/urgencias de escena, así que usa magnitudes por tipo
-## moduladas por urgencia económica y saturación de tipo en el mazo).
-static func _score_card_for_deck(card: Card, emp: AIRealState.EmpireSnap) -> float:
-	if card == null:
-		return 0.0
-	var gu := _gold_urgency(emp.gold_per_turn)
-	var fu := _food_urgency(emp.food)
-	var sat := 1.0 / (1.0 + _count_same_script(emp.deck, card) * 0.15)
-	var base := 5.0
-	# El orden respeta la jerarquía de score_card_for_deck (DirectBuild antes que Build).
-	if card is GenerateGoldCard:
-		base = (card as GenerateGoldCard).amount * 0.3 * gu
-	elif card is ColonizeCard:
-		base = 11.0
-	elif card is DirectBuildCard:
-		var db := card as DirectBuildCard
-		if not db.buildings.is_empty() and db.buildings[0] != null:
-			var b := db.buildings[0]
-			base = b.gold_produced * 5.0 * gu + b.food_produced * 4.0 * fu \
-				+ b.flat_defense_bonus * 8.0
-		else:
-			base = 5.0
-	elif card is BuildCard:
-		base = 12.0
-	elif card is UpgradeBuildingCard:
-		base = 10.0
-	elif card is RecruitCard:
-		base = 9.0
-	elif card is CardDrawCard:
-		base = lerpf(8.0, 14.0, clampf(float(emp.deck.size()) / 20.0, 0.0, 1.0))
-	elif card is OpenFrontCard:
-		base = 7.0
-	elif card is TacticCard:
-		base = 6.0
-	elif card is ChangeLocationTypeCard:
-		base = 8.0
-	elif card is RecoverCard:
-		base = 8.0
-	return base * sat
-
-
-static func _count_same_script(deck: Array[Card], card: Card) -> int:
-	var script := card.get_script() as Script
-	var n := 0
-	for c in deck:
-		if c.get_script() == script:
-			n += 1
-	return n
 
 
 # ============================================================

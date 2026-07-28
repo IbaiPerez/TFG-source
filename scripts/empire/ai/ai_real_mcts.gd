@@ -340,7 +340,7 @@ static func _apply_and_transition(state: AIRealState, move: AIRealOptions.Move,
 		return {"player": OWNER_RIVAL, "hand": rival_hand, "depth": depth, "leaf": false}
 
 	# El rival cerró su turno → fin de ronda: economía/ingresos/frentes/evento.
-	AIRealSimulator.advance_turn(state, rng, process_events)
+	AIRealSimulator.advance_turn(state, rng, process_events, config.heuristic_weights)
 	var d2 := depth + 1
 	var empty: Array[Card] = []
 	if d2 >= maxi(config.mcts_rollout_depth, 1) or AIRealEval.is_terminal(state):

@@ -279,9 +279,12 @@ static func _max_front_pressure(state: AIRealState, p_owner: int) -> float:
 # Efectos de edificio (espejo de AIHeuristic._score_building_effects / _score_stat_effect)
 # ---------------------------------------------------------------------------
 
+## `view` es la SnapshotStateView que ya construyó el llamante: se reutiliza para la
+## rama AddCardToDeckEffect (C6 §1.6.5b) sin asignar otra en el camino caliente.
 static func _score_building_effects(effects: Array[BuildingEffect], state: AIRealState,
 		p_owner: int, emp: AIRealState.EmpireSnap, phase: AIGamePhase.Phase,
-		gu: float, fu: float, mu: float, w: HeuristicWeights) -> float:
+		gu: float, fu: float, mu: float, w: HeuristicWeights,
+		view: AIStateView = null) -> float:
 	if effects.is_empty():
 		return 0.0
 	var score := 0.0
@@ -296,10 +299,10 @@ static func _score_building_effects(effects: Array[BuildingEffect], state: AIRea
 				(effect as AddBuildCostModifierEffect).percent, phase, w)
 		elif effect is AddCardToDeckEffect:
 			var card_added := (effect as AddCardToDeckEffect).card
-			if card_added != null:
-				# Reusa la aproximación-suelo ya existente sobre el snapshot (valorador
-				# de carta específico del snapshot; no se unifica aquí).
-				score += AIRealEvents._score_card_for_deck(card_added, emp)
+			if card_added != null and view != null:
+				# Valorador de carta UNIFICADO (C6 §1.6.5b): el snapshot pasa a usar la
+				# fórmula completa, sustituyendo su antigua aproximación-suelo.
+				score += AIDeckScorer.score_card_for_deck(view, card_added)
 		elif effect is GoldOnCard:
 			score += AIBuildingEffects.gold_on_card_score(
 				(effect as GoldOnCard).gold_reward, gu, w)

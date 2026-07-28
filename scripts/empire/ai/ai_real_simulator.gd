@@ -376,14 +376,15 @@ class _SnapFrontSlot extends RefCounted:
 ## el rollout profundo del MCTS — los eventos son caros y el rollout es una
 ## estimación; el árbol sí los modela en sus transiciones de ronda).
 static func advance_turn(state: AIRealState, rng: RandomNumberGenerator = null,
-		process_events: bool = true) -> void:
+		process_events: bool = true, w: HeuristicWeights = null) -> void:
 	if rng == null:
 		rng = RandomNumberGenerator.new()
 
 	# Evento de fin de turno (chance node): se resuelve antes del arranque del
 	# siguiente turno, igual que AIController evalúa el evento al final de _run_turn.
+	# `w` alimenta el valorador de carta de la tienda (C6 §1.6.5b).
 	if process_events:
-		AIRealEvents.process_turn_event(state, AIRealState.OWNER_SELF, rng)
+		AIRealEvents.process_turn_event(state, AIRealState.OWNER_SELF, rng, w)
 
 	# Decrementar la duración de los modifiers y expirar los agotados (espejo de
 	# ModifierManager.tick, que corre en process_turn_start).
