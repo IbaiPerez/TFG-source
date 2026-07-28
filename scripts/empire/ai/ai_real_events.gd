@@ -657,25 +657,10 @@ static func _apply_urbanize_megalopolis(state: AIRealState, p_owner: int,
 			continue
 		if t.buildings.size() < min_buildings:
 			continue
-		var surviving := 0.0
-		var demolished := 0.0
-		for b in t.buildings:
-			var survives := true
-			if not b.allowed_location_type.is_empty():
-				survives = false
-				for lt in b.allowed_location_type:
-					if lt.type >= Tile.location_type.Megalopolis:
-						survives = true
-						break
-			var val := b.gold_produced * 2.0 + b.food_produced * 1.5 + b.flat_defense_bonus
-			if survives:
-				surviving += val
-			else:
-				demolished += val
-		var res_val := 0.0
-		if t.natural_resource != null:
-			res_val = t.natural_resource.gold_produced * 1.5 + t.natural_resource.food_produced * 1.2
-		var tile_score := surviving + res_val - demolished
+		# Fórmula compartida con el estado vivo (C6 §1.6.6): valor de los edificios
+		# que sobreviven + recurso − los que se demolerán.
+		var tile_score := AIEventScoring.megalopolis_tile_value(
+			t.buildings, t.natural_resource)
 		if tile_score > best_score:
 			best_score = tile_score
 			best_id = id

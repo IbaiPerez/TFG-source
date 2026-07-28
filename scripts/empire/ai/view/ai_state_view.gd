@@ -196,3 +196,37 @@ func tile_max_buildings(_tile) -> int:
 ## snapshot usa una aproximación-suelo). Per-mundo: fórmula y asociatividad exactas.
 func change_location_adjust(_base: float, _tile, _new_loc, _gu: float, _fu: float, _mu: float) -> float:
 	push_error("AIStateView.change_location_adjust() sin implementar"); return _base
+
+# --- valoración de carta para el mazo (score_card_for_deck, C6 §1.6.5) ---
+## Copias de la misma clase de carta en el mazo activo (≥1). Base de la saturación
+## por tipo. El vivo cuenta draw+discard; el snapshot su mazo combinado.
+func same_type_card_count(_card: Card) -> int:
+	push_error("AIStateView.same_type_card_count() sin implementar"); return 1
+
+## Casillas colonizables (para ColonizeCard). El vivo usa el conteo cacheado del
+## contexto (puede ser -1 en tests sin mapa); el snapshot su recorrido propio.
+func colonizable_count() -> int:
+	push_error("AIStateView.colonizable_count() sin implementar"); return 0
+
+## Edificios construidos con al menos una mejora disponible (para UpgradeBuildingCard).
+func upgradeable_count() -> int:
+	push_error("AIStateView.upgradeable_count() sin implementar"); return 0
+
+## Huecos de edificio libres sumados sobre las casillas propias (para BuildCard).
+func buildable_slots() -> int:
+	push_error("AIStateView.buildable_slots() sin implementar"); return 0
+
+## Casillas propias que un ChangeLocationTypeCard a `target_type` podría urbanizar
+## (su tipo actual es exactamente el anterior: location.type + 1 == target_type).
+func change_location_target_count(_target_type: int) -> int:
+	push_error("AIStateView.change_location_target_count() sin implementar"); return 0
+
+## Tamaño del mazo activo (draw+discard en el vivo, mazo combinado en el snapshot)
+## que alimenta la urgencia de CardDrawCard. Distinto de deck_urgency_size (draw).
+func deck_size() -> int:
+	push_error("AIStateView.deck_size() sin implementar"); return 0
+
+## Cartas recuperables por un RecoverCard (draw+discard en el vivo). El scorer filtra
+## nulls y RecoverCards y puntúa la mejor recursivamente.
+func recoverable_cards() -> Array[Card]:
+	push_error("AIStateView.recoverable_cards() sin implementar"); return []

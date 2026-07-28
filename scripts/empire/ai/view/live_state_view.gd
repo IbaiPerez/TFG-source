@@ -270,6 +270,45 @@ func change_location_adjust(base: float, tile, new_loc, gu: float, fu: float, mu
 	return base - demolished_penalty + resource_bonus + unlock_bonus
 
 
+func same_type_card_count(card: Card) -> int:
+	return AIHeuristic._card_type_count(card, _ctx)
+
+
+func colonizable_count() -> int:
+	return _ctx.colonizable_tiles_count
+
+
+func upgradeable_count() -> int:
+	return AIHeuristic._upgradeable_buildings(_ctx)
+
+
+func buildable_slots() -> int:
+	return AIHeuristic._buildable_slots(_ctx)
+
+
+func change_location_target_count(target_type: int) -> int:
+	var count := 0
+	for t in _ctx.stats.empire.controlled_tiles:
+		if t.location != null and t.location.type + 1 == target_type:
+			count += 1
+	return count
+
+
+func deck_size() -> int:
+	return AIHeuristic._current_deck_size(_ctx)
+
+
+func recoverable_cards() -> Array[Card]:
+	var result: Array[Card] = []
+	if _ctx.stats == null:
+		return result
+	if _ctx.stats.draw_pile:
+		result.append_array(_ctx.stats.draw_pile.cards)
+	if _ctx.stats.discard_pile:
+		result.append_array(_ctx.stats.discard_pile.cards)
+	return result
+
+
 func open_front_win_factor(enemy_tile, biome_factor: float) -> float:
 	var w := weights()
 	var win_factor := w.openfront_win_default

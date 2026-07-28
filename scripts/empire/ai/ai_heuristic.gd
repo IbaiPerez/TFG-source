@@ -247,15 +247,6 @@ static func _card_type_count(card: Card, ctx: AITurnContext) -> int:
 	return maxi(count, 1)
 
 
-## Factor de saturación por tipo de carta [0.25, 1.0].
-## La primera copia vale el 100 %; las siguientes tienen rendimiento decreciente.
-## Ejemplos: 1 copia → 1.0 | 2 → 0.67 | 3 → 0.50 | 4 → 0.40 | 5 → 0.33 (mín 0.25)
-## Así la IA evita acumular muchas copias del mismo tipo cuando el mazo ya las
-## tiene cubiertas, incluso si el estado del mapa las favorece.
-static func _type_saturation(card: Card, ctx: AITurnContext) -> float:
-	return clampf(1.0 / float(_card_type_count(card, ctx)), ctx.get_weights().type_sat_min, 1.0)
-
-
 ## Factor de excedente económico [1.0, 3.0].
 ## Cuando el empire tiene oro y comida muy por encima de los umbrales cómodos
 ## para su fase, el coste de oportunidad de reclutar o abrir frentes es mínimo
@@ -623,100 +614,10 @@ static func _score_direct_build(option: AIPlayOption, ctx: AITurnContext,
 ## Usado para decidir qué comprar en tienda, qué purgar y qué eliminar
 ## cuando un evento pide eliminar una carta.
 static func score_card_for_deck(card: Card, ctx: AITurnContext) -> float:
-	if card == null:
-		return 0.0
-	var w := ctx.get_weights()
-	var phase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles)
-	var gu  := _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	var fu  := _food_urgency(ctx.stats.food, phase, w)
-	var mu  := _military_urgency(ctx, phase)
-	var exp := _expansion_factor(ctx)  # presión expansionista: tiles adj. libres
-	# Rendimiento decreciente por copias: la n-ésima copia del mismo tipo vale
-	# menos aunque el estado del mapa la favorezca. Se multiplica en todos los
-	# returns para que la saturación de mazo afecte a cualquier tipo de carta.
-	var sat := _type_saturation(card, ctx)
-
-	if card is ColonizeCard:
-		# Sin tiles colonizables: carta inútil, eliminar primero.
-		var avail := ctx.colonizable_tiles_count
-		if avail == 0:
-			return w.scd_colonize_empty * sat
-		return lerpf(w.scd_colonize_lo, w.scd_colonize_hi, exp) * sat
-
-	if card is DirectBuildCard:
-		var db := card as DirectBuildCard
-		if not db.buildings.is_empty() and db.buildings[0] != null:
-			var b := db.buildings[0]
-			return (b.gold_produced * w.scd_db_gold * gu \
-				  + b.food_produced * w.scd_db_food * fu \
-				  + b.flat_defense_bonus * w.scd_db_defense * mu) * sat
-		return w.scd_db_default * sat
-
-	if card is UpgradeBuildingCard:
-		var upgrades := _upgradeable_buildings(ctx)
-		if upgrades == 0:
-			return w.scd_upg_none * sat
-		return lerpf(w.scd_upg_lo, w.scd_upg_hi, clampf(float(upgrades) / w.scd_upg_ref, 0.0, 1.0)) * sat
-
-	# BuildCard genérica: valioso solo si hay huecos de edificio libres.
-	if card is BuildCard:
-		var slots := _buildable_slots(ctx)
-		if slots == 0:
-			return w.scd_build_none * sat
-		return lerpf(w.scd_build_lo, w.scd_build_hi, clampf(float(slots) / w.scd_build_ref, 0.0, 1.0)) * sat
-
-	if card is RecruitCard:
-		# troop_sat: rendimiento decreciente por pool grande (diferente a sat por copias).
-		var troop_sat := 1.0 / (1.0 + ctx.stats.troop_pool.size() * w.recruit_saturation_k)
-		return (w.scd_recruit_base + mu * w.scd_recruit_mu) * troop_sat * sat
-
-	if card is OpenFrontCard:
-		return (w.scd_openfront_base + mu * w.scd_openfront_mu) * sat
-
-	if card is TacticCard:
-		return (w.scd_tactic_base + mu * w.scd_tactic_mu) * sat
-
-	if card is ChangeLocationTypeCard:
-		var clt_card := card as ChangeLocationTypeCard
-		if clt_card.location_type == null:
-			return w.scd_clt_invalid * sat
-		var valid_count := 0
-		for t in ctx.stats.empire.controlled_tiles:
-			if t.location != null \
-					and t.location.type + 1 == clt_card.location_type.type:
-				valid_count += 1
-		if valid_count == 0:
-			return w.scd_clt_invalid * sat
-		var tile_factor := clampf(float(valid_count) / w.scd_clt_ref, 0.0, 1.0)
-		if ctx.stats.food < clt_card.location_type.food_consumption:
-			return lerpf(w.scd_clt_poor_lo, w.scd_clt_poor_hi, tile_factor) * sat
-		return lerpf(w.scd_clt_lo, w.scd_clt_hi, tile_factor) * sat
-
-	if card is CardDrawCard:
-		var deck_ratio := clampf(float(_current_deck_size(ctx)) / w.scd_draw_ref, 0.0, 1.0)
-		return lerpf(w.scd_draw_lo, w.scd_draw_hi, deck_ratio) * sat
-
-	if card is RecoverCard:
-		var best_score := 0.0
-		if ctx.stats != null:
-			var all_cards: Array[Card] = []
-			if ctx.stats.draw_pile:
-				all_cards.append_array(ctx.stats.draw_pile.cards)
-			if ctx.stats.discard_pile:
-				all_cards.append_array(ctx.stats.discard_pile.cards)
-			for c in all_cards:
-				if c == null or c is RecoverCard:
-					continue
-				var s := score_card_for_deck(c, ctx)
-				if s > best_score:
-					best_score = s
-		# scd_recover_frac del valor de la mejor carta recuperable, entre lo y hi.
-		return clampf(best_score * w.scd_recover_frac, w.scd_recover_lo, w.scd_recover_hi) * sat
-
-	if card is GenerateGoldCard:
-		return (card as GenerateGoldCard).amount * w.scd_gold_weight * gu * sat
-
-	return w.scd_unknown * sat  # tipo desconocido: valor neutro
+	# Fórmula unificada contra el puerto (C6 §1.6.5): AIDeckScorer la escribe una vez;
+	# LiveStateView reproduce exactamente los helpers vivos (urgencias cacheadas de la
+	# decisión, conteos de tiles) → byte-idéntico a la versión inline anterior.
+	return AIDeckScorer.score_card_for_deck(LiveStateView.new(ctx), card)
 
 
 ## De entre los candidatos, devuelve la carta con menor valor para el mazo

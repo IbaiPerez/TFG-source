@@ -260,14 +260,22 @@ func test_deck_urgency_small_pile_scores_higher_than_large() -> void:
 
 
 # ============================================================
-#  _type_saturation
+#  Saturación por tipo (clampf(1 / _card_type_count, type_sat_min, 1))
 # ============================================================
+
+## Réplica local de la antigua AIHeuristic._type_saturation (borrada en C6 §1.6.5: la
+## fórmula vive ahora en AIDeckScorer). Conserva la cobertura del conteo sobre un mazo
+## real + el clamp, apoyándose en el helper superviviente _card_type_count.
+func _type_sat(card: Card, ctx: AITurnContext) -> float:
+	return clampf(1.0 / float(AIHeuristic._card_type_count(card, ctx)),
+		ctx.get_weights().type_sat_min, 1.0)
+
 
 func test_type_saturation_single_copy_returns_one() -> void:
 	# 0 copias en mazo → _card_type_count=maxi(0,1)=1 → sat=1.0
 	var ctx := _make_ctx(_make_stats())
 	var card := GenerateGoldCard.new()
-	assert_almost_eq(AIHeuristic._type_saturation(card, ctx), 1.0, 0.01)
+	assert_almost_eq(_type_sat(card, ctx), 1.0, 0.01)
 
 
 func test_type_saturation_two_copies() -> void:
@@ -277,7 +285,7 @@ func test_type_saturation_two_copies() -> void:
 		stats.draw_pile.add_card(GenerateGoldCard.new())
 	var ctx := _make_ctx(stats)
 	var card := GenerateGoldCard.new()
-	assert_almost_eq(AIHeuristic._type_saturation(card, ctx), 0.5, 0.01)
+	assert_almost_eq(_type_sat(card, ctx), 0.5, 0.01)
 
 
 func test_type_saturation_four_copies_hits_minimum() -> void:
@@ -287,7 +295,7 @@ func test_type_saturation_four_copies_hits_minimum() -> void:
 		stats.draw_pile.add_card(GenerateGoldCard.new())
 	var ctx := _make_ctx(stats)
 	var card := GenerateGoldCard.new()
-	assert_almost_eq(AIHeuristic._type_saturation(card, ctx), 0.25, 0.01)
+	assert_almost_eq(_type_sat(card, ctx), 0.25, 0.01)
 
 
 func test_type_saturation_five_copies_clamped_to_minimum() -> void:
@@ -297,7 +305,7 @@ func test_type_saturation_five_copies_clamped_to_minimum() -> void:
 		stats.draw_pile.add_card(GenerateGoldCard.new())
 	var ctx := _make_ctx(stats)
 	var card := GenerateGoldCard.new()
-	assert_almost_eq(AIHeuristic._type_saturation(card, ctx), 0.25, 0.01,
+	assert_almost_eq(_type_sat(card, ctx), 0.25, 0.01,
 		"5 copias: saturación mínima debe ser 0.25 (no 0.2)")
 
 

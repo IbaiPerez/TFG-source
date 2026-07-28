@@ -144,31 +144,10 @@ static func _pick_best_megalopolis_tile(eligible: Array) -> Tile:
 		var tile := entry as Tile
 		if tile == null:
 			continue
-		var surviving_value := 0.0
-		var demolished_penalty := 0.0
-		for b in tile.buildings:
-			if b == null:
-				continue
-			# Un edificio se demolerá si su allowed_location_type no está vacío
-			# y no incluye Megalópolis (type == 2 según LocationType.Type).
-			var survives := true
-			if not b.allowed_location_type.is_empty():
-				survives = false
-				for lt in b.allowed_location_type:
-					if lt.type >= Tile.location_type.Megalopolis:
-						survives = true
-						break
-			if survives:
-				surviving_value += b.gold_produced * 2.0 + b.food_produced * 1.5 \
-								 + b.flat_defense_bonus * 1.0
-			else:
-				demolished_penalty += b.gold_produced * 2.0 + b.food_produced * 1.5 \
-								    + b.flat_defense_bonus * 1.0
-		var res_val := 0.0
-		if tile.natural_resource != null:
-			res_val = tile.natural_resource.gold_produced * 1.5 \
-					+ tile.natural_resource.food_produced * 1.2
-		var tile_score := surviving_value + res_val - demolished_penalty
+		# Fórmula compartida con el snapshot (C6 §1.6.6): valor de los edificios
+		# que sobreviven + recurso − los que se demolerán.
+		var tile_score := AIEventScoring.megalopolis_tile_value(
+			tile.buildings, tile.natural_resource)
 		if tile_score > best_score:
 			best_score = tile_score
 			best_tile = tile
