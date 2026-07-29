@@ -72,9 +72,26 @@ func test_compare_modes() -> void:
 	if env_games != "":
 		n_games = int(env_games)
 
+	# Subconjunto de emparejamientos a correr. Override por env (lista de `name`
+	# separados por comas): MODE_CMP_MATCHUPS="ISMCTS_H_vs_HEUR". Sin override, el
+	# round-robin completo. Útil para medir UN emparejamiento (p.ej. A/B de un
+	# cambio en el MCTS contra la heurística, que es un oponente fijo).
+	var matchups: Array = MATCHUPS
+	var env_matchups := OS.get_environment("MODE_CMP_MATCHUPS")
+	if env_matchups != "":
+		var wanted := []
+		for tok in env_matchups.split(","):
+			wanted.append(tok.strip_edges())
+		matchups = []
+		for mu in MATCHUPS:
+			if String(mu["name"]) in wanted:
+				matchups.append(mu)
+		assert_false(matchups.is_empty(),
+			"MODE_CMP_MATCHUPS='%s' no casa con ningún emparejamiento" % env_matchups)
+
 	# Cada (emparejamiento, presupuesto) corre en SECUENCIA y vuelca su JSON en
 	# cuanto termina, así los primeros resultados están disponibles sin esperar.
-	for mu in MATCHUPS:
+	for mu in matchups:
 		for budget in budgets:
 			WorldMap.map = []
 			WorldMap.map_as_dict = {}
