@@ -43,8 +43,16 @@ const NEIGHBOR_WORLD_OFFSET = [
 ]
 
 
+## Sustituye el mapa actual. `map_as_dict` se REINICIA, no se acumula: WorldMap es un
+## autoload y sobrevive a los cambios de escena, así que al empezar o cargar una
+## segunda partida en el mismo proceso las entradas de la anterior seguían dentro. Si
+## el mapa nuevo era más pequeño (otro radio), las posiciones no sobrescritas
+## devolvían casillas YA LIBERADAS, y `get_tile_neighbors` las metía en un
+## `Array[Tile]` tipado → "previously freed object instance".
+## (Los arneses de simulación y varios tests lo limpiaban a mano; eso era el síntoma.)
 func set_map(all_tiles:Array[Tile]):
 	map = all_tiles
+	map_as_dict.clear()
 	for t in all_tiles:
 		map_as_dict[Vector2(t.pos_data.grid_position.x, t.pos_data.grid_position.y)] = t
 
