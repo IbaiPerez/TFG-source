@@ -106,42 +106,41 @@ static func clear_active_instances() -> void:
 	BattleFrontRegistry.clear()
 
 
-## Calcula el ataque total de un bando (tropas + bioma + edificios + bonuses de cartas).
+## Calcula el ataque total de un bando (tropas + bioma + bonuses de cartas).
 ##
 ## El ataque base de las tropas se pasa por TroopEffectiveness para aplicar
 ## el multiplicador piedra-papel-tijera contra la composición enemiga, y
 ## después se escala por el modificador de bioma de la tile **contraria**
 ## (atacar un bosque/montaña es más difícil que asaltar una pradera). Los
-## edificios y los bonuses de cartas tácticas no se ven afectados por el
-## bioma base — los bonuses tienen su propio modificador capturado al jugar
-## la carta.
+## bonuses de cartas tácticas no se ven afectados por el bioma base — tienen
+## su propio modificador capturado al jugar la carta.
+##
+## Los EDIFICIOS no suman ataque: ninguno tiene ese campo (§2.1). El sumando se
+## omite y `CombatMath.total_attack` lo deja en 0.0, que sigue siendo el punto de
+## extensión si algún día existen edificios ofensivos.
 func get_total_attack(side: BattleFront.Side) -> float:
-	var own_tile: Tile
 	var enemy_tile: Tile
 	var troops: Array[Troop]
 	var enemy_troops: Array[Troop]
 	var bonuses: Array
 
 	if side == BattleFront.Side.ATTACKER:
-		own_tile = attacker_tile
 		enemy_tile = defender_tile
 		troops = attacker_troops
 		enemy_troops = defender_troops
 		bonuses = attacker_bonuses
 	else:
-		own_tile = defender_tile
 		enemy_tile = attacker_tile
 		troops = defender_troops
 		enemy_troops = attacker_troops
 		bonuses = defender_bonuses
 
 	# El bioma escala el ATK efectivo por la tile CONTRARIA; combat_mult es la
-	# penalización económica del imperio del bando. Edificios y bonuses no pasan
-	# por esos multiplicadores (ver CombatMath.total_attack).
+	# penalización económica del imperio del bando. Los bonuses no pasan por esos
+	# multiplicadores (ver CombatMath.total_attack).
 	return CombatMath.total_attack(troops, enemy_troops, bonuses,
 		_get_biome_attack_multiplier(enemy_tile),
-		_get_side_combat_multiplier(side),
-		_get_building_attack(own_tile))
+		_get_side_combat_multiplier(side))
 
 
 ## Calcula la defensa total de un bando.
@@ -434,8 +433,3 @@ func _get_building_defense(tile: Tile) -> float:
 	for building in tile.buildings:
 		total += float(building.flat_defense_bonus)
 	return total
-
-
-## Reservado para futuros edificios con bonus de ataque.
-func _get_building_attack(_tile: Tile) -> float:
-	return 0.0

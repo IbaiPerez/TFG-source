@@ -63,56 +63,55 @@ static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_numb
 	ctx.modifier_manager = p_modifier_manager
 	ctx.turn_number = p_turn_number
 
+	_collect_economy(ctx, p_stats, p_modifier_manager)
+	_collect_deck(ctx, p_stats)
+	_collect_tiles(ctx, p_stats.empire)
+	_collect_military(ctx, p_stats, p_battle_front_manager, p_turn_number)
+	return ctx
+
+
+static func _collect_economy(ctx:EventContext, p_stats:Stats,
+		p_modifier_manager:ModifierManager) -> void:
 	ctx.total_gold = p_stats.total_gold
 	ctx.gold_per_turn = p_stats.gold_per_turn
 	ctx.food = p_stats.food
 	ctx.controlled_tiles = p_stats.empire.controlled_tiles
 	ctx.active_modifier_count = p_modifier_manager.active_modifiers.size()
+	ctx.types_ever_recruited = p_stats.types_ever_recruited
+	ctx.used_unique_events = p_stats.used_unique_events
 
-	# Recopilar todas las cartas del mazo (draw + discard)
+
+## Mazo activo (draw + discard) y sus recuentos por id y por tipo.
+static func _collect_deck(ctx:EventContext, p_stats:Stats) -> void:
 	var all_cards:Array[Card] = []
 	all_cards.append_array(p_stats.draw_pile.cards)
 	all_cards.append_array(p_stats.discard_pile.cards)
 	ctx.cards_in_deck = all_cards
-
-	# Contar cartas por id
-	ctx.card_count_by_id = {}
 	for card in all_cards:
 		ctx.card_count_by_id[card.id] = ctx.card_count_by_id.get(card.id, 0) + 1
-
-	# Contar cartas por tipo
-	ctx.card_count_by_type = {}
-	for card in all_cards:
 		ctx.card_count_by_type[card.type] = ctx.card_count_by_type.get(card.type, 0) + 1
 
-	# Indexar tiles por recurso natural
-	ctx.tiles_by_resource = {}
+
+## Índices y agregados de territorio, en UNA sola pasada sobre las casillas propias
+## (antes eran cinco recorridos independientes del mismo array).
+##
+## Los contenedores ya nacen vacíos y TIPADOS en la declaración: reasignarlos con un
+## literal sin tipo sería un error en tiempo de ejecución.
+static func _collect_tiles(ctx:EventContext, empire:Empire) -> void:
 	for tile in ctx.controlled_tiles:
 		if tile.natural_resource:
 			if not ctx.tiles_by_resource.has(tile.natural_resource):
 				ctx.tiles_by_resource[tile.natural_resource] = []
 			ctx.tiles_by_resource[tile.natural_resource].append(tile)
-
-	# Indexar tiles por bioma
-	ctx.tiles_by_biome = {}
-	for tile in ctx.controlled_tiles:
 		if tile.mesh_data:
 			if not ctx.tiles_by_biome.has(tile.mesh_data.type):
 				ctx.tiles_by_biome[tile.mesh_data.type] = []
 			ctx.tiles_by_biome[tile.mesh_data.type].append(tile)
-
-	# Indexar tiles por tipo de localizacion
-	ctx.tiles_by_location = {}
-	for tile in ctx.controlled_tiles:
 		if tile.location:
 			if not ctx.tiles_by_location.has(tile.location.type):
 				ctx.tiles_by_location[tile.location.type] = []
 			ctx.tiles_by_location[tile.location.type].append(tile)
 
-	# Agregados de casilla + adyacencia libre (C6 §1.6.2). Los contenedores ya nacen
-	# vacíos y TIPADOS en la declaración; reasignarlos con un literal sin tipo sería
-	# un error de asignación en tiempo de ejecución.
-	for tile in ctx.controlled_tiles:
 		var tf := TileFacts.new()
 		tf.natural_resource = tile.natural_resource
 		tf.biome = tile.mesh_data.type if tile.mesh_data else -1
@@ -122,33 +121,27 @@ static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_numb
 			if building != null:
 				tf.building_names.append(building.name)
 		ctx.tile_facts.append(tf)
+
+		# Adyacencia: casillas libres (por bioma) y presencia de otro imperio.
+		# Funciona igual para casillas terrestres y oceánicas: `neighbors` está
+		# poblado para TODAS las del mapa (world_generator.set_neighbors) y
+		# `controller` se asigna al colonizar, sea cual sea el bioma.
 		for neighbor in tile.neighbors:
-			if neighbor is Tile and neighbor.controller == null:
+			if not (neighbor is Tile):
+				continue
+			if neighbor.controller == null:
 				ctx.has_adjacent_uncontrolled = true
 				if neighbor.mesh_data:
 					ctx.adjacent_uncontrolled_biomes[neighbor.mesh_data.type] = true
+			elif neighbor.controller != empire:
+				ctx.has_adjacent_enemy = true
 
-	ctx.types_ever_recruited = p_stats.types_ever_recruited
-	ctx.used_unique_events = p_stats.used_unique_events
 
-	# Datos militares
+static func _collect_military(ctx:EventContext, p_stats:Stats,
+		p_battle_front_manager:BattleFrontManager, p_turn_number:int) -> void:
 	ctx.troop_pool_size = p_stats.troop_pool.size()
 	if p_battle_front_manager:
 		ctx.active_front_count = p_battle_front_manager.active_fronts.size()
-
-	# Comprobar si hay alguna tile controlada adyacente a otro imperio.
-	# Funciona correctamente tanto para tiles terrestres como oceánicas:
-	# tile.neighbors está poblado para todas las tiles del mapa (incluida Ocean)
-	# por world_generator.set_neighbors(), y tile.controller se asigna al
-	# colonizar independientemente del bioma.
-	ctx.has_adjacent_enemy = false
-	for tile in ctx.controlled_tiles:
-		for neighbor in tile.neighbors:
-			if neighbor is Tile and neighbor.controller != null and neighbor.controller != p_stats.empire:
-				ctx.has_adjacent_enemy = true
-				break
-		if ctx.has_adjacent_enemy:
-			break
 
 	# Salvaguarda de progresión: si a partir del turno 20 ningún rival es
 	# adyacente, probablemente los imperios están en masas de tierra separadas
@@ -159,8 +152,6 @@ static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_numb
 	# no afecta a ninguna otra condición del sistema.
 	if not ctx.has_adjacent_enemy and p_turn_number >= 20:
 		ctx.has_adjacent_enemy = true
-
-	return ctx
 
 
 ## Construye el MISMO contexto agregado desde el snapshot del MCTS (C6 §1.6.2), para

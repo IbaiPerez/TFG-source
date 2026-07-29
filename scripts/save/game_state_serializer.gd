@@ -67,9 +67,32 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 		push_warning("[GameStateSerializer] No se encontró Scene/TileParent")
 		return false
 
-	# 1) Reconstruir mapa.
 	var tiles_data:Array = snapshot.get("tiles", [])
-	var settings_path:String = snapshot.get("generation_settings", "")
+	var empires_data:Array = snapshot.get("empires", [])
+
+	_restore_tiles(tiles_data, snapshot.get("generation_settings", ""), tile_parent)
+	# Instancias frescas de Empire (por nombre) y su territorio.
+	var empires_by_name:Dictionary = _instantiate_empires(empires_data)
+	_assign_tile_controllers(tiles_data, empires_by_name)
+	_apply_pending_buildings(tiles_data)
+
+	var turn_manager:TurnManager = _setup_turn_manager(map_node)
+	var player_stats:Stats = _restore_controllers(empires_data, empires_by_name,
+		map_node, turn_manager)
+	_reapply_building_effects(tiles_data, turn_manager)
+	_restore_battle_fronts(snapshot.get("battle_fronts", []), empires_by_name, turn_manager)
+
+	var tm_data:Dictionary = snapshot.get("turn_manager", {})
+	turn_manager.round_number = int(tm_data.get("round_number", 1))
+	turn_manager.current_index = int(tm_data.get("current_index", 0))
+
+	_init_card_pile_ui(map_node)
+	return player_stats != null
+
+
+## 1) Reconstruye el mapa y la adyacencia, partiendo de cero.
+static func _restore_tiles(tiles_data:Array, settings_path:String,
+		tile_parent:Node3D) -> void:
 	var settings:GenerationSettings = null
 	if settings_path != "" and ResourceLoader.exists(settings_path):
 		settings = load(settings_path) as GenerationSettings
@@ -82,14 +105,11 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 	for t in WorldMap.map:
 		t.neighbors = WorldMap.get_tile_neighbors(t)
 
-	# 2) Crear instancias frescas de Empire (por nombre).
-	var empires_data:Array = snapshot.get("empires", [])
-	var empires_by_name:Dictionary = _instantiate_empires(empires_data)
 
-	# 3) Asignar controllers (Empire) a tiles.
+## 2) Devuelve cada casilla a su imperio.
+static func _assign_tile_controllers(tiles_data:Array, empires_by_name:Dictionary) -> void:
 	for entry in tiles_data:
-		var pos := Vector2(entry["pos"][0], entry["pos"][1])
-		var tile:Tile = WorldMap.map_as_dict.get(pos)
+		var tile := _tile_at(entry)
 		if tile == null:
 			continue
 		var controller_path:String = entry.get("controller_path", "")
@@ -97,18 +117,22 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 			var emp:Empire = empires_by_name[controller_path]
 			emp.add_tile(tile)
 
-	# 4) Reaplicar buildings (sin descontar coste; efectos se aplican luego).
+
+## 3) Reaplica los edificios (sin descontar coste; sus efectos van aparte).
+static func _apply_pending_buildings(tiles_data:Array) -> void:
 	for entry in tiles_data:
-		var pos := Vector2(entry["pos"][0], entry["pos"][1])
-		var tile:Tile = WorldMap.map_as_dict.get(pos)
+		var tile := _tile_at(entry)
 		if tile == null:
 			continue
 		TileSerializer.apply_buildings_pending(tile, entry.get("buildings", []))
 
-	# 5) Crear PlayerHandler y AIControllers, asignándoles sus stats restaurados.
-	var turn_manager:TurnManager = _setup_turn_manager(map_node)
-	var player_stats:Stats = null
 
+## 4) Crea PlayerHandler y AIControllers con sus stats restauradas, los registra en
+## el TurnManager y reengancha la mano del jugador. Devuelve las stats del jugador
+## (null si el snapshot no traía ninguno → la carga se considera fallida).
+static func _restore_controllers(empires_data:Array, empires_by_name:Dictionary,
+		map_node:Node3D, turn_manager:TurnManager) -> Stats:
+	var player_stats:Stats = null
 	for empire_entry in empires_data:
 		var emp_path:String = empire_entry.get("empire_path", "")
 		var empire:Empire = empires_by_name.get(emp_path)
@@ -135,46 +159,54 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 
 		if is_player:
 			player_stats = stats
-			# Conectar la mano del jugador a su stats restaurada.
-			var ui_layer := map_node.get_node_or_null(MapScenePaths.UI_LAYER)
-			if ui_layer:
-				ui_layer.set("stats", stats)
-			# Restaurar la mano y el contador de cartas jugadas.
-			var ph:PlayerHandler = controller as PlayerHandler
-			if ph and ph.hand:
-				ph.hand.stats = stats
-				_restore_player_hand(ph.hand, empire_entry.get("hand_cards", []), stats)
-				ph.hand.cards_played_this_turn = int(empire_entry.get("cards_played_this_turn", 0))
+			_restore_player_ui(map_node, controller, empire_entry, stats)
+	return player_stats
 
-	# 5b) Reaplicar efectos de buildings que sí deben reactivarse al cargar
-	# (los que conectan señales runtime, p.ej. GoldOnCard). Los efectos que
-	# producen modifiers (`should_reapply_on_load() == false`) NO se
-	# reaplican: sus modifiers ya vinieron restaurados desde el snapshot.
+
+## Reengancha la UI y la mano del jugador humano a sus stats restauradas.
+static func _restore_player_ui(map_node:Node3D, controller:EmpireController,
+		empire_entry:Dictionary, stats:Stats) -> void:
+	var ui_layer := map_node.get_node_or_null(MapScenePaths.UI_LAYER)
+	if ui_layer:
+		ui_layer.set("stats", stats)
+	var ph:PlayerHandler = controller as PlayerHandler
+	if ph and ph.hand:
+		ph.hand.stats = stats
+		_restore_player_hand(ph.hand, empire_entry.get("hand_cards", []), stats)
+		ph.hand.cards_played_this_turn = int(empire_entry.get("cards_played_this_turn", 0))
+
+
+## 5) Reaplica los efectos de edificio que SÍ deben reactivarse al cargar (los que
+## conectan señales runtime, p.ej. GoldOnCard). Los que producen modifiers
+## (`should_reapply_on_load() == false`) NO se reaplican: sus modifiers ya vinieron
+## restaurados desde el snapshot, y reaplicarlos los duplicaría.
+static func _reapply_building_effects(tiles_data:Array, turn_manager:TurnManager) -> void:
 	for entry in tiles_data:
-		var pos2 := Vector2(entry["pos"][0], entry["pos"][1])
-		var tile2:Tile = WorldMap.map_as_dict.get(pos2)
-		if tile2 == null or tile2.controller == null:
+		var tile := _tile_at(entry)
+		if tile == null or tile.controller == null:
 			continue
-		var owner_stats:Stats = _stats_for_empire(tile2.controller, turn_manager)
+		var owner_stats:Stats = _stats_for_empire(tile.controller, turn_manager)
 		if owner_stats == null:
 			continue
-		for b in tile2.buildings:
+		for b in tile.buildings:
 			for e in b.effects:
 				if e.should_reapply_on_load():
-					e.apply_effect(tile2, owner_stats)
+					e.apply_effect(tile, owner_stats)
 
-	# 6) Restaurar battle fronts.
-	# Replica el contrato de BattleFrontManager.open_front: solo el manager
-	# del bando ATACANTE registra el frente en su `active_fronts` y conecta
-	# `front_resolved`/`marker_changed`. El defensor no participa de esa
-	# gestión local — únicamente paga mantenimiento (calculado en el flujo
-	# de turno con `BattleFront.get_active_instances()` como fuente de
-	# verdad global).
-	for front_data in snapshot.get("battle_fronts", []):
+
+## 6) Restaura los frentes de batalla.
+## Replica el contrato de BattleFrontManager.open_front: solo el manager del bando
+## ATACANTE registra el frente en su `active_fronts` y conecta `front_resolved`/
+## `marker_changed`. El defensor no participa de esa gestión local — únicamente paga
+## mantenimiento (calculado en el flujo de turno con el registro global como fuente
+## de verdad).
+static func _restore_battle_fronts(fronts_data:Array, empires_by_name:Dictionary,
+		turn_manager:TurnManager) -> void:
+	for front_data in fronts_data:
 		var front:BattleFront = BattleFrontSerializer.from_dict(front_data, empires_by_name)
 		if front == null:
 			continue
-		# El BattleFront ya se autoregistra en _active_instances via _init.
+		# El BattleFront ya se autoregistra en el registro de frentes via _init.
 		var atk_ctrl:EmpireController = _controller_for_empire(turn_manager, front.attacker_empire)
 		if atk_ctrl != null and atk_ctrl.battle_front_manager != null:
 			if front not in atk_ctrl.battle_front_manager.active_fronts:
@@ -182,17 +214,18 @@ static func apply_snapshot(snapshot:Dictionary, map_node:Node3D) -> bool:
 			front.front_resolved.connect(atk_ctrl.battle_front_manager._on_front_resolved)
 			front.marker_changed.connect(atk_ctrl.battle_front_manager._on_marker_changed)
 
-	# 7) Restaurar TurnManager.
-	var tm_data:Dictionary = snapshot.get("turn_manager", {})
-	turn_manager.round_number = int(tm_data.get("round_number", 1))
-	turn_manager.current_index = int(tm_data.get("current_index", 0))
 
-	# 8) UI inicial (igual que en flujo normal post-generación).
+## 7) UI inicial (igual que en el flujo normal post-generación).
+static func _init_card_pile_ui(map_node:Node3D) -> void:
 	var ui_layer:UILayer = map_node.get_node_or_null(MapScenePaths.UI_LAYER)
 	if ui_layer and ui_layer.ui:
 		ui_layer.ui.initialize_card_pile_ui()
 
-	return player_stats != null
+
+## Casilla del mundo reconstruido correspondiente a una entrada del snapshot.
+static func _tile_at(entry:Dictionary) -> Tile:
+	var pos := Vector2(entry["pos"][0], entry["pos"][1])
+	return WorldMap.map_as_dict.get(pos)
 
 
 ## --- Helpers privados ---------------------------------------------------

@@ -180,7 +180,12 @@ class_name HeuristicWeights
 @export_group("Reclutamiento")
 @export var recruit_veto_score: float = -10.0        ## score de veto duro
 @export var recruit_food_veto_margin: float = -5.0   ## food - maintenance < margen → veto
-@export var recruit_front_charge_per_troop: float = 5.0  ## recargo cuadrático de comida por tropa
+## Recargo cuadrático de comida por tropa que la heurística PROYECTA al reclutar.
+## Espeja `GameBalance.FRONT_SURCHARGE_PER_TROOP` (la regla real), pero se mantiene
+## como peso aparte a propósito: es la ESTIMACIÓN que usa la IA para decidir, y
+## puede ajustarse (por .tres o por el optimizador) sin tocar la regla del juego.
+## Si el balance real cambia, revisar si este default debe seguirlo (§2.1).
+@export var recruit_front_charge_per_troop: float = 5.0
 @export var recruit_front_food_margin: float = 5.0   ## comida mínima tras el recargo
 @export var recruit_atkdef_weight: float = 3.0
 @export var recruit_saturation_k: float = 0.04       ## rendimiento decreciente por pool
