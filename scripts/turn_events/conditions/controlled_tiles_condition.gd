@@ -21,17 +21,19 @@ func _init(p_count: int, p_op: Comparison.Type,
 
 func _value(context: EventContext) -> int:
 	var matching := 0
-	for tile in context.controlled_tiles:
-		if _tile_matches(tile):
+	for tf in context.tile_facts:
+		if _tile_matches(tf):
 			matching += 1
 	return matching
 
 
-func _tile_matches(tile: Tile) -> bool:
-	if required_resource != null and tile.natural_resource != required_resource:
+## Lee los agregados de EventContext (C6 §1.6.2) en vez del nodo Tile, para que la
+## condición valga igual sobre el snapshot del MCTS.
+func _tile_matches(tf: EventContext.TileFacts) -> bool:
+	if required_resource != null and tf.natural_resource != required_resource:
 		return false
-	if required_biome_type != -1 and tile.mesh_data.type != required_biome_type:
+	if required_biome_type != -1 and tf.biome != required_biome_type:
 		return false
-	if required_location_type != -1 and tile.location.type != required_location_type:
+	if required_location_type != -1 and tf.location_type != required_location_type:
 		return false
 	return true

@@ -4,6 +4,9 @@ class_name HasAdjacentUncontrolledCondition
 ## Comprueba si existe al menos una casilla adyacente no controlada
 ## por el imperio. Filtro opcional por bioma.
 ## -1 = sin filtro de bioma.
+##
+## Lee los agregados de EventContext (C6 §1.6.2): la adyacencia libre se recolecta
+## una vez al construir el contexto, en vez de recorrer aqui los vecinos.
 
 var required_biome_type:int = -1
 
@@ -13,9 +16,6 @@ func _init(p_biome:int = -1):
 
 
 func is_met(context:EventContext) -> bool:
-	for tile in context.controlled_tiles:
-		for neighbor in tile.neighbors:
-			if neighbor is Tile and neighbor.controller == null:
-				if required_biome_type == -1 or neighbor.mesh_data.type == required_biome_type:
-					return true
-	return false
+	if required_biome_type == -1:
+		return context.has_adjacent_uncontrolled
+	return context.adjacent_uncontrolled_biomes.has(required_biome_type)

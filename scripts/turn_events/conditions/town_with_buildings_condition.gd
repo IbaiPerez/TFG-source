@@ -1,7 +1,8 @@
 extends TurnEventCondition
 class_name TownWithBuildingsCondition
 
-## Comprueba que exista al menos una Town con un mínimo de edificios construidos.
+## Comprueba que exista al menos una Town con un minimo de edificios construidos.
+## Lee los agregados de EventContext (C6 §1.6.2).
 
 var min_buildings: int
 var op: Comparison.Type
@@ -13,8 +14,8 @@ func _init(p_min_buildings: int, p_op: Comparison.Type):
 
 
 func is_met(context: EventContext) -> bool:
-	for tile in context.controlled_tiles:
-		if tile.location.type == Tile.location_type.Town:
-			if Comparison.evaluate(tile.buildings.size(), op, min_buildings):
+	for tf in context.tile_facts:
+		if tf.location_type == Tile.location_type.Town:
+			if Comparison.evaluate(tf.building_count, op, min_buildings):
 				return true
 	return false

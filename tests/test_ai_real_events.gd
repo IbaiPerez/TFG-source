@@ -71,7 +71,7 @@ func _make_snap(id: int, owner: int, biome: int = 0,
 
 
 # ============================================================
-#  PARIDAD de condiciones agregadas vs reales
+#  PARIDAD: la condicion REAL sobre EventContext.from_snapshot (C6 §1.6.2)
 # ============================================================
 
 func test_gold_threshold_condition_parity() -> void:
@@ -81,7 +81,7 @@ func test_gold_threshold_condition_parity() -> void:
 		ctx.total_gold = gold
 		var s := AIRealState.new()
 		s.own.gold = gold
-		assert_eq(AIRealEvents._condition_met(real, s, AIRealState.OWNER_SELF),
+		assert_eq(real.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 			real.is_met(ctx), "GoldThreshold paridad para gold=%d" % gold)
 
 
@@ -92,7 +92,7 @@ func test_turn_number_condition_parity() -> void:
 		ctx.turn_number = turn
 		var s := AIRealState.new()
 		s.turn_number = turn
-		assert_eq(AIRealEvents._condition_met(real, s, AIRealState.OWNER_SELF),
+		assert_eq(real.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 			real.is_met(ctx), "TurnNumber paridad para turn=%d" % turn)
 
 
@@ -105,9 +105,9 @@ func test_food_and_gpt_condition_parity() -> void:
 	var s := AIRealState.new()
 	s.own.food = 5
 	s.own.gold_per_turn = 30
-	assert_eq(AIRealEvents._condition_met(food_cond, s, AIRealState.OWNER_SELF),
+	assert_eq(food_cond.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 		food_cond.is_met(ctx), "FoodThreshold paridad")
-	assert_eq(AIRealEvents._condition_met(gpt_cond, s, AIRealState.OWNER_SELF),
+	assert_eq(gpt_cond.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 		gpt_cond.is_met(ctx), "GoldGeneration paridad")
 
 
@@ -118,23 +118,24 @@ func test_card_type_count_condition_parity() -> void:
 	ctx.card_count_by_type = {0: 2, 1: 1}
 	var s := AIRealState.new()
 	s.own.deck = cards
-	assert_eq(AIRealEvents._condition_met(real, s, AIRealState.OWNER_SELF),
+	assert_eq(real.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 		real.is_met(ctx), "CardTypeCount paridad")
 
 
 func test_unique_event_occurred_condition_parity() -> void:
 	var real := UniqueEventOccurredCondition.new("construction_boom")
 	var ctx := EventContext.new()
-	ctx.stats = Stats.new()
-	ctx.stats.used_unique_events = ["construction_boom"]
+	# El registro de eventos únicos viaja en el propio contexto (C6 §1.6.2), no en
+	# `stats`; en el mundo vivo lo rellena EventContext.build desde Stats.
+	ctx.used_unique_events = ["construction_boom"]
 	var s := AIRealState.new()
 	s.own.used_unique_events = ["construction_boom"]
-	assert_eq(AIRealEvents._condition_met(real, s, AIRealState.OWNER_SELF),
+	assert_eq(real.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 		real.is_met(ctx), "UniqueEventOccurred paridad (presente)")
 
 
 # ============================================================
-#  Condiciones de tile (verificación directa sobre el snapshot)
+#  Condiciones de tile: la condicion REAL sobre el contexto del snapshot
 # ============================================================
 
 func test_urbanized_tiles_condition() -> void:
@@ -143,7 +144,7 @@ func test_urbanized_tiles_condition() -> void:
 	s.tiles[1] = _make_snap(1, AIRealState.OWNER_SELF, 0, Tile.location_type.Village)
 	s.tiles[2] = _make_snap(2, AIRealState.OWNER_SELF, 0, Tile.location_type.Megalopolis)
 	var cond := UrbanizedTilesCondition.new(2, Comparison.Type.GREATER_EQUAL)
-	assert_true(AIRealEvents._condition_met(cond, s, AIRealState.OWNER_SELF),
+	assert_true(cond.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 		"2 casillas Town+ cumplen >= 2")
 
 
@@ -153,7 +154,7 @@ func test_has_adjacent_enemy_condition() -> void:
 	s.tiles[1] = _make_snap(1, AIRealState.OWNER_RIVAL)
 	(s.tiles[0] as AIRealState.TileSnap).neighbor_ids = [1]
 	var cond := HasAdjacentEnemyCondition.new()
-	assert_true(AIRealEvents._condition_met(cond, s, AIRealState.OWNER_SELF),
+	assert_true(cond.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 		"Casilla propia adyacente a rival → enemigo adyacente")
 
 
@@ -162,7 +163,7 @@ func test_has_adjacent_enemy_turn20_override() -> void:
 	s.tiles[0] = _make_snap(0, AIRealState.OWNER_SELF)
 	s.turn_number = 25  # sin rival adyacente, pero turno >= 20 fuerza true
 	var cond := HasAdjacentEnemyCondition.new()
-	assert_true(AIRealEvents._condition_met(cond, s, AIRealState.OWNER_SELF),
+	assert_true(cond.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
 		"Override de progresión: turno >= 20 fuerza enemigo adyacente")
 
 
@@ -170,9 +171,9 @@ func test_has_recruited_troop_of_type_condition() -> void:
 	var s := AIRealState.new()
 	s.own.types_ever_recruited = {Troop.TroopType.CABALLERIA: 2}
 	var cond := HasRecruitedTroopOfTypeCondition.new(Troop.TroopType.CABALLERIA, 2)
-	assert_true(AIRealEvents._condition_met(cond, s, AIRealState.OWNER_SELF))
+	assert_true(cond.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)))
 	var cond3 := HasRecruitedTroopOfTypeCondition.new(Troop.TroopType.CABALLERIA, 3)
-	assert_false(AIRealEvents._condition_met(cond3, s, AIRealState.OWNER_SELF))
+	assert_false(cond3.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)))
 
 
 # ============================================================

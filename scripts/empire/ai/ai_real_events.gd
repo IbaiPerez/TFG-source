@@ -3,22 +3,26 @@ class_name AIRealEvents
 
 ## Chance node de eventos de turno para la simulación MCTS (Fase C v2 — F2.5b).
 ##
-## Reimplementa, SOBRE EL SNAPSHOT (AIRealState) y desacoplado del bus global
-## `Events`, el pipeline de eventos del juego: TurnEventManager (curva de
-## probabilidad + pesos por categoría + prioridad CORE), evaluación de
-## condiciones (TurnEventCondition), selección de choice (espejo aproximado de
-## AIHeuristic.score_choice) y aplicación de efectos (TurnEventEffect) + costes.
+## Ejecuta, SOBRE EL SNAPSHOT (AIRealState) y desacoplado del bus global `Events`,
+## el pipeline de eventos del juego: TurnEventManager (curva de probabilidad +
+## pesos por categoría + prioridad CORE), evaluación de condiciones, selección de
+## choice y aplicación de efectos + costes.
 ##
-## ¿Por qué reimplementar en vez de reusar el código real? Dos bloqueos duros:
-##   1. Varios efectos (ColonizeAdjacentEffect, UrbanizeToMegalopolisEffect)
-##      mutan tiles vía `Events.change_tile_controller/location_type`. Durante
-##      el juego en vivo (F3) eso dispararía el TilesTracker real y corrompería
-##      la partida. Reusarlos es INSEGURO.
-##   2. Las condiciones y AIHeuristic.score_choice están acopladas a Stats/Tile
-##      reales (escena), que el snapshot evita por diseño.
-## Se REUSAN los recursos puros: las propias instancias TurnEvent/Condition/
-## Effect (se leen sus parámetros), EventCategoryWeights, UnlockedCardEntry,
-## Comparison. La paridad de condiciones se valida en tests contra las reales.
+## Tras el refactor C6 ya casi nada es un espejo:
+##   · CONDICIONES (§1.6.2): se evalúan las clases REALES sobre un EventContext
+##     construido con `EventContext.from_snapshot`. Antes había un `if cond is X`
+##     de 66 líneas que las reimplementaba una a una.
+##   · CHOICE (§1.6.3) y TIENDA (§1.6.4): AIChoiceScorer / AIShopPolicy, compartidos
+##     con el mundo vivo a través del puerto AIStateView.
+##   · VALOR DE CARTA (§1.6.5): AIDeckScorer, también compartido.
+## Lo que SIGUE siendo propio del snapshot es la APLICACIÓN de efectos de casilla
+## (`_apply_colonize_adjacent`, `_apply_urbanize_megalopolis`): los efectos reales
+## mutan vía el bus `Events`, que en vivo dispararía el TilesTracker y corrompería
+## la partida, y además difieren en el RNG (global `pick_random` vs el inyectado y
+## determinista del MCTS) y en quién elige la casilla.
+##
+## Se REUSAN además los recursos puros: TurnEvent/Condition/Effect (se leen sus
+## parámetros), EventCategoryWeights, UnlockedCardEntry, Comparison.
 ##
 ## Es un CHANCE NODE: muestrea su propia tirada por iteración (rng inyectado);
 ## promediar sobre iteraciones integra la estocasticidad (paridad distribucional,
@@ -43,8 +47,9 @@ static func process_turn_event(state: AIRealState, p_owner: int,
 	if rng.randf() > _event_chance(emp, state.turn_number):
 		return null
 
-	# Candidatos disponibles agrupados por categoría.
-	var by_category := _collect_available_by_category(emp, state, p_owner)
+	# Candidatos disponibles agrupados por categoría. El contexto agregado se
+	# construye UNA vez por evaluación y se comparte por todas las condiciones.
+	var by_category := _collect_available_by_category(emp, EventContext.from_snapshot(state, p_owner))
 	if by_category.is_empty():
 		return null
 
@@ -83,12 +88,12 @@ static func _core_priority_chance(emp: AIRealState.EmpireSnap) -> float:
 
 
 static func _collect_available_by_category(emp: AIRealState.EmpireSnap,
-		state: AIRealState, p_owner: int) -> Dictionary:
+		ctx: EventContext) -> Dictionary:
 	var by_category := {}
 	for event in emp.available_events:
 		if event.unique and event.id in emp.used_unique_events:
 			continue
-		if not conditions_met(event, state, p_owner):
+		if not conditions_met(event, ctx):
 			continue
 		if not by_category.has(event.category):
 			by_category[event.category] = []
@@ -139,182 +144,19 @@ static func _weighted_pick_event(events: Array, rng: RandomNumberGenerator) -> T
 
 
 # ============================================================
-#  Condiciones (espejo de TurnEventCondition.is_met sobre el snapshot)
+#  Condiciones (se REUSAN las reales, C6 §1.6.2)
 # ============================================================
 
-## True si TODAS las condiciones del evento se cumplen sobre el snapshot.
-static func conditions_met(event: TurnEvent, state: AIRealState, p_owner: int) -> bool:
+## True si TODAS las condiciones del evento se cumplen. Ya no hay espejo: las
+## condiciones REALES se evalúan sobre un EventContext construido desde el snapshot
+## (`EventContext.from_snapshot`), así que existe una sola implementación de cada
+## regla y el polimorfismo de TurnEventCondition sustituye al viejo `if cond is X`
+## encadenado.
+static func conditions_met(event: TurnEvent, ctx: EventContext) -> bool:
 	for cond in event.conditions:
-		if not _condition_met(cond, state, p_owner):
+		if not cond.is_met(ctx):
 			return false
 	return true
-
-
-static func _condition_met(cond: TurnEventCondition, state: AIRealState, p_owner: int) -> bool:
-	var emp := state.empire(p_owner)
-	if emp == null:
-		return false
-
-	if cond is GoldThresholdCondition:
-		var c := cond as GoldThresholdCondition
-		return Comparison.evaluate(emp.gold, c.op, c.threshold)
-	if cond is MinGoldCondition:
-		return emp.gold >= (cond as MinGoldCondition).amount
-	if cond is FoodThresholdCondition:
-		var c := cond as FoodThresholdCondition
-		return Comparison.evaluate(emp.food, c.op, c.threshold)
-	if cond is GoldGenerationCondition:
-		var c := cond as GoldGenerationCondition
-		return Comparison.evaluate(emp.gold_per_turn, c.op, c.threshold)
-	if cond is TurnNumberCondition:
-		var c := cond as TurnNumberCondition
-		return Comparison.evaluate(state.turn_number, c.op, c.threshold)
-	if cond is DeckSizeCondition:
-		var c := cond as DeckSizeCondition
-		return Comparison.evaluate(emp.deck.size(), c.op, c.threshold)
-	if cond is ActiveModifiersCondition:
-		# Aproximación: el snapshot solo modela los modifiers económicos.
-		var c := cond as ActiveModifiersCondition
-		return Comparison.evaluate(emp.modifiers.size(), c.op, c.threshold)
-	if cond is CardCountCondition:
-		var c := cond as CardCountCondition
-		return Comparison.evaluate(_count_cards_by_id(emp, c.card_id), c.op, c.threshold)
-	if cond is CardTypeCountCondition:
-		var c := cond as CardTypeCountCondition
-		return Comparison.evaluate(_count_cards_by_type(emp, c.card_type), c.op, c.threshold)
-	if cond is HasTroopsCondition:
-		return emp.troop_pool.size() >= (cond as HasTroopsCondition).min_count
-	if cond is HasActiveFrontsCondition:
-		return _active_front_count(state, p_owner) >= (cond as HasActiveFrontsCondition).min_count
-	if cond is HasRecruitedTroopOfTypeCondition:
-		var c := cond as HasRecruitedTroopOfTypeCondition
-		if c.troop_type < 0:
-			return false
-		return int(emp.types_ever_recruited.get(c.troop_type, 0)) >= c.min_count
-	if cond is UniqueEventOccurredCondition:
-		return (cond as UniqueEventOccurredCondition).event_id in emp.used_unique_events
-	if cond is ControlledTilesCondition:
-		var c := cond as ControlledTilesCondition
-		return Comparison.evaluate(_count_tiles_matching(state, p_owner, c), c.op, c.threshold)
-	if cond is UrbanizedTilesCondition:
-		var c := cond as UrbanizedTilesCondition
-		return Comparison.evaluate(_count_urbanized(state, p_owner), c.op, c.threshold)
-	if cond is BuildingCountCondition:
-		var c := cond as BuildingCountCondition
-		return Comparison.evaluate(_count_buildings(state, p_owner), c.op, c.threshold)
-	if cond is TownWithBuildingsCondition:
-		var c := cond as TownWithBuildingsCondition
-		return _has_town_with_buildings(state, p_owner, c.min_buildings, c.op)
-	if cond is HasBuildingCondition:
-		return _has_building_named(state, p_owner, (cond as HasBuildingCondition).building_name)
-	if cond is HasAdjacentUncontrolledCondition:
-		return _has_adjacent_uncontrolled(state, p_owner,
-			(cond as HasAdjacentUncontrolledCondition).required_biome_type)
-	if cond is HasAdjacentEnemyCondition:
-		return _has_adjacent_enemy(state, p_owner)
-	# Condición base o desconocida → permisiva (igual que TurnEventCondition.is_met).
-	return true
-
-
-static func _count_cards_by_id(emp: AIRealState.EmpireSnap, card_id: String) -> int:
-	var n := 0
-	for c in emp.deck:
-		if c.id == card_id:
-			n += 1
-	return n
-
-
-static func _count_cards_by_type(emp: AIRealState.EmpireSnap, card_type: int) -> int:
-	var n := 0
-	for c in emp.deck:
-		if c.type == card_type:
-			n += 1
-	return n
-
-
-static func _count_tiles_matching(state: AIRealState, p_owner: int,
-		cond: ControlledTilesCondition) -> int:
-	var n := 0
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		if cond.required_resource != null and t.natural_resource != cond.required_resource:
-			continue
-		if cond.required_biome_type != -1 and t.biome != cond.required_biome_type:
-			continue
-		if cond.required_location_type != -1 and t.location_type != cond.required_location_type:
-			continue
-		n += 1
-	return n
-
-
-static func _count_urbanized(state: AIRealState, p_owner: int) -> int:
-	var n := 0
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner == p_owner and t.location_type >= Tile.location_type.Town:
-			n += 1
-	return n
-
-
-static func _count_buildings(state: AIRealState, p_owner: int) -> int:
-	var n := 0
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner == p_owner:
-			n += t.buildings.size()
-	return n
-
-
-static func _has_town_with_buildings(state: AIRealState, p_owner: int,
-		min_buildings: int, op: int) -> bool:
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner == p_owner and t.location_type == Tile.location_type.Town:
-			if Comparison.evaluate(t.buildings.size(), op, min_buildings):
-				return true
-	return false
-
-
-static func _has_building_named(state: AIRealState, p_owner: int, building_name: String) -> bool:
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		for b in t.buildings:
-			if b.name == building_name:
-				return true
-	return false
-
-
-static func _has_adjacent_uncontrolled(state: AIRealState, p_owner: int,
-		required_biome: int) -> bool:
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		for nid in t.neighbor_ids:
-			var nb := state.tiles.get(nid) as AIRealState.TileSnap
-			if nb != null and nb.owner == AIRealState.OWNER_NONE:
-				if required_biome == -1 or nb.biome == required_biome:
-					return true
-	return false
-
-
-## Espejo de EventContext.has_adjacent_enemy + override de progresión (turno ≥ 20).
-static func _has_adjacent_enemy(state: AIRealState, p_owner: int) -> bool:
-	var enemy := AIRealState.OWNER_RIVAL if p_owner == AIRealState.OWNER_SELF \
-		else AIRealState.OWNER_SELF
-	for id in state.tiles:
-		var t := state.tiles[id] as AIRealState.TileSnap
-		if t.owner != p_owner:
-			continue
-		for nid in t.neighbor_ids:
-			var nb := state.tiles.get(nid) as AIRealState.TileSnap
-			if nb != null and nb.owner == enemy:
-				return true
-	return state.turn_number >= 20
 
 
 # ============================================================
