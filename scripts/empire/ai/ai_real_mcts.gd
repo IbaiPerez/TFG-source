@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIRealMCTS
 
-## Orquestador MCTS v2 sobre estado real (Fase C v2 — F3b): SO-ISMCTS canónico
+## Orquestador MCTS v2 sobre estado real: SO-ISMCTS canónico
 ## con árbol ALTERNANTE de 2 agentes (▲ IA / ▽ rival), PUCT con availability
 ## count y backup negamax. Reemplaza al AIMCTS v1 (modelo abstracto).
 ##

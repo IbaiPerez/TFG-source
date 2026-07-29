@@ -2,7 +2,7 @@ extends RefCounted
 class_name AIRealOptions
 
 ## Enumeración y aplicación de jugadas (carta + TARGET) sobre AIRealState para la
-## búsqueda MCTS v2 (Fase C v2 — F3a). Espejo, sobre el snapshot, de
+## búsqueda MCTS v2. Espejo, sobre el snapshot, de
 ## AIOptionsBuilder: produce un Move por colocación concreta (qué carta, dónde),
 ## que es justo lo que el árbol ramifica (la fuerza del MCTS es decidir DÓNDE).
 ##
@@ -11,7 +11,7 @@ class_name AIRealOptions
 ##
 ## Cobertura: Colonize, Build, DirectBuild, Upgrade, ChangeLocation, GenerateGold,
 ## CardDraw, Recruit, OpenFront, Tactic. Recover se omite (el snapshot no modela
-## played_pile); CardDraw muta la mano del turno, que gestiona el árbol (F3b).
+## played_pile); CardDraw muta la mano del turno, que gestiona el árbol.
 
 
 ## Una jugada concreta del árbol. Solo se rellenan los campos del `kind`.

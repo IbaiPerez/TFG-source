@@ -19,9 +19,16 @@ enum Phase { EARLY, MID, LATE }
 ## Si total_map_tiles == 0 usa el comportamiento legacy para compatibilidad
 ## con tests y contextos sin mapa (AIEventResolver).
 static func detect(stats: Stats, total_map_tiles: int = 0) -> Phase:
-	var gpt := stats.gold_per_turn
 	var tiles := stats.empire.controlled_tiles.size() if stats.empire != null else 0
+	return detect_from(stats.gold_per_turn, tiles, total_map_tiles)
 
+
+## Regla de fase, escrita UNA sola vez (§1.11) sobre primitivas. Antes estaba
+## duplicada aquí y en AIRealEval.detect_phase con los mismos umbrales; solo
+## difería en CÓMO obtiene cada mundo el gpt y el recuento de casillas (Stats vs
+## AIRealState), así que el recorrido se queda en cada llamante y la regla se
+## comparte. `total_map_tiles == 0` → fallback legacy con umbrales absolutos.
+static func detect_from(gpt: int, tiles: int, total_map_tiles: int) -> Phase:
 	if total_map_tiles > 0:
 		var share := float(tiles) / float(total_map_tiles)
 		# LATE: ≥30% del mapa O GPT escalado al tamaño del mapa.

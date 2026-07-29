@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIRealMCTSNode
 
-## Nodo del árbol MCTS v2 (Fase C v2 — F3b), forma canónica de ISMCTS.
+## Nodo del árbol MCTS v2, forma canónica de ISMCTS.
 ##
 ## El nodo es un CONJUNTO DE INFORMACIÓN: guarda solo la jugada que lo generó y
 ## sus estadísticos, NO el estado. El estado se re-deriva en cada iteración

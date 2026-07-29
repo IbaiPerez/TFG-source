@@ -16,11 +16,10 @@ class_name AIRealSimulator
 ## las casillas (espejo de ProductionCalculator), igual que hace el juego al
 ## inicio de cada turno.
 ##
-## ALCANCE F1: colonize / build / direct_build / upgrade / change_location /
-## generate_gold + advance_turn (ingresos). SIN frentes, SIN tropas, SIN
-## modificadores, SIN habilidad de imperio (todo eso entra en F2/F2.5). La
-## economía recalculada asume por tanto: gpt = Σ producción de oro de las
-## casillas propias; food = Σ producción de comida neta de las casillas propias.
+## ALCANCE actual: efectos de carta (colonize / build / direct_build / upgrade /
+## change_location / generate_gold / recruit / open_front / tactic) y advance_turn
+## completo — ingresos, modificadores y habilidad de imperio, mantenimiento y
+## recargo de tropas, asignación a frentes, tick de combate y evento de fin de turno.
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +196,7 @@ static func apply_generate_gold(state: AIRealState, amount: int,
 
 
 # ---------------------------------------------------------------------------
-# Efectos militares (F2)
+# Efectos militares
 # ---------------------------------------------------------------------------
 
 ## Recruit: añade `count` tropas del tipo `troop` al pool, descontando
@@ -714,7 +713,7 @@ static func _building_survives(building: Building, new_loc_type: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Consultas de modificadores (F2.5a)
+# Consultas de modificadores
 # ---------------------------------------------------------------------------
 # La agregación de modifiers vive en ModifierQuery (compartida con el juego real
 # vía ModifierManager). Aquí solo quedan el coste de construcción efectivo y el

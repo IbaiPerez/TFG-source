@@ -1,27 +1,20 @@
 extends RefCounted
 class_name AIRealEvalStrong
 
-## Prior FUERTE sobre el snapshot (Fase C v2 — F3c, "heurística a toda profundidad").
+## Prior FUERTE sobre el snapshot: la heurística completa a TODA profundidad del árbol.
 ##
-## Motivación (ver análisis de simulación): la fuerza medida del SO-ISMCTS viene
-## de la CALIDAD de la guía heurística, no del lookahead en bruto (ISMCTS con
-## rollout aleatorio NO supera a la heurística). Hoy esa guía fuerte solo actúa en
-## la RAÍZ (AIController pasa root_priors calculados con AIHeuristic.score_option
-## real); a profundidad ≥1 y en el rollout se usa la aproximación pobre
-## AIRealEval.score_move. Este módulo reimplementa score_option SOBRE EL SNAPSHOT
-## para poder usarlo como prior/política en TODO el árbol, no solo arriba.
+## Motivación (ver análisis de simulación): la fuerza medida del SO-ISMCTS viene de la
+## CALIDAD de la guía heurística, no del lookahead en bruto — ISMCTS con rollout
+## aleatorio NO supera a la heurística. Por eso la guía fuerte no puede quedarse solo
+## en la raíz: este módulo la lleva a cada nodo, en lugar de la aproximación pobre
+## AIRealEval.score_move.
 ##
-## Espejo de AIHeuristic (acoplada a Stats/Tile/BattleFront de escena) sobre
-## AIRealState (datos puros). Mismo patrón "espejo con paridad" que AIRealSimulator
-## y AIRealEvents. La paridad de fórmulas se valida en test_ai_real_eval_strong.gd
-## con las propiedades DISCRIMINANTES que score_move (débil) no captura.
-##
-## ALCANCE F3c (en curso): COLONIZE (F3c.1) + BUILD/DIRECT_BUILD/UPGRADE/RECRUIT
-## (F3c.2) portados fielmente, con sus helpers compartidos (urgencias por fase,
-## expansión, carrera territorial, urgencia militar, excedente, efectos de
-## edificio, complementariedad de tropas). El resto de tipos DELEGA en
-## AIRealEval.score_move (fallback sin regresión) hasta portarse: OPEN_FRONT/TACTIC
-## y simples (F3c.3). NO está cableado aún en AIRealMCTS (eso es F3c.4).
+## ESTADO (tras C4 §1.3.g): ya NO es un espejo. Las FÓRMULAS de scoring se escriben
+## una sola vez en AIMoveScorer, contra el puerto AIStateView; lo que queda aquí es
+## (a) el BACKEND de helpers propios del snapshot que SnapshotStateView invoca y
+## (b) wrappers finos + dispatch por tipo de jugada. Está CABLEADO en AIRealMCTS y es
+## camino CALIENTE: se evalúa por cada jugada legal en cada expansión/rollout, así que
+## cualquier coste añadido aquí se multiplica por miles en cada decisión.
 
 const OWNER_SELF := AIRealState.OWNER_SELF
 const OWNER_RIVAL := AIRealState.OWNER_RIVAL

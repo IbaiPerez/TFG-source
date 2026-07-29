@@ -115,15 +115,15 @@ class EmpireSnap:
 	var deck: Array[Card] = []
 	var troop_pool: Array[Troop] = []   ## tropas NO asignadas a frentes (F2)
 	## Penalización de combate por déficit económico (Empire.combat_multiplier).
-	## La recalcula recompute_economy desde el déficit gpt/food (F2). Rango [0.1, 1.0].
+	## La recalcula recompute_economy desde el déficit gpt/food. Rango [0.1, 1.0].
 	var combat_multiplier: float = 1.0
 	## Modificadores económicos activos (StatModifier/BuildCostModifier), incluida
-	## la habilidad de imperio (F2.5a). Son copias propias con su `duration`, que
+	## la habilidad de imperio. Son copias propias con su `duration`, que
 	## advance_turn decrementa y expira. Solo se modelan los PROPIOS: los del rival
 	## son ocultos (su efecto ya está integrado en su gpt público).
 	var modifiers: Array[Modifier] = []
 
-	# ── Estado de eventos/desbloqueos (F2.5b) ────────────────────────────────
+	# ── Estado de eventos/desbloqueos ────────────────────────────────
 	## Eventos únicos ya disparados (espejo de stats.used_unique_events).
 	var used_unique_events: Array[String] = []
 	## Contador histórico de tropas reclutadas por tipo (Troop.TroopType → int),
@@ -135,14 +135,14 @@ class EmpireSnap:
 	var unlocked_card_pool: Array[UnlockedCardEntry] = []
 	## Edificios construibles (espejo de stats.possible_buildings). Lo amplían los
 	## eventos de desbloqueo (UnlockBuildingEffect) y gobierna las opciones de
-	## BuildCard en la enumeración de acciones (F3).
+	## BuildCard en la enumeración de acciones.
 	var possible_buildings: Array[Building] = []
 	## Configuración de eventos (refs read-only compartidas, no se clonan).
 	var available_events: Array[TurnEvent] = []
 	var category_weights: EventCategoryWeights = null
 	var event_chance: float = 0.0   ## fallback legacy si category_weights es null
 
-	# ── Estado de tienda (F2.5c) ─────────────────────────────────────────────
+	# ── Estado de tienda ─────────────────────────────────────────────
 	## Cartas exclusivas de tienda (espejo de stats.shop_exclusive_pool). Junto a
 	## unlocked_card_pool forman el pool de la tienda (get_full_shop_pool).
 	var shop_exclusive_pool: Array[UnlockedCardEntry] = []
@@ -180,7 +180,7 @@ class EmpireSnap:
 		return e
 
 
-## Snapshot de un frente de batalla activo (F2). Datos puros espejo de
+## Snapshot de un frente de batalla activo. Datos puros espejo de
 ## BattleFront: tiles enfrentadas, tropas comprometidas por bando, bonuses
 ## tácticos, marcador y umbral. La resolución (tick) vive en AIRealSimulator
 ## porque necesita el estado global (biomas/edificios de las tiles, combat
@@ -340,7 +340,7 @@ static func _snapshot_own_empire(s: AIRealState, ctx: AITurnContext, stats: Stat
 	if own_empire != null:
 		s.own.combat_multiplier = own_empire.combat_multiplier
 	s.own.modifiers = _read_economic_modifiers(ctx)
-	# Estado de eventos/desbloqueos (F2.5b).
+	# Estado de eventos/desbloqueos.
 	s.own.used_unique_events = stats.used_unique_events.duplicate()
 	s.own.types_ever_recruited = stats.types_ever_recruited.duplicate(true)
 	s.own.unlocked_card_pool = stats.unlocked_card_pool.duplicate()
@@ -394,7 +394,7 @@ static func _snapshot_fronts(s: AIRealState, ctx: AITurnContext, index_of: Dicti
 
 
 ## Lee los modificadores económicos PROPIOS del ModifierManager del controller
-## y devuelve copias (F2.5a). Solo se modelan StatModifier y BuildCostModifier
+## y devuelve copias. Solo se modelan StatModifier y BuildCostModifier
 ## (los que afectan a la economía/coste de construcción); el resto del estado de
 ## modifiers — CardReturn, GoldOnCard — no toca la economía por turno. La
 ## habilidad de imperio entra aquí gratis porque se aplica como estos modifiers.

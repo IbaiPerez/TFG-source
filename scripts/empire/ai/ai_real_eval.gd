@@ -122,28 +122,17 @@ static func is_terminal(state: AIRealState) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Fase (espejo de AIGamePhase.detect)
+# Fase
 # ---------------------------------------------------------------------------
 
+## Fase de la partida sobre el snapshot. La REGLA es la compartida
+## (AIGamePhase.detect_from, §1.11); aquí solo se recogen las primitivas del
+## snapshot, que es lo único que difería del mundo vivo.
 static func detect_phase(state: AIRealState,
 		p_owner: int = AIRealState.OWNER_SELF) -> AIGamePhase.Phase:
 	var emp := state.own if p_owner == AIRealState.OWNER_SELF else state.rival
-	var gpt := emp.gold_per_turn
-	var tiles := state.count_tiles(p_owner)
-	if state.total_map_tiles > 0:
-		var share := float(tiles) / float(state.total_map_tiles)
-		var late_gpt := int(float(GameBalance.PHASE_LATE_GPT) * float(state.total_map_tiles) \
-			/ float(GameBalance.DEFAULT_MAP_TILE_COUNT))
-		if share >= GameBalance.PHASE_LATE_SHARE or gpt >= late_gpt:
-			return AIGamePhase.Phase.LATE
-		if share < GameBalance.PHASE_EARLY_SHARE and gpt < GameBalance.PHASE_EARLY_GPT:
-			return AIGamePhase.Phase.EARLY
-		return AIGamePhase.Phase.MID
-	if gpt >= GameBalance.PHASE_LATE_GPT or tiles >= GameBalance.PHASE_LATE_TILES_LEGACY:
-		return AIGamePhase.Phase.LATE
-	if gpt < GameBalance.PHASE_EARLY_GPT and tiles < GameBalance.PHASE_EARLY_TILES_LEGACY:
-		return AIGamePhase.Phase.EARLY
-	return AIGamePhase.Phase.MID
+	return AIGamePhase.detect_from(emp.gold_per_turn, state.count_tiles(p_owner),
+		state.total_map_tiles)
 
 
 # ---------------------------------------------------------------------------

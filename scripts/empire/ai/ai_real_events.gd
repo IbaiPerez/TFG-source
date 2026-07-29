@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIRealEvents
 
-## Chance node de eventos de turno para la simulación MCTS (Fase C v2 — F2.5b).
+## Chance node de eventos de turno para la simulación MCTS.
 ##
 ## Ejecuta, SOBRE EL SNAPSHOT (AIRealState) y desacoplado del bus global `Events`,
 ## el pipeline de eventos del juego: TurnEventManager (curva de probabilidad +
@@ -510,7 +510,7 @@ static func _apply_urbanize_megalopolis(state: AIRealState, p_owner: int,
 
 
 # ============================================================
-#  Tienda (F2.5c — espejo de ShopGenerator + AIEventResolver._resolve_shop_event)
+# Tienda (espejo de ShopGenerator + AIEventResolver._resolve_shop_event)
 # ============================================================
 
 ## Resuelve un ShopEvent sobre el snapshot: genera la oferta desde el pool de
