@@ -310,25 +310,25 @@ func test_type_saturation_five_copies_clamped_to_minimum() -> void:
 
 
 # ============================================================
-#  _deck_thinning_value
+#  Valor de adelgazar el mazo (AIChoiceScorer.deck_thinning_value)
 # ============================================================
 
 func test_deck_thinning_value_small_deck() -> void:
 	# size=5 → ratio=0 → lerpf(2,9,0)=2.0
 	var ctx := _make_ctx_with_deck_size(5)
-	assert_almost_eq(AIHeuristic._deck_thinning_value(ctx), 2.0, 0.01)
+	assert_almost_eq(AIChoiceScorer.deck_thinning_value(LiveStateView.new(ctx)), 2.0, 0.01)
 
 
 func test_deck_thinning_value_large_deck() -> void:
 	# size=20 → ratio=1.0 → lerpf(2,9,1)=9.0
 	var ctx := _make_ctx_with_deck_size(20)
-	assert_almost_eq(AIHeuristic._deck_thinning_value(ctx), 9.0, 0.01)
+	assert_almost_eq(AIChoiceScorer.deck_thinning_value(LiveStateView.new(ctx)), 9.0, 0.01)
 
 
 func test_deck_thinning_value_medium_deck_between_bounds() -> void:
 	# size=12 → ratio=7/15≈0.467 → lerpf(2,9,0.467)≈5.27
 	var ctx := _make_ctx_with_deck_size(12)
-	var val := AIHeuristic._deck_thinning_value(ctx)
+	var val := AIChoiceScorer.deck_thinning_value(LiveStateView.new(ctx))
 	assert_true(val > 2.0 and val < 9.0,
 		"Mazo mediano (12) debe dar valor entre 2.0 y 9.0")
 

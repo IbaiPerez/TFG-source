@@ -81,10 +81,10 @@ func test_shop_skips_low_value_card_with_large_deck() -> void:
 		deck.append(_generic_card("c%d" % i))
 	s.own.deck = deck
 	var cheap := _generic_card("cheap")
-	assert_false(AIRealEvents._should_buy(cheap, s.own, _view(s)),
+	assert_false(AIShopPolicy.should_buy(_view(s), cheap),
 		"Con mazo grande, una carta de bajo valor no supera el umbral de compra")
 	# Una carta valiosa (CardDraw) sí se compraría aun con mazo grande.
-	assert_true(AIRealEvents._should_buy(_draw_card(), s.own, _view(s)),
+	assert_true(AIShopPolicy.should_buy(_view(s), _draw_card()),
 		"Una carta valiosa sí supera el umbral incluso con mazo grande")
 
 
@@ -116,20 +116,60 @@ func test_shop_does_not_purge_small_valuable_deck() -> void:
 	assert_eq(s.own.gold, 100, "El oro no cambia")
 
 
-func test_shop_protects_last_colonize_card() -> void:
+## Casilla propia con un vecino libre → colonizable_count() > 0.
+func _with_colonizable_tile(s: AIRealState) -> void:
+	var own_tile := AIRealState.TileSnap.new()
+	own_tile.id = 0
+	own_tile.owner = AIRealState.OWNER_SELF
+	own_tile.location_type = Tile.location_type.Village
+	own_tile.max_buildings = 3
+	own_tile.neighbor_ids = [1]
+	var free_tile := AIRealState.TileSnap.new()
+	free_tile.id = 1
+	free_tile.owner = AIRealState.OWNER_NONE
+	free_tile.location_type = Tile.location_type.Uncolonized
+	free_tile.max_buildings = 3
+	free_tile.neighbor_ids = [0]
+	s.tiles[0] = own_tile
+	s.tiles[1] = free_tile
+
+
+func _colonize_cards_in(s: AIRealState) -> int:
+	var n := 0
+	for c in s.own.deck:
+		if c is ColonizeCard:
+			n += 1
+	return n
+
+
+func test_shop_protects_last_colonize_card_while_expansion_possible() -> void:
 	var s := AIRealState.new()
 	s.own.gold = 100
+	_with_colonizable_tile(s)   # queda territorio libre → la protección aplica
 	# Mazo grande pero con una única ColonizeCard: debe conservarse.
 	var deck: Array[Card] = [ColonizeCard.new()]
 	for i in range(20):
 		deck.append(_generic_card("c%d" % i))
 	s.own.deck = deck
 	_resolve(s, 5, _rng())
-	var colonize_left := 0
-	for c in s.own.deck:
-		if c is ColonizeCard:
-			colonize_left += 1
-	assert_eq(colonize_left, 1, "La última ColonizeCard nunca se purga")
+	assert_eq(_colonize_cards_in(s), 1,
+		"Con casillas colonizables, la última ColonizeCard nunca se purga")
+
+
+func test_shop_purges_colonize_card_when_nothing_left_to_colonize() -> void:
+	# Regla unificada (C6 §1.6.4, semántica del mundo vivo): la protección exige que
+	# QUEDE algo que colonizar. Sin territorio libre la carta es inútil y es purgable.
+	# El espejo del snapshot la protegía siempre, aunque el mapa estuviera cerrado.
+	var s := AIRealState.new()
+	s.own.gold = 100
+	# Sin tiles → colonizable_count() == 0.
+	var deck: Array[Card] = [ColonizeCard.new()]
+	for i in range(20):
+		deck.append(_generic_card("c%d" % i))
+	s.own.deck = deck
+	_resolve(s, 5, _rng())
+	assert_eq(_colonize_cards_in(s), 0,
+		"Sin nada que colonizar, la ColonizeCard es la primera en purgarse")
 
 
 func test_shop_purge_cost_scales_with_total_purges() -> void:

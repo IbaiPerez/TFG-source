@@ -299,6 +299,12 @@ class_name HeuristicWeights
 @export var choice_megalopolis: float = 28.0
 @export var choice_unknown: float = 3.0
 @export var choice_cost_penalty: float = 2.0
+## Ramas que SOLO puntuaba el espejo del snapshot; al unificar score_choice (C6
+## §1.6.3) pasan a ser pesos y valen también en el mundo vivo, que antes las
+## trataba como "efecto desconocido". Defaults = los literales del espejo.
+@export var choice_unlock: float = 10.0      ## AddToCardPool / UnlockBuilding: amplían el espacio de acciones
+@export var choice_colonize: float = 15.0    ## ColonizeAdjacent: casilla gratis
+@export var choice_modifier: float = 5.0     ## ApplyModifier / Scaled*Modifier
 
 
 # ---------------------------------------------------------------------------
@@ -426,6 +432,9 @@ const SPEC := {
 	"colonize_expansion": {"opt": true}, "colonize_denial": {"opt": true},
 	"changeloc_resource_bonus": {"opt": true}, "changeloc_slot": {"opt": true},
 	"changeloc_consumption": {"opt": true},
+	# Choice de eventos (C6 §1.6.3: literales del espejo promovidos a pesos)
+	"choice_unlock": {"opt": true}, "choice_colonize": {"opt": true},
+	"choice_modifier": {"opt": true},
 	# Efectos de edificio
 	"se_flat_gold": {"opt": true}, "se_flat_food": {"opt": true},
 	"se_card_draw": {"opt": true}, "se_tpr_base": {"opt": true}, "se_tpr_mu": {"opt": true},

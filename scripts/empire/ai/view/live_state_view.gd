@@ -28,6 +28,10 @@ func phase() -> AIGamePhase.Phase:
 	return AIGamePhase.detect(_ctx.stats, _ctx.total_map_tiles)
 
 
+func turn_number() -> int:
+	return _ctx.stats.turn_number if _ctx.stats != null else 0
+
+
 func deck_urgency_size() -> int:
 	return _ctx.stats.draw_pile.cards.size() if _ctx.stats.draw_pile else 0
 

@@ -273,29 +273,14 @@ static func _expansion_factor(ctx: AITurnContext) -> float:
 ## Valor de adelgazar el mazo en una carta, proporcional al tamaño del mazo.
 ## Mazo pequeño (≤DECK_SMALL): el ciclo ya es rápido, purgar aporta poco.
 ## Mazo grande (≥DECK_LARGE): el ciclo es lento, purgar acelera las cartas clave.
-static func _deck_thinning_value(ctx: AITurnContext) -> float:
-	var w := ctx.get_weights()
-	# deck_thin_small: mazo pequeño, purgar no es urgente.
-	# deck_thin_large: mazo grande/saturado, purgar es muy beneficioso.
-	var ratio := clampf(
-		(float(_current_deck_size(ctx)) - w.deck_small) / (w.deck_large - w.deck_small),
-		0.0, 1.0)
-	return lerpf(w.deck_thin_small, w.deck_thin_large, ratio)
-
-
 ## Umbral dinámico de puntuación mínima para purgar una carta del mazo en tienda.
 ## Mazo pequeño: umbral bajo → solo eliminar cartas casi inútiles.
 ## Mazo grande/saturado: umbral alto → eliminar hasta cartas de utilidad moderada
 ## para acelerar el ciclo de las más valiosas.
 ## Es public porque lo usa también AIEventResolver.
 static func dynamic_purge_threshold(ctx: AITurnContext) -> float:
-	var w := ctx.get_weights()
-	# purge_thresh_small: mazo pequeño, conservar casi todo.
-	# purge_thresh_large: mazo grande, purgar hasta utilidad moderada.
-	var ratio := clampf(
-		(float(_current_deck_size(ctx)) - w.deck_small) / (w.deck_large - w.deck_small),
-		0.0, 1.0)
-	return lerpf(w.purge_thresh_small, w.purge_thresh_large, ratio)
+	# Política compartida con el snapshot (C6 §1.6.4).
+	return AIShopPolicy.purge_threshold(LiveStateView.new(ctx))
 
 
 ## Número total de huecos de edificio vacíos en las tiles controladas.
@@ -632,39 +617,8 @@ static func score_card_for_deck(card: Card, ctx: AITurnContext) -> float:
 ## peor sin protección (fallback normal).
 static func pick_card_to_remove(candidates: Array[Card],
 		ctx: AITurnContext) -> Card:
-	if candidates.is_empty():
-		return null
-
-	var avail := ctx.colonizable_tiles_count
-	# Contar cuántas ColonizeCards hay entre los candidatos.
-	var colonize_count := 0
-	for c in candidates:
-		if c is ColonizeCard:
-			colonize_count += 1
-	# Proteger la última ColonizeCard si quedan tiles por colonizar.
-	var protect_colonize := avail != 0 and colonize_count <= 1
-
-	var worst: Card = null
-	var worst_score := INF
-	for card in candidates:
-		if protect_colonize and card is ColonizeCard:
-			continue
-		var s := score_card_for_deck(card, ctx)
-		if s < worst_score:
-			worst_score = s
-			worst = card
-
-	# Fallback: si todos los candidatos eran ColonizeCards protegidas,
-	# elegir la peor sin restricción (avail==0 o no había alternativas).
-	if worst == null:
-		worst_score = INF
-		for card in candidates:
-			var s := score_card_for_deck(card, ctx)
-			if s < worst_score:
-				worst_score = s
-				worst = card
-
-	return worst
+	# Política compartida con el snapshot (C6 §1.6.4).
+	return AIShopPolicy.pick_weakest(LiveStateView.new(ctx), candidates)
 
 
 ## Evalúa el valor esperado de una TurnEventChoice sumando el aporte de
@@ -673,45 +627,9 @@ static func pick_card_to_remove(candidates: Array[Card],
 ## que la IA elegirá la carta más prescindible (pick_card_to_remove), así
 ## que la elección es beneficiosa.
 static func score_choice(choice: TurnEventChoice, ctx: AITurnContext) -> float:
-	if choice == null:
-		return 0.0
-	var w := ctx.get_weights()
-	var phase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles)
-	var gu := _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	var fu := _food_urgency(ctx.stats.food, phase, w)
-	var score := 0.0
-
-	for effect in choice.effects:
-		if effect == null:
-			continue
-		if effect is AddCardEffect:
-			score += score_card_for_deck((effect as AddCardEffect).card, ctx)
-		elif effect is GoldEventEffect:
-			score += (effect as GoldEventEffect).amount * w.choice_gold * gu
-		elif effect is FoodEventEffect:
-			score += (effect as FoodEventEffect).amount * w.choice_food * fu
-		elif effect is RemoveCardEventEffect:
-			# Eliminar carta: beneficio variable según el tamaño del mazo.
-			# Mazo pequeño → el ciclo ya es rápido, purgar aporta poco.
-			# Mazo grande/saturado → purgar acelera el acceso a las mejores cartas.
-			score += _deck_thinning_value(ctx)
-		elif effect is AddRandomPoolCardEffect:
-			# Carta aleatoria del pool: valor medio estimado
-			score += w.choice_random_pool
-		elif effect is UrbanizeToMegalopolisEffect:
-			# Megalópolis: +2 slots de edificio y desbloquea edificios de ciudad.
-			# Valor conservador pero realista: mucho mejor que +3 genérico.
-			score += w.choice_megalopolis
-		else:
-			# Efecto desconocido: valor neutro-positivo
-			score += w.choice_unknown
-
-	# Penalización leve si tiene coste (ya verificado como asequible,
-	# pero un coste siempre supone una restricción)
-	if choice.cost != null:
-		score -= w.choice_cost_penalty
-
-	return score
+	# Fórmula unificada contra el puerto (C6 §1.6.3). Ahora distingue efectos que
+	# antes caían en "desconocido": escalados, colonización y desbloqueos.
+	return AIChoiceScorer.score_choice(LiveStateView.new(ctx), choice)
 
 
 ## Decide si la IA debe comprar un item de tienda.
@@ -720,14 +638,8 @@ static func score_choice(choice: TurnEventChoice, ctx: AITurnContext) -> float:
 static func should_buy_shop_item(item: ShopItem, ctx: AITurnContext) -> bool:
 	if item == null or item.card == null:
 		return false
-	var w := ctx.get_weights()
-	# shop_thresh_small: mazo pequeño, comprar casi cualquier carta útil.
-	# shop_thresh_large: mazo grande, solo cartas realmente valiosas.
-	var ratio := clampf(
-		(float(_current_deck_size(ctx)) - w.deck_small) / (w.deck_large - w.deck_small),
-		0.0, 1.0)
-	var threshold := lerpf(w.shop_thresh_small, w.shop_thresh_large, ratio)
-	return score_card_for_deck(item.card, ctx) >= threshold
+	# Política compartida con el snapshot (C6 §1.6.4).
+	return AIShopPolicy.should_buy(LiveStateView.new(ctx), item.card)
 
 
 # ---------------------------------------------------------------------------

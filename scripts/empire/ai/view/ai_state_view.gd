@@ -30,6 +30,10 @@ func food() -> int:
 func phase() -> AIGamePhase.Phase:
 	push_error("AIStateView.phase() sin implementar"); return AIGamePhase.Phase.EARLY
 
+## Turno actual, para los efectos escalados por turno (ScaledValue). C6 §1.6.3.
+func turn_number() -> int:
+	push_error("AIStateView.turn_number() sin implementar"); return 0
+
 # --- mazo ---
 ## Tamaño de mazo que alimenta la urgencia de robar. Cada mundo usa su medida
 ## histórica: el vivo el draw_pile; el snapshot el mazo combinado (draw+discard).

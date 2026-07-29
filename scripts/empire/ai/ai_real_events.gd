@@ -345,11 +345,14 @@ static func _resolve_event(event: TurnEvent, state: AIRealState, p_owner: int,
 		_mark_unique(event, emp)
 		return
 
-	# Elegir la de mayor valor (skip = 0).
+	# Elegir la de mayor valor (skip = 0). Vista construida UNA vez para todas las
+	# comparaciones (C6 §1.6.3: el scorer es el mismo que el del mundo vivo).
+	var view := SnapshotStateView.new(state, p_owner,
+		w if w != null else HeuristicWeights.get_default())
 	var picked: TurnEventChoice = available[0]
-	var best := _score_choice(available[0], emp, state)
+	var best := AIChoiceScorer.score_choice(view, available[0])
 	for i in range(1, available.size()):
-		var s := _score_choice(available[i], emp, state)
+		var s := AIChoiceScorer.score_choice(view, available[i])
 		if s > best:
 			best = s
 			picked = available[i]
@@ -389,74 +392,6 @@ static func _cost_gold(cost: TurnEventCost, emp: AIRealState.EmpireSnap,
 		return int(ScaledValue.evaluate(sc.base_gold, sc.turn_factor, sc.gpt_percent,
 			state.turn_number, emp.gold_per_turn))
 	return cost.gold
-
-
-# ============================================================
-#  Selección de choice (aproximación de AIHeuristic.score_choice)
-# ============================================================
-
-static func _score_choice(choice: TurnEventChoice, emp: AIRealState.EmpireSnap,
-		state: AIRealState) -> float:
-	var gu := _gold_urgency(emp.gold_per_turn)
-	var fu := _food_urgency(emp.food)
-	var score := 0.0
-	for effect in choice.effects:
-		if effect == null:
-			continue
-		if effect is GoldEventEffect:
-			score += (effect as GoldEventEffect).amount * 0.4 * gu
-		elif effect is FoodEventEffect:
-			score += (effect as FoodEventEffect).amount * 0.5 * fu
-		elif effect is ScaledGoldEffect:
-			var e := effect as ScaledGoldEffect
-			var amt := ScaledValue.evaluate(e.base, e.turn_factor, e.gpt_percent,
-				state.turn_number, emp.gold_per_turn)
-			score += amt * 0.4 * gu
-		elif effect is ScaledFoodEffect:
-			var e := effect as ScaledFoodEffect
-			var amt := ScaledValue.evaluate(e.base, e.turn_factor, e.food_percent,
-				state.turn_number, emp.food)
-			score += amt * 0.5 * fu
-		elif effect is AddCardEffect:
-			score += 8.0
-		elif effect is AddRandomPoolCardEffect:
-			score += 8.0
-		elif effect is AddToCardPoolEffect or effect is UnlockBuildingEffect:
-			score += 10.0   # desbloqueos: amplían el espacio de acciones
-		elif effect is UrbanizeToMegalopolisEffect:
-			score += 28.0
-		elif effect is ColonizeAdjacentEffect:
-			score += 15.0
-		elif effect is RemoveCardEventEffect:
-			score += _deck_thinning_value(emp)
-		elif effect is ScaledStatModifierEffect or effect is ScaledBuildCostModifierEffect \
-				or effect is ApplyModifierEffect:
-			score += 5.0
-		else:
-			score += 3.0
-	if choice.cost != null:
-		score -= 2.0
-	return score
-
-
-static func _gold_urgency(gpt: int) -> float:
-	if gpt < 0:   return 3.0
-	if gpt < 50:  return 2.0
-	if gpt < 100: return 1.3
-	if gpt < 200: return 1.0
-	if gpt < 500: return 0.7
-	return 0.35
-
-
-static func _food_urgency(food: int) -> float:
-	if food < 0: return 3.0
-	if food < 5: return 1.5
-	return 0.5
-
-
-static func _deck_thinning_value(emp: AIRealState.EmpireSnap) -> float:
-	# Mazo grande → purgar acelera el ciclo; mazo pequeño → poco valor.
-	return clampf(float(emp.deck.size() - 10) * 0.5, 0.0, 8.0)
 
 
 # ============================================================
@@ -698,7 +633,7 @@ static func _resolve_shop(event: ShopEvent, state: AIRealState, p_owner: int,
 	# --- Compras ---
 	for card in _weighted_pick_cards(pool, num_cards, turn, rng):
 		var price := _price_for_card(card, turn, base_turn, rng)
-		if emp.gold >= price and _should_buy(card, emp, view):
+		if emp.gold >= price and AIShopPolicy.should_buy(view, card):
 			emp.gold -= price
 			emp.deck.append(card.duplicate())
 
@@ -706,10 +641,10 @@ static func _resolve_shop(event: ShopEvent, state: AIRealState, p_owner: int,
 	var purge_cost := ShopGenerator._get_purge_cost(emp.total_purges_done)
 	var purges_done := 0
 	while not emp.deck.is_empty() and purges_done < max_purges and emp.gold >= purge_cost:
-		var worst := _pick_weakest_card(emp, view)
+		var worst := AIShopPolicy.pick_weakest(view, emp.deck)
 		if worst == null:
 			break
-		if AIDeckScorer.score_card_for_deck(view, worst) >= _purge_threshold(emp):
+		if AIDeckScorer.score_card_for_deck(view, worst) >= AIShopPolicy.purge_threshold(view):
 			break   # todas las cartas son suficientemente valiosas
 		emp.deck.erase(worst)
 		emp.gold -= purge_cost
@@ -759,41 +694,6 @@ static func _weighted_pick_cards(pool: Array[UnlockedCardEntry], count: int,
 				remaining.remove_at(j)
 				break
 	return result
-
-
-## ¿Comprar este ítem? Umbral que escala con el tamaño del mazo (espejo de
-## AIHeuristic.should_buy_shop_item): mazo pequeño compra casi todo, mazo grande
-## solo lo realmente valioso.
-static func _should_buy(card: Card, emp: AIRealState.EmpireSnap,
-		view: AIStateView) -> bool:
-	var ratio := clampf(float(emp.deck.size() - 5) / 15.0, 0.0, 1.0)
-	var threshold := lerpf(5.0, 12.0, ratio)
-	return AIDeckScorer.score_card_for_deck(view, card) >= threshold
-
-
-## Umbral de purga dinámico (espejo de AIHeuristic.dynamic_purge_threshold).
-static func _purge_threshold(emp: AIRealState.EmpireSnap) -> float:
-	var ratio := clampf(float(emp.deck.size() - 5) / 15.0, 0.0, 1.0)
-	return lerpf(3.0, 10.0, ratio)
-
-
-## Carta más prescindible del mazo (menor score). Protege una ColonizeCard si es
-## la única (espejo de la protección de expansión de pick_card_to_remove).
-static func _pick_weakest_card(emp: AIRealState.EmpireSnap, view: AIStateView) -> Card:
-	var colonize_count := 0
-	for c in emp.deck:
-		if c is ColonizeCard:
-			colonize_count += 1
-	var worst: Card = null
-	var worst_score := INF
-	for c in emp.deck:
-		if c is ColonizeCard and colonize_count <= 1:
-			continue   # conservar al menos una ColonizeCard
-		var s := AIDeckScorer.score_card_for_deck(view, c)
-		if s < worst_score:
-			worst_score = s
-			worst = c
-	return worst
 
 
 # ============================================================

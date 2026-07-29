@@ -45,6 +45,10 @@ func phase() -> AIGamePhase.Phase:
 	return _phase
 
 
+func turn_number() -> int:
+	return _state.turn_number
+
+
 func deck_urgency_size() -> int:
 	return _emp.deck.size()
 
