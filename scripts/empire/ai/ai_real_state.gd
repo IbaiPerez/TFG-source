@@ -342,7 +342,7 @@ static func from_context(ctx: AITurnContext) -> AIRealState:
 			s.rival.combat_multiplier = rival_empire.combat_multiplier
 
 	# ── Frentes activos (información pública: visibles en el mapa) ────────────
-	for front in BattleFront.get_active_instances():
+	for front in ctx.get_front_registry().get_active_instances():
 		if front == null or front.is_resolved:
 			continue
 		var fs := FrontSnap.new()

@@ -70,16 +70,27 @@ var _calculated_casualties: Dictionary = {}
 var biome_config: BiomeConfig = BiomeConfig.new()
 
 
-func _init(p_atk_tile: Tile, p_def_tile: Tile, p_atk_empire: Empire, p_def_empire: Empire) -> void:
+## Registro en el que vive este frente (refactor C7 §1.10). Inyectable: `null` en el
+## constructor significa "el registro global" (autoload BattleFrontRegistry), que es
+## el comportamiento de siempre. Permite que un contexto aislado (una partida de
+## simulación, un test) tenga su propio registro sin tocar el del resto.
+var _registry: BattleFrontRegistrySingleton = null
+
+
+func _init(p_atk_tile: Tile, p_def_tile: Tile, p_atk_empire: Empire, p_def_empire: Empire,
+		p_registry: BattleFrontRegistrySingleton = null) -> void:
 	attacker_tile = p_atk_tile
 	defender_tile = p_def_tile
 	attacker_empire = p_atk_empire
 	defender_empire = p_def_empire
-	BattleFrontRegistry.register(self)
+	_registry = p_registry if p_registry != null else BattleFrontRegistry
+	_registry.register(self)
 
 
 ## Comprueba si una tile está participando ahora mismo en algún frente
 ## activo (atacante o defensora, en cualquier imperio).
+## Consulta el registro GLOBAL; quien tenga un registro propio debe preguntarle a él
+## (la IA lo hace vía `AITurnContext.get_front_registry()`).
 static func is_tile_in_active_front(tile: Tile) -> bool:
 	return BattleFrontRegistry.is_tile_in_active_front(tile)
 
@@ -359,7 +370,7 @@ func _resolve() -> void:
 	var attacker_won := marker >= get_current_threshold()
 	# Calcular bajas una sola vez, antes de emitir la señal
 	_calculated_casualties = calculate_casualties()
-	BattleFrontRegistry.unregister(self)
+	_registry.unregister(self)   # el mismo registro en el que se dio de alta (C7 §1.10)
 	front_resolved.emit(self, attacker_won)
 
 

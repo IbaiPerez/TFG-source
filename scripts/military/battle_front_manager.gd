@@ -7,6 +7,18 @@ class_name BattleFrontManager
 var stats: Stats
 var active_fronts: Array[BattleFront] = []
 
+## Registro de frentes en el que este manager da de alta los que abre (C7 §1.10).
+## `null` = el registro GLOBAL (autoload BattleFrontRegistry), que es el
+## comportamiento normal de una partida. Asignarlo permite aislar una partida
+## (simulación, test) del registro del resto del proceso; la IA lo sigue a través
+## de `AITurnContext.get_front_registry()`.
+var registry: BattleFrontRegistrySingleton = null
+
+
+## Registro efectivo: el propio si se ha inyectado, si no el global.
+func get_registry() -> BattleFrontRegistrySingleton:
+	return registry if registry != null else BattleFrontRegistry
+
 ## Configuración base (modificable por eventos/edificios)
 var base_max_fronts: int = GameBalance.MAX_FRONTS_BASE
 var extra_max_fronts: int = 0
@@ -55,16 +67,17 @@ func open_front(attacker_tile: Tile, defender_tile: Tile) -> BattleFront:
 	# Una tile sólo puede estar en un frente a la vez (regla global, cubre
 	# tanto los frentes propios como los de otros imperios). Bloquea
 	# implícitamente también el caso "abrir el mismo frente dos veces".
-	if BattleFront.is_tile_in_active_front(attacker_tile):
+	if get_registry().is_tile_in_active_front(attacker_tile):
 		return null
-	if BattleFront.is_tile_in_active_front(defender_tile):
+	if get_registry().is_tile_in_active_front(defender_tile):
 		return null
 
 	var front := BattleFront.new(
 		attacker_tile,
 		defender_tile,
 		attacker_tile.controller,
-		defender_tile.controller
+		defender_tile.controller,
+		registry
 	)
 
 	front.front_resolved.connect(_on_front_resolved)

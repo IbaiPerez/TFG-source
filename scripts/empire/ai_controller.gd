@@ -160,7 +160,13 @@ func _run_turn() -> void:
 	var _adj_cond := AdjacentRule.new()
 	_adj_cond.empire = stats.empire
 	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
-	ctx.total_map_tiles = WorldMap.map.size()
+	# Índice Tile→id construido UNA vez por turno (C7 §1.10): sustituye los
+	# `WorldMap.map.find()` O(n) que se hacían por jugada al mapear las del MCTS.
+	var world: Array = WorldMap.map
+	ctx.total_map_tiles = world.size()
+	ctx.tile_index = {}
+	for i in range(world.size()):
+		ctx.tile_index[world[i]] = i
 
 	# Nuevo turno: el árbol de turnos anteriores ya no es válido (intervinieron
 	# el rival y advance_turn). La reutilización de subárbol es SOLO intra-turno.
@@ -306,9 +312,16 @@ func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 	# REAL (score_option sobre el ctx real, con la caché ya preparada) y las
 	# indexamos por move_key para que la raíz del MCTS use la heurística fuerte
 	# como prior/poda, no la aproximación score_move.
+	# Frentes activos en el mismo orden que from_context (para casar TACTIC). Se
+	# calculan UNA vez por decisión, no por jugada (C7 §1.10).
+	var active_fronts: Array = []
+	for f in ctx.get_front_registry().get_active_instances():
+		if f != null and not f.is_resolved:
+			active_fronts.append(f)
+
 	var root_priors := {}
 	for m in AIRealOptions.enumerate(state, ctx.drawn_cards, AIRealState.OWNER_SELF):
-		var opt := _map_move_to_option(m, options)
+		var opt := _map_move_to_option(m, options, ctx, active_fronts)
 		if opt != null:
 			root_priors[AIRealMCTSNode.move_key(m)] = AIHeuristic.score_option(opt, ctx)
 
@@ -332,7 +345,7 @@ func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 	if result.chose_pass:
 		return AIPlayOption.create_pass()
 
-	var picked := _map_move_to_option(result.best_move, options)
+	var picked := _map_move_to_option(result.best_move, options, ctx, active_fronts)
 	if picked == null:
 		return null   # jugada sin opción real correspondiente → heurística
 
@@ -351,33 +364,31 @@ func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 ## equivalente entre las opciones legales del turno, casando por carta + target
 ## (índice de tile en WorldMap.map, igual que AIRealState.from_context). Devuelve
 ## null si ninguna casa (el llamante cae a la heurística).
+## `active_fronts` y `ctx` los aporta el llamante para no recalcularlos por jugada
+## (C7 §1.10): antes cada llamada duplicaba el registro global de frentes y resolvía
+## cada tile con un find O(n) sobre WorldMap.map.
 func _map_move_to_option(m: AIRealOptions.Move,
-		options: Array[AIPlayOption]) -> AIPlayOption:
-	# Frentes activos en el mismo orden que from_context (para casar TACTIC).
-	var active_fronts: Array = []
-	for f in BattleFront.get_active_instances():
-		if f != null and not f.is_resolved:
-			active_fronts.append(f)
-
+		options: Array[AIPlayOption], ctx: AITurnContext,
+		active_fronts: Array) -> AIPlayOption:
 	for opt in options:
 		if opt == null or opt.is_pass or opt.card != m.card:
 			continue
 		match m.kind:
 			&"COLONIZE", &"CHANGE_LOCATION":
-				if _tile_index(opt.anchor_tile()) == m.tile_id:
+				if ctx.index_of_tile(opt.anchor_tile()) == m.tile_id:
 					return opt
 			&"GENERATE_GOLD", &"CARD_DRAW":
 				return opt   # sin target: basta la identidad de carta
 			&"BUILD", &"DIRECT_BUILD":
 				var bo := opt as AIBuildOption
 				if bo != null and bo.building == m.building \
-						and _tile_index(opt.anchor_tile()) == m.tile_id:
+						and ctx.index_of_tile(opt.anchor_tile()) == m.tile_id:
 					return opt
 			&"UPGRADE":
 				var uo := opt as AIUpgradeBuildingOption
 				if uo != null and uo.old_building == m.old_building \
 						and uo.new_building == m.new_building \
-						and _tile_index(opt.anchor_tile()) == m.tile_id:
+						and ctx.index_of_tile(opt.anchor_tile()) == m.tile_id:
 					return opt
 			&"RECRUIT":
 				var ro := opt as AIRecruitOption
@@ -385,8 +396,8 @@ func _map_move_to_option(m: AIRealOptions.Move,
 					return opt
 			&"OPEN_FRONT":
 				var ofo := opt as AIOpenFrontOption
-				if ofo != null and _tile_index(ofo.enemy_tile) == m.def_tile_id \
-						and _tile_index(ofo.source_tile) == m.tile_id:
+				if ofo != null and ctx.index_of_tile(ofo.enemy_tile) == m.def_tile_id \
+						and ctx.index_of_tile(ofo.source_tile) == m.tile_id:
 					return opt
 			&"TACTIC":
 				var to := opt as AITacticOption
@@ -395,12 +406,6 @@ func _map_move_to_option(m: AIRealOptions.Move,
 					return opt
 	return null
 
-
-## Índice de una tile en WorldMap.map (mismo id que usa AIRealState.from_context).
-func _tile_index(tile: Tile) -> int:
-	if tile == null:
-		return -1
-	return WorldMap.map.find(tile)
 
 
 ## Decisión por heurística pura (Fase B). También es el fallback de MCTS.
@@ -477,7 +482,7 @@ func _assign_troops_to_fronts() -> void:
 		return
 
 	var slots: Array = []
-	for front in BattleFront.get_active_instances():
+	for front in battle_front_manager.get_registry().get_active_instances():
 		if front == null or front.is_resolved:
 			continue
 		var side: BattleFront.Side

@@ -62,7 +62,7 @@ static func prepare_decision_cache(ctx: AITurnContext) -> void:
 
 	# Frentes activos: calcular una sola vez y reutilizar en _military_urgency
 	# y en _max_front_pressure para evitar la llamada repetida a get_active_instances().
-	var raw_fronts := BattleFront.get_active_instances()
+	var raw_fronts := ctx.get_front_registry().get_active_instances()
 	ctx._cache_active_fronts.clear()
 	for f in raw_fronts:
 		if f != null and not f.is_resolved:
@@ -102,7 +102,7 @@ static func _get_own_active_fronts(ctx: AITurnContext) -> Array[BattleFront]:
 	var result: Array[BattleFront] = []
 	if ctx.stats == null or ctx.stats.empire == null:
 		return result
-	for front in BattleFront.get_active_instances():
+	for front in ctx.get_front_registry().get_active_instances():
 		if front == null or front.is_resolved:
 			continue
 		if front.attacker_empire == ctx.stats.empire \
@@ -164,7 +164,7 @@ static func _military_urgency(ctx: AITurnContext, _phase: AIGamePhase.Phase) -> 
 	# Fallback sin caché (usado en tests y en AIEventResolver).
 	var has_active_front := false
 	if ctx.stats != null and ctx.stats.empire != null:
-		for front in BattleFront.get_active_instances():
+		for front in ctx.get_front_registry().get_active_instances():
 			if front == null or front.is_resolved:
 				continue
 			if front.attacker_empire == ctx.stats.empire \
@@ -196,7 +196,7 @@ static func _max_front_pressure(ctx: AITurnContext) -> float:
 		return ctx._cache_front_pressure
 	# Fallback sin caché.
 	var max_p := 0.0
-	for front in BattleFront.get_active_instances():
+	for front in ctx.get_front_registry().get_active_instances():
 		if front == null or front.is_resolved:
 			continue
 		var is_attacker := front.attacker_empire == ctx.stats.empire
@@ -425,7 +425,7 @@ static func _complement_bonus(troop: Troop, pool: Array[Troop],
 		var rival := ctx.world_view.get_rival_view()
 		if rival != null and rival.empire != null:
 			var all_fronts := ctx._cache_active_fronts if ctx._cache_valid \
-				else BattleFront.get_active_instances()
+				else ctx.get_front_registry().get_active_instances()
 			for front in all_fronts:
 				if front.is_resolved:
 					continue

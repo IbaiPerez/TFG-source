@@ -373,8 +373,17 @@ class_name HeuristicWeights
 
 static var _default: HeuristicWeights = null
 
-## Instancia por defecto compartida (todos los campos en su valor original).
+## Instancia por defecto COMPARTIDA (todos los campos en su valor original).
 ## Se usa como fallback cuando no hay pesos asignados en el contexto.
+##
+## CONTRATO (refactor C7 §1.10) — **es de SOLO LECTURA**. Se devuelve la misma
+## instancia a todo el proceso, a propósito: `get_default()` se llama en caminos
+## calientes (AIRealEval, AIRealEvalStrong, AIRealMCTS) y duplicar ahí sería caro.
+## A cambio, mutar un campo del resultado corrompería TODAS las partidas del
+## proceso, incluidas las tandas de simulación. Quien necesite variar pesos debe
+## partir de `HeuristicWeights.new()` o de `duplicate()`, nunca escribir aquí.
+## `test_heuristic_weights` vigila el contrato: comprueba que el default sigue
+## valiendo lo mismo que una instancia recién creada.
 static func get_default() -> HeuristicWeights:
 	if _default == null:
 		_default = HeuristicWeights.new()

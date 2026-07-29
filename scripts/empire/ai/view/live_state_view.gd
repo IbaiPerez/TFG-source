@@ -181,7 +181,7 @@ func open_front_pairs(card) -> Array:
 				continue
 			if neighbor.controller != _ctx.stats.empire:
 				continue
-			if BattleFront.is_tile_in_active_front(neighbor):
+			if _ctx.get_front_registry().is_tile_in_active_front(neighbor):
 				continue
 			result.append({"source": neighbor as Tile, "def": enemy as Tile})
 	return result
@@ -333,7 +333,7 @@ func open_front_win_factor(enemy_tile, biome_factor: float) -> float:
 	if e.mesh_data != null:
 		rival_def *= BiomeConfig.shared().get_defense_multiplier(e.mesh_data.type)
 	var all_fronts := _ctx._cache_active_fronts if _ctx._cache_valid \
-		else BattleFront.get_active_instances()
+		else _ctx.get_front_registry().get_active_instances()
 	for front in all_fronts:
 		if front.is_resolved:
 			continue

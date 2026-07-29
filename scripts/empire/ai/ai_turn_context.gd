@@ -31,6 +31,30 @@ var colonizable_tiles_count: int = -1
 ## Usado por AIGamePhase.detect() para fases relativas al mapa (D5).
 var total_map_tiles: int = 0
 
+## Índice `Tile → id` (posición en WorldMap.map), construido UNA vez por turno
+## (refactor C7 §1.10). Antes cada consulta hacía `WorldMap.map.find(tile)`, O(n)
+## sobre el global, dentro del bucle de priors de la raíz del MCTS → O(jugadas ×
+## opciones × n) por decisión. Vacío = desconocido (tests): el llamante cae a -1.
+var tile_index: Dictionary = {}
+
+
+## Id estable de una tile (mismo que usa AIRealState.from_context). -1 si se
+## desconoce, igual que devolvía `Array.find` cuando la tile no estaba.
+func index_of_tile(tile: Tile) -> int:
+	if tile == null:
+		return -1
+	return tile_index.get(tile, -1)
+
+
+## Registro de frentes que debe consultar la IA (C7 §1.10). Es el del propio
+## BattleFrontManager del turno; si no hay manager (tests unitarios) cae al
+## registro GLOBAL, que es lo que la IA leía antes directamente. Única puerta de
+## acceso: el código de IA no debe llamar a los estáticos de BattleFront.
+func get_front_registry() -> BattleFrontRegistrySingleton:
+	if battle_front_manager != null:
+		return battle_front_manager.get_registry()
+	return BattleFrontRegistry
+
 # ---------------------------------------------------------------------------
 # Caché de decisión
 # ---------------------------------------------------------------------------

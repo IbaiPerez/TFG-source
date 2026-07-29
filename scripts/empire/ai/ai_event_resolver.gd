@@ -24,8 +24,9 @@ static func resolve(event: TurnEvent, context: EventContext,
 	if event == null or context == null:
 		return
 
-	# Contexto mínimo para la heurística: solo necesita stats y los frentes
-	# globales (BattleFront.get_active_instances() es estático, no requiere bfm).
+	# Contexto mínimo para la heurística: solo necesita stats. Sin
+	# battle_front_manager, ctx.get_front_registry() cae al registro GLOBAL
+	# (C7 §1.10), que es de donde leía este camino antes.
 	var hctx := AITurnContext.new()
 	hctx.stats = context.stats
 	# Propagar los pesos de la heurística del imperio (candidato del optimizador

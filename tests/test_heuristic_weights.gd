@@ -37,6 +37,18 @@ func test_get_default_is_cached() -> void:
 		"get_default() debe devolver siempre la misma instancia cacheada")
 
 
+## Canario del contrato de solo-lectura del default (C7 §1.10). La instancia es
+## COMPARTIDA por todo el proceso, así que si algún código de producción escribiera
+## en ella corrompería todas las partidas y todas las tandas de simulación. Este
+## test lo detecta comparando el default con una instancia recién creada.
+func test_get_default_is_not_mutated_by_production_code() -> void:
+	var shared := HeuristicWeights.get_default()
+	var fresh := HeuristicWeights.new()
+	for key in HeuristicWeights.SPEC.keys():
+		assert_almost_eq(float(shared.get(key)), float(fresh.get(key)), 0.0000001,
+			"El default compartido fue MUTADO en '%s': es de solo lectura" % key)
+
+
 func test_bounds_contain_default_values() -> void:
 	var w := HeuristicWeights.get_default()
 	for k in HeuristicWeights.OPTIMIZABLE_KEYS:
