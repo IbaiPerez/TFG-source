@@ -80,13 +80,29 @@ static func search(root_state: AIRealState, own_hand: Array[Card],
 	var result := Result.new()
 	if config == null or root_state == null:
 		return result
-	var root: AIRealMCTSNode
-	if reuse_root != null:
-		root = reuse_root
-		_reroot_refresh(root, root_state, own_hand, config, root_priors)
-	else:
-		root = AIRealMCTSNode.create(OWNER_SELF, 0)
+	var root := _prepare_root(root_state, own_hand, config, root_priors, reuse_root)
 	result.root = root
+	result.iterations = _run_budget_loop(root, root_state, own_hand, known_deck,
+		rival_hand_size, config, rng, root_priors)
+	_build_result(result, root)
+	return result
+
+
+## Raíz de la búsqueda: reutiliza el subárbol de la decisión anterior (puesto al día
+## contra el nuevo estado) o crea una raíz limpia.
+static func _prepare_root(root_state: AIRealState, own_hand: Array[Card],
+		config: AIConfig, root_priors: Dictionary,
+		reuse_root: AIRealMCTSNode) -> AIRealMCTSNode:
+	if reuse_root == null:
+		return AIRealMCTSNode.create(OWNER_SELF, 0)
+	_reroot_refresh(reuse_root, root_state, own_hand, config, root_priors)
+	return reuse_root
+
+
+## Itera hasta agotar el presupuesto. Devuelve las iteraciones NUEVAS ejecutadas.
+static func _run_budget_loop(root: AIRealMCTSNode, root_state: AIRealState,
+		own_hand: Array[Card], known_deck: Array[Card], rival_hand_size: int,
+		config: AIConfig, rng: RandomNumberGenerator, root_priors: Dictionary) -> int:
 	var iters_cap := maxi(config.mcts_iterations, 1)
 	var budget := config.mcts_time_budget_ms
 	var start := Time.get_ticks_msec()
@@ -98,13 +114,17 @@ static func search(root_state: AIRealState, own_hand: Array[Card],
 		# techo de seguridad). Con budget == 0 corre las iteraciones exactas.
 		if budget > 0 and Time.get_ticks_msec() - start >= budget:
 			break
+	return done
 
-	result.iterations = done
+
+## Lee el árbol ya construido y rellena el Result: jugada elegida, subárbol a
+## reutilizar y diagnóstico de override del prior.
+static func _build_result(result: Result, root: AIRealMCTSNode) -> void:
 	result.root_visits = root.visits
 	result.root_children = root.children.size()
 	var best := root.most_visited_child()
 	if best == null:
-		return result
+		return
 	result.best_avg_value = best.avg_value()
 	# Subárbol a reutilizar tras ejecutar la jugada (lo descarta el controller si
 	# resulta ser PASS o si la jugada no tiene opción real correspondiente).
@@ -123,7 +143,6 @@ static func search(root_state: AIRealState, own_hand: Array[Card],
 		result.best_move = AIRealOptions.Move.pass_move()
 	else:
 		result.best_move = best.move
-	return result
 
 
 # ---------------------------------------------------------------------------
@@ -223,6 +242,15 @@ static func _iterate(root: AIRealMCTSNode, root_state: AIRealState,
 	# Rollout desde el estado alcanzado y retropropagación negamax (valor en
 	# perspectiva propia; el signo se invierte al seleccionar en nodos ▽).
 	var value := _rollout(state, player, hand, depth, known_deck, rival_hand_size, config, rng)
+	_backup(path, availed, value)
+
+
+## Retropropagación: suma visitas y valor por el camino recorrido, e incrementa la
+## availability de los hijos que estaban DISPONIBLES en esta iteración (SO-ISMCTS:
+## el denominador del PUCT es cuántas veces se pudo elegir la jugada, no cuántas
+## veces se visitó el nodo).
+static func _backup(path: Array[AIRealMCTSNode], availed: Array[AIRealMCTSNode],
+		value: float) -> void:
 	for n in path:
 		n.visits += 1
 		n.value_sum += value

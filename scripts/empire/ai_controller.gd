@@ -116,8 +116,22 @@ func start_turn() -> void:
 ## awaits intercalados (action_delay, turn_end_delay). El TurnManager
 ## llama start_turn() sin await — esto está bien porque emitimos
 ## turn_finished al acabar.
+## Fases del turno (refactor §1.7). `_run_decision_loop` y `_end_turn` contienen
+## `await`, así que son corrutinas y DEBEN esperarse: llamarlas sin `await` las
+## dejaría corriendo en paralelo y rompería el orden del turno.
 func _run_turn() -> void:
 	var empire_name := stats.empire.name if stats.empire else "IA"
+	_begin_turn(empire_name)
+	_draw_hand(empire_name)
+	var ctx := _build_turn_context()
+	await _run_decision_loop(ctx, empire_name)
+	_discard_leftovers(ctx, empire_name)
+	await _end_turn(empire_name)
+
+
+## Arranque: señal de inicio, producción/modificadores, tick de frentes y primera
+## asignación de tropas.
+func _begin_turn(empire_name: String) -> void:
 	GameLogger.debug("[IA] === TURNO DE %s (turno %d) ===" % [empire_name, stats.turn_number + 1])
 
 	# Señal de inicio para la capa de presentación (log, banner, etc.).
@@ -138,7 +152,9 @@ func _run_turn() -> void:
 		stats.empire.controlled_tiles.size()
 	])
 
-	# Robar mano
+
+## Roba la mano del turno y deja lista la observación del mazo rival.
+func _draw_hand(empire_name: String) -> void:
 	_drawn_cards = []
 	var amount := _get_effective_cards_per_turn()
 	for i in range(amount):
@@ -150,7 +166,9 @@ func _run_turn() -> void:
 	# Inicializar el observer de cartas del rival en cuanto tengamos un rival.
 	_ensure_observer_ready()
 
-	# Bucle decisorio
+
+## Contexto de decisión del turno (mano, vista del mundo, pesos, datos del mapa).
+func _build_turn_context() -> AITurnContext:
 	var ctx := AITurnContext.create(self, _rng)
 	ctx.drawn_cards = _drawn_cards
 	ctx.world_view = _build_world_view()
@@ -162,16 +180,21 @@ func _run_turn() -> void:
 	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
 	# Índice Tile→id construido UNA vez por turno (C7 §1.10): sustituye los
 	# `WorldMap.map.find()` O(n) que se hacían por jugada al mapear las del MCTS.
+	# El constructor lo comparte AIRealState: los ids DEBEN coincidir con los del
+	# snapshot, porque las jugadas del MCTS se casan con las opciones por ese id.
 	var world: Array = WorldMap.map
 	ctx.total_map_tiles = world.size()
-	ctx.tile_index = {}
-	for i in range(world.size()):
-		ctx.tile_index[world[i]] = i
+	ctx.tile_index = AIRealState.build_tile_index(world)
 
 	# Nuevo turno: el árbol de turnos anteriores ya no es válido (intervinieron
 	# el rival y advance_turn). La reutilización de subárbol es SOLO intra-turno.
 	_mcts_root = null
+	return ctx
 
+
+## Bucle decisorio: la única parte con lógica real del turno. Enumera opciones,
+## elige una y la ejecuta, hasta pasar o quedarse sin cartas.
+func _run_decision_loop(ctx: AITurnContext, empire_name: String) -> void:
 	var iterations := 0
 	while iterations < max_iterations and not ctx.drawn_cards.is_empty():
 		var options := _enumerate_all_options(ctx)
@@ -200,7 +223,9 @@ func _run_turn() -> void:
 		iterations += 1
 		await _wait(action_delay)
 
-	# Descartar las cartas no jugadas
+
+## Las cartas que no se jugaron van al descarte.
+func _discard_leftovers(ctx: AITurnContext, empire_name: String) -> void:
 	for leftover in ctx.drawn_cards:
 		stats.discard_pile.add_card(leftover)
 	if not ctx.drawn_cards.is_empty():
@@ -208,6 +233,9 @@ func _run_turn() -> void:
 	ctx.drawn_cards = []
 	_drawn_cards = []
 
+
+## Cierre: segunda asignación de tropas, evento de turno y fin.
+func _end_turn(empire_name: String) -> void:
 	# Segunda pasada de asignacion: cubre tropas reclutadas en este mismo
 	# turno (al jugar Recruit) y frentes abiertos en este mismo turno (al
 	# jugar Open Front). Sin esta segunda pasada los frentes recien creados

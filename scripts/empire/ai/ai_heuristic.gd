@@ -55,19 +55,36 @@ static func prepare_decision_cache(ctx: AITurnContext) -> void:
 	var phase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles)
 	var w := ctx.get_weights()
 
-	ctx._cache_gu       = _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	ctx._cache_fu       = _food_urgency(ctx.stats.food, phase, w)
-	ctx._cache_surplus  = _resource_surplus_factor(ctx, phase)
+	_cache_urgencies(ctx, phase, w)
+	_cache_fronts(ctx)
+	_cache_threat(ctx, w)
+
+	ctx._cache_valid = true
+
+
+## Urgencias económicas y de expansión (puras sobre stats + pesos).
+static func _cache_urgencies(ctx: AITurnContext, phase: AIGamePhase.Phase,
+		w: HeuristicWeights) -> void:
+	ctx._cache_gu        = _gold_urgency(ctx.stats.gold_per_turn, phase, w)
+	ctx._cache_fu        = _food_urgency(ctx.stats.food, phase, w)
+	ctx._cache_surplus   = _resource_surplus_factor(ctx, phase)
 	ctx._cache_expansion = _expansion_factor(ctx)
 
-	# Frentes activos: calcular una sola vez y reutilizar en _military_urgency
-	# y en _max_front_pressure para evitar la llamada repetida a get_active_instances().
+
+## Frentes activos: se recogen una sola vez y los reutilizan _military_urgency y
+## _max_front_pressure, evitando repetir get_active_instances() en cada scoring.
+static func _cache_fronts(ctx: AITurnContext) -> void:
 	var raw_fronts := ctx.get_front_registry().get_active_instances()
 	ctx._cache_active_fronts.clear()
 	for f in raw_fronts:
 		if f != null and not f.is_resolved:
 			ctx._cache_active_fronts.append(f)
 
+
+## Amenaza militar: si participamos en algún frente, si hay enemigo adyacente (solo
+## se comprueba cuando NO hay frente: un frente abierto ya domina la urgencia), y la
+## presión máxima resultante.
+static func _cache_threat(ctx: AITurnContext, w: HeuristicWeights) -> void:
 	ctx._cache_has_active_front   = false
 	ctx._cache_has_adjacent_enemy = false
 	if ctx.stats.empire != null:
@@ -92,8 +109,6 @@ static func prepare_decision_cache(ctx: AITurnContext) -> void:
 	ctx._cache_mu = AIUrgency.military_urgency_from(
 		ctx._cache_has_active_front, ctx._cache_has_adjacent_enemy,
 		ctx._cache_front_pressure, w)
-
-	ctx._cache_valid = true
 
 
 ## Devuelve los frentes activos donde participa el empire de ctx.

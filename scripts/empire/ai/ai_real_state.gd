@@ -259,12 +259,8 @@ var total_map_tiles: int = 0
 static func from_context(ctx: AITurnContext) -> AIRealState:
 	var s := AIRealState.new()
 	var stats: Stats = ctx.stats
-
-	# Mapeo Tile -> id estable (índice en WorldMap.map).
-	var index_of := {}
 	var world: Array = WorldMap.map
-	for i in range(world.size()):
-		index_of[world[i]] = i
+	var index_of := build_tile_index(world)
 	s.total_map_tiles = world.size()
 
 	var own_empire: Empire = stats.empire if stats != null else null
@@ -273,7 +269,29 @@ static func from_context(ctx: AITurnContext) -> AIRealState:
 		rival_view = ctx.world_view.get_rival_view()
 	var rival_empire: Empire = rival_view.empire if rival_view != null else null
 
-	# ── Tiles ────────────────────────────────────────────────────────────────
+	_snapshot_tiles(s, world, index_of, own_empire, rival_empire)
+	_snapshot_own_empire(s, ctx, stats, own_empire)
+	_snapshot_rival_public(s, rival_view, rival_empire)
+	_snapshot_fronts(s, ctx, index_of, own_empire, rival_empire)
+	return s
+
+
+## Mapeo `Tile → id` estable (posición en WorldMap.map).
+##
+## Lo comparten from_context y AIController (que lo guarda en `ctx.tile_index`), y
+## eso NO es casual: ambos deben producir EXACTAMENTE los mismos ids, porque las
+## jugadas del snapshot se casan con las opciones reales comparando ese id. Tener un
+## solo constructor elimina la posibilidad de que diverjan.
+static func build_tile_index(world: Array) -> Dictionary:
+	var index_of := {}
+	for i in range(world.size()):
+		index_of[world[i]] = i
+	return index_of
+
+
+## Casillas del mapa: geografía, edificios, propietario relativo y adyacencia por id.
+static func _snapshot_tiles(s: AIRealState, world: Array, index_of: Dictionary,
+		own_empire: Empire, rival_empire: Empire) -> void:
 	for i in range(world.size()):
 		var tile: Tile = world[i]
 		var snap := TileSnap.new()
@@ -301,47 +319,59 @@ static func from_context(ctx: AITurnContext) -> AIRealState:
 		snap.neighbor_ids = nbrs
 		s.tiles[i] = snap
 
-	# ── Imperio propio (acceso completo) ─────────────────────────────────────
-	if stats != null:
-		s.own.gold = stats.total_gold
-		s.own.gold_per_turn = stats.gold_per_turn
-		s.own.food = stats.food
-		s.own.cards_per_turn = stats.cards_per_turn
-		s.own.hand = ctx.drawn_cards.duplicate()
-		var deck: Array[Card] = []
-		if stats.draw_pile != null:
-			deck.append_array(stats.draw_pile.cards)
-		if stats.discard_pile != null:
-			deck.append_array(stats.discard_pile.cards)
-		s.own.deck = deck
-		s.own.troop_pool = stats.troop_pool.duplicate()
-		if own_empire != null:
-			s.own.combat_multiplier = own_empire.combat_multiplier
-		s.own.modifiers = _read_economic_modifiers(ctx)
-		# Estado de eventos/desbloqueos (F2.5b).
-		s.own.used_unique_events = stats.used_unique_events.duplicate()
-		s.own.types_ever_recruited = stats.types_ever_recruited.duplicate(true)
-		s.own.unlocked_card_pool = stats.unlocked_card_pool.duplicate()
-		s.own.possible_buildings = stats.possible_buildings.duplicate()
-		s.own.available_events = stats.available_events
-		s.own.category_weights = stats.category_weights
-		s.own.event_chance = stats.event_chance
-		s.own.shop_exclusive_pool = stats.shop_exclusive_pool.duplicate()
-		s.own.total_purges_done = stats.total_purges_done
-		s.turn_number = stats.turn_number
 
-	# ── Rival (solo información pública) ──────────────────────────────────────
-	if rival_view != null:
-		s.rival.gold = rival_view.total_gold
-		s.rival.gold_per_turn = rival_view.gold_per_turn
-		s.rival.food = rival_view.food
-		s.rival.cards_per_turn = rival_view.hand_size
-		s.rival.hand = []   # determinizada en F3
-		s.rival.deck = rival_view.known_deck.duplicate()
-		if rival_empire != null:
-			s.rival.combat_multiplier = rival_empire.combat_multiplier
+## Imperio propio: acceso COMPLETO (economía, mazo real, tropas, desbloqueos).
+static func _snapshot_own_empire(s: AIRealState, ctx: AITurnContext, stats: Stats,
+		own_empire: Empire) -> void:
+	if stats == null:
+		return
+	s.own.gold = stats.total_gold
+	s.own.gold_per_turn = stats.gold_per_turn
+	s.own.food = stats.food
+	s.own.cards_per_turn = stats.cards_per_turn
+	s.own.hand = ctx.drawn_cards.duplicate()
+	var deck: Array[Card] = []
+	if stats.draw_pile != null:
+		deck.append_array(stats.draw_pile.cards)
+	if stats.discard_pile != null:
+		deck.append_array(stats.discard_pile.cards)
+	s.own.deck = deck
+	s.own.troop_pool = stats.troop_pool.duplicate()
+	if own_empire != null:
+		s.own.combat_multiplier = own_empire.combat_multiplier
+	s.own.modifiers = _read_economic_modifiers(ctx)
+	# Estado de eventos/desbloqueos (F2.5b).
+	s.own.used_unique_events = stats.used_unique_events.duplicate()
+	s.own.types_ever_recruited = stats.types_ever_recruited.duplicate(true)
+	s.own.unlocked_card_pool = stats.unlocked_card_pool.duplicate()
+	s.own.possible_buildings = stats.possible_buildings.duplicate()
+	s.own.available_events = stats.available_events
+	s.own.category_weights = stats.category_weights
+	s.own.event_chance = stats.event_chance
+	s.own.shop_exclusive_pool = stats.shop_exclusive_pool.duplicate()
+	s.own.total_purges_done = stats.total_purges_done
+	s.turn_number = stats.turn_number
 
-	# ── Frentes activos (información pública: visibles en el mapa) ────────────
+
+## Rival: SOLO información pública (barrera de información, PLAN §3.5). Su mano se
+## determiniza aparte en F3; aquí queda vacía a propósito.
+static func _snapshot_rival_public(s: AIRealState, rival_view: AIEmpirePublicView,
+		rival_empire: Empire) -> void:
+	if rival_view == null:
+		return
+	s.rival.gold = rival_view.total_gold
+	s.rival.gold_per_turn = rival_view.gold_per_turn
+	s.rival.food = rival_view.food
+	s.rival.cards_per_turn = rival_view.hand_size
+	s.rival.hand = []   # determinizada en F3
+	s.rival.deck = rival_view.known_deck.duplicate()
+	if rival_empire != null:
+		s.rival.combat_multiplier = rival_empire.combat_multiplier
+
+
+## Frentes activos: información pública (son visibles en el mapa).
+static func _snapshot_fronts(s: AIRealState, ctx: AITurnContext, index_of: Dictionary,
+		own_empire: Empire, rival_empire: Empire) -> void:
 	for front in ctx.get_front_registry().get_active_instances():
 		if front == null or front.is_resolved:
 			continue
@@ -361,8 +391,6 @@ static func from_context(ctx: AITurnContext) -> AIRealState:
 		fs.threshold = front.threshold
 		fs.min_duration = front.min_duration
 		s.fronts.append(fs)
-
-	return s
 
 
 ## Lee los modificadores económicos PROPIOS del ModifierManager del controller

@@ -260,59 +260,121 @@ static func _apply_cost(cost: TurnEventCost, emp: AIRealState.EmpireSnap,
 		_remove_most_expendable(cost.player_remove_filter, emp)
 
 
+## Tabla `Script → Callable` de aplicadores de efecto (§1.7), en lugar de la cadena
+## de `elif effect is X`. Se resuelve SUBIENDO por get_base_script(), así que una
+## subclase nueva hereda el aplicador de su padre sin depender del orden de la
+## cadena. Todos los handlers comparten firma (effect, state, p_owner, emp, rng).
+static var _effect_handlers: Dictionary = {}
+
+
+static func _ensure_effect_handlers() -> void:
+	if not _effect_handlers.is_empty():
+		return
+	_effect_handlers[GoldEventEffect]              = Callable(AIRealEvents, "_eff_gold")
+	_effect_handlers[FoodEventEffect]              = Callable(AIRealEvents, "_eff_food")
+	_effect_handlers[ScaledGoldEffect]             = Callable(AIRealEvents, "_eff_scaled_gold")
+	_effect_handlers[ScaledFoodEffect]             = Callable(AIRealEvents, "_eff_scaled_food")
+	_effect_handlers[ApplyModifierEffect]          = Callable(AIRealEvents, "_eff_apply_modifier")
+	_effect_handlers[ScaledStatModifierEffect]     = Callable(AIRealEvents, "_eff_scaled_stat_modifier")
+	_effect_handlers[ScaledBuildCostModifierEffect] = Callable(AIRealEvents, "_eff_scaled_build_cost")
+	_effect_handlers[AddCardEffect]                = Callable(AIRealEvents, "_eff_add_card")
+	_effect_handlers[AddToCardPoolEffect]          = Callable(AIRealEvents, "_eff_add_to_pool")
+	_effect_handlers[AddRandomPoolCardEffect]      = Callable(AIRealEvents, "_eff_add_random_pool_card")
+	_effect_handlers[UnlockBuildingEffect]         = Callable(AIRealEvents, "_eff_unlock_building")
+	_effect_handlers[RemoveCardEventEffect]        = Callable(AIRealEvents, "_eff_remove_card")
+	_effect_handlers[ColonizeAdjacentEffect]       = Callable(AIRealEvents, "_eff_colonize_adjacent")
+	_effect_handlers[UrbanizeToMegalopolisEffect]  = Callable(AIRealEvents, "_eff_urbanize")
+
+
 static func _apply_effect(effect: TurnEventEffect, state: AIRealState, p_owner: int,
 		rng: RandomNumberGenerator) -> void:
 	var emp := state.empire(p_owner)
-
-	if effect is GoldEventEffect:
-		emp.gold += (effect as GoldEventEffect).amount
-	elif effect is FoodEventEffect:
-		emp.food += (effect as FoodEventEffect).amount
-	elif effect is ScaledGoldEffect:
-		var e := effect as ScaledGoldEffect
-		emp.gold += int(ScaledValue.evaluate(e.base, e.turn_factor, e.gpt_percent,
-			state.turn_number, emp.gold_per_turn))
-	elif effect is ScaledFoodEffect:
-		var e := effect as ScaledFoodEffect
-		emp.food += int(ScaledValue.evaluate(e.base, e.turn_factor, e.food_percent,
-			state.turn_number, emp.food))
-	elif effect is ApplyModifierEffect:
-		_add_modifier(emp, (effect as ApplyModifierEffect).modifier.duplicate_modifier())
-	elif effect is ScaledStatModifierEffect:
-		var e := effect as ScaledStatModifierEffect
-		var ref_stat := _scaled_stat_reference(e, emp)
-		var value := ScaledValue.evaluate(e.base_value, e.turn_factor, e.stat_percent,
-			state.turn_number, ref_stat)
-		_add_modifier(emp, StatModifier.new(e.modifier_id, e.modifier_name,
-			e.stat_type, value, e.duration))
-	elif effect is ScaledBuildCostModifierEffect:
-		var e := effect as ScaledBuildCostModifierEffect
-		var percent := ScaledValue.evaluate(e.base_percent, e.turn_factor, 0.0, state.turn_number)
-		_add_modifier(emp, BuildCostModifier.new(e.modifier_id, e.modifier_name,
-			percent, e.duration))
-	elif effect is AddCardEffect:
-		emp.deck.append((effect as AddCardEffect).card.duplicate())
-	elif effect is AddToCardPoolEffect:
-		_add_to_card_pool(emp, (effect as AddToCardPoolEffect).entry)
-	elif effect is AddRandomPoolCardEffect:
-		var card := _weighted_pick_pool_card(emp, state.turn_number, rng)
-		if card != null:
-			emp.deck.append(card.duplicate())
-	elif effect is UnlockBuildingEffect:
-		var b := (effect as UnlockBuildingEffect).building
-		if b != null and b not in emp.possible_buildings:
-			emp.possible_buildings.append(b)
-	elif effect is RemoveCardEventEffect:
-		var e := effect as RemoveCardEventEffect
-		if e.auto_filter != null:
-			_filter_remove_first(e.auto_filter, emp)
-		if e.player_filter != null:
-			_remove_most_expendable(e.player_filter, emp)
-	elif effect is ColonizeAdjacentEffect:
-		_apply_colonize_adjacent(state, p_owner, (effect as ColonizeAdjacentEffect).preferred_biome, rng)
-	elif effect is UrbanizeToMegalopolisEffect:
-		_apply_urbanize_megalopolis(state, p_owner, (effect as UrbanizeToMegalopolisEffect).min_buildings)
+	_ensure_effect_handlers()
+	var script := effect.get_script() as Script
+	while script != null:
+		if _effect_handlers.has(script):
+			(_effect_handlers[script] as Callable).call(effect, state, p_owner, emp, rng)
+			return
+		script = script.get_base_script()
 	# Otros efectos sin impacto en el estado modelado → no-op.
+
+
+# ── Aplicadores por tipo de efecto ────────────────────────────────────────────
+
+static func _eff_gold(effect, _state, _p_owner, emp, _rng) -> void:
+	emp.gold += (effect as GoldEventEffect).amount
+
+
+static func _eff_food(effect, _state, _p_owner, emp, _rng) -> void:
+	emp.food += (effect as FoodEventEffect).amount
+
+
+static func _eff_scaled_gold(effect, state, _p_owner, emp, _rng) -> void:
+	var e := effect as ScaledGoldEffect
+	emp.gold += int(ScaledValue.evaluate(e.base, e.turn_factor, e.gpt_percent,
+		state.turn_number, emp.gold_per_turn))
+
+
+static func _eff_scaled_food(effect, state, _p_owner, emp, _rng) -> void:
+	var e := effect as ScaledFoodEffect
+	emp.food += int(ScaledValue.evaluate(e.base, e.turn_factor, e.food_percent,
+		state.turn_number, emp.food))
+
+
+static func _eff_apply_modifier(effect, _state, _p_owner, emp, _rng) -> void:
+	_add_modifier(emp, (effect as ApplyModifierEffect).modifier.duplicate_modifier())
+
+
+static func _eff_scaled_stat_modifier(effect, state, _p_owner, emp, _rng) -> void:
+	var e := effect as ScaledStatModifierEffect
+	var ref_stat := _scaled_stat_reference(e, emp)
+	var value := ScaledValue.evaluate(e.base_value, e.turn_factor, e.stat_percent,
+		state.turn_number, ref_stat)
+	_add_modifier(emp, StatModifier.new(e.modifier_id, e.modifier_name,
+		e.stat_type, value, e.duration))
+
+
+static func _eff_scaled_build_cost(effect, state, _p_owner, emp, _rng) -> void:
+	var e := effect as ScaledBuildCostModifierEffect
+	var percent := ScaledValue.evaluate(e.base_percent, e.turn_factor, 0.0, state.turn_number)
+	_add_modifier(emp, BuildCostModifier.new(e.modifier_id, e.modifier_name,
+		percent, e.duration))
+
+
+static func _eff_add_card(effect, _state, _p_owner, emp, _rng) -> void:
+	emp.deck.append((effect as AddCardEffect).card.duplicate())
+
+
+static func _eff_add_to_pool(effect, _state, _p_owner, emp, _rng) -> void:
+	_add_to_card_pool(emp, (effect as AddToCardPoolEffect).entry)
+
+
+static func _eff_add_random_pool_card(_effect, state, _p_owner, emp, rng) -> void:
+	var card := _weighted_pick_pool_card(emp, state.turn_number, rng)
+	if card != null:
+		emp.deck.append(card.duplicate())
+
+
+static func _eff_unlock_building(effect, _state, _p_owner, emp, _rng) -> void:
+	var b := (effect as UnlockBuildingEffect).building
+	if b != null and b not in emp.possible_buildings:
+		emp.possible_buildings.append(b)
+
+
+static func _eff_remove_card(effect, _state, _p_owner, emp, _rng) -> void:
+	var e := effect as RemoveCardEventEffect
+	if e.auto_filter != null:
+		_filter_remove_first(e.auto_filter, emp)
+	if e.player_filter != null:
+		_remove_most_expendable(e.player_filter, emp)
+
+
+static func _eff_colonize_adjacent(effect, state, p_owner, _emp, rng) -> void:
+	_apply_colonize_adjacent(state, p_owner, (effect as ColonizeAdjacentEffect).preferred_biome, rng)
+
+
+static func _eff_urbanize(effect, state, p_owner, _emp, _rng) -> void:
+	_apply_urbanize_megalopolis(state, p_owner, (effect as UrbanizeToMegalopolisEffect).min_buildings)
 
 
 ## Añade un modifier al snapshot solo si es económico (afecta a recompute_economy).
