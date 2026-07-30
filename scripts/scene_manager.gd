@@ -1,5 +1,13 @@
 extends Node
 
+## Despachador del bus de eventos: escucha las señales globales y decide qué escena
+## o qué panel abrir. La MECÁNICA de la transición (fundido, intercambio de escena
+## actual, pantalla de carga) está en los helpers de la sección "Transiciones", para
+## que los dos flujos largos —generar mundo y cargar partida— se lean como una
+## secuencia de pasos con nombre y sus diferencias reales queden a la vista.
+
+## Cierra la puerta a transiciones concurrentes: una segunda navegación mientras hay
+## un fundido en curso descartaría la escena a medio montar.
 var _transitioning := false
 
 const MAP = preload("uid://dxw5gc7xqbkqj")
@@ -34,6 +42,10 @@ func _ready() -> void:
 	GameSaveManager.load_requested.connect(_on_load_requested)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Transiciones
+# ─────────────────────────────────────────────────────────────────────────────
+
 func _change_scene(new_scene: Node) -> void:
 	if _transitioning:
 		new_scene.queue_free()
@@ -42,11 +54,43 @@ func _change_scene(new_scene: Node) -> void:
 	await SceneTransition.fade_out()
 	var scene_to_remove = get_tree().current_scene
 	get_tree().root.add_child(new_scene)
-	get_tree().current_scene = new_scene
-	if scene_to_remove:
-		scene_to_remove.queue_free()
+	_promote_to_current(new_scene, scene_to_remove)
 	await SceneTransition.fade_in()
 	_transitioning = false
+
+
+## Hace de `new_scene` la escena actual y libera la anterior. Se llama con la nueva
+## YA añadida al árbol: los dos flujos largos la montan antes para poder trabajar
+## sobre ella mientras la pantalla de carga sigue visible.
+func _promote_to_current(new_scene: Node, old_scene: Node) -> void:
+	get_tree().current_scene = new_scene
+	if old_scene:
+		old_scene.queue_free()
+
+
+## Pone la pantalla de carga como escena actual y deja el bloqueo de transiciones
+## echado, listo para que el llamante monte el mapa por debajo.
+##
+## Los dos frames de espera no son decorativos: la generación del mundo y
+## `apply_snapshot` bloquean el hilo principal, así que la pantalla de carga tiene
+## que haber llegado a pintarse ANTES o el jugador se come el tirón sin ver nada.
+## El 0 por defecto es el mismo valor que ya trae `LoadingScreen.seed_value`, y es
+## el que hace que no se muestre la etiqueta de semilla: así el flujo de carga, que
+## nunca la fijaba, se comporta igual sin necesitar un centinela.
+func _enter_loading_screen(map_seed: int = 0) -> void:
+	var loading := LoadingScreen.new()
+	loading.seed_value = map_seed
+	await _change_scene(loading)
+
+	_transitioning = true
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+
+## Cierra un flujo largo: funde a negro, promueve el mapa ya montado y vuelve.
+func _reveal_prepared_scene(new_scene: Node) -> void:
+	await SceneTransition.fade_out()
+	_promote_to_current(new_scene, get_tree().current_scene)
 
 
 func _on_navigate_to_main_menu() -> void:
@@ -65,17 +109,9 @@ func _on_navigate_to_generation(empire: Empire) -> void:
 	await _change_scene(new_scene)
 
 
+## Partida nueva: pantalla de carga → generar el mundo → revelar el mapa.
 func _on_events_generate_world(settings: GenerationSettings, stats: Stats) -> void:
-	var loading := LoadingScreen.new()
-	loading.seed_value = settings.map_seed
-	await _change_scene(loading)
-
-	# Bloquear nuevas transiciones mientras generamos + transicionamos.
-	_transitioning = true
-	# Esperar 2 frames para que el jugador vea la pantalla de carga antes de
-	# que WorldGenerator bloquee el hilo principal.
-	await get_tree().process_frame
-	await get_tree().process_frame
+	await _enter_loading_screen(settings.map_seed)
 
 	var new_scene = MAP.instantiate()
 	var world_generator: Node = new_scene.get_node("%WorldGenerator")
@@ -94,12 +130,9 @@ func _on_events_generate_world(settings: GenerationSettings, stats: Stats) -> vo
 	world_generator.init_seed()
 	world_generator.generate_world()
 
-	# Transición visual: fade out → intercambiar escena → iniciar juego → fade in.
-	await SceneTransition.fade_out()
-	var old_scene := get_tree().current_scene
-	get_tree().current_scene = new_scene
-	if old_scene:
-		old_scene.queue_free()
+	await _reveal_prepared_scene(new_scene)
+	# start_game va DESPUÉS del intercambio, al revés que al cargar: aquí el
+	# mundo ya está generado, no queda trabajo pesado que esconder.
 	new_scene.start_game()
 	await SceneTransition.fade_in()
 	_transitioning = false
@@ -112,24 +145,10 @@ func _on_load_requested(snapshot: Dictionary) -> void:
 	if snapshot.is_empty():
 		return
 
-	var loading := LoadingScreen.new()
-	await _change_scene(loading)
-
-	_transitioning = true
-	await get_tree().process_frame
-	await get_tree().process_frame
+	await _enter_loading_screen()
 
 	var new_scene = MAP.instantiate()
-
-	# Si el snapshot trae la ruta del GenerationSettings, la fijamos para
-	# que cualquier sistema que la consulte la tenga disponible.
-	var settings_path:String = snapshot.get("generation_settings", "")
-	if settings_path != "" and ResourceLoader.exists(settings_path):
-		var settings:GenerationSettings = load(settings_path) as GenerationSettings
-		new_scene.generation_settings = settings
-		var wg:Node = new_scene.get_node_or_null("%WorldGenerator")
-		if wg:
-			wg.settings = settings
+	_apply_snapshot_settings(new_scene, snapshot)
 
 	# El campo `stats` de Map se usa solo en el flujo nuevo. En carga, las
 	# Stats reales se reconstruyen desde el snapshot. Pasamos la plantilla
@@ -140,16 +159,31 @@ func _on_load_requested(snapshot: Dictionary) -> void:
 	# Añadir el mapa al árbol sin que arranque el juego todavía.
 	get_tree().root.add_child(new_scene)
 
-	# apply_snapshot reconstruye el mundo mientras la pantalla de carga es visible.
+	# start_game va ANTES del intercambio, al revés que al generar: apply_snapshot
+	# reconstruye el mundo entero y debe correr con la pantalla de carga visible.
 	new_scene.start_game()
 
-	await SceneTransition.fade_out()
-	var old_scene := get_tree().current_scene
-	get_tree().current_scene = new_scene
-	if old_scene:
-		old_scene.queue_free()
+	await _reveal_prepared_scene(new_scene)
 	await SceneTransition.fade_in()
 	_transitioning = false
+
+
+## Si el snapshot trae la ruta del GenerationSettings, la fija en el mapa para
+## que cualquier sistema que la consulte la tenga disponible.
+func _apply_snapshot_settings(new_scene: Node, snapshot: Dictionary) -> void:
+	var settings_path:String = snapshot.get("generation_settings", "")
+	if settings_path == "" or not ResourceLoader.exists(settings_path):
+		return
+	var settings:GenerationSettings = load(settings_path) as GenerationSettings
+	new_scene.generation_settings = settings
+	var wg:Node = new_scene.get_node_or_null("%WorldGenerator")
+	if wg:
+		wg.settings = settings
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paneles de carta
+# ─────────────────────────────────────────────────────────────────────────────
 
 func _on_build_card_confirm_started(card:BuildCard,targets:Array[Node],stats:Stats):
 	card.menu = BUILDING_PANEL.instantiate()
@@ -158,7 +192,7 @@ func _on_build_card_confirm_started(card:BuildCard,targets:Array[Node],stats:Sta
 		card.menu.stats = stats
 		card.menu.action = card.menu.possible_action.BUILD
 		card.menu.buildings = card.buildings
-	get_tree().get_first_node_in_group("ui_layer").add_child(card.menu)
+	SceneGroups.ui_layer(get_tree()).add_child(card.menu)
 
 func _on_upgrade_building_card_confirm_started(card:UpgradeBuildingCard,targets:Array[Node],stats:Stats):
 	card.menu = BUILDING_PANEL.instantiate()
@@ -170,12 +204,12 @@ func _on_upgrade_building_card_confirm_started(card:UpgradeBuildingCard,targets:
 		card.menu.building_to_upgrade_selected.connect(
 			func(building): card.old_building = building
 			)
-	get_tree().get_first_node_in_group("ui_layer").add_child(card.menu)
+	SceneGroups.ui_layer(get_tree()).add_child(card.menu)
 
 func _on_recover_card_confirm_started(card:RecoverCard, stats:Stats) -> void:
 	card.menu = RECOVER_CARD_PANEL.instantiate()
 	card.menu.card_pile = stats.played_pile
-	get_tree().get_first_node_in_group("ui_layer").add_child(card.menu)
+	SceneGroups.ui_layer(get_tree()).add_child(card.menu)
 
 ## Mientras hay un menú de evento abierto pausamos el árbol para que el
 ## jugador no pueda seguir interactuando con el resto del juego (otras
@@ -188,29 +222,38 @@ func _on_recover_card_confirm_started(card:RecoverCard, stats:Stats) -> void:
 ## (los emite la propia scene de evento al cerrarse), via
 ## `_on_event_resolved`.
 func _on_turn_event_triggered(event:TurnEvent, context:EventContext) -> void:
-	var ui_layer := get_tree().get_first_node_in_group("ui_layer")
-	var player_handler:PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+	var ui_layer := SceneGroups.ui_layer(get_tree())
+	var player_handler := SceneGroups.player_handler(get_tree()) as PlayerHandler
 
 	get_tree().paused = true
 
 	if event is ShopEvent:
-		var shop_event := event as ShopEvent
-		var shop_panel:ShopPanel = SHOP_PANEL.instantiate()
-		ui_layer.add_child(shop_panel)
-		var config := shop_event.generate_shop(context.stats)
-		shop_panel.setup(config, context.stats, event.title, event.description)
-		# Marcar evento unico si aplica
-		if event.unique:
-			player_handler.turn_event_manager.stats.used_unique_events.append(event.id)
+		_open_shop_panel(ui_layer, player_handler, event as ShopEvent, context)
 	else:
-		# Añadir panel de selección de carta si no existe ya
-		if not ui_layer.has_node("EventCardSelectionPanel"):
-			var card_sel := EVENT_CARD_SELECTION_PANEL.instantiate()
-			ui_layer.add_child(card_sel)
+		_open_turn_event_panel(ui_layer, player_handler, event, context)
 
-		var panel:TurnEventPanel = TURN_EVENT_PANEL.instantiate()
-		ui_layer.add_child(panel)
-		panel.setup(event, context, player_handler.turn_event_manager)
+
+func _open_shop_panel(ui_layer: Node, player_handler: PlayerHandler,
+		event: ShopEvent, context: EventContext) -> void:
+	var shop_panel:ShopPanel = SHOP_PANEL.instantiate()
+	ui_layer.add_child(shop_panel)
+	var config := event.generate_shop(context.stats)
+	shop_panel.setup(config, context.stats, event.title, event.description)
+	# Marcar evento unico si aplica
+	if event.unique:
+		player_handler.turn_event_manager.stats.used_unique_events.append(event.id)
+
+
+func _open_turn_event_panel(ui_layer: Node, player_handler: PlayerHandler,
+		event: TurnEvent, context: EventContext) -> void:
+	# Añadir panel de selección de carta si no existe ya
+	if not ui_layer.has_node("EventCardSelectionPanel"):
+		var card_sel := EVENT_CARD_SELECTION_PANEL.instantiate()
+		ui_layer.add_child(card_sel)
+
+	var panel:TurnEventPanel = TURN_EVENT_PANEL.instantiate()
+	ui_layer.add_child(panel)
+	panel.setup(event, context, player_handler.turn_event_manager)
 
 
 ## Conectado tanto a turn_event_resolved como a shop_event_resolved
@@ -225,7 +268,7 @@ func _on_recruit_card_confirm_started(card: RecruitCard, stats: Stats) -> void:
 	card.menu = recruit_panel
 	recruit_panel.stats = stats
 	recruit_panel.available_troops = card.available_troops
-	get_tree().get_first_node_in_group("ui_layer").add_child(recruit_panel)
+	SceneGroups.ui_layer(get_tree()).add_child(recruit_panel)
 
 
 func _on_open_front_card_confirm_started(card: OpenFrontCard, _target_tile: Tile, own_tiles: Array[Tile], _stats: Stats) -> void:
@@ -234,19 +277,19 @@ func _on_open_front_card_confirm_started(card: OpenFrontCard, _target_tile: Tile
 	# apply_effects() pueda llamar a open_front() cuando la carta se juegue.
 	# Sin esta inyección apply_effects() retorna en el null-check y nunca se
 	# crea el frente ni su visual.
-	var player_handler: PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+	var player_handler := SceneGroups.player_handler(get_tree()) as PlayerHandler
 	if player_handler != null:
 		card.battle_front_manager = player_handler.battle_front_manager
 
 	var panel := OpenFrontPanel.new()
 	card.menu = panel
 	panel.setup(card, own_tiles)
-	get_tree().get_first_node_in_group("ui_layer").add_child(panel)
+	SceneGroups.ui_layer(get_tree()).add_child(panel)
 
 
 func _on_battle_front_selected(front: BattleFront) -> void:
-	var ui_layer := get_tree().get_first_node_in_group("ui_layer")
-	var player_handler: PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+	var ui_layer := SceneGroups.ui_layer(get_tree())
+	var player_handler := SceneGroups.player_handler(get_tree()) as PlayerHandler
 	if player_handler == null:
 		return
 
@@ -261,7 +304,7 @@ func _on_battle_front_selected(front: BattleFront) -> void:
 
 
 func _on_assign_troop_requested(front: BattleFront, player_handler: PlayerHandler) -> void:
-	var ui_layer := get_tree().get_first_node_in_group("ui_layer")
+	var ui_layer := SceneGroups.ui_layer(get_tree())
 
 	var assign_panel := AssignTroopsPanel.new()
 	assign_panel.setup(front, player_handler.stats)

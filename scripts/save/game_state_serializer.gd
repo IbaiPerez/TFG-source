@@ -24,7 +24,7 @@ static func build_snapshot() -> Dictionary:
 	if map_node == null or map_node.name != "Map":
 		return {}
 
-	var player_handler := tree.get_first_node_in_group("player_handler") as PlayerHandler
+	var player_handler := SceneGroups.player_handler(tree) as PlayerHandler
 	if player_handler == null:
 		return {}
 

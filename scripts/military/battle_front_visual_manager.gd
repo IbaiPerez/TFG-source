@@ -45,7 +45,7 @@ func _resolve_player_empire() -> Empire:
 	var tree := get_tree()
 	if tree == null:
 		return null
-	var ph: Node = tree.get_first_node_in_group("player_handler")
+	var ph := SceneGroups.player_handler(tree)
 	if ph == null:
 		return null
 	var stats = ph.get("stats")

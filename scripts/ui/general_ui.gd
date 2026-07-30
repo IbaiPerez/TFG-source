@@ -55,7 +55,7 @@ func _ready() -> void:
 
 
 func _connect_modifier_manager() -> void:
-	var player_handler:PlayerHandler = get_tree().get_first_node_in_group("player_handler")
+	var player_handler := SceneGroups.player_handler(get_tree()) as PlayerHandler
 	if player_handler and player_handler.modifier_manager:
 		stats_ui.set_modifier_manager(player_handler.modifier_manager)
 
