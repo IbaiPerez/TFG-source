@@ -34,104 +34,112 @@ static func build(border_indices: Array, color: Color) -> ArrayMesh:
 	if border_indices.is_empty():
 		return null
 
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
+	var vertices := PackedVector3Array()
+	var colors := PackedColorArray()
+	var normals := PackedVector3Array()
+	var indices := PackedInt32Array()
 
-	var vertices = PackedVector3Array()
-	var colors = PackedColorArray()
-	var normals = PackedVector3Array()
-
-	var hex_verts = hex_vertices()
-
+	var hex_verts := hex_vertices()
+	var drawn := 0
 	for border_index in border_indices:
 		if border_index >= hex_verts.size():
 			continue
+		_append_edge_prism(vertices, colors, normals,
+			hex_verts[border_index],
+			hex_verts[(border_index + 1) % hex_verts.size()],
+			color)
+		drawn += 1
 
-		var start_vertex = hex_verts[border_index]
-		var end_vertex = hex_verts[(border_index + 1) % hex_verts.size()]
-
-		var dir = (end_vertex - start_vertex).normalized()
-		var perp = Vector3(-dir.z, 0, dir.x) * _BORDER_WIDTH
-		var normal_out = Vector3(-dir.z, 0, dir.x).normalized()
-		var normal_in = -normal_out
-
-		vertices.append(start_vertex - perp + Vector3(0, _BASE_ELEVATION, 0))
-		vertices.append(start_vertex + perp + Vector3(0, _BASE_ELEVATION, 0))
-		vertices.append(end_vertex + perp + Vector3(0, _BASE_ELEVATION, 0))
-		vertices.append(end_vertex - perp + Vector3(0, _BASE_ELEVATION, 0))
-
-		vertices.append(start_vertex - perp + Vector3(0, _BASE_ELEVATION + _BORDER_HEIGHT, 0))
-		vertices.append(start_vertex + perp + Vector3(0, _BASE_ELEVATION + _BORDER_HEIGHT, 0))
-		vertices.append(end_vertex + perp + Vector3(0, _BASE_ELEVATION + _BORDER_HEIGHT, 0))
-		vertices.append(end_vertex - perp + Vector3(0, _BASE_ELEVATION + _BORDER_HEIGHT, 0))
-
-		for i in range(8):
-			colors.append(color)
-
-		for i in range(2):
-			normals.append(normal_out)
-		for i in range(2):
-			normals.append(normal_in)
-		for i in range(2):
-			normals.append(normal_out)
-		for i in range(2):
-			normals.append(normal_in)
-
-	var indices = PackedInt32Array()
+	# Los índices son los mismos para cada prisma salvo el desplazamiento de base.
+	# OJO: se recorre `border_indices.size()`, no `drawn`. Se conserva tal cual para
+	# no alterar la malla; con un índice de arista fuera de rango (que `continue`
+	# descarta) el bucle generaría índices más allá de los vértices emitidos.
 	for i in range(border_indices.size()):
-		var base = i * 8
+		_append_prism_indices(indices, i * 8)
 
-		indices.append(base + 0)
-		indices.append(base + 4)
-		indices.append(base + 5)
-		indices.append(base + 0)
-		indices.append(base + 5)
-		indices.append(base + 1)
-
-		indices.append(base + 3)
-		indices.append(base + 2)
-		indices.append(base + 6)
-		indices.append(base + 3)
-		indices.append(base + 6)
-		indices.append(base + 7)
-
-		indices.append(base + 0)
-		indices.append(base + 3)
-		indices.append(base + 7)
-		indices.append(base + 0)
-		indices.append(base + 7)
-		indices.append(base + 4)
-
-		indices.append(base + 1)
-		indices.append(base + 5)
-		indices.append(base + 6)
-		indices.append(base + 1)
-		indices.append(base + 6)
-		indices.append(base + 2)
-
-		indices.append(base + 4)
-		indices.append(base + 7)
-		indices.append(base + 6)
-		indices.append(base + 4)
-		indices.append(base + 6)
-		indices.append(base + 5)
-
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_NORMAL] = normals
 	arrays[Mesh.ARRAY_INDEX] = indices
 
-	var array_mesh = ArrayMesh.new()
+	var array_mesh := ArrayMesh.new()
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	array_mesh.surface_set_material(0, _make_border_material())
+	return array_mesh
 
-	var border_material = StandardMaterial3D.new()
+
+## Emite los 8 vértices (+ color y normal de cada uno) del prisma de UNA arista.
+##
+## Disposición, que es la que asumen los índices de `_append_prism_indices`:
+##   0..3 = anillo INFERIOR  (inicio−perp, inicio+perp, fin+perp, fin−perp)
+##   4..7 = anillo SUPERIOR, en el mismo orden
+## es decir, los pares verticales son (0,4) (1,5) (2,6) (3,7).
+static func _append_edge_prism(vertices: PackedVector3Array, colors: PackedColorArray,
+		normals: PackedVector3Array, start_vertex: Vector3, end_vertex: Vector3,
+		color: Color) -> void:
+	var dir := (end_vertex - start_vertex).normalized()
+	var perp := Vector3(-dir.z, 0, dir.x) * _BORDER_WIDTH
+	var bottom := Vector3(0, _BASE_ELEVATION, 0)
+	var top := Vector3(0, _BASE_ELEVATION + _BORDER_HEIGHT, 0)
+
+	vertices.append(start_vertex - perp + bottom)
+	vertices.append(start_vertex + perp + bottom)
+	vertices.append(end_vertex + perp + bottom)
+	vertices.append(end_vertex - perp + bottom)
+	vertices.append(start_vertex - perp + top)
+	vertices.append(start_vertex + perp + top)
+	vertices.append(end_vertex + perp + top)
+	vertices.append(end_vertex - perp + top)
+
+	for i in range(8):
+		colors.append(color)
+
+	# Normales alternando por PAREJAS, tal como estaban. No siguen el lado ±perp de
+	# cada vértice, así que geométricamente no son las de las caras; da igual porque
+	# el material es UNSHADED y no las usa. Se preservan para no tocar la malla.
+	var normal_out := Vector3(-dir.z, 0, dir.x).normalized()
+	var normal_in := -normal_out
+	for i in range(2):
+		normals.append(normal_out)
+	for i in range(2):
+		normals.append(normal_in)
+	for i in range(2):
+		normals.append(normal_out)
+	for i in range(2):
+		normals.append(normal_in)
+
+
+## Las 5 caras visibles del prisma (la inferior no se emite: queda contra el suelo).
+## `base` es el índice del primer vértice del prisma.
+static func _append_prism_indices(indices: PackedInt32Array, base: int) -> void:
+	_append_quad(indices, base + 0, base + 4, base + 5, base + 1)   # tapa de inicio
+	_append_quad(indices, base + 3, base + 2, base + 6, base + 7)   # tapa de fin
+	_append_quad(indices, base + 0, base + 3, base + 7, base + 4)   # lateral −perp
+	_append_quad(indices, base + 1, base + 5, base + 6, base + 2)   # lateral +perp
+	_append_quad(indices, base + 4, base + 7, base + 6, base + 5)   # cara superior
+
+
+## Un quad como dos triángulos, (a,b,c) + (a,c,d). El ORDEN importa: define el
+## sentido de giro y, con él, hacia dónde mira la cara.
+static func _append_quad(indices: PackedInt32Array, a: int, b: int, c: int, d: int) -> void:
+	indices.append(a)
+	indices.append(b)
+	indices.append(c)
+	indices.append(a)
+	indices.append(c)
+	indices.append(d)
+
+
+## Material del borde: color plano por vértice, sin iluminación ni descarte de caras,
+## para que el borde se vea igual desde cualquier ángulo.
+static func _make_border_material() -> StandardMaterial3D:
+	var border_material := StandardMaterial3D.new()
 	border_material.vertex_color_use_as_albedo = true
 	border_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	border_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	border_material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
 	border_material.no_depth_test = false
 	border_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
-
-	array_mesh.surface_set_material(0, border_material)
-
-	return array_mesh
+	return border_material

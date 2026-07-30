@@ -1,6 +1,22 @@
 extends Resource
 class_name Stats
 
+## Estado completo de un imperio durante la partida. Es el nodo de datos central:
+## dependen de él ~40 ficheros, así que se documenta por GRUPOS de campos (§2.7) en
+## vez de partirlo — separarlo en varias clases tendría mala relación coste/beneficio.
+##
+##   · Economía          total_gold, gold_per_turn, food (+ los initial_* del .tres).
+##                       Todos con setter que emite `stats_changed`.
+##   · Mazo              deck / draw_pile / discard_pile / played_pile + cards_per_turn.
+##   · Construcción      possible_buildings, y la sincronización de las BuildCard con
+##                       ese catálogo (add/remove_possible_building → sync_card_buildings).
+##   · Eventos           available_events, category_weights, event_chance,
+##                       used_unique_events, turn_number.
+##   · Desbloqueos       unlocked_card_pool, shop_exclusive_pool, total_purges_done.
+##   · Militar           troop_pool (vivo) y types_ever_recruited (histórico).
+##
+## Las emisiones de `stats_changed` se pueden agrupar con begin_update/end_update.
+
 signal stats_changed
 signal possible_buildings_changed
 signal troop_recruited(troop:Troop)
@@ -134,16 +150,21 @@ func remove_possible_building(building:Building) -> void:
 	_emit_stats_changed()
 
 
+## Propaga `possible_buildings` a todas las BuildCard de todas las pilas.
 func _sync_build_cards() -> void:
 	for pile:CardPile in [deck, draw_pile, discard_pile, played_pile]:
 		if pile == null:
 			continue
 		for card:Card in pile.cards:
-			if card is BuildCard and not card is DirectBuildCard:
-				card.buildings = possible_buildings.duplicate()
+			sync_card_buildings(card)
 
 
 ## Sincroniza buildings en una BuildCard suelta (antes de añadirla a una pila).
+##
+## Punto ÚNICO de la regla (§2.7): qué cartas se sincronizan y con qué. Una
+## DirectBuildCard queda fuera a propósito — su edificio lo fija la carta, no el
+## catálogo del imperio. `_sync_build_cards` delega aquí para que la condición no
+## viva escrita dos veces.
 func sync_card_buildings(card:Card) -> void:
 	if card is BuildCard and not card is DirectBuildCard:
 		card.buildings = possible_buildings.duplicate()
