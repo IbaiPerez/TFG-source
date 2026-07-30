@@ -31,43 +31,13 @@ func init_creator(_in_settings:GenerationSettings):
 ##   - En el caso normal de exito, se emite `change_tile_controller` para
 ##     cada imperio con su tile inicial.
 func create_empires():
-	# Reset defensivo: limpia el estado de cualquier run anterior. Antes
-	# se reseteaba solo player_empire (y la IA dependia de un reset
-	# diferido dentro del path de exito), lo que dejaba a las IA empires
-	# con refs a tiles freed cuando se reusan los recursos entre runs.
-	settings.player_empire.reset_controlled_tiles()
-	for e in settings.empires:
-		if e != null:
-			e.reset_controlled_tiles()
+	_reset_empire_territories()
 
-	# Tiles candidatas: del anillo "buffer" (cinturón intermedio del mapa),
-	# no oceanicas y con produccion de comida positiva.
-	# Usa estrategia de fallback si los criterios estrictos no tienen suficientes tiles.
-	for tile in WorldMap.map:
-		if tile.pos_data.buffer and tile.biome != "Ocean" and tile.food_production > 0:
-			possible_tiles.append(tile)
-
-	# Fallback 1: relajar food_production (permitir >= 0)
-	if possible_tiles.size() < 2:
-		possible_tiles.clear()
-		for tile in WorldMap.map:
-			if tile.pos_data.buffer and tile.biome != "Ocean":
-				possible_tiles.append(tile)
-
-	# Fallback 2: remover requisito de buffer
-	if possible_tiles.size() < 2:
-		possible_tiles.clear()
-		for tile in WorldMap.map:
-			if tile.biome != "Ocean":
-				possible_tiles.append(tile)
-
-	# Fallback 3: permitir cualquier tile terrestre (incluso sin verificar bioma)
-	if possible_tiles.size() < 2:
-		possible_tiles.clear()
-		for tile in WorldMap.map:
-			if tile.biome != "Ocean" and tile.biome != "Water":
-				possible_tiles.append(tile)
-
+	# ASIGNACION, no append: `possible_tiles` es estado de instancia y antes se
+	# rellenaba acumulando, asi que reutilizar un EmpireCreator arrastraba las
+	# candidatas del run anterior (hoy no pasa porque WorldGenerator crea uno nuevo
+	# cada vez, pero la clase se documenta como "stateless" y no lo era).
+	possible_tiles = _collect_candidate_tiles()
 	if possible_tiles.is_empty():
 		push_error("[EmpireCreator] possible_tiles vacio: el mapa no tiene tiles terrestres disponibles.")
 		return
@@ -84,12 +54,61 @@ func create_empires():
 		])
 		return
 
-	var player_tile: Tile = pair["player"]
-	var ia_tile: Tile = pair["ia"]
-	var ia_empire: Empire = settings.empires.pick_random()
+	_place_empires(pair)
 
-	Events.change_tile_controller.emit(player_tile, settings.player_empire)
-	Events.change_tile_controller.emit(ia_tile, ia_empire)
+
+## Reset defensivo: limpia el estado de cualquier run anterior. Antes se reseteaba
+## solo player_empire (y la IA dependia de un reset diferido dentro del path de
+## exito), lo que dejaba a las IA empires con refs a tiles freed cuando se reusan
+## los recursos Empire entre runs.
+func _reset_empire_territories() -> void:
+	settings.player_empire.reset_controlled_tiles()
+	for e in settings.empires:
+		if e != null:
+			e.reset_controlled_tiles()
+
+
+## Candidatas a tile inicial, por orden de preferencia: se baja al siguiente
+## criterio SOLO si el anterior no deja al menos 2 (hacen falta dos imperios).
+##
+## El ideal es una tile del anillo "buffer" (cinturon intermedio del mapa), no
+## oceanica y con produccion de comida positiva; los siguientes van relajando esa
+## exigencia para que un mapa degenerado no impida empezar la partida.
+##
+## NOTA: el ultimo criterio solo RESTRINGE respecto al anterior (excluye ademas
+## "Water"), asi que nunca puede rescatar un caso que el tercero no cubriera ya. Se
+## conserva porque decide con que lista se aborta y, por tanto, que error se emite.
+func _collect_candidate_tiles() -> Array[Tile]:
+	var criteria: Array[Callable] = [
+		func(t: Tile) -> bool:
+			return t.pos_data.buffer and t.biome != "Ocean" and t.food_production > 0,
+		func(t: Tile) -> bool:
+			return t.pos_data.buffer and t.biome != "Ocean",
+		func(t: Tile) -> bool:
+			return t.biome != "Ocean",
+		func(t: Tile) -> bool:
+			return t.biome != "Ocean" and t.biome != "Water",
+	]
+
+	var tiles: Array[Tile] = []
+	for accepts in criteria:
+		tiles = []
+		for tile in WorldMap.map:
+			if accepts.call(tile):
+				tiles.append(tile)
+		if tiles.size() >= 2:
+			return tiles
+	# Ningun criterio llego a 2: se devuelve el resultado del ultimo, que el
+	# llamante valida (vacio -> error; con 1 -> lo rechaza _find_placement_pair).
+	return tiles
+
+
+## Entrega a cada imperio su tile inicial. El rival se elige al azar entre los
+## candidatos de `settings.empires`.
+func _place_empires(pair: Dictionary) -> void:
+	var ia_empire: Empire = settings.empires.pick_random()
+	Events.change_tile_controller.emit(pair["player"], settings.player_empire)
+	Events.change_tile_controller.emit(pair["ia"], ia_empire)
 
 
 ## Devuelve un diccionario `{ "player": Tile, "ia": Tile }` con el par

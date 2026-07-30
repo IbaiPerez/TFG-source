@@ -301,3 +301,74 @@ func test_retry_loop_finds_strict_pair_even_with_close_neighbors() -> void:
 		"la retry estricta debe garantizar ring_distance > radius (=%d, obtenido %d)" % [
 			settings.radius, d
 		])
+
+
+# ============================================================
+#  Cascada de criterios para elegir candidatas (§2.8)
+# ============================================================
+#
+# `_collect_candidate_tiles` prueba 4 criterios en orden y se queda con el PRIMERO
+# que deje al menos 2 candidatas (hacen falta dos imperios). Es la red de seguridad
+# que permite empezar partida en un mapa degenerado, y no tenia cobertura directa.
+
+func _creator_for(tiles:Array[Tile]) -> EmpireCreator:
+	WorldMap.set_map(tiles)
+	var creator := EmpireCreator.new()
+	creator.init_creator(_make_settings(4, [_make_empire("IA")], _make_empire("Player")))
+	return creator
+
+
+func test_candidates_prefer_buffer_tiles_with_food() -> void:
+	# Criterio 1: buffer + no oceanica + comida > 0. Las que no cumplen quedan fuera.
+	var good_a := _make_tile(0, 0, true, "Grassland", 2)
+	var good_b := _make_tile(1, 0, true, "Forest", 1)
+	var no_food := _make_tile(2, 0, true, "Desert", 0)
+	var no_buffer := _make_tile(3, 0, false, "Grassland", 5)
+	var picked := _creator_for([good_a, good_b, no_food, no_buffer] as Array[Tile]) \
+		._collect_candidate_tiles()
+	assert_eq(picked, [good_a, good_b] as Array[Tile],
+		"con suficientes tiles buffer con comida, no se relaja el criterio")
+
+
+func test_candidates_relax_food_when_not_enough() -> void:
+	# Criterio 2: si no hay 2 con comida, se admiten buffer sin comida.
+	var with_food := _make_tile(0, 0, true, "Grassland", 3)
+	var no_food := _make_tile(1, 0, true, "Desert", 0)
+	var picked := _creator_for([with_food, no_food] as Array[Tile])._collect_candidate_tiles()
+	assert_eq(picked.size(), 2, "se relaja la exigencia de comida antes que la de buffer")
+	assert_true(no_food in picked, "la tile sin comida entra al relajar el criterio")
+
+
+func test_candidates_drop_buffer_requirement_when_needed() -> void:
+	# Criterio 3: sin suficientes tiles de buffer, vale cualquier no oceanica.
+	var buffered := _make_tile(0, 0, true, "Grassland", 1)
+	var inland := _make_tile(1, 0, false, "Forest", 1)
+	var picked := _creator_for([buffered, inland] as Array[Tile])._collect_candidate_tiles()
+	assert_eq(picked.size(), 2, "se abandona el requisito de buffer como tercer recurso")
+
+
+func test_candidates_exclude_ocean_always() -> void:
+	var land_a := _make_tile(0, 0, false, "Grassland", 1)
+	var land_b := _make_tile(1, 0, false, "Forest", 1)
+	var sea := _make_tile(2, 0, false, "Ocean", 0)
+	var picked := _creator_for([land_a, land_b, sea] as Array[Tile])._collect_candidate_tiles()
+	assert_false(sea in picked, "una tile oceanica nunca es candidata a inicio")
+
+
+func test_candidates_empty_when_map_is_all_ocean() -> void:
+	var sea_a := _make_tile(0, 0, false, "Ocean", 0)
+	var sea_b := _make_tile(1, 0, false, "Ocean", 0)
+	var picked := _creator_for([sea_a, sea_b] as Array[Tile])._collect_candidate_tiles()
+	assert_eq(picked.size(), 0, "sin tierra no hay candidatas y create_empires aborta")
+
+
+func test_collect_does_not_accumulate_between_calls() -> void:
+	# `possible_tiles` es estado de instancia: antes se rellenaba acumulando, asi que
+	# reusar el creator arrastraba las candidatas del run anterior.
+	var a := _make_tile(0, 0, true, "Grassland", 1)
+	var b := _make_tile(1, 0, true, "Forest", 1)
+	var creator := _creator_for([a, b] as Array[Tile])
+	var first := creator._collect_candidate_tiles()
+	var second := creator._collect_candidate_tiles()
+	assert_eq(second.size(), first.size(),
+		"dos recolecciones seguidas sobre el mismo mapa dan lo mismo, no el doble")
