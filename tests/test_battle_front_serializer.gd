@@ -47,7 +47,6 @@ func after_each() -> void:
 		atk_tile.free()
 	if is_instance_valid(def_tile):
 		def_tile.free()
-	WorldMap.map_as_dict.clear()
 
 
 func test_resolved_front_serializes_to_empty_dict():
@@ -99,22 +98,23 @@ func test_to_dict_sanitizes_resource_in_bonuses():
 
 
 func test_from_dict_returns_null_when_tiles_not_in_world():
-	# Sin WorldMap.map_as_dict poblado, no se puede resolver tiles.
-	WorldMap.map_as_dict.clear()
+	# Indice de casillas VACIO: las posiciones del save no resuelven.
+	# Ya no hace falta tocar WorldMap: el indice se inyecta (§2.6.c).
 	var data := {
 		"attacker_pos": [99, 99],
 		"defender_pos": [100, 100],
 		"attacker_empire": "res://test/mongol.tres",
 		"defender_empire": "res://test/babylonian.tres",
 	}
-	var restored := BattleFrontSerializer.from_dict(data, { "res://test/mongol.tres": atk_emp, "res://test/babylonian.tres": def_emp })
+	var restored := BattleFrontSerializer.from_dict(data,
+		{ "res://test/mongol.tres": atk_emp, "res://test/babylonian.tres": def_emp }, {})
 	assert_null(restored)
 
 
 func test_from_dict_rebuilds_with_world_and_empires():
-	WorldMap.map_as_dict.clear()
-	WorldMap.map_as_dict[Vector2(1, 0)] = atk_tile
-	WorldMap.map_as_dict[Vector2(2, 0)] = def_tile
+	# El indice de casillas se pasa como un dict cualquiera (§2.6.c): el
+	# serializador ya no lee el autoload WorldMap.
+	var tiles_by_pos := { Vector2(1, 0): atk_tile, Vector2(2, 0): def_tile }
 
 	var data := {
 		"attacker_pos": [1, 0],
@@ -131,11 +131,8 @@ func test_from_dict_rebuilds_with_world_and_empires():
 		"defender_bonuses": [],
 	}
 	var empires_by_name := { "res://test/mongol.tres": atk_emp, "res://test/babylonian.tres": def_emp }
-	var front := BattleFrontSerializer.from_dict(data, empires_by_name)
+	var front := BattleFrontSerializer.from_dict(data, empires_by_name, tiles_by_pos)
 	assert_not_null(front)
 	assert_eq(front.attacker_empire.name, "Mongol")
 	assert_eq(front.marker, 4.0)
 	assert_eq(front.turns_elapsed, 2)
-
-	# Limpieza del registro estático (autoregistra _init).
-	WorldMap.map_as_dict.clear()

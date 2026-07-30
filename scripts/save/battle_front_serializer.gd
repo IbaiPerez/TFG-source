@@ -11,26 +11,35 @@ class_name BattleFrontSerializer
 ## como Dictionary, ya que su forma es de por sí libre.
 
 
+## Campos escalares del frente, declarados UNA vez para las dos direcciones
+## (§2.6.b). `KEEP` = si el save no lo trae, conservar el valor con el que nace el
+## BattleFront (min_duration y threshold vienen de GameBalance, no de 0).
+const PLAIN_FIELDS := {
+	"marker": 0.0,
+	"turns_elapsed": 0,
+	"min_duration": SerializationUtils.KEEP,
+	"threshold": SerializationUtils.KEEP,
+}
+
+
 ## --- Serialización ------------------------------------------------------
 
 static func to_dict(front:BattleFront) -> Dictionary:
 	if front == null or front.is_resolved:
 		return {}
 
-	return {
+	var d := SerializationUtils.pack(front, PLAIN_FIELDS)
+	d.merge({
 		"attacker_pos": _grid_pos_of(front.attacker_tile),
 		"defender_pos": _grid_pos_of(front.defender_tile),
 		"attacker_empire": front.attacker_empire.resource_path if front.attacker_empire else "",
 		"defender_empire": front.defender_empire.resource_path if front.defender_empire else "",
-		"marker": front.marker,
-		"turns_elapsed": front.turns_elapsed,
-		"min_duration": front.min_duration,
-		"threshold": front.threshold,
 		"attacker_troops": _serialize_troops(front.attacker_troops),
 		"defender_troops": _serialize_troops(front.defender_troops),
 		"attacker_bonuses": _sanitize_bonuses(front.attacker_bonuses),
 		"defender_bonuses": _sanitize_bonuses(front.defender_bonuses),
-	}
+	})
+	return d
 
 
 ## --- Reconstrucción -----------------------------------------------------
@@ -38,8 +47,14 @@ static func to_dict(front:BattleFront) -> Dictionary:
 ## Crea un BattleFront a partir del dict, mirando los Tile/Empire en
 ## el contexto reconstruido (mapa por posición, empires por nombre).
 ##
+## `tiles_by_pos` (Vector2 → Tile) se INYECTA en vez de leer `WorldMap.map_as_dict`
+## (§2.6.c): así el serializador se puede probar con un puñado de casillas sueltas,
+## sin montar un mundo entero ni depender del autoload. El llamante real le pasa el
+## índice del mundo recién reconstruido.
+##
 ## Devuelve null si las referencias no resuelven.
-static func from_dict(data:Dictionary, empires_by_name:Dictionary) -> BattleFront:
+static func from_dict(data:Dictionary, empires_by_name:Dictionary,
+		tiles_by_pos:Dictionary) -> BattleFront:
 	if data.is_empty():
 		return null
 
@@ -48,8 +63,8 @@ static func from_dict(data:Dictionary, empires_by_name:Dictionary) -> BattleFron
 	if atk_pos.size() != 2 or def_pos.size() != 2:
 		return null
 
-	var atk_tile:Tile = WorldMap.map_as_dict.get(Vector2(atk_pos[0], atk_pos[1]))
-	var def_tile:Tile = WorldMap.map_as_dict.get(Vector2(def_pos[0], def_pos[1]))
+	var atk_tile:Tile = tiles_by_pos.get(Vector2(atk_pos[0], atk_pos[1]))
+	var def_tile:Tile = tiles_by_pos.get(Vector2(def_pos[0], def_pos[1]))
 	if atk_tile == null or def_tile == null:
 		return null
 
@@ -59,10 +74,7 @@ static func from_dict(data:Dictionary, empires_by_name:Dictionary) -> BattleFron
 		return null
 
 	var front := BattleFront.new(atk_tile, def_tile, atk_emp, def_emp)
-	front.marker = float(data.get("marker", 0.0))
-	front.turns_elapsed = int(data.get("turns_elapsed", 0))
-	front.min_duration = int(data.get("min_duration", front.min_duration))
-	front.threshold = float(data.get("threshold", front.threshold))
+	SerializationUtils.unpack(front, data, PLAIN_FIELDS)
 	front.attacker_troops = _restore_troops(data.get("attacker_troops", []))
 	front.defender_troops = _restore_troops(data.get("defender_troops", []))
 	front.attacker_bonuses = _restore_bonuses(data.get("attacker_bonuses", []))

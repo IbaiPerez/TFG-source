@@ -203,7 +203,10 @@ static func _reapply_building_effects(tiles_data:Array, turn_manager:TurnManager
 static func _restore_battle_fronts(fronts_data:Array, empires_by_name:Dictionary,
 		turn_manager:TurnManager) -> void:
 	for front_data in fronts_data:
-		var front:BattleFront = BattleFrontSerializer.from_dict(front_data, empires_by_name)
+		# El índice de casillas se pasa explícito (§2.6.c): el serializador no lee
+		# el autoload, así que es probable sin montar un mundo.
+		var front:BattleFront = BattleFrontSerializer.from_dict(front_data,
+			empires_by_name, WorldMap.map_as_dict)
 		if front == null:
 			continue
 		# El BattleFront ya se autoregistra en el registro de frentes via _init.

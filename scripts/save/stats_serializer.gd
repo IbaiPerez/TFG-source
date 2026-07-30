@@ -18,18 +18,27 @@ class_name StatsSerializer
 
 ## --- Serialización ------------------------------------------------------
 
+## Campos escalares que viajan tal cual, declarados UNA vez para las dos direcciones
+## (§2.6.b). `KEEP` = si el save no lo trae, conservar lo que ya tenga la instancia
+## creada desde el template (es el caso de cards_per_turn y event_chance, cuyo default
+## correcto NO es 0). El resto de campos —recursos, pilas, pools— van a mano abajo.
+const PLAIN_FIELDS := {
+	"total_gold": 0,
+	"gold_per_turn": 0,
+	"food": 0,
+	"cards_per_turn": SerializationUtils.KEEP,
+	"event_chance": SerializationUtils.KEEP,
+	"turn_number": 0,
+	"total_purges_done": 0,
+}
+
+
 static func to_dict(stats:Stats) -> Dictionary:
 	if stats == null:
 		return {}
-	return {
+	var d := SerializationUtils.pack(stats, PLAIN_FIELDS)
+	d.merge({
 		"template_path": stats.resource_path,
-		"total_gold": stats.total_gold,
-		"gold_per_turn": stats.gold_per_turn,
-		"food": stats.food,
-		"cards_per_turn": stats.cards_per_turn,
-		"event_chance": stats.event_chance,
-		"turn_number": stats.turn_number,
-		"total_purges_done": stats.total_purges_done,
 		"used_unique_events": stats.used_unique_events.duplicate(),
 		"possible_buildings": _serialize_buildings(stats.possible_buildings),
 		"deck": _serialize_card_pile(stats.deck),
@@ -40,7 +49,8 @@ static func to_dict(stats:Stats) -> Dictionary:
 		"types_ever_recruited": _serialize_types_ever_recruited(stats.types_ever_recruited),
 		"unlocked_card_pool": _serialize_unlocked_pool(stats.unlocked_card_pool),
 		"shop_exclusive_pool": _serialize_unlocked_pool(stats.shop_exclusive_pool),
-	}
+	})
+	return d
 
 
 ## --- Reconstrucción -----------------------------------------------------
@@ -60,13 +70,7 @@ static func from_dict(data:Dictionary, empire:Empire) -> Stats:
 		stats = Stats.new()
 
 	stats.empire = empire
-	stats.total_gold = int(data.get("total_gold", 0))
-	stats.gold_per_turn = int(data.get("gold_per_turn", 0))
-	stats.food = int(data.get("food", 0))
-	stats.cards_per_turn = int(data.get("cards_per_turn", stats.cards_per_turn))
-	stats.event_chance = float(data.get("event_chance", stats.event_chance))
-	stats.turn_number = int(data.get("turn_number", 0))
-	stats.total_purges_done = int(data.get("total_purges_done", 0))
+	SerializationUtils.unpack(stats, data, PLAIN_FIELDS)
 
 	stats.used_unique_events.clear()
 	for ev in data.get("used_unique_events", []):
