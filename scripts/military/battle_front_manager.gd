@@ -223,20 +223,10 @@ func _on_global_front_resolved(front: BattleFront, _attacker_won: bool) -> void:
 
 
 ## Aplica la conquista de una tile: cambio de controlador + destrucción de edificios.
-func _apply_conquest(conquered_tile: Tile, winner: Empire, loser: Empire) -> void:
-	# Destruir edificios exclusivos del imperio perdedor
-	var buildings_to_destroy: Array[Building] = []
-	for building in conquered_tile.buildings:
-		# TODO: verificar si el edificio es exclusivo del imperio perdedor
-		# De momento se marca como placeholder
-		pass
-
-	# Destruir 1 edificio adicional (el criterio exacto se definirá luego)
-	if conquered_tile.buildings.size() > 0:
-		# Por ahora: destruir el último edificio (placeholder)
-		buildings_to_destroy.append(conquered_tile.buildings.back())
-
-	for building in buildings_to_destroy:
+func _apply_conquest(conquered_tile: Tile, winner: Empire, _loser: Empire) -> void:
+	# Qué se destruye lo decide ConquestResolver (§2.2), compartido con la simulación
+	# del MCTS para que la IA prevea el resultado real de conquistar.
+	for building in ConquestResolver.buildings_to_destroy(conquered_tile.buildings):
 		conquered_tile.demolish(building, stats)
 
 	# Cambiar controlador

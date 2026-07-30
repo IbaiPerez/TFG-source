@@ -561,8 +561,10 @@ static func _apply_conquest(state: AIRealState, tile_id: int, winner_owner: int)
 	if not state.tiles.has(tile_id):
 		return
 	var t := _writable(state, tile_id)   # COW antes de mutar
-	if not t.buildings.is_empty():
-		t.buildings.pop_back()
+	# Misma regla que el juego (§2.2): la comparte ConquestResolver, así que lo que
+	# el MCTS predice al conquistar es lo que ocurrirá de verdad.
+	for b in ConquestResolver.buildings_to_destroy(t.buildings):
+		t.buildings.erase(b)
 	t.owner = winner_owner
 
 
