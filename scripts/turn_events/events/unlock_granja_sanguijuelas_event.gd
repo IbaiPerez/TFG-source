@@ -15,8 +15,5 @@ func _init():
 		ControlledTilesCondition.new(3, Comparison.Type.GREATER_EQUAL, null, 3)
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_UNLOCK_GRANJA_SANG_CH1_LABEL")
-	choice.description = tr("EVT_UNLOCK_GRANJA_SANG_CH1_DESC")
-	choice.effects = [UnlockBuildingEffect.new(GRANJA)]
-	choices = [choice]
+	choices = [make_building_unlock_choice(GRANJA,
+		"EVT_UNLOCK_GRANJA_SANG_CH1_LABEL", "EVT_UNLOCK_GRANJA_SANG_CH1_DESC")]

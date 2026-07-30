@@ -11,12 +11,6 @@ const CUARTEL_BUILDING = preload("res://resources/buildings/lategame/cuartel_exp
 
 
 func _init():
-	id = "unlock_open_front"
-	title = "Conflicto fronterizo"
-	description = "Tus tropas están listas. Ha llegado el momento de tomar la iniciativa y abrir un frente de batalla."
-	weight = 100.0
-	unique = true
-	allow_skip = false
 	category = EventCategory.Type.CORE_PROGRESSION
 
 	conditions = [

@@ -10,12 +10,6 @@ const TACTIC_CARD = preload("res://resources/cards/tactic_arrow_rain.tres")
 
 
 func _init():
-	id = "unlock_arrow_rain"
-	title = "Doctrina del Tiro Masivo"
-	description = "Tus arqueros han perfeccionado el tiro en parábola. Tus capitanes proponen formalizar la doctrina de la lluvia de flechas: una andanada coordinada que satura el campo enemigo... siempre que el terreno permita ver el blanco."
-	weight = 80.0
-	unique = true
-	allow_skip = true
 	category = EventCategory.Type.OPTIONAL_PROGRESSION
 
 	conditions = [

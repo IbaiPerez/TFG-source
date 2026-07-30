@@ -11,12 +11,6 @@ const TACTIC_CARD = preload("res://resources/cards/tactic_phalanx.tres")
 
 
 func _init():
-	id = "unlock_phalanx"
-	title = "Doctrina de la Falange"
-	description = "Tus piqueros forman filas con disciplina. Tus instructores proponen una formación cerrada de lanzas y escudos: un muro humano que detiene cualquier embestida en terreno favorable."
-	weight = 80.0
-	unique = true
-	allow_skip = true
 	category = EventCategory.Type.OPTIONAL_PROGRESSION
 
 	conditions = [

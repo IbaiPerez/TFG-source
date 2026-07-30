@@ -16,12 +16,6 @@ const CUARTEL_BUILDING = preload("res://resources/buildings/lategame/cuartel_exp
 
 
 func _init():
-	id = "unlock_recruit"
-	title = "Llamada a las armas"
-	description = "Las fronteras de tu imperio rozan las de un rival. Es hora de preparar tus defensas y reclutar tropas."
-	weight = 100.0
-	unique = true
-	allow_skip = false
 	category = EventCategory.Type.CORE_PROGRESSION
 
 	conditions = [

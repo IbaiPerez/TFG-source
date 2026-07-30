@@ -10,12 +10,6 @@ const TACTIC_CARD = preload("res://resources/cards/tactic_frontal_assault.tres")
 
 
 func _init():
-	id = "unlock_frontal_assault"
-	title = "Doctrina del Asalto Frontal"
-	description = "Tu infantería pesada avanza como un muro de acero. Tus generales proponen una doctrina de combate frontal: armadura, disciplina y empuje implacable contra el centro enemigo."
-	weight = 80.0
-	unique = true
-	allow_skip = true
 	category = EventCategory.Type.OPTIONAL_PROGRESSION
 
 	conditions = [

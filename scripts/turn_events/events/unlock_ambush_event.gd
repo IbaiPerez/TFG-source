@@ -10,12 +10,6 @@ const TACTIC_CARD = preload("res://resources/cards/tactic_ambush.tres")
 
 
 func _init():
-	id = "unlock_ambush"
-	title = "Doctrina de Emboscada"
-	description = "Tus exploradores conocen cada sendero, cada arboleda, cada pantano. Tus capitanes proponen una doctrina de combate irregular: golpear desde la maleza y desaparecer antes de que el enemigo reaccione."
-	weight = 80.0
-	unique = true
-	allow_skip = true
 	category = EventCategory.Type.OPTIONAL_PROGRESSION
 
 	conditions = [

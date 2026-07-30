@@ -9,12 +9,6 @@ const TACTIC_CARD = preload("res://resources/cards/tactic_cavalry_charge.tres")
 
 
 func _init():
-	id = "unlock_cavalry_charge"
-	title = "Doctrina de Carga"
-	description = "Tus jinetes han demostrado su valía. Tus generales proponen formalizar la doctrina de carga frontal: una embestida coordinada que aplaste las líneas enemigas... cuando el terreno lo permita."
-	weight = 80.0
-	unique = true
-	allow_skip = true
 	category = EventCategory.Type.OPTIONAL_PROGRESSION
 
 	conditions = [

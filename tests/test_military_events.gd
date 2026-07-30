@@ -322,14 +322,24 @@ func test_unlock_open_front_choice_adds_card_to_discard() -> void:
 	assert_true(stats.discard_pile.cards[0] is OpenFrontCard, "La carta debe ser OpenFrontCard")
 
 
+## Carga un evento por su id desde res://resources/turn_events/, que es la fuente de
+## verdad REAL: el .tres se aplica DESPUES de _init(), asi que sus valores son los que
+## ve la partida. Instanciar la clase con .new() probaba unos defaults que produccion
+## sobrescribe, con lo que un .tres mal editado pasaba el test igualmente (§2.3).
+func _load_event(id: String) -> TurnEvent:
+	var event := load("res://resources/turn_events/%s.tres" % id) as TurnEvent
+	assert_not_null(event, "No se pudo cargar el evento '%s'" % id)
+	return event
+
+
 func test_unlock_recruit_not_skippable() -> void:
-	var event := UnlockRecruitEvent.new()
-	assert_false(event.allow_skip, "Evento de reclutar no debe poder saltarse")
+	assert_false(_load_event("unlock_recruit").allow_skip,
+		"Evento de reclutar no debe poder saltarse")
 
 
 func test_all_military_events_are_unique() -> void:
-	assert_true(UnlockRecruitEvent.new().unique)
-	assert_true(UnlockOpenFrontEvent.new().unique)
+	assert_true(_load_event("unlock_recruit").unique)
+	assert_true(_load_event("unlock_open_front").unique)
 
 
 # ============================================================
@@ -585,22 +595,22 @@ func test_unlock_frontal_assault_requires_heavy_infantry() -> void:
 
 
 func test_all_tactic_unlock_events_are_unique() -> void:
-	assert_true(UnlockCavalryChargeEvent.new().unique)
-	assert_true(UnlockPhalanxEvent.new().unique)
-	assert_true(UnlockArrowRainEvent.new().unique)
-	assert_true(UnlockAmbushEvent.new().unique)
-	assert_true(UnlockFrontalAssaultEvent.new().unique)
+	assert_true(_load_event("unlock_cavalry_charge").unique)
+	assert_true(_load_event("unlock_phalanx").unique)
+	assert_true(_load_event("unlock_arrow_rain").unique)
+	assert_true(_load_event("unlock_ambush").unique)
+	assert_true(_load_event("unlock_frontal_assault").unique)
 
 
 func test_tactic_unlock_events_are_skippable() -> void:
 	# A diferencia de unlock_recruit/open_front (no skippable), las
 	# doctrinas de táctica son opcionales: el jugador puede no querer
 	# especializarse en esa rama.
-	assert_true(UnlockCavalryChargeEvent.new().allow_skip)
-	assert_true(UnlockPhalanxEvent.new().allow_skip)
-	assert_true(UnlockArrowRainEvent.new().allow_skip)
-	assert_true(UnlockAmbushEvent.new().allow_skip)
-	assert_true(UnlockFrontalAssaultEvent.new().allow_skip)
+	assert_true(_load_event("unlock_cavalry_charge").allow_skip)
+	assert_true(_load_event("unlock_phalanx").allow_skip)
+	assert_true(_load_event("unlock_arrow_rain").allow_skip)
+	assert_true(_load_event("unlock_ambush").allow_skip)
+	assert_true(_load_event("unlock_frontal_assault").allow_skip)
 
 
 func test_tactic_unlock_card_added_is_a_copy() -> void:
