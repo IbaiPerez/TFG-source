@@ -8,6 +8,8 @@ func test_localized_scripts_compile() -> void:
 		"res://scripts/i18n.gd",
 		"res://scripts/ui/menus/language_selector.gd",
 		"res://scripts/ui/menus/tutorial_panel.gd",
+		"res://scripts/ui/menus/tutorial/tutorial_content.gd",
+		"res://scripts/ui/menus/tutorial/tutorial_entry.gd",
 		"res://scripts/ui/menus/save_load_panel.gd",
 		"res://scripts/ui/menus/main_menu.gd",
 		"res://scripts/ui/menus/options_menu.gd",

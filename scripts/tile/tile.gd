@@ -28,6 +28,34 @@ var gold_production: int = 0
 signal building_completed(building:Building)
 signal building_demolished(building:Building)
 
+
+## Clave de traducción del bioma. Sustituye a `"TILE_" + biome_type.keys()[b].to_upper()`,
+## que estaba repetido en varios sitios y ROMPE EN SILENCIO al renombrar un valor del
+## enum: la clave deja de existir en el CSV y `tr()` devuelve la propia clave sin avisar.
+## El `match` explícito hace que la correspondencia sea revisable, y test_i18n_keys
+## comprueba que todas las claves existen en las traducciones.
+static func biome_key(biome_value: int) -> String:
+	match biome_value:
+		biome_type.Grassland: return "TILE_GRASSLAND"
+		biome_type.Forest:    return "TILE_FOREST"
+		biome_type.Desert:    return "TILE_DESERT"
+		biome_type.Swamp:     return "TILE_SWAMP"
+		biome_type.Tundra:    return "TILE_TUNDRA"
+		biome_type.Ocean:     return "TILE_OCEAN"
+		biome_type.Mountain:  return "TILE_MOUNTAIN"
+		_: return ""
+
+
+## Clave de traducción del nivel de desarrollo de la casilla. Ver [method biome_key].
+static func location_key(location_value: int) -> String:
+	match location_value:
+		location_type.Uncolonized: return "LOC_UNCOLONIZED"
+		location_type.Village:     return "LOC_VILLAGE"
+		location_type.Town:        return "LOC_TOWN"
+		location_type.Megalopolis: return "LOC_MEGALOPOLIS"
+		_: return ""
+
+
 func set_parameters() -> void:
 	material = StandardMaterial3D.new()
 	material.albedo_color = mesh_data.color

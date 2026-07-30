@@ -62,7 +62,7 @@ func on_card_aim_started(card:CardUI) -> void:
 	area_3d.monitoring = true
 	area_3d.monitorable = true
 	if card.card.is_batle_front_targeted():
-		area_3d.collision_mask = 4  # Layer 3 = "BattleFront" = bit 2 = valor 4
+		area_3d.collision_mask = PhysicsLayers.BATTLE_FRONT
 	current_card = card
 	highlight_valid_targets(current_card.card.get_valid_targets(current_card.stats))
 
@@ -72,7 +72,7 @@ func on_card_aim_ended(_card:CardUI) -> void:
 	area_3d.position = Vector3.ZERO
 	area_3d.monitoring = false
 	area_3d.monitorable = false
-	area_3d.collision_mask = 1
+	area_3d.collision_mask = PhysicsLayers.TILES
 	current_card = null
 	clear_highlights()
 

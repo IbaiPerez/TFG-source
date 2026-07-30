@@ -33,7 +33,9 @@ func _ready() -> void:
 func setup(value:Tile) -> void:
 	tile = value
 	province_name_label.text = tile.province_name
-	biome_label.text = tr("TILE_" + tile.biome.to_upper())
+	# mesh_data es la fuente del bioma (`tile.biome` es su nombre de enum ya resuelto);
+	# se guarda el null porque otras rutas del código lo tratan como opcional.
+	biome_label.text = tr(Tile.biome_key(tile.mesh_data.type)) if tile.mesh_data else ""
 	
 	if tile.natural_resource:
 		resource_color_rect.color = tile.natural_resource.color

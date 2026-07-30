@@ -52,10 +52,10 @@ func raycast_at_mouse(origin, end) -> Node3D:
 		if body_hit and body_hit.has("collider"):
 			return body_hit.collider.get_parent().get_parent() as Node3D
 
-		# 2do raycast: solo áreas de layer 3 (BattleFrontVisual, mask = bit 2 = 4).
-		# Separado para que las áreas de targeting de cartas (layers 1-2) no interfieran.
+		# 2do raycast: solo áreas de los frentes de batalla (BattleFrontVisual).
+		# Separado para que las áreas de targeting de cartas no interfieran.
 		var area_query := PhysicsRayQueryParameters3D.create(origin, end)
-		area_query.collision_mask = 4
+		area_query.collision_mask = PhysicsLayers.BATTLE_FRONT
 		area_query.collide_with_areas = true
 		area_query.collide_with_bodies = false
 		var area_hit := space.intersect_ray(area_query)

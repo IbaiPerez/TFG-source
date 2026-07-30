@@ -12,10 +12,6 @@ class_name AIActionLog
 ## Número máximo de líneas visibles. Las más viejas se eliminan al exceder.
 @export var max_lines: int = 6
 
-## Texto a mostrar cuando un evento (no carta) ocurre. Si está vacío no
-## se muestra texto de eventos (sólo cartas).
-@export var show_events: bool = false
-
 ## Duración de la animación de colapso/expansión en segundos.
 @export var anim_duration: float = 0.22
 

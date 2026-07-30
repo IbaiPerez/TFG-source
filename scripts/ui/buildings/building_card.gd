@@ -64,21 +64,21 @@ func _set_building(value:Building) -> void:
 	cost_value_label.text = str(value.get_effective_construction_cost(stats))
 	gold_production_label.text = str(value.gold_produced)
 	food_production_label.text = str(value.food_produced)
+	# Los bucles que había aquí asignaban el texto COMPLETO una vez por elemento
+	# (la variable del bucle no se usaba): el resultado ya era el de una sola pasada.
 	if not building.allowed_location_type.is_empty():
 		label_6.visible = true
 		allowed_locations_label.visible = true
-		for location in building.allowed_location_type:
-			allowed_locations_label.text = ", ".join(
-		building.allowed_location_type.map(func(l): return tr("LOC_" + Tile.location_type.keys()[l.type].to_upper())))
+		allowed_locations_label.text = ", ".join(
+			building.allowed_location_type.map(func(l): return tr(Tile.location_key(l.type))))
 	else:
 		label_6.visible = false
 		allowed_locations_label.visible = false
 	if not building.allowed_biomes.is_empty():
 		label_7.visible = true
 		allowed_biomes_label.visible = true
-		for location in building.allowed_biomes:
-			allowed_biomes_label.text = ", ".join(
-		building.allowed_biomes.map(func(b): return tr("TILE_" + Tile.biome_type.keys()[b].to_upper())))
+		allowed_biomes_label.text = ", ".join(
+			building.allowed_biomes.map(func(b): return tr(Tile.biome_key(b))))
 	else:
 		label_7.visible = false
 		allowed_biomes_label.visible = false

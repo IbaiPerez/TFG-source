@@ -117,11 +117,11 @@ func _get_tile_top_y(tile: Tile) -> float:
 	return tile.global_position.y + 0.30
 
 
-## Crea el Area3D de layer 4 ("BattleFront") que permite el click y el
+## Crea el Area3D de la capa "BattleFront" que permite el click y el
 ## targeting de cartas tácticas.
 func _setup_area_3d() -> void:
 	area_3d = Area3D.new()
-	area_3d.collision_layer = 4   # Bit 2 = layer "BattleFront"
+	area_3d.collision_layer = PhysicsLayers.BATTLE_FRONT
 	area_3d.collision_mask = 0
 	area_3d.monitorable = true
 	area_3d.monitoring = false

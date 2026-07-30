@@ -165,6 +165,5 @@ func apply_to_front(front: BattleFront, stats: Stats) -> void:
 
 ## Etiqueta legible de un bioma para el tooltip.
 func _biome_label(biome: int) -> String:
-	if biome < 0 or biome >= Tile.biome_type.size():
-		return "?"
-	return tr("TILE_" + Tile.biome_type.keys()[biome].to_upper())
+	var key := Tile.biome_key(biome)
+	return tr(key) if key != "" else "?"
