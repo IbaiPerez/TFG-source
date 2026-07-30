@@ -43,6 +43,14 @@ static func signed_color(value: float, zero_is_neutral := false) -> Color:
 	return VALUE_POSITIVE
 
 
+## Pinta un label de precio como "no puedes pagarlo". Unifica el
+## `add_theme_color_override("font_color", Color.DARK_RED)` que estaba suelto en
+## los paneles de edificios y de reclutamiento, y que además repetía a mano el
+## color que ya existía como VALUE_NEGATIVE.
+static func mark_unaffordable(label: Label) -> void:
+	label.add_theme_color_override("font_color", VALUE_NEGATIVE)
+
+
 ## Escribe en `label` un valor con signo y aplica su color: prefijo "+" para los
 ## valores no negativos (salvo el 0 neutro) y color según el signo. Unifica el
 ## bloque if v<0 / elif v==0 / else repetido en los paneles de stats y casilla.

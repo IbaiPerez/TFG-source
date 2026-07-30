@@ -124,7 +124,7 @@ static func _add_upgrade_building_options(card: UpgradeBuildingCard,
 ## Una sola jugada de la carta recluta N = `card.get_effective_troops_per_play`
 ## tropas (con Cuartel/Academia el bonus crece). Tres filtros:
 ##
-##   1. `can_afford_troop`: la tropa pasa el gating de produccion
+##   1. `Troop.is_affordable`: la tropa pasa el gating de produccion
 ##      (Opcion 3b — no se puede reclutar si gpt o food no sostienen el
 ##      mantenimiento). Es el mismo filtro que aplica `recruit_troop` en
 ##      runtime, asi que evita enumerar opciones que luego fallarian.

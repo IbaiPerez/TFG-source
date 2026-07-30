@@ -195,7 +195,14 @@ class BuildingB extends RefCounted:
 		for u in _upgrades_to:
 			up.append(u as Building)
 		b.upgrades_to = up
-		b.allowed_biomes = _allowed_biomes
+		# allowed_biomes es Array[Tile.biome_type]: asignarle un Array sin tipar
+		# es error EN EJECUCIÓN (no lo detecta el parser), y deja el builder
+		# devolviendo null. Hay que copiar elemento a elemento, igual que abajo
+		# con allowed_location_type.
+		var biomes: Array[Tile.biome_type] = []
+		for bm in _allowed_biomes:
+			biomes.append(bm)
+		b.allowed_biomes = biomes
 		var locs: Array[LocationType] = []
 		for l in _allowed_location_type:
 			locs.append(l as LocationType)

@@ -6,7 +6,8 @@ class_name AILegality
 ## estado vivo → AIPlayOption) y AIRealOptions (enumera sobre el snapshot → Move):
 ## las mismas reglas de legalidad sobre dos representaciones, y el snapshot además
 ## reimplementaba métodos de dominio (Tile.can_upgrade, Stats.can_afford_troop,
-## RecruitCard.get_effective_troops_per_play).
+## RecruitCard.get_effective_troops_per_play). El espejo de la asequibilidad de tropa
+## ya no existe: la regla vive en Troop.is_affordable y la usan los dos mundos (§3.4).
 ##
 ## Estas funciones devuelven los TARGETS legales (descriptores neutros); cada
 ## enumerador los traduce a su tipo propio. Las divergencias reales por mundo
@@ -79,7 +80,7 @@ static func upgrade_targets(view: AIStateView) -> Array[Dictionary]:
 
 ## RECRUIT: por cada tropa disponible y asequible, un descriptor {troop, per_play}.
 ## Filtros (idénticos a AIOptionsBuilder._add_recruit_options y AIRealOptions._add_recruit):
-##   1. asequibilidad (gating de producción, espejo de Stats.can_afford_troop),
+##   1. asequibilidad (gating de producción, vía la regla de dominio Troop.is_affordable),
 ##   2. coste one-shot total per_play·recruitment_cost_gold ≤ oro disponible.
 static func recruit_targets(view: AIStateView, card: RecruitCard) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
@@ -89,7 +90,7 @@ static func recruit_targets(view: AIStateView, card: RecruitCard) -> Array[Dicti
 	for troop in card.available_troops:
 		if troop == null:
 			continue
-		if not can_afford_troop(gold, view.gold_per_turn(), view.food(), troop):
+		if not troop.is_affordable(gold, view.gold_per_turn(), view.food()):
 			continue
 		var per_play := troops_per_play(card.base_troops_per_play,
 			view.troops_per_recruit_bonus(troop))
@@ -97,18 +98,6 @@ static func recruit_targets(view: AIStateView, card: RecruitCard) -> Array[Dicti
 			continue
 		result.append({"troop": troop, "per_play": per_play})
 	return result
-
-
-## Espejo de Stats.can_afford_troop: la tropa pasa el gating de producción (no se
-## puede reclutar si el mantenimiento hundiría gpt o comida en negativo).
-static func can_afford_troop(gold: int, gpt: int, food: int, troop: Troop) -> bool:
-	if gold < troop.recruitment_cost_gold:
-		return false
-	if gpt - troop.maintenance_gold < 0:
-		return false
-	if food - troop.maintenance_food < 0:
-		return false
-	return true
 
 
 ## Tropas por play efectivas (espejo de RecruitCard.get_effective_troops_per_play):

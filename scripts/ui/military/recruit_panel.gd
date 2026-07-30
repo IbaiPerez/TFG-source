@@ -86,7 +86,7 @@ func _populate_grid() -> void:
 		troops_grid.add_child(slot)
 
 		if stats and not stats.can_afford_troop(troop):
-			slot.cost_label.add_theme_color_override("font_color", Color.DARK_RED)
+			UITheme.mark_unaffordable(slot.cost_label)
 		else:
 			slot.troop_selected.connect(_on_troop_selected)
 

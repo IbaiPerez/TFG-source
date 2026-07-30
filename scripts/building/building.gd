@@ -23,9 +23,20 @@ class_name Building
 @export var food_percent_bonus: float = 0.0
 
 
+## Si el imperio puede pagar AHORA este edificio, con el coste ya descontado por
+## modificadores. Única fuente de la regla: antes la comparación
+## `coste_efectivo <= total_gold` estaba escrita en cinco sitios, dos de ellos en
+## la UI (BuildingPanel), que así calculaba una regla de dominio en vez de
+## consultarla. Sin `stats` no hay oro que comparar, así que no es asequible.
+func is_affordable(stats:Stats) -> bool:
+	if stats == null:
+		return false
+	return get_effective_construction_cost(stats) <= stats.total_gold
+
+
 func can_be_upgraded(stats:Stats) -> bool:
 	for building in upgrades_to:
-		if building.get_effective_construction_cost(stats) <= stats.total_gold:
+		if building.is_affordable(stats):
 			return true
 	return false
 

@@ -27,54 +27,48 @@ func set_buildings(value:Array[Building]) -> void:
 		await ready
 	
 	_clear_grid()
+	# Las tres ramas solo difieren en QUÉ lista se muestra y con qué widget:
+	# BUILD y UPGRADE ponen slots con precio (seleccionables si se pueden pagar),
+	# SHOW pone tarjetas de lo ya construido (seleccionables si tienen mejora).
 	match action:
 		possible_action.BUILD:
 			buildings = tile.get_valid_buildings(value)
-
-			for building in buildings:
-				var slot:BuildingSlot = BUILDING_SLOT.instantiate()
-				slot.stats = stats
-				slot.building = building
-				buildings_grid.add_child(slot)
-				# Affordability con coste EFECTIVO (Banca Florentina, eventos
-				# de descuento). Si no aplicaramos el descuento aqui, el
-				# panel marcaria como no-construible un edificio que el
-				# jugador en realidad si puede pagar.
-				if stats.total_gold < building.get_effective_construction_cost(stats):
-					_mark_slot_unaffordable(slot)
-				else:
-					slot.building_selected.connect(_on_building_to_build_selected)
-				_slots.append(slot)
+			_populate_priced_slots()
 		possible_action.SHOW:
 			buildings = tile.buildings
-
-			for building in buildings:
-				var slot:BuildingCardUI = BUILDING_CARD_UI.instantiate()
-				# stats antes que building para que el setter de building
-				# muestre el coste efectivo desde la primera asignacion.
-				slot.stats = stats
-				slot.building = building
-				buildings_grid.add_child(slot)
-				if not building.upgrades_to.is_empty():
-					slot.building_selected.connect(_on_building_to_upgrade_selected)
-				_slots.append(slot)
+			_populate_built_cards()
 		possible_action.UPGRADE:
 			buildings = value
+			_populate_priced_slots()
 
-			for building in buildings:
-				var slot:BuildingSlot = BUILDING_SLOT.instantiate()
-				slot.stats = stats
-				slot.building = building
-				buildings_grid.add_child(slot)
-				# Affordability con coste EFECTIVO (Banca Florentina, eventos
-				# de descuento). Si no aplicaramos el descuento aqui, el
-				# panel marcaria como no-construible un edificio que el
-				# jugador en realidad si puede pagar.
-				if stats.total_gold < building.get_effective_construction_cost(stats):
-					_mark_slot_unaffordable(slot)
-				else:
-					slot.building_selected.connect(_on_building_to_build_selected)
-				_slots.append(slot)
+
+## Slots con precio. La asequibilidad la decide el dominio (Building.is_affordable
+## usa el coste EFECTIVO: Banca Florentina, eventos de descuento); el panel solo
+## elige si conecta la señal y de qué color pinta el precio.
+func _populate_priced_slots() -> void:
+	for building in buildings:
+		var slot:BuildingSlot = BUILDING_SLOT.instantiate()
+		slot.stats = stats
+		slot.building = building
+		buildings_grid.add_child(slot)
+		if building.is_affordable(stats):
+			slot.building_selected.connect(_on_building_to_build_selected)
+		else:
+			_mark_slot_unaffordable(slot)
+		_slots.append(slot)
+
+
+func _populate_built_cards() -> void:
+	for building in buildings:
+		var slot:BuildingCardUI = BUILDING_CARD_UI.instantiate()
+		# stats antes que building para que el setter de building
+		# muestre el coste efectivo desde la primera asignacion.
+		slot.stats = stats
+		slot.building = building
+		buildings_grid.add_child(slot)
+		if not building.upgrades_to.is_empty():
+			slot.building_selected.connect(_on_building_to_upgrade_selected)
+		_slots.append(slot)
 
 
 func _clear_grid() -> void:
@@ -92,7 +86,7 @@ func _clear_grid() -> void:
 func _mark_slot_unaffordable(slot:BuildingSlot) -> void:
 	if slot.price_label == null:
 		return
-	slot.price_label.add_theme_color_override("font_color", Color.DARK_RED)
+	UITheme.mark_unaffordable(slot.price_label)
 
 func _on_building_to_build_selected(building: Building) -> void:
 	card_confirmed.emit(building)

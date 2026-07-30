@@ -253,29 +253,10 @@ func remove_troop(troop:Troop) -> void:
 		_emit_stats_changed()
 
 
-## Comprueba si se puede reclutar la tropa AHORA. Tres condiciones:
-##
-##   1. Hay oro suficiente para pagar `recruitment_cost_gold` (coste one-shot).
-##   2. La produccion actual de oro (`gold_per_turn`, que ya incluye el
-##      mantenimiento de las tropas existentes) puede absorber el
-##      mantenimiento de la nueva tropa sin caer en negativo:
-##      `gold_per_turn - troop.maintenance_gold >= 0`.
-##   3. La produccion actual de comida (`food`) puede absorber el
-##      mantenimiento de la nueva tropa sin caer en negativo:
-##      `food - troop.maintenance_food >= 0`.
-##
-## Las condiciones 2 y 3 (Opcion 3b) evitan que el jugador o la IA
-## sigan reclutando cuando ya estan en deficit, lo que con la Opcion 3a
-## ademas debilita las tropas existentes. Es un freno duro: si no
-## puedes mantenerla, no la puedes reclutar.
+## Comprueba si se puede reclutar la tropa AHORA con los recursos de este imperio.
+## La regla vive en [method Troop.is_affordable], compartida con el mundo del MCTS.
 func can_afford_troop(troop:Troop) -> bool:
-	if total_gold < troop.recruitment_cost_gold:
-		return false
-	if gold_per_turn - troop.maintenance_gold < 0:
-		return false
-	if food - troop.maintenance_food < 0:
-		return false
-	return true
+	return troop.is_affordable(total_gold, gold_per_turn, food)
 
 
 func get_troop_maintenance_gold() -> int:
