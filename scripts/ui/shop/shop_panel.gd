@@ -82,39 +82,11 @@ func _populate_items() -> void:
 
 
 func _add_shop_item_ui(item:ShopItem) -> void:
-	var container := VBoxContainer.new()
-	container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	container.set_meta("shop_item", item)
-
-	# Carta visual
-	CardUIFactory.create(item.card, container, card_tooltip_popup.show_tooltip)
-
-	# Precio
-	var price_label := Label.new()
-	price_label.text = tr("FMT_GOLD") % item.price
-	price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	price_label.add_theme_color_override("font_color", UITheme.TEXT_DARK)
-	price_label.add_theme_font_size_override("font_size", 14)
-	container.add_child(price_label)
-
-	# Stock
-	if item.stock != -1:
-		var stock_label := Label.new()
-		stock_label.text = tr("SHOP_STOCK") % (item.stock - item._sold_count)
-		stock_label.set_meta("is_stock_label", true)
-		stock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		stock_label.add_theme_color_override("font_color", UITheme.TEXT_MUTED)
-		stock_label.add_theme_font_size_override("font_size", 12)
-		container.add_child(stock_label)
-
-	# Boton de compra
-	var buy_button := Button.new()
-	buy_button.text = tr("SHOP_BUY")
-	buy_button.disabled = not item.can_afford(stats.total_gold)
-	buy_button.pressed.connect(_on_buy_pressed.bind(item, buy_button, container))
-	container.add_child(buy_button)
-
-	items_container.add_child(container)
+	var view := ShopItemView.new()
+	items_container.add_child(view)
+	view.setup(item, card_tooltip_popup.show_tooltip)
+	view.refresh(stats.total_gold)
+	view.purchase_requested.connect(_on_buy_pressed)
 
 
 func _populate_purge_view() -> void:
@@ -150,26 +122,15 @@ func _populate_purge_view() -> void:
 		purge_container.add_child(container)
 
 
-func _on_buy_pressed(item:ShopItem, button:Button, container:VBoxContainer) -> void:
+func _on_buy_pressed(item:ShopItem) -> void:
 	if not item.can_afford(stats.total_gold) or not item.is_available():
 		return
 
 	item.purchase(stats)
 	_update_gold_display()
-
-	# Actualizar estado del boton y stock
-	if not item.is_available():
-		container.modulate = UITheme.DISABLED_MUTED
-		button.disabled = true
-		button.text = tr("SHOP_SOLD_OUT")
-	else:
-		button.disabled = not item.can_afford(stats.total_gold)
-		# Actualizar label de stock si existe
-		for child in container.get_children():
-			if child is Label and child.has_meta("is_stock_label"):
-				child.text = tr("SHOP_STOCK") % (item.stock - item._sold_count)
-
-	# Actualizar asequibilidad de todos los items
+	# Repinta TODOS los artículos, no solo el comprado: gastar oro puede dejar sin
+	# fondos a los demás. Antes el artículo comprado se repintaba a mano aquí y el
+	# resto en _refresh_buy_buttons; ahora cada vista sabe repintarse sola.
 	_refresh_buy_buttons()
 
 
@@ -183,15 +144,9 @@ func _on_purge_pressed(card:Card) -> void:
 
 
 func _refresh_buy_buttons() -> void:
-	for container in items_container.get_children():
-		if not container is VBoxContainer:
-			continue
-		if not container.has_meta("shop_item"):
-			continue
-		var item: ShopItem = container.get_meta("shop_item")
-		for child in container.get_children():
-			if child is Button:
-				child.disabled = not item.is_available() or not item.can_afford(stats.total_gold)
+	for view in items_container.get_children():
+		if view is ShopItemView:
+			view.refresh(stats.total_gold)
 
 
 func _on_buy_tab_pressed() -> void:

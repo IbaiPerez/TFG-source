@@ -32,10 +32,10 @@ func _unhandled_input(event: InputEvent) -> void:
 # ─────────────────────────────────────────────────────────────────────────────
 
 func _build_ui() -> void:
-	_add_dim_background()
+	UIDialog.add_dim_background(self)
 
-	var vbox := _add_centered_panel()
-	vbox.add_child(_make_header())
+	var vbox := UIDialog.add_centered_panel(self, Vector2(820, 540), 10)
+	vbox.add_child(UIDialog.make_title(tr("MENU_TUTORIAL")))
 	vbox.add_child(HSeparator.new())
 	vbox.add_child(_make_browser())
 	vbox.add_child(HSeparator.new())
@@ -43,40 +43,6 @@ func _build_ui() -> void:
 
 	_populate_list()
 	_select_first_entry()
-
-
-func _add_dim_background() -> void:
-	var bg := ColorRect.new()
-	bg.color = UITheme.OVERLAY_DARK
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(bg)
-
-
-## Monta centrador → panel → vbox y devuelve el vbox donde va el contenido.
-func _add_centered_panel() -> VBoxContainer:
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
-
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(820, 540)
-	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style())
-	center.add_child(panel)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-	panel.add_child(vbox)
-	return vbox
-
-
-func _make_header() -> Label:
-	var header := Label.new()
-	header.text = tr("MENU_TUTORIAL")
-	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	header.add_theme_font_size_override("font_size", 28)
-	header.add_theme_color_override("font_color", UITheme.BORDER_BROWN)
-	return header
 
 
 ## Cuerpo del panel: lista de entradas | separador | columna de contenido.
@@ -88,7 +54,7 @@ func _make_browser() -> HBoxContainer:
 	_entry_list = ItemList.new()
 	_entry_list.custom_minimum_size = Vector2(230, 0)
 	_entry_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_apply_list_theme(_entry_list)
+	UIDialog.apply_item_list_theme(_entry_list, 15)
 	_entry_list.item_selected.connect(_on_entry_selected)
 	hbox.add_child(_entry_list)
 
@@ -128,7 +94,7 @@ func _make_content_column() -> VBoxContainer:
 func _make_footer() -> HBoxContainer:
 	var footer := HBoxContainer.new()
 	footer.alignment = BoxContainer.ALIGNMENT_CENTER
-	footer.add_child(_make_button(tr("UI_CLOSE"), _on_close_pressed))
+	footer.add_child(UIDialog.make_button(tr("UI_CLOSE"), _on_close_pressed, 120))
 	return footer
 
 
@@ -161,44 +127,6 @@ func _on_entry_selected(list_idx: int) -> void:
 	var entry: TutorialEntry = _entries[_index_map[list_idx]]
 	_content_title.text = entry.title
 	_content_body.text = entry.body
-
-
-func _apply_list_theme(list: ItemList) -> void:
-	list.add_theme_stylebox_override("panel", UITheme.make_panel_style(UITheme.BORDER_BROWN, 2, 6))
-	var sel := StyleBoxFlat.new()
-	sel.bg_color = Color(UITheme.BORDER_BROWN.r, UITheme.BORDER_BROWN.g, UITheme.BORDER_BROWN.b, 0.22)
-	sel.corner_radius_top_left     = 4
-	sel.corner_radius_top_right    = 4
-	sel.corner_radius_bottom_right = 4
-	sel.corner_radius_bottom_left  = 4
-	sel.content_margin_left        = 6
-	sel.content_margin_top         = 3
-	sel.content_margin_right       = 6
-	sel.content_margin_bottom      = 3
-	list.add_theme_stylebox_override("selected", sel)
-	list.add_theme_stylebox_override("selected_focus", sel)
-	list.add_theme_stylebox_override("cursor", StyleBoxEmpty.new())
-	list.add_theme_stylebox_override("cursor_unfocused", StyleBoxEmpty.new())
-	list.add_theme_color_override("font_color", UITheme.TEXT_DARK)
-	list.add_theme_color_override("font_selected_color", UITheme.BORDER_BROWN)
-	list.add_theme_color_override("font_hovered_color", UITheme.BORDER_BROWN)
-	list.add_theme_font_size_override("font_size", 15)
-
-
-func _make_button(label_text: String, callback: Callable) -> Button:
-	var btn := Button.new()
-	btn.text = label_text
-	btn.custom_minimum_size = Vector2(120, 38)
-	btn.add_theme_font_size_override("font_size", 16)
-	btn.add_theme_color_override("font_color", UITheme.TEXT_DARK)
-	btn.add_theme_color_override("font_hover_color", UITheme.BORDER_BROWN)
-	btn.add_theme_color_override("font_pressed_color", UITheme.BORDER_BROWN)
-	btn.add_theme_stylebox_override("normal", UITheme.make_panel_style(UITheme.BORDER_BROWN, 2, 8))
-	btn.add_theme_stylebox_override("hover", UITheme.make_panel_hover_style(UITheme.BORDER_BROWN, 2, 8))
-	btn.add_theme_stylebox_override("pressed", UITheme.make_panel_style(UITheme.BORDER_BROWN, 3, 8))
-	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	btn.pressed.connect(callback)
-	return btn
 
 
 func _on_close_pressed() -> void:

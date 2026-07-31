@@ -26,123 +26,62 @@ func _ready() -> void:
 
 
 func _build_ui() -> void:
-	var bg := ColorRect.new()
-	bg.color = UITheme.OVERLAY_DARK
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(bg)
+	UIDialog.add_dim_background(self)
+	var vbox := UIDialog.add_centered_panel(self, Vector2(480, 440), 14)
 
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	vbox.add_child(UIDialog.make_title(
+		tr("SAVE_TITLE_LOAD") if mode == Mode.LOAD_ONLY else tr("SAVE_TITLE_FULL")))
+	vbox.add_child(HSeparator.new())
+	vbox.add_child(_make_slot_list())
+	# El nombre de la ranura solo se escribe cuando además se puede guardar.
+	if mode == Mode.FULL:
+		vbox.add_child(_make_slot_name_row())
+	vbox.add_child(_make_buttons_row())
 
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(480, 440)
-	panel.add_theme_stylebox_override("panel", UITheme.make_panel_style())
-	center.add_child(panel)
 
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 14)
-	panel.add_child(vbox)
-
-	var title := Label.new()
-	title.text = tr("SAVE_TITLE_LOAD") if mode == Mode.LOAD_ONLY else tr("SAVE_TITLE_FULL")
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", UITheme.BORDER_BROWN)
-	vbox.add_child(title)
-
-	var sep := HSeparator.new()
-	vbox.add_child(sep)
-
+func _make_slot_list() -> ItemList:
 	_slot_list = ItemList.new()
 	_slot_list.custom_minimum_size = Vector2(420, 240)
-	_apply_item_list_theme(_slot_list)
+	UIDialog.apply_item_list_theme(_slot_list, 16)
 	_slot_list.item_selected.connect(_on_slot_selected)
 	_slot_list.item_activated.connect(_on_slot_activated)
-	vbox.add_child(_slot_list)
+	return _slot_list
 
-	if mode == Mode.FULL:
-		var input_row := HBoxContainer.new()
-		input_row.add_theme_constant_override("separation", 8)
-		vbox.add_child(input_row)
-		var lbl := Label.new()
-		lbl.text = tr("SAVE_SLOT_LABEL")
-		lbl.add_theme_color_override("font_color", UITheme.TEXT_DARK)
-		input_row.add_child(lbl)
-		_slot_input = LineEdit.new()
-		_slot_input.placeholder_text = tr("SAVE_SLOT_PLACEHOLDER")
-		_slot_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		input_row.add_child(_slot_input)
 
+func _make_slot_name_row() -> HBoxContainer:
+	var input_row := HBoxContainer.new()
+	input_row.add_theme_constant_override("separation", 8)
+
+	var lbl := Label.new()
+	lbl.text = tr("SAVE_SLOT_LABEL")
+	lbl.add_theme_color_override("font_color", UITheme.TEXT_DARK)
+	input_row.add_child(lbl)
+
+	_slot_input = LineEdit.new()
+	_slot_input.placeholder_text = tr("SAVE_SLOT_PLACEHOLDER")
+	_slot_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	input_row.add_child(_slot_input)
+	return input_row
+
+
+func _make_buttons_row() -> HBoxContainer:
 	var buttons_row := HBoxContainer.new()
 	buttons_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons_row.add_theme_constant_override("separation", 8)
-	vbox.add_child(buttons_row)
 
 	if mode == Mode.FULL:
-		_save_button = _make_button(tr("UI_SAVE"), _on_save_pressed)
+		_save_button = UIDialog.make_button(tr("UI_SAVE"), _on_save_pressed, 100)
 		buttons_row.add_child(_save_button)
 
-	_load_button = _make_button(tr("UI_LOAD"), _on_load_pressed)
+	_load_button = UIDialog.make_button(tr("UI_LOAD"), _on_load_pressed, 100)
 	buttons_row.add_child(_load_button)
 
-	_delete_button = _make_button(tr("UI_DELETE"), _on_delete_pressed)
+	_delete_button = UIDialog.make_button(tr("UI_DELETE"), _on_delete_pressed, 100)
 	buttons_row.add_child(_delete_button)
 
-	_close_button = _make_button(tr("UI_CLOSE"), _on_close_pressed)
+	_close_button = UIDialog.make_button(tr("UI_CLOSE"), _on_close_pressed, 100)
 	buttons_row.add_child(_close_button)
-
-
-## Aplica el tema de pergamino al ItemList, incluyendo los estados
-## de selección para que el texto sea siempre legible.
-func _apply_item_list_theme(list: ItemList) -> void:
-	# Fondo general de la lista
-	list.add_theme_stylebox_override("panel", UITheme.make_panel_style(UITheme.BORDER_BROWN, 2, 6))
-
-	# Fondo del item seleccionado (sin foco y con foco)
-	var sel_style := StyleBoxFlat.new()
-	sel_style.bg_color = Color(UITheme.BORDER_BROWN.r, UITheme.BORDER_BROWN.g,
-			UITheme.BORDER_BROWN.b, 0.22)
-	sel_style.corner_radius_top_left     = 4
-	sel_style.corner_radius_top_right    = 4
-	sel_style.corner_radius_bottom_right = 4
-	sel_style.corner_radius_bottom_left  = 4
-	sel_style.content_margin_left   = 6
-	sel_style.content_margin_top    = 3
-	sel_style.content_margin_right  = 6
-	sel_style.content_margin_bottom = 3
-	list.add_theme_stylebox_override("selected", sel_style)
-	list.add_theme_stylebox_override("selected_focus", sel_style)
-
-	# Sin borde de cursor por defecto (evita el rectángulo blanco de foco)
-	var empty := StyleBoxEmpty.new()
-	list.add_theme_stylebox_override("cursor", empty)
-	list.add_theme_stylebox_override("cursor_unfocused", empty)
-
-	# Colores de texto: siempre oscuros, tanto en normal como en seleccionado
-	list.add_theme_color_override("font_color", UITheme.TEXT_DARK)
-	list.add_theme_color_override("font_selected_color", UITheme.BORDER_BROWN)
-	list.add_theme_color_override("font_hovered_color", UITheme.BORDER_BROWN)
-
-	# Tamaño de fuente consistente con el panel
-	list.add_theme_font_size_override("font_size", 16)
-
-
-func _make_button(label_text: String, callback: Callable) -> Button:
-	var btn := Button.new()
-	btn.text = label_text
-	btn.custom_minimum_size = Vector2(100, 38)
-	btn.add_theme_font_size_override("font_size", 16)
-	btn.add_theme_color_override("font_color", UITheme.TEXT_DARK)
-	btn.add_theme_color_override("font_hover_color", UITheme.BORDER_BROWN)
-	btn.add_theme_color_override("font_pressed_color", UITheme.BORDER_BROWN)
-	btn.add_theme_stylebox_override("normal", UITheme.make_panel_style(UITheme.BORDER_BROWN, 2, 8))
-	btn.add_theme_stylebox_override("hover", UITheme.make_panel_hover_style(UITheme.BORDER_BROWN, 2, 8))
-	btn.add_theme_stylebox_override("pressed", UITheme.make_panel_style(UITheme.BORDER_BROWN, 3, 8))
-	btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	btn.pressed.connect(callback)
-	return btn
+	return buttons_row
 
 
 func _refresh_slots() -> void:

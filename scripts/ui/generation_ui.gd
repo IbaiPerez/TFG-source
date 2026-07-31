@@ -44,50 +44,59 @@ var biome_ui_map: Dictionary
 
 
 func _ready() -> void:
-	settings = GenerationSettings.new()
-	settings.tiles = []
-	var biome_noise = FastNoiseLite.new()
-	biome_noise.noise_type = 5
-	biome_noise.frequency = 0.1555
-	settings.biome_noise = biome_noise
-	
-	settings.ocean_tile = OCEAN
-	var ocean_noise = FastNoiseLite.new()
-	ocean_noise.noise_type = 3
-	ocean_noise.frequency = 0.11111
-	settings.ocean_noise = ocean_noise
-	
-	settings.mountain_tile = MOUNTAIN
-	var mountain_noise = FastNoiseLite.new()
-	mountain_noise.noise_type = 1
-	mountain_noise.frequency = 0.121212
-	settings.mountain_noise = mountain_noise
-	
-	settings.tiles = [GRASSLAND,DESERT,FOREST, SWAMP, TUNDRA]
-	settings.biome_weights = [0.5, 0.3, 0.2, 0.4, 0.1]
-	
+	settings = _make_default_settings()
+	biome_ui_map = _build_biome_ui_map()
 
-	settings.natural_resources = []
-	settings.natural_resources.append(FISH)
-	settings.natural_resources.append(GOLD)
-	settings.natural_resources.append(IRON)
-	settings.natural_resources.append(LIVESTOCK)
-	settings.natural_resources.append(SALT)
-	settings.natural_resources.append(STONE)
-	settings.natural_resources.append(SAND)
-	settings.natural_resources.append(WHEAT)
-	settings.natural_resources.append(WILD_GAME)
-	settings.natural_resources.append(WOOD)
-	
-	settings.empires.append(MONGOL)
-	settings.empires.append(MEDICI)
-	settings.empires.append(BABYLONIAN)
-	if selected_empire:
-		settings.player_empire = selected_empire
-	else:
-		settings.player_empire = MONGOL
+	setup_shape_options()
+	load_settings_to_ui()
+	generate_button.grab_focus()
 
-	biome_ui_map = {
+
+## Ajustes de generación por defecto: ruidos, biomas y sus pesos, recursos
+## naturales e imperios en juego.
+##
+## DEUDA ANOTADA: esto son valores de DOMINIO viviendo en la UI. Su sitio natural
+## sería una fábrica junto a GenerationSettings, pero mover los ~25 `preload` de
+## casillas, recursos e imperios al dominio es un cambio mayor y con riesgo de
+## ciclos de clase (ver [SceneGroups]), así que aquí solo se separa de la
+## construcción de la interfaz.
+func _make_default_settings() -> GenerationSettings:
+	var s := GenerationSettings.new()
+
+	s.biome_noise = _make_noise(5, 0.1555)
+	s.ocean_tile = OCEAN
+	s.ocean_noise = _make_noise(3, 0.11111)
+	s.mountain_tile = MOUNTAIN
+	s.mountain_noise = _make_noise(1, 0.121212)
+
+	s.tiles = [GRASSLAND, DESERT, FOREST, SWAMP, TUNDRA]
+	s.biome_weights = [0.5, 0.3, 0.2, 0.4, 0.1]
+	# Local TIPADO y luego asignación: `natural_resources` es Array[NaturalResource]
+	# y volcarle un literal suelto es de los sitios donde GDScript falla en
+	# EJECUCIÓN, no al parsear — y este camino (pantalla de generación) no lo cubre
+	# ningún test.
+	var resources: Array[NaturalResource] = [FISH, GOLD, IRON, LIVESTOCK, SALT,
+		STONE, SAND, WHEAT, WILD_GAME, WOOD]
+	s.natural_resources = resources
+
+	s.empires.append(MONGOL)
+	s.empires.append(MEDICI)
+	s.empires.append(BABYLONIAN)
+	s.player_empire = selected_empire if selected_empire else MONGOL
+	return s
+
+
+func _make_noise(noise_type: int, frequency: float) -> FastNoiseLite:
+	var noise := FastNoiseLite.new()
+	noise.noise_type = noise_type
+	noise.frequency = frequency
+	return noise
+
+
+## Empareja cada bioma con sus controles del .tscn (casilla de activación y
+## deslizador de densidad con su etiqueta de valor).
+func _build_biome_ui_map() -> Dictionary:
+	return {
 		"grassland": {"resource": GRASSLAND, "check": %GrasslandCheck, "density": %GrasslandDensity, "density_value": %GrasslandDensityValue},
 		"forest":    {"resource": FOREST,    "check": %ForestCheck,    "density": %ForestDensity,    "density_value": %ForestDensityValue},
 		"desert":    {"resource": DESERT,    "check": %DesertCheck,    "density": %DesertDensity,    "density_value": %DesertDensityValue},
@@ -95,10 +104,6 @@ func _ready() -> void:
 		"tundra":    {"resource": TUNDRA,    "check": %TundraCheck,    "density": %TundraDensity,    "density_value": %TundraDensityValue},
 	}
 
-	setup_shape_options()
-	load_settings_to_ui()
-	generate_button.grab_focus()
-	
 
 func setup_shape_options() -> void:
 	shape_option_button.clear()

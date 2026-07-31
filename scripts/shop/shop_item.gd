@@ -14,6 +14,14 @@ func is_available() -> bool:
 	return stock == -1 or _sold_count < stock
 
 
+## Unidades que quedan. Evita que la UI calcule `stock - _sold_count` leyendo un
+## campo privado, que es lo que hacía. Con stock ilimitado (-1) devuelve -1.
+func remaining_stock() -> int:
+	if stock == -1:
+		return -1
+	return stock - _sold_count
+
+
 func can_afford(gold:int) -> bool:
 	return gold >= price
 
