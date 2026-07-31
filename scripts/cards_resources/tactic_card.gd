@@ -46,14 +46,15 @@ class_name TacticCard
 func _build_tooltip() -> String:
 	var lines: Array[String] = []
 	var title: String = tr(tactic_name) if tactic_name != "" else tr("CARD_TACTIC_DEFAULT")
-	lines.append("[center][b][color=#4A6A8A]%s[/color][/b][/center]" % title)
+	lines.append("[center][b]%s[/b][/center]" % UITheme.bb_colored(title, UITheme.BB_ENTITY))
 
 	# Lista los tipos afectados.
 	if not affected_troop_types.is_empty():
 		var labels: Array[String] = []
 		for t in affected_troop_types:
 			labels.append(Troop.type_label_for(t))
-		lines.append("[center][color=#5a4838]%s[/color][/center]" % (tr("TACTIC_AFFECTS") % ", ".join(labels)))
+		lines.append("[center]%s[/center]" % UITheme.bb_colored(
+			tr("TACTIC_AFFECTS") % ", ".join(labels), UITheme.BB_BODY))
 
 	# Bonus principales.
 	var bonus_lines: Array[String] = []
@@ -66,7 +67,8 @@ func _build_tooltip() -> String:
 	if defense_per_troop != 0.0:
 		bonus_lines.append(tr("TACTIC_FLAT_DEF") % defense_per_troop)
 	if not bonus_lines.is_empty():
-		lines.append("[center][color=#cc3333]%s[/color][/center]" % " · ".join(bonus_lines))
+		lines.append("[center]%s[/center]" % UITheme.bb_colored(
+			" · ".join(bonus_lines), UITheme.BB_ATTACK))
 
 	# Modificadores de bioma no neutros.
 	if not biome_modifiers.is_empty():
@@ -77,7 +79,8 @@ func _build_tooltip() -> String:
 				continue
 			biome_lines.append("%s ×%.1f" % [_biome_label(biome), mod])
 		if not biome_lines.is_empty():
-			lines.append("[center][color=#3a5a3a]%s[/color][/center]" % (tr("TACTIC_BIOME") % " · ".join(biome_lines)))
+			lines.append("[center]%s[/center]" % UITheme.bb_colored(
+				tr("TACTIC_BIOME") % " · ".join(biome_lines), UITheme.BB_BIOME))
 
 	return "\n".join(lines)
 

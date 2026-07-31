@@ -52,9 +52,10 @@ func _on_mouse_entered() -> void:
 
 	var dur_text:String
 	if modifier.duration == -1:
-		dur_text = "[color=#8a6a1a]%s[/color]" % tr("MOD_PERMANENT")
+		dur_text = UITheme.bb_colored(tr("MOD_PERMANENT"), UITheme.BB_GOLD)
 	else:
-		dur_text = "[color=#5a3a12]%s[/color]" % (tr("MOD_TURNS_LEFT") % modifier.duration)
+		dur_text = UITheme.bb_colored(
+			tr("MOD_TURNS_LEFT") % modifier.duration, UITheme.BB_TEMPORARY)
 
 	var text := "[b]%s[/b]\n\n%s\n\n%s" % [
 		tr(modifier.name), EmpireModifierFormatter.describe_modifier(modifier), dur_text]

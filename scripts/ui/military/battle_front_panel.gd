@@ -153,22 +153,30 @@ func _update_side_stats(side: BattleFront.Side, label: RichTextLabel) -> void:
 	label.text = ""
 	label.append_text("[center]")
 	# Totales (incluyen bioma, edificios y bonuses)
-	label.append_text("[color=#cc3333]ATK: %.1f[/color]  [color=#3366cc]DEF: %.1f[/color]\n" % [atk, def])
+	label.append_text("%s  %s\n" % [
+		UITheme.bb_colored("ATK: %.1f" % atk, UITheme.BB_ATTACK),
+		UITheme.bb_colored("DEF: %.1f" % def, UITheme.BB_DEFENSE)])
 	# Aporte sólo de las tropas asignadas, para que el jugador vea cuánto ha comprometido
-	label.append_text("[color=#5a4838]%s[/color]\n" % (tr("BATTLE_TROOPS_LINE") % [troops_atk, troops_def]))
+	label.append_text("%s\n" % UITheme.bb_colored(
+		tr("BATTLE_TROOPS_LINE") % [troops_atk, troops_def], UITheme.BB_BODY))
 	# Indicador de efectividad por tipo (sólo si hay tropas que comparen)
 	if troops_atk > 0 and not enemy_troops.is_empty():
-		var color_hex: String = _effectiveness_color_hex(effectiveness_mult)
-		label.append_text("[color=%s]%s[/color]\n" % [color_hex, tr("BATTLE_EFFECTIVENESS_LINE") % [effectiveness_mult, effective_troops_atk]])
+		label.append_text("%s\n" % UITheme.bb_colored(
+			tr("BATTLE_EFFECTIVENESS_LINE") % [effectiveness_mult, effective_troops_atk],
+			_effectiveness_color(effectiveness_mult)))
 	# Presión resultante (atk / (1 + def_enemiga))
-	label.append_text("[color=#cccc33]%s[/color]\n" % (tr("BATTLE_PRESSURE_LINE") % pressure))
+	label.append_text("%s\n" % UITheme.bb_colored(
+		tr("BATTLE_PRESSURE_LINE") % pressure, UITheme.BB_PRESSURE))
 	# Coste de mantenimiento extra que el frente está consumiendo este turno
-	label.append_text("[color=#7a4f2c]%s[/color]" % (tr("BATTLE_MAINTENANCE_LINE") % [maint.get("gold", 0), maint.get("food", 0)]))
+	label.append_text(UITheme.bb_colored(
+		tr("BATTLE_MAINTENANCE_LINE") % [maint.get("gold", 0), maint.get("food", 0)],
+		UITheme.BB_MAINTENANCE))
 
 	# Tácticas activas en este lado (cartas tácticas con tactic_name).
 	var tactic_lines := _render_active_tactics(side)
 	if not tactic_lines.is_empty():
-		label.append_text("\n\n[color=#4A6A8A][b]%s[/b][/color]\n" % tr("BATTLE_ACTIVE_TACTICS"))
+		label.append_text("\n\n%s\n" % UITheme.bb_colored(
+			"[b]%s[/b]" % tr("BATTLE_ACTIVE_TACTICS"), UITheme.BB_ENTITY))
 		for line in tactic_lines:
 			label.append_text("%s\n" % line)
 
@@ -187,29 +195,37 @@ func _render_active_tactics(side: BattleFront.Side) -> Array[String]:
 		var parts: Array[String] = []
 		# Bonus efectivos (porcentaje × modificador de bioma capturado).
 		if bonus.attack_percent_per_type != 0.0:
-			parts.append("[color=#cc3333]+%.0f%% ATK (×%.2f)[/color]" % [bonus.attack_percent_per_type * bonus.attack_biome_modifier, bonus.attack_biome_modifier])
+			parts.append(UITheme.bb_colored("+%.0f%% ATK (×%.2f)" % [
+				bonus.attack_percent_per_type * bonus.attack_biome_modifier,
+				bonus.attack_biome_modifier], UITheme.BB_ATTACK))
 		if bonus.defense_percent_per_type != 0.0:
-			parts.append("[color=#3366cc]+%.0f%% DEF (×%.2f)[/color]" % [bonus.defense_percent_per_type * bonus.defense_biome_modifier, bonus.defense_biome_modifier])
+			parts.append(UITheme.bb_colored("+%.0f%% DEF (×%.2f)" % [
+				bonus.defense_percent_per_type * bonus.defense_biome_modifier,
+				bonus.defense_biome_modifier], UITheme.BB_DEFENSE))
 		# Bonus planos (raros) — también escalados.
 		if bonus.attack_per_troop != 0.0:
-			parts.append("[color=#cc3333]+%.1f ATK/tropa[/color]" % (bonus.attack_per_troop * bonus.attack_biome_modifier))
+			parts.append(UITheme.bb_colored(
+				"+%.1f ATK/tropa" % (bonus.attack_per_troop * bonus.attack_biome_modifier),
+				UITheme.BB_ATTACK))
 		if bonus.defense_per_troop != 0.0:
-			parts.append("[color=#3366cc]+%.1f DEF/tropa[/color]" % (bonus.defense_per_troop * bonus.defense_biome_modifier))
+			parts.append(UITheme.bb_colored(
+				"+%.1f DEF/tropa" % (bonus.defense_per_troop * bonus.defense_biome_modifier),
+				UITheme.BB_DEFENSE))
 		var detail: String = " · ".join(parts) if not parts.is_empty() else tr("BATTLE_NO_EFFECT")
 		lines.append("• %s — %s" % [tr(bonus.tactic_name), detail])
 	return lines
 
 
-## Devuelve un código hex para colorear el multiplicador efectivo.
+## Color del multiplicador efectivo.
 ##  >1.05 → verde (super efectivo)
 ##  <0.95 → rojo  (no efectivo)
 ##   resto → gris  (neutro)
-func _effectiveness_color_hex(mult: float) -> String:
+func _effectiveness_color(mult: float) -> Color:
 	if mult > 1.05:
-		return "#2e8b3e"
+		return UITheme.BB_EFFECTIVE
 	if mult < 0.95:
-		return "#a83030"
-	return "#666666"
+		return UITheme.BB_INEFFECTIVE
+	return UITheme.BB_NEUTRAL_MATCH
 
 
 func _update_troops_display(troops: Array[Troop], container: VBoxContainer, color: Color) -> void:

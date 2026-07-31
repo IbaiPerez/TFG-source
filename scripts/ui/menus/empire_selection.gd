@@ -90,7 +90,7 @@ func _select(index: int) -> void:
 
 
 func _build_detail_bbcode(empire: Empire) -> String:
-	var accent := _hex(empire.color.darkened(0.25))
+	var accent := UITheme.bb_hex(empire.color.darkened(0.25))
 	var parts: Array[String] = []
 
 	parts.append("[center][font_size=30][color=%s][b]%s[/b][/color][/font_size][/center]"
@@ -109,7 +109,7 @@ func _build_detail_bbcode(empire: Empire) -> String:
 
 		if not empire.ability.description.is_empty():
 			parts.append("[color=%s][i]%s[/i][/color]"
-				% [_hex(UITheme.TEXT_MUTED), tr(empire.ability.description)])
+				% [UITheme.bb_hex(UITheme.TEXT_MUTED), tr(empire.ability.description)])
 
 	return "\n\n".join(parts)
 
@@ -131,10 +131,6 @@ func _setup_focus_chain() -> void:
 	_back_button.focus_neighbor_bottom = _back_button.get_path_to(_item_buttons[0])
 	_select_button.focus_neighbor_left = _select_button.get_path_to(_item_buttons[0])
 	_item_buttons[0].grab_focus()
-
-
-func _hex(c: Color) -> String:
-	return "#" + c.to_html(false)
 
 
 func _on_select_button_pressed() -> void:

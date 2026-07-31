@@ -11,11 +11,13 @@ class_name EmpireModifierFormatter
 ## Metodos estaticos: usa TranslationServer.translate (no tr(), que requiere
 ## una instancia de Object) para resolver las claves de localizacion.
 
-# Paleta semantica, alineada con los tooltips de cartas del CSV.
-const COL_GOLD  := "#8A6A1A"  ## oro / economia
-const COL_GREEN := "#5B7A3A"  ## comida / bonus favorable (descuentos)
-const COL_RED   := "#8B1A1A"  ## penalizacion / militar
-const COL_BLUE  := "#4A6A8A"  ## entidades (recursos, cartas, edificios)
+# Paleta semantica, alineada con los tooltips de cartas del CSV. Los valores viven
+# en UITheme: estos cuatro colores tambien los usaban, escritos a mano, el tooltip
+# de tactica y el panel de frente de batalla.
+const COL_GOLD  := UITheme.BB_GOLD    ## oro / economia
+const COL_GREEN := UITheme.BB_FOOD    ## comida / bonus favorable (descuentos)
+const COL_RED   := UITheme.BB_PENALTY ## penalizacion / militar
+const COL_BLUE  := UITheme.BB_ENTITY  ## entidades (recursos, cartas, edificios)
 
 
 ## Devuelve una linea BBCode por cada modificador de la habilidad, mas una
@@ -111,8 +113,8 @@ static func _card_key(card_id: String) -> String:
 	return card_id
 
 
-static func _c(hex: String, text: String) -> String:
-	return "[color=%s]%s[/color]" % [hex, text]
+static func _c(color: Color, text: String) -> String:
+	return UITheme.bb_colored(text, color)
 
 
 static func _t(key: String) -> String:

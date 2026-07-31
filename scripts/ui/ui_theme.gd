@@ -31,6 +31,48 @@ const OVERLAY_DARK   := Color(0.00, 0.00, 0.00, 0.60)
 const DISABLED_MUTED := Color(0.50, 0.50, 0.50, 1.0)
 const EMPTY_MUTED    := Color(0.60, 0.40, 0.40, 1.0)
 
+# --- Paleta de los textos con formato (BBCode) ---
+#
+# Los tooltips de táctica, el panel de frente de batalla, los iconos de modificador
+# y la selección de imperio escriben BBCode, que necesita el color como hex dentro
+# de la cadena. Por eso estos colores se escapaban de la paleta de arriba y vivían
+# como literales sueltos: NUEVE hex distintos repartidos por CINCO ficheros, y tres
+# de ellos duplicados en dos ficheros cada uno. Cambiar "el rojo de ataque"
+# obligaba a cazar cuatro literales.
+#
+# BB_ENTITY es el caso que mejor lo ilustra: ya tenía nombre (COL_BLUE) en
+# empire_modifier_formatter y aun así estaba copiado a mano en otros dos sitios.
+const BB_ATTACK      := Color("#cc3333")  ## ataque
+const BB_DEFENSE     := Color("#3366cc")  ## defensa
+const BB_PRESSURE    := Color("#cccc33")  ## presión del frente
+const BB_MAINTENANCE := Color("#7a4f2c")  ## mantenimiento de tropas
+const BB_BODY        := Color("#5a4838")  ## texto secundario
+const BB_BIOME       := Color("#3a5a3a")  ## modificadores de bioma
+## Oro / economía, y también los modificadores permanentes: eran el mismo color
+## escrito dos veces, "#8A6A1A" y "#8a6a1a", así que la duplicación ni siquiera se
+## veía buscando el literal.
+const BB_GOLD        := Color("#8A6A1A")
+const BB_FOOD        := Color("#5B7A3A")  ## comida / bonus favorable
+const BB_PENALTY     := Color("#8B1A1A")  ## penalización / militar
+const BB_ENTITY      := Color("#4A6A8A")  ## entidades (recursos, cartas, edificios)
+const BB_TEMPORARY   := Color("#5a3a12")  ## turnos restantes
+
+## Efectividad de un enfrentamiento por tipo de tropa. No estaban en forma
+## `[color=#...]`, así que se escapaban incluso buscando el patrón.
+const BB_EFFECTIVE     := Color("#2e8b3e")  ## supereficaz
+const BB_INEFFECTIVE   := Color("#a83030")  ## ineficaz
+const BB_NEUTRAL_MATCH := Color("#666666")  ## sin ventaja
+
+
+## Hex de un color para meterlo en BBCode, con la almohadilla incluida.
+static func bb_hex(color: Color) -> String:
+	return "#" + color.to_html(false)
+
+
+## Envuelve `text` en una etiqueta [color] de BBCode.
+static func bb_colored(text: String, color: Color) -> String:
+	return "[color=%s]%s[/color]" % [bb_hex(color), text]
+
 
 ## Color según el signo de un valor: negativo → rojo, positivo → verde.
 ## Con `zero_is_neutral`, el 0 usa el color neutro (producción de casilla); si no,
