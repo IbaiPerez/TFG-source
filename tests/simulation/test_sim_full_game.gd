@@ -12,9 +12,18 @@ extends GutTest
 ##    primer turno es de AI_A.
 ##  - Deck inicial real (sin inyeccion de cartas militares).
 ##
-## Como ejecutarlo:
-##   godot --headless -s addons/gut/gut_cmdln.gd \
+## GATEADO por RUN_SIM_FULL_GAME, como sus cinco hermanos de tests/simulation/.
+## Sin la puerta, 15 partidas de hasta 500 rondas se disparaban en cuanto alguien
+## metiera tests/simulation/ en la config de GUT o pulsara "Run All" en el panel —
+## el peligro del que avisa la cabecera de test_optimize_heuristic_2stage.gd.
+##
+## Como ejecutarlo (bash). El "-gconfig=" vacío es imprescindible: sin él siguen
+## aplicándose los `dirs` de .gutconfig.json y se corre la suite entera.
+##   RUN_SIM_FULL_GAME=1 godot --headless -s addons/gut/gut_cmdln.gd "-gconfig=" \
 ##     -gtest=res://tests/simulation/test_sim_full_game.gd -gexit
+## PowerShell:
+##   $env:RUN_SIM_FULL_GAME=1; & godot --headless -s addons/gut/gut_cmdln.gd `
+##     "-gconfig=" -gtest=res://tests/simulation/test_sim_full_game.gd -gexit
 ##
 ## Output JSON: `user://sim_full_game.json`. En Windows:
 ##   %APPDATA%\Godot\app_userdata\Source\sim_full_game.json
@@ -24,9 +33,11 @@ const MULTI_RUN := preload("res://tests/simulation/multi_run_simulator.gd")
 
 
 func test_run_simulation() -> void:
-	WorldMap.map = []
-	WorldMap.map_as_dict = {}
-	BattleFront.clear_active_instances()
+	if OS.get_environment("RUN_SIM_FULL_GAME") == "":
+		pass_test("Gateado: exporta RUN_SIM_FULL_GAME=1 para lanzar las 15 partidas.")
+		return
+
+	TestWorld.reset()
 
 	var multi = MULTI_RUN.new()
 	# 15 runs: equilibrio entre precision estadistica y tiempo de ejecucion.
