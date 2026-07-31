@@ -41,25 +41,8 @@ func _make_building(p_gold: int = 0, p_food: int = 0,
 
 func _make_tile(p_empire: Empire = null,
 		p_biome: Tile.biome_type = Tile.biome_type.Grassland) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = p_biome
-	tile.mesh_data.color = Color.GREEN
-	tile.natural_resource = NaturalResource.new()
-	tile.natural_resource.gold_produced = 2
-	tile.natural_resource.food_produced = 1
-	var loc := LocationType.new()
-	loc.type = Tile.location_type.Village
-	loc.max_building = 2
-	loc.food_consumption = 0
-	tile.location = loc
-	tile.max_buildings = 2
-	tile.gold_production = 2
-	tile.food_production = 1
-	tile.controller = p_empire
-	tile.neighbors = []
-	tile.buildings = []
-	return tile
+	return TestBuilders.tile() \
+		.with_biome(p_biome).with_resource(2, 1).with_controller(p_empire).build()
 
 
 func _make_build_option(building: Building, tile: Tile) -> AIBuildOption:

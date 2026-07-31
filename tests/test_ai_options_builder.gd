@@ -18,25 +18,7 @@ func _make_empire(p_name: String = "TestAI") -> Empire:
 
 
 func _make_tile(p_biome: Tile.biome_type = Tile.biome_type.Grassland) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = p_biome
-	tile.mesh_data.color = Color.GREEN
-	tile.natural_resource = NaturalResource.new()
-	tile.natural_resource.gold_produced = 1
-	tile.natural_resource.food_produced = 1
-	var loc := LocationType.new()
-	loc.type = Tile.location_type.Village
-	loc.max_building = 2
-	loc.food_consumption = 0
-	tile.location = loc
-	tile.max_buildings = 2
-	tile.food_production = 1
-	tile.gold_production = 1
-	tile.controller = null
-	tile.neighbors = []
-	tile.buildings = []
-	return tile
+	return TestBuilders.tile().with_biome(p_biome).build()
 
 
 func _make_stats(p_gold: int = 200) -> Stats:

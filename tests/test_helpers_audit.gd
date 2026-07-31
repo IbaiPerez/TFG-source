@@ -109,6 +109,34 @@ func test_tile_respeta_bioma_y_recurso() -> void:
 	assert_eq(t.food_production, 3)
 
 
+func test_tile_descuenta_el_consumo_de_la_localizacion() -> void:
+	# La regla real (Tile.recalculate_modifiers) es `comida del recurso − consumo de
+	# la localización`. El builder la ignoraba y fijaba la producción al valor crudo
+	# del recurso; solo divergía con consumo ≠ 0, que es justo lo que usan los tests
+	# de imperio y de efectos, así que pasaba desapercibido.
+	var t := TestBuilders.tile().with_resource(5, 2) \
+		.with_location(Tile.location_type.Village, 2, 1).build()
+	add_child_autofree(t)
+
+	assert_eq(t.food_production, 1, "2 de comida del recurso menos 1 de consumo")
+	assert_eq(t.gold_production, 5, "el oro no lo toca el consumo")
+
+
+func test_tile_suma_lo_que_producen_sus_edificios() -> void:
+	var mina := TestBuilders.building().with_gold(4).with_food(3).build()
+	var t := TestBuilders.tile().with_resource(1, 1).with_buildings([mina]).build()
+	add_child_autofree(t)
+
+	assert_eq(t.gold_production, 5, "1 del recurso + 4 del edificio")
+	assert_eq(t.food_production, 4, "1 del recurso + 3 del edificio")
+
+
+func test_tile_deriva_los_slots_de_su_localizacion() -> void:
+	var t := TestBuilders.tile().with_location(Tile.location_type.Town, 3).build()
+	add_child_autofree(t)
+	assert_eq(t.max_buildings, 3, "max_buildings sale de location.max_building")
+
+
 func test_tile_acepta_edificios_tipados() -> void:
 	var b := TestBuilders.building().with_name("Mina").build()
 	var t := TestBuilders.tile().with_buildings([b]).build()

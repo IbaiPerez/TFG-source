@@ -15,23 +15,9 @@ func _make_empire(p_name: String = "Test", p_color: Color = Color.RED) -> Empire
 
 
 func _make_tile() -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = Tile.biome_type.Grassland
-	tile.mesh_data.color = Color.GREEN
-	tile.natural_resource = NaturalResource.new()
-	tile.natural_resource.gold_produced = 5
-	tile.natural_resource.food_produced = 2
-	var loc := LocationType.new()
-	loc.type = Tile.location_type.Village
-	loc.max_building = 1
-	loc.food_consumption = 1
-	tile.location = loc
-	tile.max_buildings = 1
-	tile.food_production = 1
-	tile.gold_production = 5
-	tile.neighbors = []
-	return tile
+	# food_production sale de 2 (recurso) − 1 (consumo de la Aldea) = 1.
+	return TestBuilders.tile().with_resource(5, 2) \
+		.with_location(Tile.location_type.Village, 1, 1).build()
 
 
 # ============================================================

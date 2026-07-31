@@ -146,15 +146,18 @@ class TileB extends RefCounted:
 		loc.max_building = _max_building
 		loc.food_consumption = _food_consumption
 		tile.location = loc
-		tile.max_buildings = _max_building
-		tile.gold_production = _res_gold
-		tile.food_production = _res_food
 		tile.controller = _controller
 		tile.neighbors = _neighbors
 		var blds: Array[Building] = []
 		for b in _buildings:
 			blds.append(b as Building)
 		tile.buildings = blds
+		# Las producciones NO se fijan a mano: las deriva el dominio. Antes este
+		# builder hacía `food_production = _res_food`, ignorando el consumo de la
+		# localización, cuando la regla real (Tile.recalculate_modifiers) es
+		# `recurso − consumo` más lo que aporten los edificios. Solo divergía con
+		# food_consumption ≠ 0, así que no se veía con los valores por defecto.
+		tile.recalculate_modifiers()
 		return tile
 
 
