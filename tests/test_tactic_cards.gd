@@ -56,7 +56,7 @@ func _create_stats(empire: Empire) -> Stats:
 
 
 func before_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 	atk_empire = Empire.new()
 	atk_empire.name = "Atacante"
@@ -76,7 +76,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 
 # ============================================================

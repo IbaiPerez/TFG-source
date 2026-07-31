@@ -13,13 +13,11 @@ const WORLD_GENERATOR := preload("res://scripts/world_gen/world_generator.gd")
 
 # Limpieza obligatoria: WorldMap es autoload y persiste entre tests.
 func before_each() -> void:
-	WorldMap.map = []
-	WorldMap.map_as_dict = {}
+	TestWorld.reset()
 
 
 func after_each() -> void:
-	WorldMap.map = []
-	WorldMap.map_as_dict = {}
+	TestWorld.reset()
 
 
 # ============================================================

@@ -10,11 +10,11 @@ extends GutTest
 func before_each() -> void:
 	# Limpiar el registro global de frentes entre tests (BattleFront real los
 	# registra en su _init).
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 
 func after_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 
 # ============================================================

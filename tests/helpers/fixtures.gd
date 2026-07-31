@@ -9,6 +9,12 @@ class_name TestFixtures
 ##   var f := TestFixtures.early_expansion()
 ##   var ctx := f.ctx        # AITurnContext listo
 ##   var free := f.free_tile # tile colonizable adyacente
+##
+## ⚠️ LAS CASILLAS HAY QUE LIBERARLAS. `Tile` extiende Node3D y estos fixtures las
+## crean con `.new()` sin padre, así que el test debe pasarlas por
+## `add_child_autofree()` o GUT las cuenta como huérfanas. No es hipotético: la
+## primera versión del test de auditoría dejaba 2 huérfanas por olvidarse de las de
+## `early_expansion()`. Con `late_dominance()` son 12 de golpe.
 
 
 ## Early game: un imperio con 1 tile propia y 1 vecina libre colonizable.

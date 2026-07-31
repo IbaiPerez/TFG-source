@@ -29,7 +29,7 @@ func _create_tile(biome: Tile.biome_type, ctrl: Empire) -> Tile:
 
 
 func before_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 	empire = Empire.new()
 	empire.name = "Player"
 	enemy_empire = Empire.new()
@@ -43,7 +43,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 
 # --- Tests RecruitCard ---

@@ -11,7 +11,7 @@ var troop_b:Troop
 
 
 func before_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 	atk_tile = Tile.new()
 	atk_tile.pos_data = PositionData.new()
@@ -40,7 +40,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 	# Los Tile son Node3D creados con .new() y nunca añadidos al árbol —
 	# hay que liberarlos a mano o GUT los detecta como orphans.
 	if is_instance_valid(atk_tile):

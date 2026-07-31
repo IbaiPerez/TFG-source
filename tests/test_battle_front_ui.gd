@@ -47,7 +47,7 @@ func _create_tile(biome: Tile.biome_type, ctrl: Empire, pos: Vector3 = Vector3.Z
 
 
 func before_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 	empire_a = Empire.new()
 	empire_a.name = "Player"
@@ -67,7 +67,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 
 # --- Tests BattleFrontPanel ---

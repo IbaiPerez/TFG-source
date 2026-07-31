@@ -86,12 +86,11 @@ func _snapshot(tiles: Array, empires: Array, round_number: int = 5) -> Dictionar
 
 
 func before_each() -> void:
-	BattleFront.clear_active_instances()
+	TestWorld.reset()
 
 
 func after_each() -> void:
-	BattleFront.clear_active_instances()
-	WorldMap.set_map([] as Array[Tile])
+	TestWorld.reset()
 
 
 # ------------------------------------------------------------------

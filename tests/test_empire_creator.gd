@@ -76,13 +76,11 @@ func _drop_listener(l:_ControllerListener) -> void:
 
 ## Limpia WorldMap entre tests porque es autoload y persiste.
 func before_each() -> void:
-	WorldMap.map = []
-	WorldMap.map_as_dict = {}
+	TestWorld.reset()
 
 
 func after_each() -> void:
-	WorldMap.map = []
-	WorldMap.map_as_dict = {}
+	TestWorld.reset()
 
 
 # ============================================================
