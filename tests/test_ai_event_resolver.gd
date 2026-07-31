@@ -10,25 +10,14 @@ extends GutTest
 # ============================================================
 
 func _make_stats(p_gold: int = 100, p_food: int = 10) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = 0
-	s.food = p_food
-	s.cards_per_turn = 3
-	s.deck = CardPile.new()
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = Empire.new()
-	s.empire.name = "TestAI"
-	s.empire.controlled_tiles = []
+	var s := TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(0).with_food(p_food) \
+		.with_cards_per_turn(3).with_turn(5).with_event_chance(1.0).build()
+	# Pools de eventos/tienda: propios de esta suite, no estan en el builder.
 	s.used_unique_events = []
 	s.available_events = []
-	s.possible_buildings = []
 	s.unlocked_card_pool = []
 	s.shop_exclusive_pool = []
-	s.event_chance = 1.0
-	s.turn_number = 5
 	return s
 
 

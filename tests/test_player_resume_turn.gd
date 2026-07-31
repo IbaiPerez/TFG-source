@@ -28,20 +28,10 @@ func _make_empire() -> Empire:
 
 
 func _make_stats() -> Stats:
-	var s := Stats.new()
-	s.total_gold = 50
-	s.gold_per_turn = 0
-	s.food = 5
-	s.cards_per_turn = 2
-	s.deck = CardPile.new()
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = _make_empire()
-	s.possible_buildings = []
-	s.turn_number = 1  # Simula save tomado tras start_turn del turno 1.
-	s.event_chance = 0.0
-	return s
+	# turn 1 simula un save tomado tras el start_turn del turno 1.
+	return TestBuilders.stats() \
+		.with_gold(50).with_gpt(0).with_food(5).with_cards_per_turn(2) \
+		.with_turn(1).with_empire(_make_empire()).with_event_chance(0.0).build()
 
 
 ## Crea un PlayerHandler minimo, sin Hand UI real (los tests de resume_turn

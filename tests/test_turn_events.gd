@@ -8,19 +8,12 @@ extends GutTest
 # ============================================================
 
 func _make_stats(p_gold: int = 100, p_food: int = 10) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = 15
-	s.food = p_food
-	s.cards_per_turn = 3
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = Empire.new()
-	s.empire.controlled_tiles = []
+	# event_chance 1.0: siempre dispara, para no depender del azar en los tests.
+	var s := TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(15).with_food(p_food) \
+		.with_cards_per_turn(3).with_event_chance(1.0).build()
 	s.used_unique_events = []
 	s.available_events = []
-	s.event_chance = 1.0  # Siempre trigger para tests
 	return s
 
 

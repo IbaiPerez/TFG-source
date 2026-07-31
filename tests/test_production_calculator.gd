@@ -10,15 +10,8 @@ extends GutTest
 # ============================================================
 
 func _make_stats() -> Stats:
-	var s := Stats.new()
-	s.total_gold = 200
-	s.gold_per_turn = 0
-	s.food = 50
-	s.cards_per_turn = 3
-	s.empire = Empire.new()
-	s.empire.controlled_tiles = []
-	s.troop_pool = []
-	return s
+	return TestBuilders.stats() \
+		.with_gold(200).with_gpt(0).with_food(50).with_cards_per_turn(3).build()
 
 
 func _make_troop(p_type: int, p_maint_gold: int, p_maint_food: int) -> Troop:

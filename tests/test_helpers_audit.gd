@@ -51,6 +51,38 @@ func test_stats_se_construye_con_sus_pilas() -> void:
 	assert_not_null(s.empire, "debe autocrear imperio si no se indica")
 
 
+func test_los_defaults_del_builder_que_coinciden_con_stats() -> void:
+	# De esto depende que migrar un `_make_stats` local sea seguro: los campos que
+	# el helper NO fijaba se quedaban en el default de Stats, así que el builder
+	# solo puede sustituirlo si coincide.
+	var crudo := Stats.new()
+	var construido := TestBuilders.stats().build()
+
+	assert_eq(construido.turn_number, crudo.turn_number,
+		"turn_number: mismo default, por eso no hace falta fijarlo al migrar")
+	assert_eq(construido.event_chance, crudo.event_chance,
+		"event_chance: mismo default")
+
+
+func test_los_defaults_del_builder_que_NO_coinciden_con_stats() -> void:
+	# Y estos son los que obligan a fijarlos a mano al migrar, porque el builder
+	# elige valores de conveniencia distintos de los de Stats.
+	var crudo := Stats.new()
+	var construido := TestBuilders.stats().build()
+
+	assert_ne(construido.gold_per_turn, crudo.gold_per_turn, "gpt: 50 vs 0")
+	assert_ne(construido.food, crudo.food, "food: 10 vs 0")
+	assert_ne(construido.cards_per_turn, crudo.cards_per_turn, "cards_per_turn: 3 vs 0")
+
+
+func test_cards_per_turn_no_puede_bajar_de_uno() -> void:
+	# El setter de Stats clampa a [1,20], así que el builder NO puede reproducir un
+	# `cards_per_turn` de 0. Es el motivo de que los tests que lo dejan sin fijar no
+	# se puedan migrar sin cambiar comportamiento.
+	var s := TestBuilders.stats().with_cards_per_turn(0).build()
+	assert_eq(s.cards_per_turn, 1, "el setter sube el 0 a 1")
+
+
 func test_stats_enlaza_las_casillas_con_su_imperio() -> void:
 	var a := _tile()
 	var b := _tile()

@@ -40,22 +40,12 @@ func _make_tile(p_biome: Tile.biome_type = Tile.biome_type.Grassland) -> Tile:
 
 
 func _make_stats(p_gold: int = 200) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	# gpt y food positivos: el nuevo `can_afford_troop` (Opcion 3b)
-	# bloquea cualquier recruit si gpt o food no cubren el mantenimiento
-	# de la nueva tropa. Estos tests no quieren testear ese gating, asi
-	# que les damos margen amplio. Los tests especificos del gating
-	# viven en test_troops.gd.
-	s.gold_per_turn = 100
-	s.food = 100
-	s.cards_per_turn = 3
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = _make_empire()
-	s.possible_buildings = []
-	return s
+	# gpt y food positivos: `can_afford_troop` (Opcion 3b) bloquea cualquier recruit
+	# si gpt o food no cubren el mantenimiento de la nueva tropa. Estos tests no van
+	# de ese gating, asi que les damos margen amplio; sus tests viven en test_troops.
+	return TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(100).with_food(100).with_cards_per_turn(3) \
+		.with_empire(_make_empire()).build()
 
 
 func _make_ctx(stats: Stats) -> AITurnContext:

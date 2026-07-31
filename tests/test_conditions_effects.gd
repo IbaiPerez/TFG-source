@@ -37,17 +37,9 @@ func _make_tile(p_controller: Empire = null, p_biome: Tile.biome_type = Tile.bio
 
 
 func _make_stats(p_gold: int = 200) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = 10
-	s.food = 5
-	s.cards_per_turn = 3
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = _make_empire()
-	s.possible_buildings = []
-	return s
+	return TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(10).with_food(5).with_cards_per_turn(3) \
+		.with_empire(_make_empire()).build()
 
 
 func _make_building(p_name: String = "Mine", p_cost: int = 50) -> Building:

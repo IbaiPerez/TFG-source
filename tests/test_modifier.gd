@@ -22,16 +22,8 @@ func after_all() -> void:
 # ============================================================
 
 func _make_stats(p_gold: int = 100) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = 10
-	s.food = 5
-	s.cards_per_turn = 3
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = Empire.new()
-	return s
+	return TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(10).with_food(5).with_cards_per_turn(3).build()
 
 
 func _make_resource(p_name: String = "Iron") -> NaturalResource:
