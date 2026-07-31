@@ -1,6 +1,15 @@
 extends PanelContainer
 class_name TilePanel
 
+## Panel INFORMATIVO de una casilla: se muestra junto al mapa sin bloquear nada.
+##
+## Por eso, a diferencia del resto de paneles, NO se registra en [UIState]: ese
+## contador solo cuenta menús modales, y son los que bloquean el clic en el mapa
+## (interaction.gd) y el zoom de cámara (camera_3d.gd). Con el panel de casilla
+## abierto el jugador debe poder seguir seleccionando casillas y moviendo la
+## cámara, así que registrarlo rompería la interacción normal. La ausencia de
+## `register_menu` aquí es deliberada, no un olvido.
+
 const BUILDING_CARD_UI = preload("uid://bxjlofssmvuwu")
 
 @onready var province_name_label: Label = $MarginContainer/VBoxContainer/ProvinceNameLabel
@@ -56,7 +65,7 @@ func setup(value:Tile) -> void:
 	UITheme.apply_signed(gold_produced, tile.gold_production, true)
 	UITheme.apply_signed(food_produced, tile.food_production, true)
 	
-	location_label.text = tr("LOC_" + Tile.location_type.find_key(tile.location.type).to_upper())
+	location_label.text = tr(Tile.location_key(tile.location.type))
 	
 	_setup_buildings()
 
@@ -115,8 +124,3 @@ func _perform_demolish() -> void:
 	_building_to_demolish = null
 	# Refrescar la UI tras la demolición (recalcula labels y libera el slot)
 	setup(tile)
-
-
-func _exit_tree() -> void:
-	# tile_panel no se registra, así que no necesita unregistrarse
-	pass

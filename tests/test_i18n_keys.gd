@@ -63,6 +63,43 @@ func test_un_valor_fuera_del_enum_devuelve_cadena_vacia() -> void:
 	assert_eq(Tile.location_key(99), "")
 
 
+func test_nadie_vuelve_a_construir_estas_claves_por_concatenacion() -> void:
+	# Guarda de cobertura, no de estilo: al migrar los 5 puntos a Tile.biome_key /
+	# Tile.location_key se me pasó uno (tile_panel), y nada falló — precisamente
+	# porque el fallo de la concatenación es silencioso. Esto recorre el código y
+	# lo caza. Se admite dentro de comentarios para poder documentar el patrón.
+	var offenders: Array[String] = []
+	for path in _all_gd_files("res://scripts"):
+		var source := FileAccess.get_file_as_string(path)
+		for line in source.split("\n"):
+			var stripped := line.strip_edges()
+			if stripped.begins_with("#"):
+				continue
+			if stripped.contains('"TILE_" +') or stripped.contains('"LOC_" +'):
+				offenders.append(path)
+				break
+	assert_eq(offenders, [] as Array[String],
+		"usa Tile.biome_key / Tile.location_key en vez de concatenar la clave")
+
+
+func _all_gd_files(root: String) -> Array[String]:
+	var found: Array[String] = []
+	var dir := DirAccess.open(root)
+	if dir == null:
+		return found
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while entry != "":
+		var full := root.path_join(entry)
+		if dir.current_is_dir():
+			found.append_array(_all_gd_files(full))
+		elif entry.ends_with(".gd"):
+			found.append(full)
+		entry = dir.get_next()
+	dir.list_dir_end()
+	return found
+
+
 func test_las_claves_se_traducen_en_los_dos_idiomas() -> void:
 	for locale in ["es", "en"]:
 		TranslationServer.set_locale(locale)

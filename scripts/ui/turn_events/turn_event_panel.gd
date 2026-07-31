@@ -18,6 +18,23 @@ var _pending_tile_choice:TurnEventChoice = null
 ## Almacena la choice pendiente mientras el jugador selecciona una carta.
 var _pending_card_choice:TurnEventChoice = null
 
+## Esperas de selección del jugador. Ver [UISelectionFlow]: emparejan la señal de
+## "elegido" con la de "cancelado" para que no quede ninguna conexión colgando.
+var _tile_flow:UISelectionFlow
+var _card_flow:UISelectionFlow
+
+
+## Los flujos se montan en `_init` y no en `_ready` para que existan aunque se
+## empiece una selección con el panel todavía fuera del árbol: solo guardan las
+## señales y los callables, no tocan nodos.
+func _init() -> void:
+	_tile_flow = UISelectionFlow.new(
+		Events.tile_selection_made, Events.tile_selection_cancelled,
+		_on_tile_selected, _on_tile_selection_cancelled)
+	_card_flow = UISelectionFlow.new(
+		Events.card_selection_made, Events.card_selection_cancelled,
+		_on_card_selected, _on_card_selection_cancelled)
+
 
 func _ready() -> void:
 	if UIState:
@@ -111,13 +128,11 @@ func _start_tile_selection(choice:TurnEventChoice) -> void:
 
 	# Resaltar tiles elegibles y pedir selección
 	Events.request_tile_selection.emit(eligible)
-	Events.tile_selection_made.connect(_on_tile_selected, CONNECT_ONE_SHOT)
-	Events.tile_selection_cancelled.connect(_on_tile_selection_cancelled, CONNECT_ONE_SHOT)
+	_tile_flow.start()
 
 
 func _on_tile_selected(tile:Tile) -> void:
-	if Events.tile_selection_cancelled.is_connected(_on_tile_selection_cancelled):
-		Events.tile_selection_cancelled.disconnect(_on_tile_selection_cancelled)
+	_tile_flow.finish()
 
 	if _pending_tile_choice == null:
 		return
@@ -147,9 +162,7 @@ func _on_tile_selected(tile:Tile) -> void:
 
 
 func _on_tile_selection_cancelled() -> void:
-	if Events.tile_selection_made.is_connected(_on_tile_selected):
-		Events.tile_selection_made.disconnect(_on_tile_selected)
-
+	_tile_flow.finish()
 	_pending_tile_choice = null
 	visible = true
 
@@ -172,13 +185,11 @@ func _start_card_selection(choice:TurnEventChoice) -> void:
 	visible = false
 
 	Events.request_card_selection.emit(candidates)
-	Events.card_selection_made.connect(_on_card_selected, CONNECT_ONE_SHOT)
-	Events.card_selection_cancelled.connect(_on_card_selection_cancelled, CONNECT_ONE_SHOT)
+	_card_flow.start()
 
 
 func _on_card_selected(card:Card) -> void:
-	if Events.card_selection_cancelled.is_connected(_on_card_selection_cancelled):
-		Events.card_selection_cancelled.disconnect(_on_card_selection_cancelled)
+	_card_flow.finish()
 
 	if _pending_card_choice == null:
 		return
@@ -201,13 +212,19 @@ func _on_card_selected(card:Card) -> void:
 
 
 func _on_card_selection_cancelled() -> void:
-	if Events.card_selection_made.is_connected(_on_card_selected):
-		Events.card_selection_made.disconnect(_on_card_selected)
-
+	_card_flow.finish()
 	_pending_card_choice = null
 	visible = true
 
 
+## Patrón único de limpieza: todo lo que este panel enganchó se suelta aquí, no en
+## el handler del botón de cerrar. Así da igual por qué vía se libere el panel
+## (cerrar, resolver el evento, cambio de escena), incluso a mitad de una selección.
+## Este panel nunca se reparenta, así que salir del árbol equivale a cerrarse.
 func _exit_tree() -> void:
 	if UIState:
 		UIState.unregister_menu()
+	if _tile_flow:
+		_tile_flow.finish()
+	if _card_flow:
+		_card_flow.finish()

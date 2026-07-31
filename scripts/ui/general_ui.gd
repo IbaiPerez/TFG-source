@@ -127,8 +127,15 @@ func initialize_card_pile_ui() -> void:
 	tile_panel.stats = stats
 
 
+## Simétrico con `_set_rival_stats`, que sí soltaba las stats anteriores: sin la
+## desconexión, reasignar `stats` (la carga de partida vuelve a fijarlas sobre una
+## UI ya montada) dejaba enganchadas las viejas y duplicaba el refresco.
 func _set_stats(value:Stats) -> void:
+	if stats != null and stats.stats_changed.is_connected(_on_stats_changed):
+		stats.stats_changed.disconnect(_on_stats_changed)
 	stats = value
+	if stats == null:
+		return
 	stats.stats_changed.connect(_on_stats_changed)
 
 

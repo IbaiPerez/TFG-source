@@ -205,7 +205,6 @@ func _on_purge_tab_pressed() -> void:
 
 
 func _on_close_pressed() -> void:
-	stats.stats_changed.disconnect(_update_gold_display)
 	Events.shop_event_resolved.emit()
 	queue_free()
 
@@ -218,6 +217,12 @@ func _input(event:InputEvent) -> void:
 			_on_close_pressed()
 
 
+## Patrón único de limpieza: la desconexión estaba en `_on_close_pressed`, así que
+## solo ocurría al cerrar con el botón o con ESC. Cerrar por cualquier otra vía
+## dejaba la conexión, y como `_on_close_pressed` desconectaba sin guarda, una
+## segunda pulsación antes de que el `queue_free` se hiciera efectivo daba error.
 func _exit_tree() -> void:
 	if UIState:
 		UIState.unregister_menu()
+	if stats and stats.stats_changed.is_connected(_update_gold_display):
+		stats.stats_changed.disconnect(_update_gold_display)
