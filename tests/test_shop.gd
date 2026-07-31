@@ -7,21 +7,13 @@ extends GutTest
 # ============================================================
 
 func _make_stats(p_gold:int = 100, p_turn:int = 10) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = 15
-	s.food = 10
-	s.cards_per_turn = 3
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.deck = CardPile.new()
-	s.empire = Empire.new()
-	s.empire.controlled_tiles = []
+	var s := TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(15).with_food(10).with_cards_per_turn(3) \
+		.with_turn(p_turn).with_event_chance(1.0).build()
+	# Campos propios del escenario de tienda, que no estan en el builder porque
+	# solo los usa esta suite.
 	s.used_unique_events = []
 	s.available_events = []
-	s.event_chance = 1.0
-	s.turn_number = p_turn
 	s.total_purges_done = 0
 	s.unlocked_card_pool = []
 	s.shop_exclusive_pool = []

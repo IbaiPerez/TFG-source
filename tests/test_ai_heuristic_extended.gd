@@ -11,22 +11,9 @@ extends GutTest
 
 func _make_stats(p_gpt: int = 100, p_food: int = 10,
 		p_gold: int = 500) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = p_gpt
-	s.food = p_food
-	s.cards_per_turn = 3
-	s.turn_number = 10
-	s.deck = CardPile.new()
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = Empire.new()
-	s.empire.name = "TestAI"
-	s.empire.controlled_tiles = []
-	s.troop_pool = []
-	s.possible_buildings = []
-	return s
+	return TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(p_gpt).with_food(p_food) \
+		.with_cards_per_turn(3).with_turn(10).build()
 
 
 func _make_ctx(stats: Stats) -> AITurnContext:

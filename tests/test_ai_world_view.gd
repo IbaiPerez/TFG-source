@@ -26,20 +26,10 @@ func _make_empire(p_name: String = "TestEmpire") -> Empire:
 
 
 func _make_stats(p_gold: int = 100, p_empire: Empire = null) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = 5
-	s.food = 3
-	s.cards_per_turn = 2
-	s.deck = CardPile.new()
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = p_empire if p_empire != null else _make_empire()
-	s.possible_buildings = []
-	s.turn_number = 0
-	s.event_chance = 0.0
-	return s
+	return TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(5).with_food(3).with_cards_per_turn(2) \
+		.with_turn(0).with_empire(p_empire if p_empire != null else _make_empire()) \
+		.with_event_chance(0.0).build()
 
 
 ## Crea un EmpireController básico con stats asignadas y managers inicializados.

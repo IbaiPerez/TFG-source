@@ -47,20 +47,11 @@ func _make_tile(p_controller: Empire = null) -> Tile:
 
 
 func _make_stats(p_gold: int = 100) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = 0
-	s.food = 5
-	s.cards_per_turn = 3
-	s.deck = CardPile.new()
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = _make_empire()
-	s.possible_buildings = []
-	s.turn_number = 0
-	s.event_chance = 0.0  # apagar eventos en tests
-	return s
+	# event_chance a 0.0: estos tests no van de eventos y no quieren que se disparen.
+	return TestBuilders.stats() \
+		.with_gold(p_gold).with_gpt(0).with_food(5).with_cards_per_turn(3) \
+		.with_turn(0).with_empire(_make_empire()) \
+		.with_event_chance(0.0).build()
 
 
 ## Crea un AIController totalmente autónomo añadido al árbol con stats

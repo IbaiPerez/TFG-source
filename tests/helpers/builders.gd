@@ -55,6 +55,9 @@ class StatsB extends RefCounted:
 	var _tiles: Array = []
 	var _troops: Array = []
 	var _possible: Array = []
+	## Mismo default que `Stats.event_chance`, para que construir sin indicarlo dé
+	## exactamente lo que daba antes de existir este campo en el builder.
+	var _event_chance := 0.5
 
 	func with_gold(v: int) -> StatsB: _gold = v; return self
 	func with_gpt(v: int) -> StatsB: _gpt = v; return self
@@ -66,6 +69,9 @@ class StatsB extends RefCounted:
 	func with_tiles(tiles: Array) -> StatsB: _tiles = tiles; return self
 	func with_troop_pool(troops: Array) -> StatsB: _troops = troops; return self
 	func with_possible_buildings(buildings: Array) -> StatsB: _possible = buildings; return self
+	## Probabilidad de evento por turno. Los tests que no van de eventos la ponen a
+	## 0.0 para que no se disparen y ensucien el escenario.
+	func with_event_chance(v: float) -> StatsB: _event_chance = v; return self
 
 	func build() -> Stats:
 		var s := Stats.new()
@@ -74,6 +80,7 @@ class StatsB extends RefCounted:
 		s.food = _food
 		s.cards_per_turn = _cards_per_turn
 		s.turn_number = _turn
+		s.event_chance = _event_chance
 		s.deck = CardPile.new()
 		s.draw_pile = CardPile.new()
 		s.discard_pile = CardPile.new()
