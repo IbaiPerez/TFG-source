@@ -256,8 +256,10 @@ func test_generate_gold_effect():
 	effect.amount = 75
 	var stats := _make_stats(100)
 	effect.stats = stats
+	var oro_antes := stats.total_gold
 	effect.execute([])
-	assert_eq(stats.total_gold, 175)
+	TestAssertions.assert_gold_delta(self, stats, oro_antes, effect.amount,
+		"el efecto suma su amount")
 
 
 func test_generate_gold_effect_no_stats():
@@ -285,7 +287,9 @@ func test_build_effect_builds_on_tile():
 	effect.execute(targets)
 
 	assert_eq(tile.buildings.size(), 1)
-	assert_eq(stats.total_gold, 150)
+	TestAssertions.assert_gold_delta(self, stats, 200,
+		-building.get_effective_construction_cost(stats),
+		"el efecto de construir cobra el coste efectivo")
 
 
 func test_build_effect_no_building():

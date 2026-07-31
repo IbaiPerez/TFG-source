@@ -31,8 +31,10 @@ func test_generate_gold_card_adds_gold():
 	stats.discard_pile = CardPile.new()
 	stats.played_pile = CardPile.new()
 
+	var oro_antes := stats.total_gold
 	card.apply_effects([], stats)
-	assert_eq(stats.total_gold, 150, "Gold should increase by card amount")
+	TestAssertions.assert_gold_delta(self, stats, oro_antes, card.amount,
+		"la carta suma su amount")
 
 
 func test_generate_gold_card_tooltip_contains_amount():

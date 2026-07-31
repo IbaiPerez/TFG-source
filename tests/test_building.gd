@@ -173,8 +173,11 @@ func test_build_deducts_gold():
 	var tile := _make_tile()
 	var building := _make_building("Mine", 50)
 	var stats := _make_stats(200)
+	var oro_antes := stats.total_gold
 	tile.build(building, stats)
-	assert_eq(stats.total_gold, 150)
+	TestAssertions.assert_gold_delta(self, stats, oro_antes,
+		-building.get_effective_construction_cost(stats),
+		"construir descuenta el coste EFECTIVO")
 
 
 func test_build_does_nothing_if_cannot_build():
@@ -258,8 +261,12 @@ func test_upgrade_deducts_new_building_cost():
 	var tile := _make_tile()
 	tile.buildings.append(old_b)
 	var stats := _make_stats(200)
+	var oro_antes := stats.total_gold
 	tile.upgrade(old_b, new_b, stats)
-	assert_eq(stats.total_gold, 120)
+	# Se cobra el coste del edificio NUEVO, no el del viejo ni la diferencia.
+	TestAssertions.assert_gold_delta(self, stats, oro_antes,
+		-new_b.get_effective_construction_cost(stats),
+		"mejorar cobra el coste del edificio nuevo")
 
 
 # --- Tile.demolish ---

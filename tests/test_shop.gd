@@ -120,8 +120,12 @@ func test_item_cannot_afford():
 func test_item_purchase_deducts_gold():
 	var stats := _make_stats(100)
 	var item := _make_shop_item(null, 35)
+	var oro_antes := stats.total_gold
 	item.purchase(stats)
-	assert_eq(stats.total_gold, 65)
+	# Se afirma la RELACIÓN, no el 65 ya calculado: así el test sigue diciendo qué
+	# regla comprueba aunque cambien el oro inicial o el precio.
+	TestAssertions.assert_gold_delta(self, stats, oro_antes, -item.price,
+		"comprar descuenta el precio")
 
 
 func test_item_purchase_adds_card_to_discard():
