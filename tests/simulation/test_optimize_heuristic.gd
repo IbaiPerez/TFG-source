@@ -103,7 +103,7 @@ func _finish(tag: String, champ: HeuristicWeights, trace: Array, smoke: bool) ->
 
 	var payload := {
 		"tag": tag,
-		"keys": Array(HeuristicWeights.OPTIMIZABLE_KEYS),
+		"keys": Array(HeuristicWeightsSpec.OPTIMIZABLE_KEYS),
 		"champion_weights": _weights_dict(champ),
 		"validation_winrate": val_wr,
 		"validation_games": val_fit.n_games,
@@ -130,7 +130,7 @@ func _finish(tag: String, champ: HeuristicWeights, trace: Array, smoke: bool) ->
 ## Serializa solo las claves optimizadas del candidato (para el JSON).
 func _weights_dict(w: HeuristicWeights) -> Dictionary:
 	var out := {}
-	for k in HeuristicWeights.OPTIMIZABLE_KEYS:
+	for k in HeuristicWeightsSpec.OPTIMIZABLE_KEYS:
 		out[k] = w.get(k)
 	return out
 

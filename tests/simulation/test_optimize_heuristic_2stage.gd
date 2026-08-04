@@ -117,7 +117,7 @@ func test_two_stage() -> void:
 		champion_wr, ProjectSettings.globalize_path(tres_path)])
 
 	var payload := {
-		"keys": Array(HeuristicWeights.OPTIMIZABLE_KEYS),
+		"keys": Array(HeuristicWeightsSpec.OPTIMIZABLE_KEYS),
 		"search_seed": SEARCH_SEED,
 		"validate_seed": VALIDATE_SEED,
 		"stage1_games": fit1.n_games,
@@ -155,7 +155,7 @@ func _summarize_per_opponent(per: Array) -> Array:
 
 func _weights_dict(w: HeuristicWeights) -> Dictionary:
 	var out := {}
-	for k in HeuristicWeights.OPTIMIZABLE_KEYS:
+	for k in HeuristicWeightsSpec.OPTIMIZABLE_KEYS:
 		out[k] = w.get(k)
 	return out
 

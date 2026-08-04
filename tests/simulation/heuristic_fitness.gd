@@ -64,7 +64,7 @@ func evaluate_detailed(candidate: HeuristicWeights, seed_val: int = -1, games: i
 	var s := seed_val if seed_val >= 0 else seed_master
 	var g := games if games > 0 else n_games
 
-	var key := "%d|%d|%s" % [s, g, str(candidate.to_vector(HeuristicWeights.OPTIMIZABLE_KEYS))]
+	var key := "%d|%d|%s" % [s, g, str(HeuristicWeightsSpec.to_vector(candidate, HeuristicWeightsSpec.OPTIMIZABLE_KEYS))]
 	if _cache.has(key):
 		cache_hits += 1
 		return _cache[key]

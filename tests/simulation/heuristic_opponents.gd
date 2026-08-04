@@ -96,8 +96,8 @@ static func militarist() -> HeuristicWeights:
 ## los que se entrenó/validó el campeón), para medir generalización.
 static func random_heuristic(rng: RandomNumberGenerator, spread: float = 0.5) -> HeuristicWeights:
 	var w := HeuristicWeights.new()
-	for k in HeuristicWeights.OPTIMIZABLE_KEYS:
-		var b := HeuristicWeights.get_bounds(k)
+	for k in HeuristicWeightsSpec.OPTIMIZABLE_KEYS:
+		var b := HeuristicWeightsSpec.get_bounds(k)
 		var factor := rng.randf_range(1.0 - spread, 1.0 + spread)
 		w.set(k, clampf(float(w.get(k)) * factor, b.x, b.y))
 	return w

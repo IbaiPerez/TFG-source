@@ -2,7 +2,7 @@ extends RefCounted
 class_name SearchSpace
 
 ## Espacio de búsqueda de pesos para los optimizadores (SA/GA). Encapsula el
-## conjunto de claves a optimizar, sus límites (HeuristicWeights.get_bounds) y las
+## conjunto de claves a optimizar, sus límites (HeuristicWeightsSpec.get_bounds) y las
 ## operaciones sobre el vector: conversión ↔ HeuristicWeights y perturbaciones con
 ## clamp. Antes SA y GA reimplementaban cada uno estas primitivas.
 ##
@@ -16,7 +16,7 @@ var rng: RandomNumberGenerator
 
 func _init(p_keys: PackedStringArray = PackedStringArray(),
 		p_rng: RandomNumberGenerator = null) -> void:
-	keys = p_keys if not p_keys.is_empty() else HeuristicWeights.OPTIMIZABLE_KEYS
+	keys = p_keys if not p_keys.is_empty() else HeuristicWeightsSpec.OPTIMIZABLE_KEYS
 	rng = p_rng if p_rng != null else RandomNumberGenerator.new()
 
 
@@ -25,12 +25,12 @@ func dim() -> int:
 
 
 func bounds(i: int) -> Vector2:
-	return HeuristicWeights.get_bounds(keys[i])
+	return HeuristicWeightsSpec.get_bounds(keys[i])
 
 
 ## Vector de los pesos `w` en las claves del espacio.
 func vector_of(w: HeuristicWeights) -> PackedFloat64Array:
-	return w.to_vector(keys)
+	return HeuristicWeightsSpec.to_vector(w, keys)
 
 
 ## Copia de `base` con el vector `v` aplicado en las claves del espacio. Los campos
@@ -38,7 +38,7 @@ func vector_of(w: HeuristicWeights) -> PackedFloat64Array:
 ## encadenar etapas de optimización partiendo de un campeón previo.
 func apply(base: HeuristicWeights, v: PackedFloat64Array) -> HeuristicWeights:
 	var w := base.clone()
-	w.apply_vector(v, keys)
+	HeuristicWeightsSpec.apply_vector(w, v, keys)
 	return w
 
 

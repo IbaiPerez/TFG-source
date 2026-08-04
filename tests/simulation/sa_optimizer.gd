@@ -4,7 +4,7 @@ class_name SAOptimizer
 ## Simulated Annealing sobre el vector de pesos de la heurística.
 ##
 ## Maximiza el win-rate (HeuristicFitness) explorando el espacio de búsqueda
-## definido por HeuristicWeights.OPTIMIZABLE_KEYS (o una lista de claves
+## definido por HeuristicWeightsSpec.OPTIMIZABLE_KEYS (o una lista de claves
 ## personalizada). El vecino perturba unas pocas dimensiones con ruido
 ## Gaussiano proporcional al rango de cada parámetro; la aceptación sigue el
 ## criterio de Metropolis con enfriamiento geométrico.
@@ -43,7 +43,7 @@ func _init(p_fitness: HeuristicFitness, p_seed: int = 12345) -> void:
 ## (default: pesos por defecto).
 func run(start: HeuristicWeights = null) -> HeuristicWeights:
 	if keys.is_empty():
-		keys = HeuristicWeights.OPTIMIZABLE_KEYS
+		keys = HeuristicWeightsSpec.OPTIMIZABLE_KEYS
 	space = SearchSpace.new(keys, rng)
 	var cur := start.clone() if start != null else HeuristicWeights.new()
 	var cur_fit := await fitness.evaluate(cur)

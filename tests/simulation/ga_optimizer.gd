@@ -4,7 +4,7 @@ class_name GAOptimizer
 ## Algoritmo genético sobre el vector de pesos de la heurística.
 ##
 ## Maximiza el win-rate (HeuristicFitness). Individuos = vectores sobre
-## HeuristicWeights.OPTIMIZABLE_KEYS (o claves personalizadas). Selección por
+## HeuristicWeightsSpec.OPTIMIZABLE_KEYS (o claves personalizadas). Selección por
 ## torneo, cruce BLX-α, mutación Gaussiana por gen y elitismo. La población se
 ## siembra con el default exacto (ancla baseline) más variantes perturbadas.
 ##
@@ -45,7 +45,7 @@ func _init(p_fitness: HeuristicFitness, p_seed: int = 999) -> void:
 ## población inicial (default: pesos por defecto).
 func run(seed_weights: HeuristicWeights = null) -> HeuristicWeights:
 	if keys.is_empty():
-		keys = HeuristicWeights.OPTIMIZABLE_KEYS
+		keys = HeuristicWeightsSpec.OPTIMIZABLE_KEYS
 	space = SearchSpace.new(keys, rng)
 	_base = seed_weights.clone() if seed_weights != null else HeuristicWeights.new()
 	var base_vec := space.vector_of(_base)
