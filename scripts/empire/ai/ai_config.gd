@@ -3,12 +3,12 @@ class_name AIConfig
 
 ## Configuración del algoritmo de decisión de la IA.
 ##
-## Permite elegir entre heurística pura (Fase B) y MCTS (Fase C),
+## Permite elegir entre heurística pura y MCTS,
 ## y dentro de MCTS si los rollouts usan la heurística o son aleatorios.
 ## Exportable como .tres → permite perfiles de dificultad y benchmarks.
 
 enum Mode {
-	HEURISTIC,  ## Solo heurística de Fase B: rápida, determinista, ~41µs/opción.
+	HEURISTIC,  ## Solo heurística: rápida, determinista, ~41µs/opción.
 	MCTS,       ## Monte Carlo Tree Search con política de rollout configurable.
 	RANDOM,     ## Política aleatoria (elige una opción legal al azar, incluido PASS).
 	            ## Rival de referencia débil para el fitness del optimizador de pesos.
@@ -24,7 +24,7 @@ enum Mode {
 @export var heuristic_weights: HeuristicWeights = null
 
 ## Solo relevante si mode == MCTS.
-## Controla si la heurística (Fase B) guía la búsqueda en tres puntos:
+## Controla si la heurística guía la búsqueda en tres puntos:
 ##   true  → prior PUCT P = score_option normalizado, rival en ▽ usa score_option,
 ##            rollouts usan score_option como política. Más fuerte, más lento.
 ##   false → prior P uniforme (1/K), rival en ▽ y rollouts aleatorios.
@@ -62,7 +62,7 @@ enum Mode {
 @export var mcts_exploration_c: float = 1.0
 
 ## Action pruning: número máximo de acciones distintas que se expanden desde
-## la raíz, ordenadas por score heurístico (Fase B). Como las acciones ya se
-## abstraen por carta (no por target), el branching real suele ser ≤ tamaño de
-## mano; K actúa como tope de seguridad. Ver PLAN_IA_COMPLETO §2.1.
+## la raíz, ordenadas por score heurístico. Como las acciones ya se abstraen por
+## carta (no por target), el branching real suele ser ≤ tamaño de mano; K actúa
+## como tope de seguridad.
 @export var mcts_action_pruning_k: int = 12

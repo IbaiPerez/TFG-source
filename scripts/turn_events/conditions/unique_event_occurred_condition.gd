@@ -3,7 +3,7 @@ class_name UniqueEventOccurredCondition
 
 ## Comprueba si un evento unico ya ha ocurrido en la partida.
 ## Util para desbloquear eventos que dependen de que otro haya pasado primero.
-## Lee EventContext (C6 §1.6.2), no `stats`, para valer tambien sobre el snapshot.
+## Lee EventContext, no `stats`, para valer tambien sobre el snapshot.
 
 var event_id:String
 

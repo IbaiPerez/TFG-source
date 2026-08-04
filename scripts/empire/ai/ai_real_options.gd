@@ -2,9 +2,10 @@ extends RefCounted
 class_name AIRealOptions
 
 ## Enumeración y aplicación de jugadas (carta + TARGET) sobre AIRealState para la
-## búsqueda MCTS v2. Espejo, sobre el snapshot, de
-## AIOptionsBuilder: produce un Move por colocación concreta (qué carta, dónde),
-## que es justo lo que el árbol ramifica (la fuerza del MCTS es decidir DÓNDE).
+## búsqueda MCTS. Comparte las reglas de legalidad con el mundo vivo (AILegality y
+## los métodos de la vista); lo propio de este módulo es TRADUCIR cada objetivo
+## legal a un Move por colocación concreta (qué carta, dónde), que es justo lo que
+## el árbol ramifica: la fuerza del MCTS está en decidir DÓNDE.
 ##
 ## Cada Move es aplicable con `apply()`, que delega en AIRealSimulator /
 ## AIRealEvents. No toca escena ni señales (datos puros).
@@ -65,7 +66,7 @@ static func enumerate(state: AIRealState, hand: Array[Card],
 	var emp := state.own if p_owner == AIRealState.OWNER_SELF else state.rival
 	if emp == null:
 		return moves
-	# Vista compartida para toda la enumeración (§1.4). Sin pesos (solo legalidad).
+	# Vista compartida para toda la enumeración. Sin pesos (solo legalidad).
 	var view := SnapshotStateView.new(state, p_owner)
 	_ensure_handlers()
 	for card in hand:
@@ -108,11 +109,11 @@ static func apply(state: AIRealState, move: Move, p_owner: int = AIRealState.OWN
 
 
 # ---------------------------------------------------------------------------
-# Constructores por tipo de carta (espejo de AIOptionsBuilder sobre el snapshot)
+# Constructores por tipo de carta: objetivo legal → Move
 # ---------------------------------------------------------------------------
 
 static func _add_colonize(moves: Array, view: SnapshotStateView, card: ColonizeCard) -> void:
-	# Legalidad unificada (§1.4): view.colonizable_tiles() (recorrido propio→vecinos libres).
+	# Legalidad unificada: view.colonizable_tiles() (recorrido propio→vecinos libres).
 	for tsnap in view.colonizable_tiles():
 		var m := Move.new()
 		m.kind = &"COLONIZE"
@@ -121,7 +122,7 @@ static func _add_colonize(moves: Array, view: SnapshotStateView, card: ColonizeC
 		moves.append(m)
 
 
-## BUILD: legalidad unificada (§1.4). La fuente de edificios del snapshot es
+## BUILD: legalidad unificada. La fuente de edificios del snapshot es
 ## view.possible_buildings() (refleja unlocks; divergencia con card.buildings del vivo).
 static func _add_build(moves: Array, view: SnapshotStateView, card: BuildCard) -> void:
 	for t in AILegality.build_targets(view, view.possible_buildings()):
@@ -164,7 +165,7 @@ static func _add_change_location(moves: Array, view: SnapshotStateView,
 		card: ChangeLocationTypeCard) -> void:
 	if card.location_type == null:
 		return
-	# Legalidad unificada (§1.4): AILegality.change_location_targets.
+	# Legalidad unificada: AILegality.change_location_targets.
 	for tsnap in AILegality.change_location_targets(view, card.location_type):
 		var m := Move.new()
 		m.kind = &"CHANGE_LOCATION"
@@ -193,7 +194,7 @@ static func _add_card_draw(moves: Array, _view: SnapshotStateView,
 
 
 static func _add_recruit(moves: Array, view: SnapshotStateView, card: RecruitCard) -> void:
-	# Legalidad unificada (§1.4): AILegality.recruit_targets sobre la vista del snapshot.
+	# Legalidad unificada: AILegality.recruit_targets sobre la vista del snapshot.
 	for t in AILegality.recruit_targets(view, card):
 		var m := Move.new()
 		m.kind = &"RECRUIT"
@@ -204,7 +205,7 @@ static func _add_recruit(moves: Array, view: SnapshotStateView, card: RecruitCar
 
 
 static func _add_open_front(moves: Array, view: SnapshotStateView, card: OpenFrontCard) -> void:
-	# Legalidad unificada (§1.4): view.open_front_pairs (recorrido propia→enemiga).
+	# Legalidad unificada: view.open_front_pairs (recorrido propia→enemiga).
 	for pair in view.open_front_pairs(card):
 		var m := Move.new()
 		m.kind = &"OPEN_FRONT"
@@ -215,7 +216,7 @@ static func _add_open_front(moves: Array, view: SnapshotStateView, card: OpenFro
 
 
 static func _add_tactic(moves: Array, view: SnapshotStateView, card: TacticCard) -> void:
-	# Legalidad unificada (§1.4): view.tactic_targets() (índices de frentes elegibles).
+	# Legalidad unificada: view.tactic_targets() (índices de frentes elegibles).
 	for idx in view.tactic_targets():
 		var m := Move.new()
 		m.kind = &"TACTIC"

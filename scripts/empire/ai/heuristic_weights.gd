@@ -184,7 +184,7 @@ class_name HeuristicWeights
 ## Espeja `GameBalance.FRONT_SURCHARGE_PER_TROOP` (la regla real), pero se mantiene
 ## como peso aparte a propósito: es la ESTIMACIÓN que usa la IA para decidir, y
 ## puede ajustarse (por .tres o por el optimizador) sin tocar la regla del juego.
-## Si el balance real cambia, revisar si este default debe seguirlo (§2.1).
+## Si el balance real cambia, revisar si este default debe seguirlo.
 @export var recruit_front_charge_per_troop: float = 5.0
 @export var recruit_front_food_margin: float = 5.0   ## comida mínima tras el recargo
 @export var recruit_atkdef_weight: float = 3.0
@@ -304,9 +304,9 @@ class_name HeuristicWeights
 @export var choice_megalopolis: float = 28.0
 @export var choice_unknown: float = 3.0
 @export var choice_cost_penalty: float = 2.0
-## Ramas que SOLO puntuaba el espejo del snapshot; al unificar score_choice (C6
-## §1.6.3) pasan a ser pesos y valen también en el mundo vivo, que antes las
-## trataba como "efecto desconocido". Defaults = los literales del espejo.
+## Ramas que SOLO puntuaba el snapshot; al unificar score_choice pasaron a ser
+## pesos y valen también en el mundo vivo, que antes las trataba como "efecto
+## desconocido".
 @export var choice_unlock: float = 10.0      ## AddToCardPool / UnlockBuilding: amplían el espacio de acciones
 @export var choice_colonize: float = 15.0    ## ColonizeAdjacent: casilla gratis
 @export var choice_modifier: float = 5.0     ## ApplyModifier / Scaled*Modifier
@@ -381,7 +381,7 @@ static var _default: HeuristicWeights = null
 ## Instancia por defecto COMPARTIDA (todos los campos en su valor original).
 ## Se usa como fallback cuando no hay pesos asignados en el contexto.
 ##
-## CONTRATO (refactor C7 §1.10) — **es de SOLO LECTURA**. Se devuelve la misma
+## CONTRATO — **es de SOLO LECTURA**. Se devuelve la misma
 ## instancia a todo el proceso, a propósito: `get_default()` se llama en caminos
 ## calientes (AIRealEval, AIRealEvalStrong, AIRealMCTS) y duplicar ahí sería caro.
 ## A cambio, mutar un campo del resultado corrompería TODAS las partidas del
@@ -446,7 +446,7 @@ const SPEC := {
 	"colonize_expansion": {"opt": true}, "colonize_denial": {"opt": true},
 	"changeloc_resource_bonus": {"opt": true}, "changeloc_slot": {"opt": true},
 	"changeloc_consumption": {"opt": true},
-	# Choice de eventos (C6 §1.6.3: literales del espejo promovidos a pesos)
+	# Choice de eventos
 	"choice_unlock": {"opt": true}, "choice_colonize": {"opt": true},
 	"choice_modifier": {"opt": true},
 	# Efectos de edificio

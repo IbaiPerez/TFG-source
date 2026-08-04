@@ -8,7 +8,7 @@ const MEGALOPOLIS_TYPE = preload("res://resources/location_type/megalopolis.tres
 
 var min_buildings: int = 3
 
-## Puerto de mutación (C6 §1.6.1). null → LiveWorldMutator (emite por Events, en vivo).
+## Puerto de mutación. null → LiveWorldMutator (emite por Events, en vivo).
 var world_mutator: WorldMutator = null
 
 

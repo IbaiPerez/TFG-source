@@ -2,7 +2,7 @@ extends TurnEventCondition
 class_name HasBuildingCondition
 
 ## Comprueba si alguna casilla controlada tiene un edificio con el nombre dado.
-## Lee los agregados de EventContext (C6 §1.6.2).
+## Lee los agregados de EventContext.
 
 var building_name:String
 

@@ -21,7 +21,7 @@ var stats:Stats
 ## Si stats.category_weights es null se usa un peso uniforme (1.0) para
 ## todas las categorías como fallback de seguridad.
 func evaluate(context:EventContext) -> TurnEvent:
-	# Fase A: probabilidad global de que ocurra un evento.
+	# Paso 1: probabilidad global de que ocurra un evento.
 	# Si stats.category_weights está configurado, usa su curva
 	# (event_chance_curve) o su fallback. Si no, cae al legacy
 	# stats.event_chance para compatibilidad.
@@ -34,7 +34,7 @@ func evaluate(context:EventContext) -> TurnEvent:
 	if by_category.is_empty():
 		return null
 
-	# Fase B: prioridad CORE_PROGRESSION
+	# Paso 2: prioridad CORE_PROGRESSION
 	var picked:TurnEvent = null
 	if by_category.has(EventCategory.Type.CORE_PROGRESSION):
 		var priority_chance:float = _get_core_priority_chance()
@@ -43,7 +43,7 @@ func evaluate(context:EventContext) -> TurnEvent:
 				by_category[EventCategory.Type.CORE_PROGRESSION]
 			)
 
-	# Fase C: si no se ha priorizado CORE, pickeo por categoría
+	# Paso 3: si no se ha priorizado CORE, pickeo por categoría
 	if picked == null:
 		var category:int = _pick_category(by_category, context.turn_number)
 		if category < 0:

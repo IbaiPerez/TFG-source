@@ -7,7 +7,7 @@ class_name ColonizeAdjacentEffect
 
 var preferred_biome:int = -1
 
-## Puerto de mutación (C6 §1.6.1). null → LiveWorldMutator (emite por Events, en vivo).
+## Puerto de mutación. null → LiveWorldMutator (emite por Events, en vivo).
 ## El snapshot inyectará un SnapshotWorldMutator para reusar este efecto sin el bus.
 var world_mutator: WorldMutator = null
 

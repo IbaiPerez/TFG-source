@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIHeuristic
 
-## Evaluador heurístico de AIPlayOption para el AIController (Fase B).
+## Evaluador heurístico de AIPlayOption para el AIController.
 ##
 ## Arquitectura de dos capas:
 ##   1. Señales de urgencia (gold/food/military/deck) dependientes de la fase:
@@ -294,7 +294,7 @@ static func _expansion_factor(ctx: AITurnContext) -> float:
 ## para acelerar el ciclo de las más valiosas.
 ## Es public porque lo usa también AIEventResolver.
 static func dynamic_purge_threshold(ctx: AITurnContext) -> float:
-	# Política compartida con el snapshot (C6 §1.6.4).
+	# Política compartida con el snapshot.
 	return AIShopPolicy.purge_threshold(LiveStateView.new(ctx))
 
 
@@ -401,7 +401,7 @@ static func _score_unlocked_buildings(tile: Tile, old_loc: LocationType,
 
 static func _score_build(option: AIBuildOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
-	# Portado al scorer compartido (§1.3.g). El tie-breaker por casilla se omite si
+	# Portado al scorer compartido. El tie-breaker por casilla se omite si
 	# no hay target (tile null).
 	if option.building == null:
 		return 0.0
@@ -411,7 +411,7 @@ static func _score_build(option: AIBuildOption, ctx: AITurnContext,
 
 static func _score_upgrade(option: AIUpgradeBuildingOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
-	# Portado al scorer compartido (§1.3.g).
+	# Portado al scorer compartido.
 	if option.old_building == null or option.new_building == null:
 		return 0.0
 	return AIMoveScorer.score_upgrade(
@@ -420,7 +420,7 @@ static func _score_upgrade(option: AIUpgradeBuildingOption, ctx: AITurnContext,
 
 static func _score_recruit(option: AIRecruitOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
-	# Portado al scorer compartido (§1.3.g).
+	# Portado al scorer compartido.
 	if option.troop == null:
 		return 0.0
 	return AIMoveScorer.score_recruit(LiveStateView.new(ctx), option.troop)
@@ -459,7 +459,7 @@ static func _complement_bonus(troop: Troop, pool: Array[Troop],
 
 static func _score_open_front(option: AIOpenFrontOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
-	# Portado al scorer compartido (§1.3.g). El veto por 0 tropas libres vive dentro
+	# Portado al scorer compartido. El veto por 0 tropas libres vive dentro
 	# del scorer; la ganabilidad/valor-origen (con sus divergencias) los resuelve la vista.
 	if option.enemy_tile == null:
 		return 0.0
@@ -469,7 +469,7 @@ static func _score_open_front(option: AIOpenFrontOption, ctx: AITurnContext,
 
 static func _score_tactic(option: AITacticOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
-	# Portado al scorer compartido (§1.3.g). El wrapper descompone el BattleFront de
+	# Portado al scorer compartido. El wrapper descompone el BattleFront de
 	# la opción (tropas propias, marcador, umbral, casilla relevante: ATK mira la tile
 	# enemiga, DEF la propia).
 	if option.front == null:
@@ -528,7 +528,7 @@ static func _score_simple(option: AIPlayOption, ctx: AITurnContext,
 ## del recurso natural. Por eso usamos tile.food_production directamente.
 static func _score_colonize(option: AIPlayOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
-	# Portado al scorer compartido (§1.3.g). El wrapper conserva los guardas
+	# Portado al scorer compartido. El wrapper conserva los guardas
 	# (hay target y es Tile) y construye la vista viva; la fase la calcula la vista.
 	if option.targets.is_empty():
 		return 0.0
@@ -584,7 +584,7 @@ static func _encirclement_pressure(ctx: AITurnContext) -> float:
 ## El delta real de food_consumption se lee de los recursos, no está hardcodeado.
 static func _score_change_location(option: AIPlayOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
-	# Portado al scorer compartido (§1.3.g). La fórmula COMPLETA (penalización por
+	# Portado al scorer compartido. La fórmula COMPLETA (penalización por
 	# demolición + bonus de recurso mejorado que sobrevive + bonus de desbloqueo) vive
 	# en LiveStateView.change_location_adjust.
 	if option.targets.is_empty():
@@ -598,7 +598,7 @@ static func _score_change_location(option: AIPlayOption, ctx: AITurnContext,
 
 static func _score_direct_build(option: AIPlayOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
-	# Portado al scorer compartido (§1.3.g): mismo scorer que BUILD, sin casilla
+	# Portado al scorer compartido: mismo scorer que BUILD, sin casilla
 	# concreta (tile null → sin tie-breaker), igual que el cuerpo original.
 	var card := option.card as DirectBuildCard
 	if card == null or card.buildings.is_empty() or card.buildings[0] == null:
@@ -614,7 +614,7 @@ static func _score_direct_build(option: AIPlayOption, ctx: AITurnContext,
 ## Usado para decidir qué comprar en tienda, qué purgar y qué eliminar
 ## cuando un evento pide eliminar una carta.
 static func score_card_for_deck(card: Card, ctx: AITurnContext) -> float:
-	# Fórmula unificada contra el puerto (C6 §1.6.5): AIDeckScorer la escribe una vez;
+	# Fórmula unificada contra el puerto: AIDeckScorer la escribe una vez;
 	# LiveStateView reproduce exactamente los helpers vivos (urgencias cacheadas de la
 	# decisión, conteos de tiles) → byte-idéntico a la versión inline anterior.
 	return AIDeckScorer.score_card_for_deck(LiveStateView.new(ctx), card)
@@ -632,7 +632,7 @@ static func score_card_for_deck(card: Card, ctx: AITurnContext) -> float:
 ## peor sin protección (fallback normal).
 static func pick_card_to_remove(candidates: Array[Card],
 		ctx: AITurnContext) -> Card:
-	# Política compartida con el snapshot (C6 §1.6.4).
+	# Política compartida con el snapshot.
 	return AIShopPolicy.pick_weakest(LiveStateView.new(ctx), candidates)
 
 
@@ -642,7 +642,7 @@ static func pick_card_to_remove(candidates: Array[Card],
 ## que la IA elegirá la carta más prescindible (pick_card_to_remove), así
 ## que la elección es beneficiosa.
 static func score_choice(choice: TurnEventChoice, ctx: AITurnContext) -> float:
-	# Fórmula unificada contra el puerto (C6 §1.6.3). Ahora distingue efectos que
+	# Fórmula unificada contra el puerto. Ahora distingue efectos que
 	# antes caían en "desconocido": escalados, colonización y desbloqueos.
 	return AIChoiceScorer.score_choice(LiveStateView.new(ctx), choice)
 
@@ -653,7 +653,7 @@ static func score_choice(choice: TurnEventChoice, ctx: AITurnContext) -> float:
 static func should_buy_shop_item(item: ShopItem, ctx: AITurnContext) -> bool:
 	if item == null or item.card == null:
 		return false
-	# Política compartida con el snapshot (C6 §1.6.4).
+	# Política compartida con el snapshot.
 	return AIShopPolicy.should_buy(LiveStateView.new(ctx), item.card)
 
 

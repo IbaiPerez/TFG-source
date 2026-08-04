@@ -8,13 +8,12 @@ class_name AIRealEvents
 ## pesos por categoría + prioridad CORE), evaluación de condiciones, selección de
 ## choice y aplicación de efectos + costes.
 ##
-## Tras el refactor C6 ya casi nada es un espejo:
-##   · CONDICIONES (§1.6.2): se evalúan las clases REALES sobre un EventContext
-##     construido con `EventContext.from_snapshot`. Antes había un `if cond is X`
-##     de 66 líneas que las reimplementaba una a una.
-##   · CHOICE (§1.6.3) y TIENDA (§1.6.4): AIChoiceScorer / AIShopPolicy, compartidos
-##     con el mundo vivo a través del puerto AIStateView.
-##   · VALOR DE CARTA (§1.6.5): AIDeckScorer, también compartido.
+## Casi nada aquí está escrito dos veces:
+##   · CONDICIONES: se evalúan las clases REALES sobre un EventContext construido
+##     con `EventContext.from_snapshot`.
+##   · CHOICE y TIENDA: AIChoiceScorer / AIShopPolicy, compartidos con el mundo
+##     vivo a través del puerto AIStateView.
+##   · VALOR DE CARTA: AIDeckScorer, también compartido.
 ## Lo que SIGUE siendo propio del snapshot es la APLICACIÓN de efectos de casilla
 ## (`_apply_colonize_adjacent`, `_apply_urbanize_megalopolis`): los efectos reales
 ## mutan vía el bus `Events`, que en vivo dispararía el TilesTracker y corrompería
@@ -26,7 +25,7 @@ class_name AIRealEvents
 ##
 ## Es un CHANCE NODE: muestrea su propia tirada por iteración (rng inyectado);
 ## promediar sobre iteraciones integra la estocasticidad (paridad distribucional,
-## no exacta — PLAN §3.6).
+## no exacta).
 
 
 const MEGALOPOLIS: LocationType = preload("res://resources/location_type/megalopolis.tres")
@@ -35,7 +34,7 @@ const MEGALOPOLIS: LocationType = preload("res://resources/location_type/megalop
 ## Punto de entrada: evalúa y resuelve (si dispara) el evento de fin de turno de
 ## `p_owner` sobre el snapshot. Devuelve el TurnEvent disparado o null.
 ## Espejo de TurnEventManager.evaluate + AIEventResolver.resolve.
-## `w` (C6 §1.6.5b) alimenta el valorador de carta unificado que usa la tienda. Es
+## `w` alimenta el valorador de carta unificado que usa la tienda. Es
 ## opcional: sin pesos explícitos se usa el default cacheado, igual que el MCTS.
 static func process_turn_event(state: AIRealState, p_owner: int,
 		rng: RandomNumberGenerator, w: HeuristicWeights = null) -> TurnEvent:
@@ -43,7 +42,7 @@ static func process_turn_event(state: AIRealState, p_owner: int,
 	if emp == null or emp.available_events.is_empty():
 		return null
 
-	# Fase A: probabilidad global de evento.
+	# Paso 1: probabilidad global de evento.
 	if rng.randf() > _event_chance(emp, state.turn_number):
 		return null
 
@@ -53,13 +52,13 @@ static func process_turn_event(state: AIRealState, p_owner: int,
 	if by_category.is_empty():
 		return null
 
-	# Fase B: prioridad CORE_PROGRESSION.
+	# Paso 2: prioridad CORE_PROGRESSION.
 	var picked: TurnEvent = null
 	if by_category.has(EventCategory.Type.CORE_PROGRESSION):
 		if rng.randf() < _core_priority_chance(emp):
 			picked = _weighted_pick_event(by_category[EventCategory.Type.CORE_PROGRESSION], rng)
 
-	# Fase C: pickeo ponderado por categoría.
+	# Paso 3: pickeo ponderado por categoría.
 	if picked == null:
 		var category := _pick_category(by_category, state.turn_number, emp.category_weights, rng)
 		if category < 0:
@@ -144,7 +143,7 @@ static func _weighted_pick_event(events: Array, rng: RandomNumberGenerator) -> T
 
 
 # ============================================================
-#  Condiciones (se REUSAN las reales, C6 §1.6.2)
+#  Condiciones (se REUSAN las clases reales)
 # ============================================================
 
 ## True si TODAS las condiciones del evento se cumplen. Ya no hay espejo: las
@@ -188,7 +187,7 @@ static func _resolve_event(event: TurnEvent, state: AIRealState, p_owner: int,
 		return
 
 	# Elegir la de mayor valor (skip = 0). Vista construida UNA vez para todas las
-	# comparaciones (C6 §1.6.3: el scorer es el mismo que el del mundo vivo).
+	# comparaciones (el scorer es el mismo que el del mundo vivo).
 	var view := SnapshotStateView.new(state, p_owner,
 		w if w != null else HeuristicWeights.get_default())
 	var picked: TurnEventChoice = available[0]
@@ -260,7 +259,7 @@ static func _apply_cost(cost: TurnEventCost, emp: AIRealState.EmpireSnap,
 		_remove_most_expendable(cost.player_remove_filter, emp)
 
 
-## Tabla `Script → Callable` de aplicadores de efecto (§1.7), en lugar de la cadena
+## Tabla `Script → Callable` de aplicadores de efecto, en lugar de la cadena
 ## de `elif effect is X`. Se resuelve SUBIENDO por get_base_script(), así que una
 ## subclase nueva hereda el aplicador de su padre sin depender del orden de la
 ## cadena. Todos los handlers comparten firma (effect, state, p_owner, emp, rng).
@@ -498,7 +497,7 @@ static func _apply_urbanize_megalopolis(state: AIRealState, p_owner: int,
 			continue
 		if t.buildings.size() < min_buildings:
 			continue
-		# Fórmula compartida con el estado vivo (C6 §1.6.6): valor de los edificios
+		# Fórmula compartida con el estado vivo: valor de los edificios
 		# que sobreviven + recurso − los que se demolerán.
 		var tile_score := AIEventScoring.megalopolis_tile_value(
 			t.buildings, t.natural_resource)
@@ -516,11 +515,11 @@ static func _apply_urbanize_megalopolis(state: AIRealState, p_owner: int,
 ## Resuelve un ShopEvent sobre el snapshot: genera la oferta desde el pool de
 ## tienda (unlocked + exclusivas), compra los ítems que la heurística considera
 ## valiosos y purga las cartas más débiles. El efecto que importa es que `deck`
-## refleje las compras/purgas (PLAN §3.7); la decisión exacta es suelo heurístico.
+## refleje las compras/purgas; la decisión exacta es suelo heurístico.
 static func _resolve_shop(event: ShopEvent, state: AIRealState, p_owner: int,
 		emp: AIRealState.EmpireSnap, turn: int, rng: RandomNumberGenerator,
 		w: HeuristicWeights = null) -> void:
-	# Vista construida UNA vez para toda la resolución (C6 §1.6.5b): `emp` es una
+	# Vista construida UNA vez para toda la resolución: `emp` es una
 	# referencia, así que las compras/purgas que mutan el mazo se ven al instante.
 	var view := SnapshotStateView.new(state, p_owner,
 		w if w != null else HeuristicWeights.get_default())

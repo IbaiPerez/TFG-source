@@ -5,7 +5,7 @@ class_name AIEventResolver
 ## lógica que TurnEventPanel y ShopPanel aplican al jugador pero sin abrir
 ## ningún panel.
 ##
-## Versión 2 (Fase B): todas las decisiones que requieren criterio usan
+## Todas las decisiones que requieren criterio usan
 ## AIHeuristic en lugar de azar:
 ##  - TurnEvent: se puntúa cada choice y se elige la de mayor valor esperado.
 ##  - Eliminación de carta (card_input): se elimina la más prescindible
@@ -25,8 +25,8 @@ static func resolve(event: TurnEvent, context: EventContext,
 		return
 
 	# Contexto mínimo para la heurística: solo necesita stats. Sin
-	# battle_front_manager, ctx.get_front_registry() cae al registro GLOBAL
-	# (C7 §1.10), que es de donde leía este camino antes.
+	# battle_front_manager, ctx.get_front_registry() cae al registro GLOBAL,
+	# que es de donde leía este camino antes.
 	var hctx := AITurnContext.new()
 	hctx.stats = context.stats
 	# Propagar los pesos de la heurística del imperio (candidato del optimizador
@@ -145,7 +145,7 @@ static func _pick_best_megalopolis_tile(eligible: Array) -> Tile:
 		var tile := entry as Tile
 		if tile == null:
 			continue
-		# Fórmula compartida con el snapshot (C6 §1.6.6): valor de los edificios
+		# Fórmula compartida con el snapshot: valor de los edificios
 		# que sobreviven + recurso − los que se demolerán.
 		var tile_score := AIEventScoring.megalopolis_tile_value(
 			tile.buildings, tile.natural_resource)

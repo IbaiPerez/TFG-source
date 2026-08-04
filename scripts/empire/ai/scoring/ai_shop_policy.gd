@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIShopPolicy
 
-## Política de tienda (comprar / purgar), escrita UNA sola vez (refactor C6 §1.6.4)
+## Política de tienda (comprar / purgar), escrita UNA sola vez
 ## contra el puerto AIStateView. Antes vivía DUPLICADA:
 ##   - AIHeuristic.should_buy_shop_item / dynamic_purge_threshold / pick_card_to_remove
 ##     (mundo vivo, con pesos shop_thresh_* / purge_thresh_* / deck_*).

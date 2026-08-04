@@ -15,9 +15,9 @@ var stats: Stats                        ## Stats del controller
 var battle_front_manager: BattleFrontManager  ## BFM del controller
 var rng: RandomNumberGenerator          ## RNG con seed para determinismo
 var drawn_cards: Array[Card] = []       ## Cartas que la IA tiene "en mano" durante el turno
-var world_view: AIWorldView             ## Vista de información del turno (Fase A):
+var world_view: AIWorldView             ## Vista de información del turno:
                                         ## own_stats + vistas públicas de rivales.
-var deck_observer: AIDeckObserver       ## Observador de cartas del rival (Fase C).
+var deck_observer: AIDeckObserver       ## Observador de cartas del rival.
                                         ## null en tests unitarios sin rival real.
 var config: AIConfig                    ## Configuración del algoritmo (modo, iters MCTS…).
                                         ## null → comportamiento por defecto (heurística).
@@ -31,8 +31,8 @@ var colonizable_tiles_count: int = -1
 ## Usado por AIGamePhase.detect() para fases relativas al mapa (D5).
 var total_map_tiles: int = 0
 
-## Índice `Tile → id` (posición en WorldMap.map), construido UNA vez por turno
-## (refactor C7 §1.10). Antes cada consulta hacía `WorldMap.map.find(tile)`, O(n)
+## Índice `Tile → id` (posición en WorldMap.map), construido UNA vez por turno.
+## Antes cada consulta hacía `WorldMap.map.find(tile)`, O(n)
 ## sobre el global, dentro del bucle de priors de la raíz del MCTS → O(jugadas ×
 ## opciones × n) por decisión. Vacío = desconocido (tests): el llamante cae a -1.
 var tile_index: Dictionary = {}
@@ -46,7 +46,7 @@ func index_of_tile(tile: Tile) -> int:
 	return tile_index.get(tile, -1)
 
 
-## Registro de frentes que debe consultar la IA (C7 §1.10). Es el del propio
+## Registro de frentes que debe consultar la IA. Es el del propio
 ## BattleFrontManager del turno; si no hay manager (tests unitarios) cae al
 ## registro GLOBAL, que es lo que la IA leía antes directamente. Única puerta de
 ## acceso: el código de IA no debe llamar a los estáticos de BattleFront.

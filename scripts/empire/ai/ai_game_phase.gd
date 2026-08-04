@@ -23,7 +23,7 @@ static func detect(stats: Stats, total_map_tiles: int = 0) -> Phase:
 	return detect_from(stats.gold_per_turn, tiles, total_map_tiles)
 
 
-## Regla de fase, escrita UNA sola vez (§1.11) sobre primitivas. Antes estaba
+## Regla de fase, escrita UNA sola vez sobre primitivas. Antes estaba
 ## duplicada aquí y en AIRealEval.detect_phase con los mismos umbrales; solo
 ## difería en CÓMO obtiene cada mundo el gpt y el recuento de casillas (Stats vs
 ## AIRealState), así que el recorrido se queda en cada llamante y la regla se

@@ -70,7 +70,7 @@ var _calculated_casualties: Dictionary = {}
 var biome_config: BiomeConfig = BiomeConfig.new()
 
 
-## Registro en el que vive este frente (refactor C7 §1.10). Inyectable: `null` en el
+## Registro en el que vive este frente. Inyectable: `null` en el
 ## constructor significa "el registro global" (autoload BattleFrontRegistry), que es
 ## el comportamiento de siempre. Permite que un contexto aislado (una partida de
 ## simulación, un test) tenga su propio registro sin tocar el del resto.
@@ -115,7 +115,7 @@ static func clear_active_instances() -> void:
 ## bonuses de cartas tácticas no se ven afectados por el bioma base — tienen
 ## su propio modificador capturado al jugar la carta.
 ##
-## Los EDIFICIOS no suman ataque: ninguno tiene ese campo (§2.1). El sumando se
+## Los EDIFICIOS no suman ataque: ninguno tiene ese campo. El sumando se
 ## omite y `CombatMath.total_attack` lo deja en 0.0, que sigue siendo el punto de
 ## extensión si algún día existen edificios ofensivos.
 func get_total_attack(side: BattleFront.Side) -> float:
@@ -369,7 +369,7 @@ func _resolve() -> void:
 	var attacker_won := marker >= get_current_threshold()
 	# Calcular bajas una sola vez, antes de emitir la señal
 	_calculated_casualties = calculate_casualties()
-	_registry.unregister(self)   # el mismo registro en el que se dio de alta (C7 §1.10)
+	_registry.unregister(self)   # el mismo registro en el que se dio de alta
 	front_resolved.emit(self, attacker_won)
 
 

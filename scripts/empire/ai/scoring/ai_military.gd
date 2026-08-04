@@ -2,7 +2,7 @@ extends RefCounted
 class_name AIMilitary
 
 ## Bonos militares de la heurística (complementariedad de tropas y counter de matchup),
-## escritos UNA sola vez (refactor C4 §1.3.e). Antes vivían DUPLICADOS en AIHeuristic
+## escritos UNA sola vez. Antes vivían DUPLICADOS en AIHeuristic
 ## (estado vivo) y AIRealEvalStrong (snapshot). Son funciones PURAS: el pool es
 ## `Array[Troop]` en ambos mundos (Troop es una clase compartida), así que la
 ## complementariedad se comparte tal cual; el counter se parametriza por la lista de

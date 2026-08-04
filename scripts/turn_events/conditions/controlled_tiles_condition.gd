@@ -27,7 +27,7 @@ func _value(context: EventContext) -> int:
 	return matching
 
 
-## Lee los agregados de EventContext (C6 §1.6.2) en vez del nodo Tile, para que la
+## Lee los agregados de EventContext en vez del nodo Tile, para que la
 ## condición valga igual sobre el snapshot del MCTS.
 func _tile_matches(tf: EventContext.TileFacts) -> bool:
 	if required_resource != null and tf.natural_resource != required_resource:

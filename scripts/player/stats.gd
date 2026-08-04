@@ -2,7 +2,7 @@ extends Resource
 class_name Stats
 
 ## Estado completo de un imperio durante la partida. Es el nodo de datos central:
-## dependen de él ~40 ficheros, así que se documenta por GRUPOS de campos (§2.7) en
+## dependen de él ~40 ficheros, así que se documenta por GRUPOS de campos en
 ## vez de partirlo — separarlo en varias clases tendría mala relación coste/beneficio.
 ##
 ##   · Economía          total_gold, gold_per_turn, food (+ los initial_* del .tres).
@@ -161,7 +161,7 @@ func _sync_build_cards() -> void:
 
 ## Sincroniza buildings en una BuildCard suelta (antes de añadirla a una pila).
 ##
-## Punto ÚNICO de la regla (§2.7): qué cartas se sincronizan y con qué. Una
+## Punto ÚNICO de la regla: qué cartas se sincronizan y con qué. Una
 ## DirectBuildCard queda fuera a propósito — su edificio lo fija la carta, no el
 ## catálogo del imperio. `_sync_build_cards` delega aquí para que la condición no
 ## viva escrita dos veces.

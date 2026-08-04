@@ -116,7 +116,7 @@ func start_turn() -> void:
 ## awaits intercalados (action_delay, turn_end_delay). El TurnManager
 ## llama start_turn() sin await — esto está bien porque emitimos
 ## turn_finished al acabar.
-## Fases del turno (refactor §1.7). `_run_decision_loop` y `_end_turn` contienen
+## Fases del turno. `_run_decision_loop` y `_end_turn` contienen
 ## `await`, así que son corrutinas y DEBEN esperarse: llamarlas sin `await` las
 ## dejaría corriendo en paralelo y rompería el orden del turno.
 func _run_turn() -> void:
@@ -178,7 +178,7 @@ func _build_turn_context() -> AITurnContext:
 	var _adj_cond := AdjacentRule.new()
 	_adj_cond.empire = stats.empire
 	ctx.colonizable_tiles_count = _adj_cond.valid_targets().size()
-	# Índice Tile→id construido UNA vez por turno (C7 §1.10): sustituye los
+	# Índice Tile→id construido UNA vez por turno: sustituye los
 	# `WorldMap.map.find()` O(n) que se hacían por jugada al mapear las del MCTS.
 	# El constructor lo comparte AIRealState: los ids DEBEN coincidir con los del
 	# snapshot, porque las jugadas del MCTS se casan con las opciones por ese id.
@@ -316,7 +316,7 @@ func _pick_best_option(options: Array[AIPlayOption], ctx: AITurnContext) -> AIPl
 	return _pick_best_option_heuristic(options, ctx)
 
 
-## Decisión por MCTS v2 (Fase C v2 — SO-ISMCTS sobre estado real). Construye el
+## Decisión por MCTS (SO-ISMCTS sobre estado real). Construye el
 ## snapshot rico desde el contexto, busca con AIRealMCTS, y mapea la jugada
 ## elegida (snapshot) a la AIPlayOption real ejecutable. Devuelve:
 ##   - la AIPlayOption mapeada,
@@ -341,7 +341,7 @@ func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 	# indexamos por move_key para que la raíz del MCTS use la heurística fuerte
 	# como prior/poda, no la aproximación score_move.
 	# Frentes activos en el mismo orden que from_context (para casar TACTIC). Se
-	# calculan UNA vez por decisión, no por jugada (C7 §1.10).
+	# calculan UNA vez por decisión, no por jugada.
 	var active_fronts: Array = []
 	for f in ctx.get_front_registry().get_active_instances():
 		if f != null and not f.is_resolved:
@@ -392,8 +392,8 @@ func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 ## equivalente entre las opciones legales del turno, casando por carta + target
 ## (índice de tile en WorldMap.map, igual que AIRealState.from_context). Devuelve
 ## null si ninguna casa (el llamante cae a la heurística).
-## `active_fronts` y `ctx` los aporta el llamante para no recalcularlos por jugada
-## (C7 §1.10): antes cada llamada duplicaba el registro global de frentes y resolvía
+## `active_fronts` y `ctx` los aporta el llamante para no recalcularlos por jugada:
+## antes cada llamada duplicaba el registro global de frentes y resolvía
 ## cada tile con un find O(n) sobre WorldMap.map.
 func _map_move_to_option(m: AIRealOptions.Move,
 		options: Array[AIPlayOption], ctx: AITurnContext,
@@ -436,7 +436,7 @@ func _map_move_to_option(m: AIRealOptions.Move,
 
 
 
-## Decisión por heurística pura (Fase B). También es el fallback de MCTS.
+## Decisión por heurística pura. También es el fallback de MCTS.
 func _pick_best_option_heuristic(options: Array[AIPlayOption],
 		ctx: AITurnContext) -> AIPlayOption:
 	var best: AIPlayOption = null

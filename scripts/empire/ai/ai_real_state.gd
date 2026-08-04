@@ -251,7 +251,7 @@ var total_map_tiles: int = 0
 
 ## Construye el snapshot inicial desde el AITurnContext del turno real.
 ##
-## Barrera de información (PLAN §3.5): los datos del rival se leen SOLO de
+## Barrera de información: los datos del rival se leen SOLO de
 ## fuentes públicas — el mapa (WorldMap, observable) para tiles/edificios y la
 ## AIEmpirePublicView para oro/gpt/comida/hand_size. NUNCA se accede a
 ## rival.stats.draw_pile/discard_pile/hand: la mano del rival se determiniza
@@ -353,7 +353,7 @@ static func _snapshot_own_empire(s: AIRealState, ctx: AITurnContext, stats: Stat
 	s.turn_number = stats.turn_number
 
 
-## Rival: SOLO información pública (barrera de información, PLAN §3.5). Su mano se
+## Rival: SOLO información pública (barrera de información). Su mano se
 ## determiniza aparte en F3; aquí queda vacía a propósito.
 static func _snapshot_rival_public(s: AIRealState, rival_view: AIEmpirePublicView,
 		rival_empire: Empire) -> void:

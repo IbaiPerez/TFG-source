@@ -2,7 +2,7 @@ extends TurnEventCondition
 class_name TownWithBuildingsCondition
 
 ## Comprueba que exista al menos una Town con un minimo de edificios construidos.
-## Lee los agregados de EventContext (C6 §1.6.2).
+## Lee los agregados de EventContext.
 
 var min_buildings: int
 var op: Comparison.Type

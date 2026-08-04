@@ -5,7 +5,7 @@ class_name HasAdjacentUncontrolledCondition
 ## por el imperio. Filtro opcional por bioma.
 ## -1 = sin filtro de bioma.
 ##
-## Lee los agregados de EventContext (C6 §1.6.2): la adyacencia libre se recolecta
+## Lee los agregados de EventContext: la adyacencia libre se recolecta
 ## una vez al construir el contexto, en vez de recorrer aqui los vecinos.
 
 var required_biome_type:int = -1

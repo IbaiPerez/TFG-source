@@ -10,14 +10,13 @@ class_name AIRealEval
 ##    AIHeuristic.score_option por tipo de jugada sobre el estado simulado (el
 ##    detalle exacto de score_option vive acoplado a la escena; aquí basta una
 ##    guía relativa que el lookahead corrige).
-##  - `detect_phase`: espejo de AIGamePhase.detect sobre el snapshot.
+##  - `detect_phase`: recoge las primitivas del snapshot y aplica la regla
+##    compartida AIGamePhase.detect_from.
 
 
 # ---------------------------------------------------------------------------
-# Evaluación de hoja del MCTS. Es la ÚNICA score_state del proyecto: antes había
-# un espejo muerto (AIHeuristic.score_state) con pesos y esta versión viva con los
-# valores hardcodeados. Ahora los pesos viven en HeuristicWeights (defaults =
-# valores previos), así que el resultado es idéntico y quedan optimizables.
+# Evaluación de hoja del MCTS. Es la ÚNICA score_state del proyecto, y sus pesos
+# viven en HeuristicWeights, así que el optimizador puede ajustarla.
 # ---------------------------------------------------------------------------
 
 ## Valor del estado desde la perspectiva propia, en [-1, 1]. `w` null → default.
@@ -126,7 +125,7 @@ static func is_terminal(state: AIRealState) -> bool:
 # ---------------------------------------------------------------------------
 
 ## Fase de la partida sobre el snapshot. La REGLA es la compartida
-## (AIGamePhase.detect_from, §1.11); aquí solo se recogen las primitivas del
+## (AIGamePhase.detect_from); aquí solo se recogen las primitivas del
 ## snapshot, que es lo único que difería del mundo vivo.
 static func detect_phase(state: AIRealState,
 		p_owner: int = AIRealState.OWNER_SELF) -> AIGamePhase.Phase:

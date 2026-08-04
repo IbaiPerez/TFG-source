@@ -7,7 +7,7 @@ class_name BattleFrontManager
 var stats: Stats
 var active_fronts: Array[BattleFront] = []
 
-## Registro de frentes en el que este manager da de alta los que abre (C7 §1.10).
+## Registro de frentes en el que este manager da de alta los que abre.
 ## `null` = el registro GLOBAL (autoload BattleFrontRegistry), que es el
 ## comportamiento normal de una partida. Asignarlo permite aislar una partida
 ## (simulación, test) del registro del resto del proceso; la IA lo sigue a través
@@ -224,7 +224,7 @@ func _on_global_front_resolved(front: BattleFront, _attacker_won: bool) -> void:
 
 ## Aplica la conquista de una tile: cambio de controlador + destrucción de edificios.
 func _apply_conquest(conquered_tile: Tile, winner: Empire, _loser: Empire) -> void:
-	# Qué se destruye lo decide ConquestResolver (§2.2), compartido con la simulación
+	# Qué se destruye lo decide ConquestResolver, compartido con la simulación
 	# del MCTS para que la IA prevea el resultado real de conquistar.
 	for building in ConquestResolver.buildings_to_destroy(conquered_tile.buildings):
 		conquered_tile.demolish(building, stats)

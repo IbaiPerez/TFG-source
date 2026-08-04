@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIBuildingEffects
 
-## Puntuación de efectos de edificio, escrita UNA sola vez (refactor C4 §1.3.f).
+## Puntuación de efectos de edificio, escrita UNA sola vez.
 ## Antes vivía DUPLICADA en AIHeuristic (estado vivo) y AIRealEvalStrong (snapshot).
 ## Se unifican las FÓRMULAS con pesos (las que el optimizador ajusta y donde vive el
 ## riesgo de divergencia). Los dos casos de AddStatModifierEffect que dependen del

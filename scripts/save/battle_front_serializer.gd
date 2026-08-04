@@ -11,8 +11,8 @@ class_name BattleFrontSerializer
 ## como Dictionary, ya que su forma es de por sí libre.
 
 
-## Campos escalares del frente, declarados UNA vez para las dos direcciones
-## (§2.6.b). `KEEP` = si el save no lo trae, conservar el valor con el que nace el
+## Campos escalares del frente, declarados UNA vez para las dos direcciones.
+## `KEEP` = si el save no lo trae, conservar el valor con el que nace el
 ## BattleFront (min_duration y threshold vienen de GameBalance, no de 0).
 const PLAIN_FIELDS := {
 	"marker": 0.0,
@@ -47,8 +47,8 @@ static func to_dict(front:BattleFront) -> Dictionary:
 ## Crea un BattleFront a partir del dict, mirando los Tile/Empire en
 ## el contexto reconstruido (mapa por posición, empires por nombre).
 ##
-## `tiles_by_pos` (Vector2 → Tile) se INYECTA en vez de leer `WorldMap.map_as_dict`
-## (§2.6.c): así el serializador se puede probar con un puñado de casillas sueltas,
+## `tiles_by_pos` (Vector2 → Tile) se INYECTA en vez de leer `WorldMap.map_as_dict`:
+## así el serializador se puede probar con un puñado de casillas sueltas,
 ## sin montar un mundo entero ni depender del autoload. El llamante real le pasa el
 ## índice del mundo recién reconstruido.
 ##

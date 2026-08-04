@@ -5,7 +5,7 @@ class_name AITacticOption
 ## battle_front_manager.active_fronts, en vez de TacticCard.get_valid_targets, que
 ## lee el group "battle_front_visuals" del scene tree de forma frágil.
 ##
-## §1.11: la IA ya NO resuelve el nodo visual. `TacticCard.apply_effects` usa el
+## La IA NO resuelve el nodo visual. `TacticCard.apply_effects` usa el
 ## BattleFrontVisual como MERO PORTADOR (lo único que hace es desenvolver
 ## `visual.battle_front` y llamar a `apply_to_front`), y `Card.play` solo emite
 ## `card_played` + `apply_effects`. Así que aplicar directamente sobre el frente y
@@ -32,7 +32,7 @@ func execute(ctx: AITurnContext) -> Card:
 
 	# Equivalente a `card.play([visual], stats)`: play() emite card_played y llama a
 	# apply_effects, que con el visual solo desenvuelve su battle_front. Aquí se
-	# aplica sobre el frente sin pasar por la escena (§1.11).
+	# aplica sobre el frente sin pasar por la escena.
 	Events.card_played.emit(card, ctx.stats)
 	(card as TacticCard).apply_to_front(front, ctx.stats)
 	return card

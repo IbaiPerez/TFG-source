@@ -1,15 +1,15 @@
 extends RefCounted
 class_name AIRealSimulator
 
-## Motor de simulación headless sobre AIRealState (Fase C v2).
+## Motor de simulación headless sobre AIRealState.
 ##
 ## Reimplementa, como funciones PURAS, los efectos reales de las cartas que en
 ## el juego viven acoplados a escena/señales (ColonizeEffect, Tile.build,
 ## Tile.upgrade, ChangeLocationTypeEffect…). Cada función muta el estado que
 ## recibe IN-PLACE; el llamante (árbol MCTS) clona antes si quiere conservar el
-## original — mismo contrato que AISimulator de v1.
+## original.
 ##
-## Principio de paridad (PLAN §6): tras aplicar una secuencia de efectos y un
+## Principio de paridad: tras aplicar una secuencia de efectos y un
 ## advance_turn, la economía resultante (gpt, food, total_gold) debe coincidir
 ## con la del juego real tras las mismas jugadas + _process_turn_start. Por eso
 ## la economía NO se acumula a mano efecto a efecto, sino que se RECALCULA desde
@@ -23,12 +23,12 @@ class_name AIRealSimulator
 
 
 # ---------------------------------------------------------------------------
-# Recálculo de economía (espejo de ProductionCalculator base, sin extras F2.5)
+# Recálculo de economía (espejo de ProductionCalculator)
 # ---------------------------------------------------------------------------
 
 ## Recalcula gold_per_turn, food y combat_multiplier de un imperio (espejo
 ## completo de ProductionCalculator + EmpireController._update_combat_multiplier,
-## F2.5a incluye modificadores y habilidad de imperio):
+## incluidos modificadores y habilidad de imperio):
 ##   1. base = Σ (producción de casilla + bonus de modifier por recurso) + flat
 ##   2. percent (solo sobre la parte positiva)
 ##   3. − mantenimiento base de tropas del pool (con descuento % clampeado)
@@ -365,9 +365,9 @@ class _SnapFrontSlot extends RefCounted:
 ##      decaer umbral y resolver los que superan el umbral (conquista + bajas).
 ##   4. Incrementar el contador de turno.
 ##
-## F2.5b: incluye el chance node de eventos de fin de turno (propio). El rival
-## aún no juega su mano determinizada ni sus eventos (F3; su info es oculta);
-## aquí solo percibe ingresos y participa en sus frentes.
+## Incluye el chance node de eventos de fin de turno (propio). El rival no juega
+## aquí su mano determinizada ni sus eventos (su información es oculta): solo
+## percibe ingresos y participa en sus frentes.
 ##
 ## `rng` permite determinismo por iteración del MCTS; si es null se crea uno
 ## local (los tests de F1/F2 que no configuran eventos no disparan nada).
@@ -381,7 +381,7 @@ static func advance_turn(state: AIRealState, rng: RandomNumberGenerator = null,
 
 	# Evento de fin de turno (chance node): se resuelve antes del arranque del
 	# siguiente turno, igual que AIController evalúa el evento al final de _run_turn.
-	# `w` alimenta el valorador de carta de la tienda (C6 §1.6.5b).
+	# `w` alimenta el valorador de carta de la tienda.
 	if process_events:
 		AIRealEvents.process_turn_event(state, AIRealState.OWNER_SELF, rng, w)
 
@@ -403,7 +403,7 @@ static func advance_turn(state: AIRealState, rng: RandomNumberGenerator = null,
 
 
 # ---------------------------------------------------------------------------
-# Resolución de frentes (espejo de BattleFront — riesgo #1 del plan, §6.1)
+# Resolución de frentes (espejo de BattleFront)
 # ---------------------------------------------------------------------------
 
 ## Tickea todos los frentes activos y purga los resueltos del estado
@@ -526,8 +526,9 @@ static func _front_total_defense(state: AIRealState, front: AIRealState.FrontSna
 		_building_defense_of(state, own_tile_id))
 
 
-## Resuelve un frente (espejo de BattleFront._resolve + BattleFrontManager
-## ._on_front_resolved): determina ganador, conquista la tile del perdedor,
+## Resuelve un frente (espejo de BattleFront._resolve +
+## BattleFrontManager._on_front_resolved): determina ganador, conquista la tile
+## del perdedor,
 ## calcula bajas y devuelve los supervivientes al pool de cada imperio.
 static func _resolve_front(state: AIRealState, front: AIRealState.FrontSnap) -> void:
 	front.is_resolved = true
@@ -561,7 +562,7 @@ static func _apply_conquest(state: AIRealState, tile_id: int, winner_owner: int)
 	if not state.tiles.has(tile_id):
 		return
 	var t := _writable(state, tile_id)   # COW antes de mutar
-	# Misma regla que el juego (§2.2): la comparte ConquestResolver, así que lo que
+	# Misma regla que el juego: la comparte ConquestResolver, así que lo que
 	# el MCTS predice al conquistar es lo que ocurrirá de verdad.
 	for b in ConquestResolver.buildings_to_destroy(t.buildings):
 		t.buildings.erase(b)

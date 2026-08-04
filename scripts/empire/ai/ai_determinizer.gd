@@ -7,7 +7,7 @@ class_name AIDeterminizer
 ## SO-ISMCTS resuelve esto: cada iteración del árbol samplea una mano plausible
 ## del rival y la trata como si fuera la real durante esa iteración.
 ##
-## Simplificación documentada (PLAN_IA_COMPLETO §2.3): el deck completo se trata como
+## Simplificación deliberada: el deck completo se trata como
 ## disponible para samplear, sin distinguir draw vs discard. El mazo recicla cada pocos
 ## turnos, así que esta aproximación es correcta a escala de los rollouts (2-4 turnos).
 ##

@@ -2,7 +2,7 @@ extends RefCounted
 class_name AIEconomy
 
 ## Factores económicos de la heurística (excedente de recursos, coste de construcción),
-## escritos UNA sola vez (refactor C4 §1.3.d). Antes vivían DUPLICADOS en AIHeuristic
+## escritos UNA sola vez. Antes vivían DUPLICADOS en AIHeuristic
 ## (estado vivo) y AIRealEvalStrong (snapshot). Son funciones PURAS sobre primitivas +
 ## pesos: cada mundo lee su comida/gpt/oro con su propia representación y pasa los
 ## escalares aquí, de modo que la fórmula y los umbrales viven en un único lugar y el

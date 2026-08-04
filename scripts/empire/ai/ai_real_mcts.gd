@@ -3,9 +3,9 @@ class_name AIRealMCTS
 
 ## Orquestador MCTS v2 sobre estado real: SO-ISMCTS canónico
 ## con árbol ALTERNANTE de 2 agentes (▲ IA / ▽ rival), PUCT con availability
-## count y backup negamax. Reemplaza al AIMCTS v1 (modelo abstracto).
+## count y backup negamax.
 ##
-## Estructura del árbol (PLAN §4):
+## Estructura del árbol:
 ##   ▲ (IA, maximiza) encadena colocaciones → fin turno
 ##     → ▽ (rival, minimiza valor propio) encadena su mano DETERMINIZADA → fin turno
 ##       → AZAR (advance_turn: economía/ingresos/frentes/EVENTO) → ▲ ... hasta D rondas
@@ -19,15 +19,16 @@ class_name AIRealMCTS
 ##
 ## Interruptor `mcts_heuristic_rollout` (AIConfig):
 ##   true  → prior P = AIRealEvalStrong.score_move normalizado (heurística FUERTE,
-##            espejo de score_option, a TODA profundidad), política de rollout igual.
+##            la misma fórmula que score_option, a TODA profundidad), política de
+##            rollout igual.
 ##   false → prior uniforme (1/K), política de rollout aleatoria.
 ## (La alternancia ▲▽ del árbol es estructural y no depende del interruptor.)
 ##
-## F3c.4 (2026-07-01): el prior/rollout usan AIRealEvalStrong (heurística fuerte
-## sobre el snapshot) en vez de la aproximación AIRealEval.score_move — así la guía
-## heurística (ingrediente decisivo medido) actúa en todo el árbol, no solo en la
-## raíz. `root_priors` (score_option REAL) se mantiene: en la raíz es el suelo
-## ground-truth y solo mejora sobre el espejo del snapshot.
+## El prior y el rollout usan AIRealEvalStrong (heurística fuerte sobre el
+## snapshot), no la aproximación AIRealEval.score_move: la guía heurística es el
+## ingrediente decisivo medido, así que actúa en todo el árbol y no solo en la
+## raíz. `root_priors` (score_option sobre el estado VIVO) se mantiene porque en
+## la raíz es ground-truth y mejora sobre lo que puede ver el snapshot.
 
 const OWNER_SELF := AIRealState.OWNER_SELF
 const OWNER_RIVAL := AIRealState.OWNER_RIVAL

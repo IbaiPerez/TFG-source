@@ -1,20 +1,20 @@
 extends RefCounted
 class_name AILegality
 
-## Reglas de legalidad de jugadas escritas UNA sola vez (refactor C5 §1.4) contra el
+## Reglas de legalidad de jugadas escritas UNA sola vez contra el
 ## puerto AIStateView. Antes vivían duplicadas en AIOptionsBuilder (enumera sobre el
 ## estado vivo → AIPlayOption) y AIRealOptions (enumera sobre el snapshot → Move):
 ## las mismas reglas de legalidad sobre dos representaciones, y el snapshot además
 ## reimplementaba métodos de dominio (Tile.can_upgrade, Stats.can_afford_troop,
 ## RecruitCard.get_effective_troops_per_play). El espejo de la asequibilidad de tropa
-## ya no existe: la regla vive en Troop.is_affordable y la usan los dos mundos (§3.4).
+## ya no existe: la regla vive en Troop.is_affordable y la usan los dos mundos.
 ##
 ## Estas funciones devuelven los TARGETS legales (descriptores neutros); cada
 ## enumerador los traduce a su tipo propio. Las divergencias reales por mundo
 ## (fuente de edificios, guarda de upgrade, dirección de open_front) se aíslan en
 ## métodos del puerto, no aquí.
 ##
-## Migración incremental (§1.4): PORTADOS = RECRUIT, BUILD, DIRECT_BUILD (snapshot),
+## Migración incremental: PORTADOS = RECRUIT, BUILD, DIRECT_BUILD (snapshot),
 ## UPGRADE, CHANGE_LOCATION. COLONIZE se unifica vía view.colonizable_tiles() (dos
 ## mecanismos distintos por mundo: AdjacentRule vs recorrido). El resto sigue en cada
 ## enumerador hasta portarse.

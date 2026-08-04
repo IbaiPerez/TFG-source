@@ -1,7 +1,7 @@
 extends RefCounted
 class_name WorldMutator
 
-## Puerto de MUTACIÓN del mundo (refactor C6 §1.6.1). Invierte la dependencia de los
+## Puerto de MUTACIÓN del mundo. Invierte la dependencia de los
 ## efectos que mutaban tiles directamente por el bus global `Events`. Así los efectos
 ## dejan de depender del bus y podrán aplicarse sobre el snapshot del MCTS sin
 ## disparar el estado real del juego (el bloqueo #1 que documenta AIRealEvents).

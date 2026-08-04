@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIDeckScorer
 
-## Valoración de una carta para el mazo, escrita UNA sola vez (refactor C6 §1.6.5),
+## Valoración de una carta para el mazo, escrita UNA sola vez,
 ## contra el puerto AIStateView. Antes vivía DUPLICADA:
 ##   - AIHeuristic.score_card_for_deck   → fórmula COMPLETA (pesos + fase + urgencias
 ##                                          + recorridos de tiles: colonizable/upgradeable/
@@ -20,7 +20,7 @@ class_name AIDeckScorer
 ## `expansion_factor` los tiles, y este scorer corre en el camino caliente del MCTS
 ## (score_build/score_upgrade → score_building_effects → rama AddCardToDeckEffect):
 ## calcularlas eagerly costaba ~1.6× en iteraciones por decisión. Mismos valores, solo
-## que bajo demanda → resultado idéntico. Es el mismo principio de laziness de §1.3.f.
+## que bajo demanda → resultado idéntico.
 static func score_card_for_deck(view: AIStateView, card: Card) -> float:
 	if card == null:
 		return 0.0

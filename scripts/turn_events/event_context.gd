@@ -4,7 +4,7 @@ class_name EventContext
 ## Contexto de evaluación de eventos: un saco de datos AGREGADOS, precomputado una
 ## vez por evaluación. Las CONDICIONES leen solo de aquí (nunca de la escena), lo
 ## que permite construirlo también desde el snapshot del MCTS con `from_snapshot`
-## y reusar las condiciones REALES en la simulación (refactor C6 §1.6.2), en vez de
+## y reusar las condiciones REALES en la simulación, en vez de
 ## reimplementarlas en un espejo.
 ##
 ## `stats`, `modifier_manager` y `controlled_tiles` siguen aquí porque los usan los
@@ -39,7 +39,7 @@ var tiles_by_resource:Dictionary
 var tiles_by_biome:Dictionary
 var tiles_by_location:Dictionary
 
-## Agregados de casilla (C6 §1.6.2): sustituyen el recorrido de `controlled_tiles`
+## Agregados de casilla: sustituyen el recorrido de `controlled_tiles`
 ## que hacían las condiciones, para que valgan también sobre el snapshot.
 var tile_facts:Array[TileFacts] = []
 ## Biomas de las casillas LIBRES adyacentes a territorio propio (biome → true).
@@ -154,7 +154,7 @@ static func _collect_military(ctx:EventContext, p_stats:Stats,
 		ctx.has_adjacent_enemy = true
 
 
-## Construye el MISMO contexto agregado desde el snapshot del MCTS (C6 §1.6.2), para
+## Construye el MISMO contexto agregado desde el snapshot del MCTS, para
 ## que las condiciones REALES se evalúen sobre la simulación sin tocar escena. Deja
 ## `stats`/`modifier_manager`/`controlled_tiles` vacíos: solo los usan los efectos y
 ## la UI del mundo vivo, no las condiciones.

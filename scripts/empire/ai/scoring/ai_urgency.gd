@@ -2,7 +2,7 @@ extends RefCounted
 class_name AIUrgency
 
 ## Señales de urgencia por recurso (oro/comida/mazo), dependientes de la fase.
-## Escritas UNA sola vez (refactor C4 §1.3.a). Antes vivían DUPLICADAS en
+## Escritas UNA sola vez. Antes vivían DUPLICADAS en
 ## AIHeuristic (heurística sobre estado vivo) y AIRealEvalStrong (espejo sobre el
 ## snapshot). Son funciones PURAS sobre primitivas + pesos: cada mundo obtiene sus
 ## escalares (gpt, food, tamaño de mazo) de su propia representación y llama aquí,
@@ -77,7 +77,7 @@ static func deck_urgency(deck_size: int, w: HeuristicWeights) -> float:
 
 
 # ---------------------------------------------------------------------------
-# Urgencia militar (refactor C4 §1.3.b). Fórmula compartida por los cuatro caminos
+# Urgencia militar. Fórmula compartida por los cuatro caminos
 # que la calculaban por separado: el vivo con caché (prepare_decision_cache), el
 # vivo sin caché (_military_urgency/_max_front_pressure fallback) y el snapshot
 # (AIRealEvalStrong). Cada mundo mantiene su propio RECORRIDO de frentes/tiles

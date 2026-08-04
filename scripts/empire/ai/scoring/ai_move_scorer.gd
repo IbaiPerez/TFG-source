@@ -1,12 +1,12 @@
 extends RefCounted
 class_name AIMoveScorer
 
-## Scorers de jugada escritos UNA sola vez contra AIStateView (refactor C4 §1.3.g).
+## Scorers de jugada escritos UNA sola vez contra AIStateView.
 ## Sustituyen progresivamente a los _score_<tipo> duplicados en AIHeuristic (vivo) y
 ## AIRealEvalStrong (snapshot). El estado se lee por el puerto; los datos concretos
 ## de la jugada (cantidad, edificio, tropa, tile) se pasan aparte.
 ##
-## Migración incremental (§1.3.g): los 9 tipos PORTADOS = GENERATE_GOLD, CARD_DRAW,
+## Migración incremental: los 9 tipos PORTADOS = GENERATE_GOLD, CARD_DRAW,
 ## COLONIZE, BUILD (+ DIRECT_BUILD), UPGRADE, RECRUIT, OPEN_FRONT, TACTIC,
 ## CHANGE_LOCATION.
 

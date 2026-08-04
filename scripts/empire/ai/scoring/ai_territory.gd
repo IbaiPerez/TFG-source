@@ -2,7 +2,7 @@ extends RefCounted
 class_name AITerritory
 
 ## Factores territoriales de la heurística (expansión, encierro, carrera territorial),
-## escritos UNA sola vez (refactor C4 §1.3.c). Antes vivían DUPLICADOS en AIHeuristic
+## escritos UNA sola vez. Antes vivían DUPLICADOS en AIHeuristic
 ## (estado vivo) y AIRealEvalStrong (snapshot). Son funciones PURAS sobre primitivas +
 ## pesos: cada mundo cuenta sus tiles (propias / rival / colonizables) con su propia
 ## representación y pasa los escalares aquí, de modo que la fórmula y los umbrales

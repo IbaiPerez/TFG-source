@@ -14,7 +14,7 @@ class_name HasRecruitedTroopOfTypeCondition
 ## El contador historico desacopla "tengo este tipo de tropa AHORA" (pool)
 ## de "he reclutado este tipo alguna vez" (doctrina).
 ##
-## El contador viaja en EventContext (C6 §1.6.2), no en `stats`, para que la
+## El contador viaja en EventContext, no en `stats`, para que la
 ## condicion valga tambien sobre el snapshot.
 
 var troop_type: int

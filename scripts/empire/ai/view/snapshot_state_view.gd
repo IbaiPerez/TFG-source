@@ -108,7 +108,7 @@ func effective_build_cost(b: Building) -> int:
 
 func score_building_effects(effects: Array[BuildingEffect], gu: float, fu: float, mu: float) -> float:
 	# Se pasa `self` para que la rama AddCardToDeckEffect valore la carta con
-	# AIDeckScorer sin asignar otra vista en el camino caliente (C6 §1.6.5b).
+	# AIDeckScorer sin asignar otra vista en el camino caliente.
 	return AIRealEvalStrong._score_building_effects(effects, _state, _owner, _emp, phase(), gu, fu, mu, _w, self)
 
 
@@ -314,7 +314,7 @@ func change_location_adjust(base: float, tile, new_loc, gu: float, fu: float, _m
 	return base - demolished_penalty
 
 
-# --- valoración de carta para el mazo (C6 §1.6.5b) ---
+# --- valoración de carta para el mazo ---
 # El snapshot modela un ÚNICO mazo combinado (emp.deck), mientras el vivo separa
 # draw/discard; ambas medidas representan "el mazo activo" en su mundo.
 

@@ -2,7 +2,7 @@ extends ThresholdCondition
 class_name UrbanizedTilesCondition
 
 ## Cuenta las casillas urbanizadas (Town o Megalopolis) controladas y las compara
-## con el umbral. Lee los agregados de EventContext (C6 §1.6.2).
+## con el umbral. Lee los agregados de EventContext.
 
 
 func _value(context: EventContext) -> int:

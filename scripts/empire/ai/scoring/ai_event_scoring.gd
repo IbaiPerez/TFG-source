@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIEventScoring
 
-## Puntuación de eventos, escrita UNA sola vez (refactor C6 §1.6.6). Punto de
+## Puntuación de eventos, escrita UNA sola vez. Punto de
 ## partida: la valoración de una casilla candidata a urbanizarse a Megalópolis,
 ## que estaba DUPLICADA con fórmula IDÉNTICA en AIEventResolver (estado vivo,
 ## `_pick_best_megalopolis_tile`) y AIRealEvents (snapshot,

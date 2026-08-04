@@ -18,7 +18,7 @@ var hand_size: int               ## cartas que robará este turno (cards_per_tur
 var deck_size: int               ## draw_pile + discard_pile del rival (sin played_pile ni mano actual).
                                  ## Refleja purgas y cartas de un solo uso consumidas sin revelarlas.
 var known_deck: Array[Card]      ## deck inferido: empieza como el deck inicial (info pública).
-                                 ## AIDeckObserver lo amplía al observar cartas jugadas (Fase C).
+                                 ## AIDeckObserver lo amplía al observar cartas jugadas.
 
 
 ## Construye la vista pública a partir de un controller rival.
@@ -45,7 +45,7 @@ static func from_controller(ctrl: EmpireController) -> AIEmpirePublicView:
 	# El starting_deck es información pública: ambos imperios arrancan con el mismo
 	# recurso. Las cartas compradas en tienda o ganadas por eventos NO están aquí
 	# (son privadas hasta que se juegan). AIDeckObserver las añade al modelo de
-	# deck conocido conforme las observa (Fase C).
+	# deck conocido conforme las observa.
 	# Fallback a stats.deck para compatibilidad con tests que no inicializan starting_deck.
 	if ctrl.stats.starting_deck != null:
 		view.known_deck = ctrl.stats.starting_deck.cards.duplicate()

@@ -9,20 +9,26 @@ class_name AIRealEvalStrong
 ## en la raíz: este módulo la lleva a cada nodo, en lugar de la aproximación pobre
 ## AIRealEval.score_move.
 ##
-## ESTADO (tras C4 §1.3.g): ya NO es un espejo. Las FÓRMULAS de scoring se escriben
-## una sola vez en AIMoveScorer, contra el puerto AIStateView; lo que queda aquí es
-## (a) el BACKEND de helpers propios del snapshot que SnapshotStateView invoca y
-## (b) wrappers finos + dispatch por tipo de jugada. Está CABLEADO en AIRealMCTS y es
-## camino CALIENTE: se evalúa por cada jugada legal en cada expansión/rollout, así que
-## cualquier coste añadido aquí se multiplica por miles en cada decisión.
+## Este módulo NO contiene fórmulas de scoring. Se escriben una sola vez en
+## AIMoveScorer, contra el puerto AIStateView. Lo que vive aquí son dos cosas:
+##
+##   (a) El BACKEND del snapshot: los recorridos sobre AIRealState (frentes, tiles,
+##       edificios) que SnapshotStateView invoca por callback para responder a los
+##       métodos de la vista. Son la mitad "cómo se lee este mundo" de la fórmula.
+##   (b) Wrappers finos: guardas + construcción de la vista + dispatch por tipo de
+##       jugada hacia el scorer compartido.
+##
+## Camino CALIENTE: cableado en AIRealMCTS, se evalúa por cada jugada legal en cada
+## expansión y rollout, así que cualquier coste añadido aquí se multiplica por miles
+## en cada decisión.
 
 const OWNER_SELF := AIRealState.OWNER_SELF
 const OWNER_RIVAL := AIRealState.OWNER_RIVAL
 const OWNER_NONE := AIRealState.OWNER_NONE
 
 
-## Prior fuerte de una jugada. Espejo de AIHeuristic.score_option sobre el
-## snapshot. Los tipos aún no portados delegan en el prior débil (score_move).
+## Prior fuerte de una jugada sobre el snapshot. Los tipos sin scorer propio
+## (p.ej. RECOVER) caen al prior débil, AIRealEval.score_move.
 static func score_move(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int = OWNER_SELF, w: HeuristicWeights = null) -> float:
 	if move == null or move.kind == &"PASS":
@@ -53,16 +59,16 @@ static func score_move(move: AIRealOptions.Move, state: AIRealState,
 
 
 # ---------------------------------------------------------------------------
-# Colonize (espejo de AIHeuristic._score_colonize + helpers)
+# Colonize: wrapper + backend de territorio de la vista
 # ---------------------------------------------------------------------------
 
-## Espejo de AIHeuristic._score_colonize: producción de la casilla + presión de
-## expansión + valor de frontera (escalado por encierro) + bonus de negación
-## (colonizar junto al rival), todo escalado por la carrera territorial.
+## Prior de COLONIZE. La fórmula (producción + presión de expansión + valor de
+## frontera escalado por encierro + bonus de negación, todo por la carrera
+## territorial) vive en AIMoveScorer.score_colonize.
 static func _score_colonize(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	# Portado al scorer compartido (§1.3.g). El wrapper conserva los guardas
-	# (casilla objetivo válida + emp) y construye la vista del snapshot.
+	# Guardas propias del snapshot (casilla objetivo válida + emp) antes de
+	# construir la vista.
 	var t := state.tiles.get(move.tile_id) as AIRealState.TileSnap
 	if t == null:
 		return 0.0
@@ -72,7 +78,7 @@ static func _score_colonize(move: AIRealOptions.Move, state: AIRealState,
 	return AIMoveScorer.score_colonize(view, t)
 
 
-## Espejo de AIHeuristic._frontier_value: tiles libres que colonizar `tile_id`
+## Backend de `AIStateView.frontier_value`: tiles libres que colonizar `tile_id`
 ## haría accesibles por primera vez (no alcanzables ya desde el territorio).
 static func _frontier_value(state: AIRealState, tile_id: int, p_owner: int) -> int:
 	var t := state.tiles.get(tile_id) as AIRealState.TileSnap
@@ -96,7 +102,7 @@ static func _frontier_value(state: AIRealState, tile_id: int, p_owner: int) -> i
 	return count
 
 
-## Espejo de AIHeuristic._encirclement_pressure: ratio colonizables/controladas.
+## Backend de `AIStateView.encirclement_pressure`: ratio colonizables/controladas.
 ## Ratio bajo → la IA se está quedando rodeada → escalar el incentivo de escapar.
 static func _encirclement_pressure(state: AIRealState, p_owner: int,
 		w: HeuristicWeights) -> float:
@@ -104,14 +110,14 @@ static func _encirclement_pressure(state: AIRealState, p_owner: int,
 		_colonizable_count(state, p_owner), maxi(state.count_tiles(p_owner), 1), w)
 
 
-## Espejo de AIHeuristic._expansion_factor: presión expansionista [0.0, 1.0] por
+## Backend de `AIStateView.expansion_factor`: presión expansionista [0.0, 1.0] por
 ## número de tiles colonizables adyacentes (REFERENCE = 15 → presión máxima).
 static func _expansion_factor(state: AIRealState, p_owner: int,
 		w: HeuristicWeights) -> float:
 	return AITerritory.expansion_factor(_colonizable_count(state, p_owner), w)
 
 
-## Espejo de AIHeuristic._territory_race_factor: amplifica jugadas que acercan a
+## Backend de `AIStateView.territory_race_factor`: amplifica jugadas que acercan a
 ## la dominación (o bloquean al rival cerca de su límite de victoria).
 static func _territory_race_factor(state: AIRealState, p_owner: int,
 		mode: StringName = &"colonize", w: HeuristicWeights = null) -> float:
@@ -121,8 +127,9 @@ static func _territory_race_factor(state: AIRealState, p_owner: int,
 		state.count_tiles(rival), _colonizable_count(state, p_owner), mode, w)
 
 
-## Tiles sin colonizar adyacentes al territorio de `p_owner` (espejo del conteo de
-## AdjacentRule.valid_targets que AIController pasa como colonizable_tiles_count).
+## Backend de `AIStateView.colonizable_count`: tiles sin colonizar adyacentes al
+## territorio de `p_owner`. Debe contar lo mismo que AdjacentRule.valid_targets en
+## el mundo vivo, que es de donde sale el colonizable_tiles_count de AIController.
 static func _colonizable_count(state: AIRealState, p_owner: int) -> int:
 	var seen := {}
 	for id in state.tiles:
@@ -139,17 +146,15 @@ static func _colonizable_count(state: AIRealState, p_owner: int) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Build / Direct build (espejo de AIHeuristic._score_build / _score_direct_build)
+# Build / Direct build: wrappers
 # ---------------------------------------------------------------------------
 
-## Producción (oro/comida ponderada por urgencia) + defensa + efectos del edificio,
-## escalado por el factor de coste; más micro-tie-breakers por tile (recurso
-## explotado + posición fronteriza). DIRECT_BUILD comparte la misma valoración de
-## edificio (su fórmula real es equivalente sobre el snapshot).
+## Prior de BUILD y DIRECT_BUILD, que comparten scorer. La fórmula (producción
+## ponderada por urgencia + defensa + efectos del edificio, por el factor de coste,
+## más micro-tie-breakers de casilla) vive en AIMoveScorer.score_build.
 static func _score_build(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	# Portado al scorer compartido (§1.3.g). BUILD y DIRECT_BUILD comparten scorer;
-	# el tie-breaker por casilla se omite si la casilla no existe (tile null).
+	# El tie-breaker por casilla se omite si la casilla no existe (tile null).
 	if move.building == null:
 		return 0.0
 	var view := SnapshotStateView.new(state, p_owner, w)
@@ -158,9 +163,9 @@ static func _score_build(move: AIRealOptions.Move, state: AIRealState,
 	return AIMoveScorer.score_build(view, move.building, state.tiles.get(move.tile_id))
 
 
+## Prior de UPGRADE; la fórmula vive en AIMoveScorer.score_upgrade.
 static func _score_upgrade(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	# Portado al scorer compartido (§1.3.g).
 	if move.old_building == null or move.new_building == null:
 		return 0.0
 	var view := SnapshotStateView.new(state, p_owner, w)
@@ -170,16 +175,16 @@ static func _score_upgrade(move: AIRealOptions.Move, state: AIRealState,
 
 
 # ---------------------------------------------------------------------------
-# Recruit (espejo de AIHeuristic._score_recruit)
+# Recruit: wrapper + backend militar y económico de la vista
 # ---------------------------------------------------------------------------
 
-## Poder de la tropa escalado por urgencia militar, complementariedad con el pool
-## y la composición rival visible, excedente económico, coste-eficiencia y
-## diversidad de tipo; con vetos si el mantenimiento (o el recargo cuadrático de
-## frente) hundiría la comida/gpt.
+## Prior de RECRUIT. La fórmula (poder de la tropa por urgencia militar,
+## complementariedad con el pool y la composición rival visible, excedente
+## económico, coste-eficiencia y diversidad de tipo, con vetos si el mantenimiento
+## o el recargo cuadrático de frente hundirían la comida/gpt) vive en
+## AIMoveScorer.score_recruit.
 static func _score_recruit(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	# Portado al scorer compartido (§1.3.g).
 	if move.troop == null:
 		return 0.0
 	var view := SnapshotStateView.new(state, p_owner, w)
@@ -188,8 +193,10 @@ static func _score_recruit(move: AIRealOptions.Move, state: AIRealState,
 	return AIMoveScorer.score_recruit(view, move.troop)
 
 
-## Espejo de AIHeuristic._complement_bonus: balance atk/def del pool + counter-bonus
-## si la tropa es fuerte contra algún tipo visible del rival en los frentes.
+## Backend de `AIStateView.complement_bonus`: balance atk/def del pool + counter-bonus
+## si la tropa es fuerte contra algún tipo visible del rival en los frentes. Lo propio
+## del snapshot es el recorrido que recolecta esos tipos rivales; el cálculo lo hace
+## AIMilitary.
 static func _complement_bonus(troop: Troop, pool: Array[Troop], state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
 	# Tipos de tropa del rival visibles en frentes activos.
@@ -210,7 +217,7 @@ static func _complement_bonus(troop: Troop, pool: Array[Troop], state: AIRealSta
 		* AIMilitary.counter_bonus(troop.type, rival_types, w)
 
 
-## Espejo de AIHeuristic._resource_surplus_factor: [1.0, 3.0]; potencia lo militar
+## Backend de `AIStateView.resource_surplus_factor`: [1.0, 3.0]; potencia lo militar
 ## cuando el oro/comida están muy por encima del umbral cómodo de la fase.
 static func _resource_surplus_factor(emp: AIRealState.EmpireSnap,
 		phase: AIGamePhase.Phase, w: HeuristicWeights) -> float:
@@ -218,11 +225,13 @@ static func _resource_surplus_factor(emp: AIRealState.EmpireSnap,
 
 
 # ---------------------------------------------------------------------------
-# Urgencia militar (espejo de AIHeuristic._military_urgency / _max_front_pressure)
+# Urgencia militar: backend de la vista
 # ---------------------------------------------------------------------------
 
-## Baseline por amenaza real (frente activo > enemigo adyacente > tranquilo)
-## interpolado hacia 3.0 según la presión del frente más comprometido.
+## Backend de `AIStateView.military_urgency`. Lo propio del snapshot son los dos
+## recorridos que responden «¿hay frente activo?» y «¿hay enemigo adyacente?»; la
+## fórmula (baseline por amenaza interpolado hacia 3.0 según la presión del frente
+## más comprometido) la hace AIUrgency.
 static func _military_urgency(state: AIRealState, p_owner: int,
 		w: HeuristicWeights) -> float:
 	var has_active_front := false
@@ -269,11 +278,12 @@ static func _max_front_pressure(state: AIRealState, p_owner: int) -> float:
 
 
 # ---------------------------------------------------------------------------
-# Efectos de edificio (espejo de AIHeuristic._score_building_effects / _score_stat_effect)
+# Efectos de edificio: backend de la vista
 # ---------------------------------------------------------------------------
 
-## `view` es la SnapshotStateView que ya construyó el llamante: se reutiliza para la
-## rama AddCardToDeckEffect (C6 §1.6.5b) sin asignar otra en el camino caliente.
+## Backend de `AIStateView.score_building_effects`. `view` es la SnapshotStateView
+## que ya construyó el llamante: se reutiliza para la rama AddCardToDeckEffect sin
+## asignar otra en el camino caliente.
 static func _score_building_effects(effects: Array[BuildingEffect], state: AIRealState,
 		p_owner: int, emp: AIRealState.EmpireSnap, phase: AIGamePhase.Phase,
 		gu: float, fu: float, mu: float, w: HeuristicWeights,
@@ -293,8 +303,6 @@ static func _score_building_effects(effects: Array[BuildingEffect], state: AIRea
 		elif effect is AddCardToDeckEffect:
 			var card_added := (effect as AddCardToDeckEffect).card
 			if card_added != null and view != null:
-				# Valorador de carta UNIFICADO (C6 §1.6.5b): el snapshot pasa a usar la
-				# fórmula completa, sustituyendo su antigua aproximación-suelo.
 				score += AIDeckScorer.score_card_for_deck(view, card_added)
 		elif effect is GoldOnCard:
 			score += AIBuildingEffects.gold_on_card_score(
@@ -343,17 +351,17 @@ static func _current_troops_per_recruit_bonus(state: AIRealState, p_owner: int) 
 
 
 # ---------------------------------------------------------------------------
-# Open front (espejo de AIHeuristic._score_open_front)
+# Open front: wrapper
 # ---------------------------------------------------------------------------
 
-## Valor de la tile enemiga × P(ganar) − valor de la tile origen × P(perder), todo
-## escalado por seguridad económica, urgencia militar, bioma, factor de pool,
-## excedente y carrera territorial. La ganabilidad usa solo info pública del rival
-## (edificios defensivos + tropas visibles en frentes sobre esa tile).
+## Prior de OPEN_FRONT. La fórmula (valor de la tile enemiga × P(ganar) − valor de
+## la tile origen × P(perder), escalado por seguridad económica, urgencia militar,
+## bioma, factor de pool, excedente y carrera territorial) vive en
+## AIMoveScorer.score_open_front.
 static func _score_open_front(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	# Portado al scorer compartido (§1.3.g). Guardas: emp válido + casilla enemiga
-	# existe; el veto por 0 tropas libres vive dentro del scorer.
+	# Guardas: emp válido + la casilla enemiga existe. El veto por 0 tropas libres
+	# vive dentro del scorer.
 	var view := SnapshotStateView.new(state, p_owner, w)
 	if not view.is_valid():
 		return 0.0
@@ -364,16 +372,16 @@ static func _score_open_front(move: AIRealOptions.Move, state: AIRealState,
 
 
 # ---------------------------------------------------------------------------
-# Tactic (espejo de AIHeuristic._score_tactic)
+# Tactic: wrapper
 # ---------------------------------------------------------------------------
 
-## Valor táctico escalado por lo comprometido del frente (urgencia = cuánto lo
-## estamos perdiendo), la urgencia militar, la fracción de tropas afectadas por la
-## carta y el bioma relevante.
+## Prior de TACTIC. La fórmula (valor táctico por lo comprometido del frente, la
+## urgencia militar, la fracción de tropas afectadas y el bioma relevante) vive en
+## AIMoveScorer.score_tactic.
 static func _score_tactic(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	# Portado al scorer compartido (§1.3.g). El wrapper resuelve el frente por índice
-	# y descompone sus datos (tropas propias, marcador, umbral, casilla relevante).
+	# El frente se resuelve por índice y se descompone aquí: BattleFront y FrontSnap
+	# difieren demasiado para que el scorer reciba el frente entero.
 	if move.front_idx < 0 or move.front_idx >= state.fronts.size():
 		return 0.0
 	var front := state.fronts[move.front_idx] as AIRealState.FrontSnap
@@ -392,11 +400,11 @@ static func _score_tactic(move: AIRealOptions.Move, state: AIRealState,
 
 
 # ---------------------------------------------------------------------------
-# Opciones simples (espejo de AIHeuristic._score_simple / _score_draw / _score_change_location)
+# Opciones simples: wrappers
 # ---------------------------------------------------------------------------
 
-## GENERATE_GOLD / CARD_DRAW: portados al scorer compartido (§1.3.g). El wrapper
-## conserva el guarda emp==null y construye la vista del snapshot.
+## Prior de GENERATE_GOLD; la fórmula vive en AIMoveScorer.score_generate_gold.
+## Aquí solo el guarda emp==null (vía is_valid) y la construcción de la vista.
 static func _score_generate_gold(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
 	var view := SnapshotStateView.new(state, p_owner, w)
@@ -405,6 +413,7 @@ static func _score_generate_gold(move: AIRealOptions.Move, state: AIRealState,
 	return AIMoveScorer.score_generate_gold(view, move.amount)
 
 
+## Prior de CARD_DRAW; la fórmula vive en AIMoveScorer.score_card_draw.
 static func _score_card_draw(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
 	var view := SnapshotStateView.new(state, p_owner, w)
@@ -421,8 +430,8 @@ static func _score_card_draw(move: AIRealOptions.Move, state: AIRealState,
 ## escena. Candidato a port completo si las sims muestran CHANGE_LOCATION infravalorado.
 static func _score_change_location(move: AIRealOptions.Move, state: AIRealState,
 		p_owner: int, w: HeuristicWeights) -> float:
-	# Portado al scorer compartido (§1.3.g). La aproximación-suelo del snapshot (sin
-	# bonos de recurso/desbloqueo) vive en SnapshotStateView.change_location_adjust.
+	# La aproximación-suelo del snapshot (sin bonos de recurso/desbloqueo) vive en
+	# SnapshotStateView.change_location_adjust.
 	var t := state.tiles.get(move.tile_id) as AIRealState.TileSnap
 	var new_loc := move.location
 	if t == null or new_loc == null:

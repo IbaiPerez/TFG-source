@@ -18,8 +18,8 @@ class_name StatsSerializer
 
 ## --- Serialización ------------------------------------------------------
 
-## Campos escalares que viajan tal cual, declarados UNA vez para las dos direcciones
-## (§2.6.b). `KEEP` = si el save no lo trae, conservar lo que ya tenga la instancia
+## Campos escalares que viajan tal cual, declarados UNA vez para las dos direcciones.
+## `KEEP` = si el save no lo trae, conservar lo que ya tenga la instancia
 ## creada desde el template (es el caso de cards_per_turn y event_chance, cuyo default
 ## correcto NO es 0). El resto de campos —recursos, pilas, pools— van a mano abajo.
 const PLAIN_FIELDS := {

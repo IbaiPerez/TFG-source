@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AIStateView
 
-## Puerto de dominio para la heurística (refactor C4 §1.3.g). Abstrae el estado del
+## Puerto de dominio para la heurística. Abstrae el estado del
 ## juego para que los scorers de jugada (AIMoveScorer) se escriban UNA sola vez y
 ## valgan sobre los dos mundos:
 ##   - LiveStateView   → estado vivo (Stats / Tile / BattleFront), camino frío
@@ -30,7 +30,7 @@ func food() -> int:
 func phase() -> AIGamePhase.Phase:
 	push_error("AIStateView.phase() sin implementar"); return AIGamePhase.Phase.EARLY
 
-## Turno actual, para los efectos escalados por turno (ScaledValue). C6 §1.6.3.
+## Turno actual, para los efectos escalados por turno (ScaledValue).
 func turn_number() -> int:
 	push_error("AIStateView.turn_number() sin implementar"); return 0
 
@@ -201,7 +201,7 @@ func tile_max_buildings(_tile) -> int:
 func change_location_adjust(_base: float, _tile, _new_loc, _gu: float, _fu: float, _mu: float) -> float:
 	push_error("AIStateView.change_location_adjust() sin implementar"); return _base
 
-# --- valoración de carta para el mazo (score_card_for_deck, C6 §1.6.5) ---
+# --- valoración de carta para el mazo (score_card_for_deck) ---
 ## Copias de la misma clase de carta en el mazo activo (≥1). Base de la saturación
 ## por tipo. El vivo cuenta draw+discard; el snapshot su mazo combinado.
 func same_type_card_count(_card: Card) -> int:

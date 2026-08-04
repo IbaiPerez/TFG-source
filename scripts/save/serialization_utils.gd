@@ -2,7 +2,7 @@ extends RefCounted
 class_name SerializationUtils
 
 ## Empaquetado y desempaquetado de los campos ESCALARES PLANOS de un objeto, a
-## partir de una tabla declarativa (refactor §2.6.b).
+## partir de una tabla declarativa.
 ##
 ## Antes cada serializador escribía el mismo campo DOS veces —una en `to_dict`
 ## (`"total_gold": stats.total_gold`) y otra en `from_dict`

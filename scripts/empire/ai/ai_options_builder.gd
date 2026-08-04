@@ -57,7 +57,7 @@ static func build_options(card: Card, ctx: AITurnContext) -> Array[AIPlayOption]
 
 static func _add_colonize_options(card: ColonizeCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	# Legalidad unificada (§1.4): view.colonizable_tiles() (vivo = AdjacentRule, igual
+	# Legalidad unificada: view.colonizable_tiles() (vivo = AdjacentRule, igual
 	# que card.get_valid_targets; snapshot = recorrido). Interfaz común, mecanismo por mundo.
 	for target in LiveStateView.new(ctx).colonizable_tiles():
 		options.append(AIPlayOption.simple(card, [target]))
@@ -70,7 +70,7 @@ static func _add_colonize_options(card: ColonizeCard,
 ##   - stats.food >= card.location_type.food_consumption
 static func _add_change_location_type_options(card: ChangeLocationTypeCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	# Legalidad unificada (§1.4): AILegality.change_location_targets (espejo de
+	# Legalidad unificada: AILegality.change_location_targets (espejo de
 	# ChangeLocationTypeRule). card.location_type null → target.type crashea igual que el
 	# original (ChangeLocationTypeRule sin guarda); en la práctica siempre está definido.
 	for target in AILegality.change_location_targets(LiveStateView.new(ctx), card.location_type):
@@ -102,7 +102,7 @@ static func _add_card_draw_options(card: CardDrawCard,
 ## can_build y oro suficiente para CADA building.
 static func _add_build_options(card: BuildCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	# Legalidad unificada (§1.4): producto cartesiano tile×building con coste
+	# Legalidad unificada: producto cartesiano tile×building con coste
 	# efectivo + can_build. El vivo aporta card.buildings como fuente de edificios.
 	for t in AILegality.build_targets(LiveStateView.new(ctx), card.buildings):
 		options.append(AIBuildOption.from_card(card, t["tile"] as Tile, t["building"]))
@@ -112,7 +112,7 @@ static func _add_build_options(card: BuildCard,
 ## Usa Tile.can_upgrade y Building.can_be_upgraded; filtra por oro.
 static func _add_upgrade_building_options(card: UpgradeBuildingCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	# Legalidad unificada (§1.4): (tile × old × new) con guarda can_be_upgraded +
+	# Legalidad unificada: (tile × old × new) con guarda can_be_upgraded +
 	# coste efectivo + can_upgrade.
 	for t in AILegality.upgrade_targets(LiveStateView.new(ctx)):
 		options.append(AIUpgradeBuildingOption.from_card(
@@ -134,7 +134,7 @@ static func _add_upgrade_building_options(card: UpgradeBuildingCard,
 ##      hacer — peor uso del turno.
 static func _add_recruit_options(card: RecruitCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	# Legalidad unificada (§1.4): AILegality.recruit_targets sobre la vista viva.
+	# Legalidad unificada: AILegality.recruit_targets sobre la vista viva.
 	for t in AILegality.recruit_targets(LiveStateView.new(ctx), card):
 		options.append(AIRecruitOption.from_card(card, t["troop"]))
 
@@ -144,7 +144,7 @@ static func _add_recruit_options(card: RecruitCard,
 ## scene tree de visuales). El AITacticOption resuelve el visual al ejecutar.
 static func _add_tactic_options(card: TacticCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	# Legalidad unificada (§1.4): view.tactic_targets() (frentes activos donde participamos).
+	# Legalidad unificada: view.tactic_targets() (frentes activos donde participamos).
 	for front in LiveStateView.new(ctx).tactic_targets():
 		options.append(AITacticOption.from_card(card, front))
 
@@ -167,7 +167,7 @@ static func _add_recover_options(card: RecoverCard,
 ## También respetamos el límite de frentes simultáneos del bfm.
 static func _add_open_front_options(card: OpenFrontCard,
 		ctx: AITurnContext, options: Array[AIPlayOption]) -> void:
-	# Legalidad unificada (§1.4): view.open_front_pairs(card) (pares origen propio ×
+	# Legalidad unificada: view.open_front_pairs(card) (pares origen propio ×
 	# destino enemigo). El mundo vivo inyecta el bfm en la carta y usa EnemyAdjacentRule.
 	for pair in LiveStateView.new(ctx).open_front_pairs(card):
 		options.append(AIOpenFrontOption.from_card(

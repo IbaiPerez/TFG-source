@@ -33,7 +33,7 @@ func prepare(_context:EventContext) -> void:
 ## más `extra_effects` opcionales (p.ej. UnlockBuildingEffect). Traduce las claves
 ## i18n con tr() al construir, igual que hacían los _init() de cada evento. Reúne
 ## en un solo sitio el bloque que se repetía en ~14 clases unlock_*.
-## Choice de desbloqueo de EDIFICIO: el imperio pasa a poder construirlo (§2.3).
+## Choice de desbloqueo de EDIFICIO: el imperio pasa a poder construirlo.
 ## Hermana de `make_card_unlock_choice`, para la otra familia de eventos unlock —
 ## los que amplían `possible_buildings` en vez de dar una carta. Las cinco que
 ## seguían montando el TurnEventChoice a mano eran idénticas salvo el edificio y las
