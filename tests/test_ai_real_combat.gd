@@ -23,15 +23,10 @@ func after_each() -> void:
 
 func _make_troop(p_type: int, atk: int, def: int,
 		cost: int = 30, maint_g: int = 5, maint_f: int = 1) -> Troop:
-	var t := Troop.new()
-	t.name = "T_%d_%d_%d" % [p_type, atk, def]
-	t.type = p_type
-	t.attack = atk
-	t.defense = def
-	t.recruitment_cost_gold = cost
-	t.maintenance_gold = maint_g
-	t.maintenance_food = maint_f
-	return t
+	return TestBuilders.troop() \
+		.with_name("T_%d_%d_%d" % [p_type, atk, def]).with_type(p_type) \
+		.with_attack(atk).with_defense(def).with_recruit_cost(cost) \
+		.with_maintenance(maint_g, maint_f).build()
 
 
 func _make_empire(combat_mult: float = 1.0) -> Empire:

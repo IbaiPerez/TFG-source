@@ -42,15 +42,9 @@ func _make_tile(empire: Empire = null, loc_type: int = Tile.location_type.Villag
 
 func _make_troop(troop_name: String = "Milicia", atk: int = 3, def: int = 3,
 		troop_type: int = Troop.TroopType.INFANTERIA_LIGERA) -> Troop:
-	var troop := Troop.new()
-	troop.name = troop_name
-	troop.type = troop_type
-	troop.attack = atk
-	troop.defense = def
-	troop.recruitment_cost_gold = 10
-	troop.maintenance_gold = 2
-	troop.maintenance_food = 1
-	return troop
+	return TestBuilders.troop().with_name(troop_name).with_type(troop_type) \
+		.with_attack(atk).with_defense(def).with_recruit_cost(10) \
+		.with_maintenance(2, 1).build()
 
 
 func _make_context(stats: Stats, turn: int = 5, bfm: BattleFrontManager = null) -> EventContext:

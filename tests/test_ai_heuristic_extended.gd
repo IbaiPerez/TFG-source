@@ -47,12 +47,11 @@ func _make_tile(p_empire: Empire = null,
 
 func _make_troop(p_atk: int = 3, p_def: int = 3,
 		p_mfood: int = 0, p_mgold: int = 0) -> Troop:
-	var t := Troop.new()
-	t.attack = p_atk
-	t.defense = p_def
-	t.maintenance_food = p_mfood
-	t.maintenance_gold = p_mgold
-	return t
+	# nombre y coste EXPLICITOS a los defaults de Troop: este helper los dejaba sin
+	# fijar y el builder pone "TestTroop" y 10.
+	return TestBuilders.troop().with_name("").with_recruit_cost(0) \
+		.with_attack(p_atk).with_defense(p_def) \
+		.with_maintenance(p_mgold, p_mfood).build()
 
 
 func _make_location(p_type: Tile.location_type,

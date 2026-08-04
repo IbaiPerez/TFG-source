@@ -3,10 +3,7 @@ extends GutTest
 
 
 func _make_empire() -> Empire:
-	var e := Empire.new()
-	e.name = "Test Empire"
-	e.color = Color.RED
-	return e
+	return TestBuilders.empire().with_name("Test Empire").build()
 
 
 func _make_stats_resource() -> Stats:

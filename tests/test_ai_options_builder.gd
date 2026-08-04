@@ -10,11 +10,7 @@ extends GutTest
 # ============================================================
 
 func _make_empire(p_name: String = "TestAI") -> Empire:
-	var e := Empire.new()
-	e.name = p_name
-	e.color = Color.RED
-	e.controlled_tiles = []
-	return e
+	return TestBuilders.empire().with_name(p_name).build()
 
 
 func _make_tile(p_biome: Tile.biome_type = Tile.biome_type.Grassland) -> Tile:
@@ -433,14 +429,9 @@ func test_upgrade_building_no_options_with_no_upgradable_buildings() -> void:
 # ============================================================
 
 func _make_troop(p_name: String = "Knight", p_cost: int = 30) -> Troop:
-	var t := Troop.new()
-	t.name = p_name
-	t.attack = 3
-	t.defense = 3
-	t.recruitment_cost_gold = p_cost
-	t.maintenance_gold = 1
-	t.maintenance_food = 1
-	return t
+	return TestBuilders.troop().with_name(p_name) \
+		.with_attack(3).with_defense(3).with_recruit_cost(p_cost) \
+		.with_maintenance(1, 1).build()
 
 
 func test_recruit_card_enumerates_one_per_affordable_troop() -> void:

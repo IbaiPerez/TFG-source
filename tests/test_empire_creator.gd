@@ -39,11 +39,7 @@ func _make_tile(grid_x:int, grid_y:int, p_buffer:bool = true,
 
 
 func _make_empire(p_name:String) -> Empire:
-	var e := Empire.new()
-	e.name = p_name
-	e.color = Color.WHITE
-	e.controlled_tiles = []
-	return e
+	return TestBuilders.empire().with_name(p_name).with_color(Color.WHITE).build()
 
 
 func _make_settings(p_radius:int, p_empires:Array[Empire],

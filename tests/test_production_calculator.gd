@@ -15,15 +15,9 @@ func _make_stats() -> Stats:
 
 
 func _make_troop(p_type: int, p_maint_gold: int, p_maint_food: int) -> Troop:
-	var t := Troop.new()
-	t.name = "T"
-	t.type = p_type
-	t.attack = 1
-	t.defense = 1
-	t.recruitment_cost_gold = 10
-	t.maintenance_gold = p_maint_gold
-	t.maintenance_food = p_maint_food
-	return t
+	return TestBuilders.troop().with_name("T").with_type(p_type) \
+		.with_attack(1).with_defense(1).with_recruit_cost(10) \
+		.with_maintenance(p_maint_gold, p_maint_food).build()
 
 
 func _make_calc(stats: Stats, mm: ModifierManager) -> ProductionCalculator:

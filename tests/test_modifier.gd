@@ -481,15 +481,9 @@ func test_get_troop_maintenance_percent_stacks():
 # ============================================================
 
 func _make_troop(p_type: int = Troop.TroopType.INFANTERIA_LIGERA) -> Troop:
-	var t := Troop.new()
-	t.name = "T"
-	t.type = p_type
-	t.attack = 1
-	t.defense = 1
-	t.recruitment_cost_gold = 10
-	t.maintenance_gold = 2
-	t.maintenance_food = 1
-	return t
+	return TestBuilders.troop().with_name("T").with_type(p_type) \
+		.with_attack(1).with_defense(1).with_recruit_cost(10) \
+		.with_maintenance(2, 1).build()
 
 
 func test_stat_modifier_troop_type_filter_defaults_to_minus_one():

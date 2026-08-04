@@ -7,11 +7,7 @@ extends GutTest
 # ============================================================
 
 func _make_empire(p_name: String = "Test", p_color: Color = Color.RED) -> Empire:
-	var e := Empire.new()
-	e.name = p_name
-	e.color = p_color
-	e.controlled_tiles = []
-	return e
+	return TestBuilders.empire().with_name(p_name).with_color(p_color).build()
 
 
 func _make_tile() -> Tile:

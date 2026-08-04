@@ -26,12 +26,11 @@ func _make_location() -> LocationType:
 
 
 func _make_troop(p_type: int, maint_g: int, maint_f: int) -> Troop:
-	var t := Troop.new()
-	t.name = "troop"
-	t.type = p_type
-	t.maintenance_gold = maint_g
-	t.maintenance_food = maint_f
-	return t
+	# atk/def/coste a 0 EXPLICITOS: este helper los dejaba en el default de Troop y
+	# el builder pone 3/3/10. Solo importa el mantenimiento, pero conviene que se vea.
+	return TestBuilders.troop().with_name("troop").with_type(p_type) \
+		.with_attack(0).with_defense(0).with_recruit_cost(0) \
+		.with_maintenance(maint_g, maint_f).build()
 
 
 ## Tile real con un recurso natural, recalculado, autofree.
