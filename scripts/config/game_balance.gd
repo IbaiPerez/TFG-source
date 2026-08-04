@@ -44,6 +44,24 @@ const VICTORY_TILE_SHARE: float = 0.70
 
 
 # ---------------------------------------------------------------------------
+# Pool de cartas desbloqueadas
+# ---------------------------------------------------------------------------
+
+## Curva de peso con la que una carta TÁCTICA recién desbloqueada aparece en el
+## pool: empieza en BASE y decae PER_TURN por turno hasta el suelo MIN, de modo
+## que la carta se ofrece mucho justo tras desbloquearla y luego se diluye entre
+## el resto del pool. La comparten los cinco eventos `unlock_*` de carta táctica,
+## que antes repetían la terna como literal.
+##
+## No es "la" curva de pool: `construction_boom` usa una propia (10 / −0.2 / 3),
+## deliberadamente más agresiva. Si aparece una tercera familia con curva propia,
+## darle su terna con nombre aquí en vez de reutilizar esta.
+const TACTIC_POOL_WEIGHT_BASE: float = 5.0
+const TACTIC_POOL_WEIGHT_PER_TURN: float = -0.1
+const TACTIC_POOL_WEIGHT_MIN: float = 1.5
+
+
+# ---------------------------------------------------------------------------
 # Detección de fase de partida (AIGamePhase.detect / AIRealEval.detect_phase)
 # ---------------------------------------------------------------------------
 

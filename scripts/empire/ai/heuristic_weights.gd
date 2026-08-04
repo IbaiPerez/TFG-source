@@ -328,7 +328,10 @@ class_name HeuristicWeights
 @export var se_tile_food: float = 4.0
 @export var se_cpt_horizon_lo: float = 5.0    ## CARDS_PER_TURN: horizonte cerca de ganar
 @export var se_cpt_horizon_hi: float = 40.0   ## horizonte lejos de ganar
-@export var se_cpt_share_target: float = 0.70 ## umbral de victoria para el horizonte
+## Cuota territorial que se toma como "victoria" al estimar cuántos turnos quedan.
+## Deriva de la REGLA (GameBalance.VICTORY_TILE_SHARE) en vez de repetir el 0.70:
+## si mañana la dominación pide otra fracción, el horizonte la sigue solo.
+@export var se_cpt_share_target: float = GameBalance.VICTORY_TILE_SHARE
 @export var se_cpt_base: float = 8.0
 @export var se_cpt_horizon_scale: float = 0.6
 @export var se_card_draw: float = 8.0
@@ -342,7 +345,13 @@ class_name HeuristicWeights
 # score_state (evaluación de estado para MCTS). Pesos por fase + normalizadores.
 # ---------------------------------------------------------------------------
 @export_group("Estado (MCTS)")
-@export var state_victory_share: float = 0.70   ## dominación (condición terminal)
+## Condición TERMINAL de score_state: con esta cuota de casillas el estado vale ±1.
+## No es un peso ajustable sino la REGLA de victoria vista por el MCTS, así que
+## deriva de GameBalance.VICTORY_TILE_SHARE. Si divergiera, el árbol daría por
+## ganadas partidas que el juego no termina (o al revés). Sigue siendo @export
+## para poder darle a la IA una creencia distinta a propósito desde un .tres, pero
+## NO está en SPEC: el optimizador no puede moverla.
+@export var state_victory_share: float = GameBalance.VICTORY_TILE_SHARE
 # Pesos por fase de la evaluación de estado del MCTS (AIRealEval.score_state).
 # Valores reforzados hacia TERRITORIO respecto a versiones previas: la victoria es
 # por dominación, y en rollouts cortos reclutar movía el valor más que colonizar.

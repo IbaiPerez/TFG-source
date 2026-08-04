@@ -113,3 +113,41 @@ func test_partial_keys_vector() -> void:
 	assert_eq(w.food_weight, 7.0)
 	# El resto de campos permanece intacto.
 	assert_eq(w.defense_weight, HeuristicWeights.get_default().defense_weight)
+
+
+# ---------------------------------------------------------------------------
+# Reglas del juego que la IA solo CREE (no debe reimplementarlas con un literal)
+# ---------------------------------------------------------------------------
+
+func test_el_umbral_terminal_del_mcts_sigue_a_la_regla_de_victoria() -> void:
+	# state_victory_share NO es un peso: es la condicion de dominacion vista por
+	# el arbol. Si divergiera de GameBalance, el MCTS daria por ganadas partidas
+	# que el juego no termina (o al reves) y ninguna otra prueba lo notaria,
+	# porque los tests de score_state afirman signos, no umbrales.
+	assert_eq(HeuristicWeights.new().state_victory_share,
+		GameBalance.VICTORY_TILE_SHARE,
+		"el umbral terminal del MCTS debe derivar de la regla de victoria")
+
+
+func test_el_horizonte_de_cards_per_turn_sigue_a_la_regla_de_victoria() -> void:
+	assert_eq(HeuristicWeights.new().se_cpt_share_target,
+		GameBalance.VICTORY_TILE_SHARE,
+		"el horizonte 'cuanto me falta para ganar' debe derivar de la misma regla")
+
+
+func test_las_reglas_no_entran_en_el_espacio_de_busqueda() -> void:
+	# Son creencias sobre las REGLAS, no preferencias: el optimizador no debe
+	# poder moverlas, o produciria un campeon que juega con otro reglamento.
+	for key in ["state_victory_share", "se_cpt_share_target"]:
+		assert_false(HeuristicWeights.OPTIMIZABLE_KEYS.has(key),
+			"%s no debe ser optimizable" % key)
+
+
+func test_el_tres_campeon_sigue_cargando() -> void:
+	# Guarda del ciclo de clases: HeuristicWeights es un Resource que se carga
+	# desde .tres y ahora referencia GameBalance. Si esa referencia crease un
+	# ciclo, load() devolveria null EN EJECUCION, sin error de parseo y con el
+	# reimport headless en EXIT=0 — o sea, en silencio.
+	var champion := load("res://resources/ai/heuristic_weights_optimized.tres")
+	assert_not_null(champion, "el .tres campeon debe seguir cargando")
+	assert_true(champion is HeuristicWeights, "y debe seguir siendo HeuristicWeights")
