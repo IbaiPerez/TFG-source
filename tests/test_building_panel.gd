@@ -56,17 +56,7 @@ func _make_tile() -> Tile:
 func _make_building(p_cost:int) -> Building:
 	# Edificio "permisivo": sin requisitos de recurso/bioma/location, asi
 	# que `tile.can_build(b)` solo decide por max_buildings (libre).
-	var b := Building.new()
-	b.name = "TestBuilding"
-	b.construction_cost = p_cost
-	b.gold_produced = 1
-	b.food_produced = 0
-	b.required_natural_resource = null
-	b.allowed_location_type = []
-	b.allowed_biomes = []
-	b.effects = []
-	b.upgrades_to = []
-	return b
+	return TestBuilders.building().with_cost(p_cost).with_gold(1).build()
 
 
 func _make_stats(p_gold:int) -> Stats:

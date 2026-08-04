@@ -12,12 +12,8 @@ const TILE_PANEL = preload("res://scenes/UI/tile/tile_panel.tscn")
 # --- Helpers ---------------------------------------------------------------
 
 func _make_building(b_name:String = "TestBldg", cost:int = 50) -> Building:
-	var b := Building.new()
-	b.name = b_name
-	b.construction_cost = cost
-	b.gold_produced = 1
-	b.food_produced = 1
-	return b
+	return TestBuilders.building().with_name(b_name).with_cost(cost) \
+		.with_gold(1).with_food(1).build()
 
 
 func _make_location(type:int, max_b:int = 3) -> LocationType:

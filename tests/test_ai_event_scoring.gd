@@ -7,13 +7,10 @@ extends GutTest
 
 
 func _make_building(p_gold: int = 0, p_food: int = 0, p_defense: int = 0) -> Building:
-	var b := Building.new()
-	b.name = "TestBuilding"
-	b.gold_produced = p_gold
-	b.food_produced = p_food
-	b.flat_defense_bonus = p_defense
-	b.allowed_location_type = []
-	return b
+	# coste 0 EXPLICITO: este helper no lo fijaba (Building default 0) y el builder
+	# pone 50. Estos tests puntuan casillas, no compran, asi que no debe influir.
+	return TestBuilders.building().with_cost(0) \
+		.with_gold(p_gold).with_food(p_food).with_defense(p_defense).build()
 
 
 func _make_location(p_type: Tile.location_type) -> LocationType:

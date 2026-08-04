@@ -25,16 +25,8 @@ func _make_stats(p_gold: int = 200) -> Stats:
 
 
 func _make_building(p_name: String = "Mine", p_cost: int = 50) -> Building:
-	var b := Building.new()
-	b.name = p_name
-	b.construction_cost = p_cost
-	b.gold_produced = 3
-	b.food_produced = 0
-	b.effects = []
-	b.upgrades_to = []
-	b.allowed_location_type = []
-	b.allowed_biomes = []
-	return b
+	return TestBuilders.building().with_name(p_name).with_cost(p_cost) \
+		.with_gold(3).build()
 
 
 # ============================================================

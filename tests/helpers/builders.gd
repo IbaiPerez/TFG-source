@@ -179,6 +179,8 @@ class BuildingB extends RefCounted:
 	var _upgrades_to: Array = []
 	var _allowed_biomes: Array = []
 	var _allowed_location_type: Array = []
+	var _required_resource: NaturalResource = null
+	var _food_percent_bonus := 0.0
 
 	func with_name(v: String) -> BuildingB: _name = v; return self
 	func with_gold(v: int) -> BuildingB: _gold = v; return self
@@ -189,6 +191,11 @@ class BuildingB extends RefCounted:
 	func with_upgrades_to(buildings: Array) -> BuildingB: _upgrades_to = buildings; return self
 	func with_allowed_biomes(biomes: Array) -> BuildingB: _allowed_biomes = biomes; return self
 	func with_allowed_locations(locations: Array) -> BuildingB: _allowed_location_type = locations; return self
+	## Recurso natural que la casilla debe tener para admitir el edificio. Sin él,
+	## `Tile.can_build` solo mira los slots libres.
+	func with_required_resource(r: NaturalResource) -> BuildingB: _required_resource = r; return self
+	## Bonus porcentual sobre la comida del recurso natural de la casilla (Molino).
+	func with_food_percent_bonus(v: float) -> BuildingB: _food_percent_bonus = v; return self
 
 	func build() -> Building:
 		var b := Building.new()
@@ -197,6 +204,8 @@ class BuildingB extends RefCounted:
 		b.food_produced = _food
 		b.flat_defense_bonus = _defense
 		b.construction_cost = _cost
+		b.required_natural_resource = _required_resource
+		b.food_percent_bonus = _food_percent_bonus
 		var eff: Array[BuildingEffect] = []
 		for e in _effects:
 			eff.append(e as BuildingEffect)

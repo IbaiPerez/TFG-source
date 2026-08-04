@@ -26,17 +26,9 @@ func _make_ctx(stats: Stats) -> AITurnContext:
 
 func _make_building(p_gold: int = 0, p_food: int = 0,
 		p_defense: int = 0, p_cost: int = 50) -> Building:
-	var b := Building.new()
-	b.name = "TestBuilding"
-	b.gold_produced = p_gold
-	b.food_produced = p_food
-	b.flat_defense_bonus = p_defense
-	b.construction_cost = p_cost
-	b.effects = []
-	b.upgrades_to = []
-	b.allowed_biomes = []
-	b.allowed_location_type = []
-	return b
+	return TestBuilders.building() \
+		.with_gold(p_gold).with_food(p_food).with_defense(p_defense) \
+		.with_cost(p_cost).build()
 
 
 func _make_tile(p_empire: Empire = null,

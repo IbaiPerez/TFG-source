@@ -28,14 +28,9 @@ func _make_location(p_type: int, max_b: int, food_cons: int) -> LocationType:
 
 func _make_building(p_name: String, gold: int, food: int,
 		defense: int = 0, food_pct: float = 0.0) -> Building:
-	var b := Building.new()
-	b.name = p_name
-	b.gold_produced = gold
-	b.food_produced = food
-	b.flat_defense_bonus = defense
-	b.food_percent_bonus = food_pct
-	b.construction_cost = 50
-	return b
+	return TestBuilders.building().with_name(p_name) \
+		.with_gold(gold).with_food(food).with_defense(defense) \
+		.with_food_percent_bonus(food_pct).build()
 
 
 ## Crea un Tile REAL en memoria (Node3D) con los datos dados y lo recalcula.

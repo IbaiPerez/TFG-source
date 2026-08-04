@@ -51,11 +51,7 @@ func _make_location(p_type: int, max_b: int, food_cons: int) -> LocationType:
 
 
 func _make_building(p_name: String, defense: int) -> Building:
-	var b := Building.new()
-	b.name = p_name
-	b.flat_defense_bonus = defense
-	b.construction_cost = 50
-	return b
+	return TestBuilders.building().with_name(p_name).with_defense(defense).build()
 
 
 ## Tile real (Node3D) con bioma y edificios, autofree.

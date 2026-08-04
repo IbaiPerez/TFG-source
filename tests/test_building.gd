@@ -47,17 +47,11 @@ func _make_building(p_name: String = "Mine", p_cost: int = 50,
 		p_required_resource: NaturalResource = null,
 		p_allowed_locations: Array[LocationType] = [],
 		p_allowed_biomes: Array[Tile.biome_type] = []) -> Building:
-	var b := Building.new()
-	b.name = p_name
-	b.construction_cost = p_cost
-	b.gold_produced = p_gold
-	b.food_produced = p_food
-	b.required_natural_resource = p_required_resource
-	b.allowed_location_type = p_allowed_locations
-	b.allowed_biomes = p_allowed_biomes
-	b.effects = []
-	b.upgrades_to = []
-	return b
+	return TestBuilders.building().with_name(p_name).with_cost(p_cost) \
+		.with_gold(p_gold).with_food(p_food) \
+		.with_required_resource(p_required_resource) \
+		.with_allowed_locations(p_allowed_locations) \
+		.with_allowed_biomes(p_allowed_biomes).build()
 
 
 func _make_stats(p_gold: int = 200) -> Stats:
