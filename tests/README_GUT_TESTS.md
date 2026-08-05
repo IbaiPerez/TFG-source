@@ -66,6 +66,7 @@ documenta en su cabecera los parámetros finos y dónde deja el JSON.
 | `RUN_HP_SWEEP` | Calibración de hiperparámetros del SO-ISMCTS (ablación) | ~horas |
 | `RUN_MODE_COMPARISON` | Round-robin heurística vs SO-ISMCTS por emparejamiento y presupuesto | ~horas |
 | `RUN_VALIDATE_CHAMPION` | Generalización del campeón contra un pool held-out | ~horas |
+| `RUN_AB_THROUGHPUT` | A/B de throughput del MCTS con las partidas clavadas | ~12 min |
 | `RUN_BENCH_MCTS` | Benchmark campeón-MCTS vs baseline-MCTS, acotado por tiempo | una noche |
 
 Atajos de humo, para comprobar que el arnés arranca sin esperar el ciclo entero:
