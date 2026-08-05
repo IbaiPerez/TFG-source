@@ -1,15 +1,12 @@
 extends EmpireController
 class_name AIController
 
-## Controlador de IA para imperios no-jugador.
+## Controlador de IA para imperios no-jugador. ORQUESTA el turno; no decide.
 ##
-## Decide cada jugada del turno con el algoritmo configurado en `ai_config`:
-##   - MCTS (por defecto): SO-ISMCTS sobre un estado real determinizado
-##     (`AIRealState`), con la heurística fuerte como prior/poda en la raíz y
-##     reutilización de subárbol intra-turno (warm start). Ver `_pick_best_option_mcts`.
-##   - HEURISTIC: puntúa cada opción con `AIHeuristic.score_option` y elige la
-##     mejor. Es también el fallback cuando MCTS degenera (`_pick_best_option`).
-## En ambos casos la opción "no jugar nada" (PASS) compite como una jugada más.
+## QUÉ jugada se elige (MCTS / heurística / random) vive en [AIDecisionPolicy], y
+## el reparto de tropas a los frentes en [AIFrontAssignment]. Aquí queda el ciclo
+## del turno: robar, iterar decisiones, esperar los delays de presentación,
+## descartar y cerrar.
 ##
 ## Bucle por turno:
 ##   1. _process_turn_start() — producción y modificadores.
@@ -62,30 +59,16 @@ var _drawn_cards: Array[Card] = []
 ## Se inicializa lazy en el primer turno con rival. Persiste entre turnos.
 var _deck_observer: AIDeckObserver = null
 
-## Diagnóstico MCTS (acumulado durante la partida): nº de decisiones tomadas con
-## MCTS y de cuántas la búsqueda se apartó del prior heurístico (overrode_prior).
-## El harness de simulación los lee al final para medir la tasa de "override".
-var mcts_decisions: int = 0
-var mcts_prior_overrides: int = 0
-## Iteraciones MCTS acumuladas: `mcts_total_iterations` = cómputo real gastado
-## (iteraciones NUEVAS por decisión); `mcts_total_root_visits` = visitas totales en
-## la raíz de cada búsqueda, que con reutilización de subárbol INCLUYE el warm start
-## heredado. El ratio root_visits/iterations > 1 mide cuánto aporta la persistencia.
-var mcts_total_iterations: int = 0
-var mcts_total_root_visits: int = 0
+## Politica de decision (MCTS / heuristica / random). Guarda el subarbol
+## conservado entre decisiones del turno y los contadores de diagnostico.
+var decision_policy: AIDecisionPolicy
 
-## Subárbol MCTS conservado entre decisiones del MISMO turno (tree persistence —
-## una de las fortalezas de MCTS). Tras jugar una carta se re-enraíza en el hijo
-## de la jugada elegida, así la siguiente decisión reutiliza las visitas/valor ya
-## calculados (warm start) en vez de empezar el árbol de cero. Se descarta (null)
-## al empezar cada turno y cuando el árbol deja de ser válido (PASS, fallback a
-## heurística, o jugada sin opción real correspondiente).
-var _mcts_root: AIRealMCTSNode = null
 
 
 func _ready() -> void:
 	_init_managers()
 	_rng = RandomNumberGenerator.new()
+	decision_policy = AIDecisionPolicy.new(_rng)
 	if ai_config == null:
 		ai_config = AIConfig.new()
 	Events.card_returned_to_hand.connect(_on_card_returned_to_hand)
@@ -188,7 +171,7 @@ func _build_turn_context() -> AITurnContext:
 
 	# Nuevo turno: el árbol de turnos anteriores ya no es válido (intervinieron
 	# el rival y advance_turn). La reutilización de subárbol es SOLO intra-turno.
-	_mcts_root = null
+	decision_policy.reset_tree()
 	return ctx
 
 
@@ -197,13 +180,13 @@ func _build_turn_context() -> AITurnContext:
 func _run_decision_loop(ctx: AITurnContext, empire_name: String) -> void:
 	var iterations := 0
 	while iterations < max_iterations and not ctx.drawn_cards.is_empty():
-		var options := _enumerate_all_options(ctx)
+		var options := decision_policy.enumerate_all_options(ctx)
 		options.append(AIPlayOption.create_pass())
 
 		# Preparar caché de urgencias una sola vez para todo este ciclo de scoring.
 		# Se invalida tras ejecutar la opción porque el estado del mundo cambia.
 		AIHeuristic.prepare_decision_cache(ctx)
-		var chosen := _pick_best_option(options, ctx)
+		var chosen := decision_policy.pick_best(options, ctx)
 		ctx.invalidate_decision_cache()
 
 		if chosen == null or chosen.is_pass:
@@ -292,161 +275,6 @@ func _seed_rng_for_turn() -> void:
 		_rng.randomize()
 
 
-func _enumerate_all_options(ctx: AITurnContext) -> Array[AIPlayOption]:
-	var all: Array[AIPlayOption] = []
-	for card in ctx.drawn_cards:
-		all.append_array(AIOptionsBuilder.build_options(card, ctx))
-	return all
-
-
-func _pick_best_option(options: Array[AIPlayOption], ctx: AITurnContext) -> AIPlayOption:
-	if options.is_empty():
-		return null
-	var cfg := ctx.config
-	if cfg != null and cfg.mode == AIConfig.Mode.RANDOM:
-		# Política aleatoria: una opción legal al azar (incluye PASS). Rival de
-		# referencia débil para el fitness del optimizador; usa ctx.rng para que
-		# la partida siga siendo determinista con seed fijo.
-		return options[ctx.rng.randi_range(0, options.size() - 1)]
-	if cfg != null and cfg.mode == AIConfig.Mode.MCTS:
-		var picked := _pick_best_option_mcts(options, ctx, cfg)
-		# Si MCTS no devuelve jugada (sin acciones modelables), caemos a heurística.
-		if picked != null:
-			return picked
-	return _pick_best_option_heuristic(options, ctx)
-
-
-## Decisión por MCTS (SO-ISMCTS sobre estado real). Construye el
-## snapshot rico desde el contexto, busca con AIRealMCTS, y mapea la jugada
-## elegida (snapshot) a la AIPlayOption real ejecutable. Devuelve:
-##   - la AIPlayOption mapeada,
-##   - una PASS si la búsqueda decidió pasar (cierra el turno),
-##   - null si la búsqueda degeneró o la jugada no tiene opción real
-##     correspondiente → el llamante cae a la heurística.
-func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
-		cfg: AIConfig) -> AIPlayOption:
-	var state := AIRealState.from_context(ctx)
-
-	# Determinización del rival (SO-ISMCTS): deck conocido + tamaño de mano.
-	var known_deck: Array[Card] = []
-	var rival_hand_size := 2
-	if ctx.world_view != null:
-		var rival_view := ctx.world_view.get_rival_view()
-		if rival_view != null:
-			known_deck = AIDeterminizer.build_known_deck(rival_view, ctx.deck_observer)
-			rival_hand_size = rival_view.hand_size
-
-	# Prior HÍBRIDO de la raíz: puntuamos las jugadas reales con la heurística
-	# REAL (score_option sobre el ctx real, con la caché ya preparada) y las
-	# indexamos por move_key para que la raíz del MCTS use la heurística fuerte
-	# como prior/poda, no la aproximación score_move.
-	# Frentes activos en el mismo orden que from_context (para casar TACTIC). Se
-	# calculan UNA vez por decisión, no por jugada.
-	var active_fronts: Array = []
-	for f in ctx.get_front_registry().get_active_instances():
-		if f != null and not f.is_resolved:
-			active_fronts.append(f)
-
-	var root_priors := {}
-	for m in AIRealOptions.enumerate(state, ctx.drawn_cards, AIRealState.OWNER_SELF):
-		var opt := _map_move_to_option(m, options, ctx, active_fronts)
-		if opt != null:
-			root_priors[AIRealMCTSNode.move_key(m)] = AIHeuristic.score_option(opt, ctx)
-
-	# Reutilización de subárbol: pasamos el árbol conservado de la decisión
-	# anterior de este turno (null en la primera decisión) como warm start.
-	var result := AIRealMCTS.search(state, ctx.drawn_cards, known_deck,
-		rival_hand_size, cfg, _rng, root_priors, _mcts_root)
-	# Diagnóstico: contar decisiones y cuántas se apartan del prior heurístico.
-	mcts_decisions += 1
-	mcts_total_iterations += result.iterations
-	mcts_total_root_visits += result.root_visits
-	if result.overrode_prior:
-		mcts_prior_overrides += 1
-
-	# Por defecto el árbol queda invalidado; solo se conserva en el camino feliz
-	# (MCTS eligió una jugada con opción real ejecutable, distinta de PASS).
-	_mcts_root = null
-
-	if result.best_move == null:
-		return null   # búsqueda degenerada → heurística
-	if result.chose_pass:
-		return AIPlayOption.create_pass()
-
-	var picked := _map_move_to_option(result.best_move, options, ctx, active_fronts)
-	if picked == null:
-		return null   # jugada sin opción real correspondiente → heurística
-
-	# La jugada elegida se EJECUTARÁ a continuación en _run_turn(): conservamos su
-	# subárbol como raíz para la próxima decisión de este turno (warm start con las
-	# visitas/valor ya acumulados bajo esa jugada).
-	_mcts_root = result.best_child
-
-	GameLogger.debug("[IA] MCTS-v2: %d iters · raíz %d/%d · Q=%.3f → %s" % [
-		result.iterations, result.root_visits, result.root_children,
-		result.best_avg_value, picked.describe()])
-	return picked
-
-
-## Mapea una jugada del snapshot (AIRealOptions.Move) a la AIPlayOption real
-## equivalente entre las opciones legales del turno, casando por carta + target
-## (índice de tile en WorldMap.map, igual que AIRealState.from_context). Devuelve
-## null si ninguna casa (el llamante cae a la heurística).
-## `active_fronts` y `ctx` los aporta el llamante para no recalcularlos por jugada:
-## antes cada llamada duplicaba el registro global de frentes y resolvía
-## cada tile con un find O(n) sobre WorldMap.map.
-func _map_move_to_option(m: AIRealOptions.Move,
-		options: Array[AIPlayOption], ctx: AITurnContext,
-		active_fronts: Array) -> AIPlayOption:
-	for opt in options:
-		if opt == null or opt.is_pass or opt.card != m.card:
-			continue
-		match m.kind:
-			&"COLONIZE", &"CHANGE_LOCATION":
-				if ctx.index_of_tile(opt.anchor_tile()) == m.tile_id:
-					return opt
-			&"GENERATE_GOLD", &"CARD_DRAW":
-				return opt   # sin target: basta la identidad de carta
-			&"BUILD", &"DIRECT_BUILD":
-				var bo := opt as AIBuildOption
-				if bo != null and bo.building == m.building \
-						and ctx.index_of_tile(opt.anchor_tile()) == m.tile_id:
-					return opt
-			&"UPGRADE":
-				var uo := opt as AIUpgradeBuildingOption
-				if uo != null and uo.old_building == m.old_building \
-						and uo.new_building == m.new_building \
-						and ctx.index_of_tile(opt.anchor_tile()) == m.tile_id:
-					return opt
-			&"RECRUIT":
-				var ro := opt as AIRecruitOption
-				if ro != null and ro.troop == m.troop:
-					return opt
-			&"OPEN_FRONT":
-				var ofo := opt as AIOpenFrontOption
-				if ofo != null and ctx.index_of_tile(ofo.enemy_tile) == m.def_tile_id \
-						and ctx.index_of_tile(ofo.source_tile) == m.tile_id:
-					return opt
-			&"TACTIC":
-				var to := opt as AITacticOption
-				if to != null and m.front_idx >= 0 and m.front_idx < active_fronts.size() \
-						and to.front == active_fronts[m.front_idx]:
-					return opt
-	return null
-
-
-
-## Decisión por heurística pura. También es el fallback de MCTS.
-func _pick_best_option_heuristic(options: Array[AIPlayOption],
-		ctx: AITurnContext) -> AIPlayOption:
-	var best: AIPlayOption = null
-	var best_score := -INF
-	for option in options:
-		var s := AIHeuristic.score_option(option, ctx)
-		if s > best_score:
-			best_score = s
-			best = option
-	return best
 
 
 ## Espera asíncrona configurable. Si delay <= 0 retorna inmediatamente
@@ -489,73 +317,7 @@ func _build_world_view() -> AIWorldView:
 	return AIWorldView.build(stats, all)
 
 
-## Asigna tropas del pool a los frentes propios con prioridad por urgencia.
-##
-## Heurística v2:
-##   1. Calcula urgency_score para cada frente (posición del marker vs umbral).
-##      Frentes sin tropas reciben urgencia × 2: sin resistencia el marker cae libre.
-##   2. Ordena frentes por urgencia DESC.
-##   3. Primera pasada: llenar hasta MIN_TROOPS_PER_FRONT empezando por el más urgente.
-##      Tropa elegida: defensor → max defense; atacante → max attack.
-##   4. Segunda pasada: reforzar hasta MIN + 2 los frentes donde se pierde
-##      activamente (base_urgency > 1.5, es decir, marker negativo).
-##
-## Pre: solo lo llama AIController; el jugador asigna via BattleFrontPanel.
-## El algoritmo (urgencia + dos pasadas) vive en TroopAssignmentPolicy, compartido
-## con el simulador MCTS; aquí solo construimos los slots sobre los BattleFront reales.
+## Reparto de tropas del pool a los frentes propios. El algoritmo vive en
+## AIFrontAssignment (y su politica compartida con el simulador del MCTS).
 func _assign_troops_to_fronts() -> void:
-	if battle_front_manager == null:
-		return
-	if stats == null or stats.troop_pool.is_empty():
-		return
-
-	var slots: Array = []
-	for front in battle_front_manager.get_registry().get_active_instances():
-		if front == null or front.is_resolved:
-			continue
-		var side: BattleFront.Side
-		if front.attacker_empire == stats.empire:
-			side = BattleFront.Side.ATTACKER
-		elif front.defender_empire == stats.empire:
-			side = BattleFront.Side.DEFENDER
-		else:
-			continue
-		var own_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
-		var slot := _LiveFrontSlot.new(front, side, stats, battle_front_manager)
-		slot.base_urgency = TroopAssignmentPolicy.base_urgency(
-			own_marker, front.get_current_threshold())
-		slots.append(slot)
-
-	TroopAssignmentPolicy.assign(slots)
-
-
-## Slot de asignación sobre un BattleFront real (ver TroopAssignmentPolicy).
-## Defensor → max defense; Atacante → max attack. Asigna vía el BattleFrontManager.
-class _LiveFrontSlot extends RefCounted:
-	var front: BattleFront
-	var side: BattleFront.Side
-	var stats: Stats
-	var bfm: BattleFrontManager
-	var base_urgency: float = 0.0
-
-	func _init(p_front: BattleFront, p_side: BattleFront.Side, p_stats: Stats,
-			p_bfm: BattleFrontManager) -> void:
-		front = p_front
-		side = p_side
-		stats = p_stats
-		bfm = p_bfm
-
-	func troop_count() -> int:
-		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER \
-			else front.defender_troops
-		return troops.size()
-
-	func assign_best() -> bool:
-		if stats.troop_pool.is_empty():
-			return false
-		var sorted_pool := stats.troop_pool.duplicate()
-		if side == BattleFront.Side.DEFENDER:
-			sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
-		else:
-			sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)
-		return bfm.assign_troop_to_front(front, sorted_pool[0], side)
+	AIFrontAssignment.assign(battle_front_manager, stats)

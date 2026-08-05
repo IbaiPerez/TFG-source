@@ -720,3 +720,40 @@ func test_assign_selects_best_attack_troop_for_attacker() -> void:
 	assert_eq(front.attacker_troops[0].name, "high_attack",
 		"Atacante elige la tropa con mayor attack primero")
 	BattleFront.clear_active_instances()
+
+
+# ============================================================
+#  Cableado de la politica de decision
+# ============================================================
+
+func test_la_politica_de_decision_existe_al_entrar_en_el_arbol() -> void:
+	var ai := _spawn_ai(_make_stats())
+	assert_not_null(ai.decision_policy,
+		"_ready() debe crear la politica; sin ella el turno no puede decidir")
+
+
+func test_la_politica_comparte_el_rng_del_controller() -> void:
+	# Si la politica se creara su propio RNG, el seed inyectado dejaria de hacer
+	# deterministas las decisiones y los tests de reproducibilidad mentirian.
+	var ai := _spawn_ai(_make_stats(), 12345)
+	assert_eq(ai.decision_policy._rng, ai._rng,
+		"la politica debe usar el MISMO RNG que el controller, no uno propio")
+
+
+func test_el_arnes_lee_los_contadores_mcts_de_la_politica() -> void:
+	# Guarda de la medicion A/B del TFG: mcts_stats_by_label alimenta a
+	# AIModeComparator. Si este cableado se rompiera, _read_mcts_stats devolveria
+	# CEROS EN SILENCIO y las tandas informarian "0 iters/decision" sin fallar.
+	var ai := _spawn_ai(_make_stats())
+	ai.decision_policy.mcts_decisions = 7
+	ai.decision_policy.mcts_prior_overrides = 3
+	ai.decision_policy.mcts_total_iterations = 900
+	ai.decision_policy.mcts_total_root_visits = 1200
+
+	var harness := GameSimHarness.new()
+	var stats_leidos := harness._read_mcts_stats(ai)
+
+	assert_eq(stats_leidos["decisions"], 7)
+	assert_eq(stats_leidos["prior_overrides"], 3)
+	assert_eq(stats_leidos["total_iterations"], 900)
+	assert_eq(stats_leidos["total_root_visits"], 1200)

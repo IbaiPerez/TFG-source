@@ -235,13 +235,16 @@ func run() -> void:
 ## Lee los contadores de diagnóstico MCTS de un AIController. Para un bando
 ## heurístico, sus campos siguen a 0 (nunca ejecuta la búsqueda).
 func _read_mcts_stats(ai: AIController) -> Dictionary:
-	if ai == null:
-		return {"decisions": 0, "prior_overrides": 0, "total_iterations": 0, "total_root_visits": 0}
+	var vacio := {"decisions": 0, "prior_overrides": 0,
+		"total_iterations": 0, "total_root_visits": 0}
+	if ai == null or ai.decision_policy == null:
+		return vacio
+	var p := ai.decision_policy
 	return {
-		"decisions": ai.mcts_decisions,
-		"prior_overrides": ai.mcts_prior_overrides,
-		"total_iterations": ai.mcts_total_iterations,
-		"total_root_visits": ai.mcts_total_root_visits,
+		"decisions": p.mcts_decisions,
+		"prior_overrides": p.mcts_prior_overrides,
+		"total_iterations": p.mcts_total_iterations,
+		"total_root_visits": p.mcts_total_root_visits,
 	}
 
 
