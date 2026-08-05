@@ -93,87 +93,38 @@ func _make_shop_item(card: Card) -> ShopItem:
 
 
 # ============================================================
-#  _gold_urgency
+#  Wrappers de urgencia de AIDecisionCache
 # ============================================================
+#
+# Las BANDAS de las curvas (que gpt cae en que valor, si las fronteras son
+# exclusivas, la monotonia, el orden entre fases) las cubre test_ai_urgency, ya
+# escrito contra los campos de peso. Repetirlas aqui contra literales no anadia
+# cobertura: solo obligaba a editar 19 numeros en cada reajuste, y ademas fallaba
+# por motivos que no eran un bug.
+#
+# Lo que estos wrappers SI anaden sobre AIUrgency es una sola cosa —aplicar los
+# pesos por defecto cuando no se pasan— y eso es lo que se prueba aqui.
 
-func test_gold_urgency_early_crisis() -> void:
-	# gpt=5 < 10 → 3.0
-	assert_almost_eq(AIDecisionCache._gold_urgency(5, AIGamePhase.Phase.EARLY), 3.0, 0.01)
-
-func test_gold_urgency_early_low() -> void:
-	# gpt=20 (10..30) → 1.8
-	assert_almost_eq(AIDecisionCache._gold_urgency(20, AIGamePhase.Phase.EARLY), 1.8, 0.01)
-
-func test_gold_urgency_early_medium() -> void:
-	# gpt=45 (30..60) → 1.0
-	assert_almost_eq(AIDecisionCache._gold_urgency(45, AIGamePhase.Phase.EARLY), 1.0, 0.01)
-
-func test_gold_urgency_early_comfortable() -> void:
-	# gpt=80 (≥60) → 0.7
-	assert_almost_eq(AIDecisionCache._gold_urgency(80, AIGamePhase.Phase.EARLY), 0.7, 0.01)
-
-func test_gold_urgency_mid_crisis() -> void:
-	# gpt=30 < 50 → 3.0
-	assert_almost_eq(AIDecisionCache._gold_urgency(30, AIGamePhase.Phase.MID), 3.0, 0.01)
-
-func test_gold_urgency_mid_low() -> void:
-	# gpt=100 (50..150) → 2.0
-	assert_almost_eq(AIDecisionCache._gold_urgency(100, AIGamePhase.Phase.MID), 2.0, 0.01)
-
-func test_gold_urgency_mid_medium() -> void:
-	# gpt=200 (150..250) → 1.3
-	assert_almost_eq(AIDecisionCache._gold_urgency(200, AIGamePhase.Phase.MID), 1.3, 0.01)
-
-func test_gold_urgency_mid_target() -> void:
-	# gpt=300 (250..400) → 1.0
-	assert_almost_eq(AIDecisionCache._gold_urgency(300, AIGamePhase.Phase.MID), 1.0, 0.01)
-
-func test_gold_urgency_mid_surplus() -> void:
-	# gpt=500 (≥400) → 0.7
-	assert_almost_eq(AIDecisionCache._gold_urgency(500, AIGamePhase.Phase.MID), 0.7, 0.01)
-
-func test_gold_urgency_late_negative() -> void:
-	# gpt=-5 < 0 → 3.0
-	assert_almost_eq(AIDecisionCache._gold_urgency(-5, AIGamePhase.Phase.LATE), 3.0, 0.01)
-
-func test_gold_urgency_late_comfortable() -> void:
-	# gpt=250 (200..500) → 0.7 (rendimiento decreciente en late rico)
-	assert_almost_eq(AIDecisionCache._gold_urgency(250, AIGamePhase.Phase.LATE), 0.7, 0.01)
+func test_los_wrappers_aplican_los_pesos_por_defecto() -> void:
+	var w := HeuristicWeights.get_default()
+	for phase in [AIGamePhase.Phase.EARLY, AIGamePhase.Phase.MID, AIGamePhase.Phase.LATE]:
+		for gpt in [-5, 5, 45, 250, 600]:
+			assert_almost_eq(AIDecisionCache._gold_urgency(gpt, phase),
+				AIUrgency.gold_urgency(gpt, phase, w), 0.001,
+				"sin pesos explicitos debe usar el default")
+		for food in [-1, 1, 3, 7, 15]:
+			assert_almost_eq(AIDecisionCache._food_urgency(food, phase),
+				AIUrgency.food_urgency(food, phase, w), 0.001)
 
 
-# ============================================================
-#  _food_urgency
-# ============================================================
-
-func test_food_urgency_early_negative() -> void:
-	assert_almost_eq(AIDecisionCache._food_urgency(-1, AIGamePhase.Phase.EARLY), 3.0, 0.01)
-
-func test_food_urgency_early_tight() -> void:
-	# food=1 (0..2) → 1.8
-	assert_almost_eq(AIDecisionCache._food_urgency(1, AIGamePhase.Phase.EARLY), 1.8, 0.01)
-
-func test_food_urgency_early_acceptable() -> void:
-	# food=3 (2..5) → 1.0
-	assert_almost_eq(AIDecisionCache._food_urgency(3, AIGamePhase.Phase.EARLY), 1.0, 0.01)
-
-func test_food_urgency_early_comfortable() -> void:
-	# food=10 (≥5) → 0.8
-	assert_almost_eq(AIDecisionCache._food_urgency(10, AIGamePhase.Phase.EARLY), 0.8, 0.01)
-
-func test_food_urgency_mid_negative() -> void:
-	assert_almost_eq(AIDecisionCache._food_urgency(-1, AIGamePhase.Phase.MID), 3.0, 0.01)
-
-func test_food_urgency_mid_tight() -> void:
-	# food=3 (0..5) → 2.0 (más estricto que early)
-	assert_almost_eq(AIDecisionCache._food_urgency(3, AIGamePhase.Phase.MID), 2.0, 0.01)
-
-func test_food_urgency_mid_margin() -> void:
-	# food=7 (5..10) → 1.2
-	assert_almost_eq(AIDecisionCache._food_urgency(7, AIGamePhase.Phase.MID), 1.2, 0.01)
-
-func test_food_urgency_mid_comfortable() -> void:
-	# food=15 (≥10) → 1.0
-	assert_almost_eq(AIDecisionCache._food_urgency(15, AIGamePhase.Phase.MID), 1.0, 0.01)
+func test_los_wrappers_respetan_los_pesos_que_se_les_pasan() -> void:
+	# Si el wrapper ignorase el parametro y usase siempre el default, el optimizador
+	# no podria mover estas urgencias y nada lo delataria.
+	var propios := HeuristicWeights.new()
+	propios.gold_urg_early_v0 = 42.0
+	assert_almost_eq(AIDecisionCache._gold_urgency(
+		int(propios.gold_urg_early_t0) - 1, AIGamePhase.Phase.EARLY, propios),
+		42.0, 0.001, "el wrapper debe usar los pesos que recibe, no el default")
 
 
 # ============================================================
@@ -187,28 +138,44 @@ func _make_draw_option(amount: int) -> AIDrawCardOption:
 	return AIDrawCardOption.from_card(card)
 
 
+## Score de robar `amount` cartas segun el tamano de la pila, expresado como la
+## formula: amount x peso de robo x urgencia de mazo. Que la urgencia caiga en la
+## banda correcta lo cubre test_ai_urgency; aqui se comprueba que score_option la
+## COMPONE bien, que es lo propio de este camino.
+func _score_draw_esperado(amount: int, draw_size: int, w: HeuristicWeights) -> float:
+	return float(amount) * w.draw_weight * AIUrgency.deck_urgency(draw_size, w)
+
+
+func _ctx_con_pila(tamano: int) -> AITurnContext:
+	var stats := _make_stats()
+	for _i in tamano:
+		stats.draw_pile.add_card(GenerateGoldCard.new())
+	return _make_ctx(stats)
+
+
 func test_deck_urgency_empty_pile_returns_max_score() -> void:
-	# draw_size=0 → urgency=2.0 → score=1*4*2.0=8.0
 	var ctx := _make_ctx(_make_stats())
-	assert_almost_eq(AIHeuristic.score_option(_make_draw_option(1), ctx), 8.0, 0.01)
+	var w := ctx.get_weights()
+	assert_almost_eq(AIHeuristic.score_option(_make_draw_option(1), ctx),
+		_score_draw_esperado(1, 0, w), 0.01)
 
 
-func test_deck_urgency_boundary_at_3() -> void:
-	# draw_size=3 → urgency=1.4 → score=1*4*1.4=5.6
-	var stats := _make_stats()
-	for _i in 3:
-		stats.draw_pile.add_card(GenerateGoldCard.new())
-	var ctx := _make_ctx(stats)
-	assert_almost_eq(AIHeuristic.score_option(_make_draw_option(1), ctx), 5.6, 0.01)
+func test_deck_urgency_en_las_fronteras_de_banda() -> void:
+	# Se prueba EN los umbrales, que es donde se decide la banda.
+	var w := HeuristicWeights.get_default()
+	for umbral in [int(w.deck_urg_t0), int(w.deck_urg_t1)]:
+		var ctx := _ctx_con_pila(umbral)
+		assert_almost_eq(AIHeuristic.score_option(_make_draw_option(1), ctx),
+			_score_draw_esperado(1, umbral, ctx.get_weights()), 0.01,
+			"pila de %d cartas" % umbral)
 
 
-func test_deck_urgency_boundary_at_6() -> void:
-	# draw_size=6 → urgency=1.0 → score=4.0
-	var stats := _make_stats()
-	for _i in 6:
-		stats.draw_pile.add_card(GenerateGoldCard.new())
-	var ctx := _make_ctx(stats)
-	assert_almost_eq(AIHeuristic.score_option(_make_draw_option(1), ctx), 4.0, 0.01)
+func test_deck_urgency_escala_con_la_cantidad_robada() -> void:
+	# Robar 2 vale el doble que robar 1: el score es lineal en `amount`.
+	var ctx := _ctx_con_pila(0)
+	var una := AIHeuristic.score_option(_make_draw_option(1), ctx)
+	var dos := AIHeuristic.score_option(_make_draw_option(2), ctx)
+	assert_almost_eq(dos, una * 2.0, 0.01)
 
 
 func test_deck_urgency_small_pile_scores_higher_than_large() -> void:
@@ -264,7 +231,7 @@ func test_type_saturation_four_copies_hits_minimum() -> void:
 		stats.draw_pile.add_card(GenerateGoldCard.new())
 	var ctx := _make_ctx(stats)
 	var card := GenerateGoldCard.new()
-	assert_almost_eq(_type_sat(card, ctx), 0.25, 0.01)
+	assert_almost_eq(_type_sat(card, ctx), ctx.get_weights().type_sat_min, 0.01)
 
 
 func test_type_saturation_five_copies_clamped_to_minimum() -> void:
@@ -274,8 +241,9 @@ func test_type_saturation_five_copies_clamped_to_minimum() -> void:
 		stats.draw_pile.add_card(GenerateGoldCard.new())
 	var ctx := _make_ctx(stats)
 	var card := GenerateGoldCard.new()
-	assert_almost_eq(_type_sat(card, ctx), 0.25, 0.01,
-		"5 copias: saturación mínima debe ser 0.25 (no 0.2)")
+	# 1/5 = 0.2 caeria por debajo del suelo: el clamp lo sube al minimo.
+	assert_almost_eq(_type_sat(card, ctx), ctx.get_weights().type_sat_min, 0.01,
+		"con 5 copias la saturacion toca el suelo, no baja de type_sat_min")
 
 
 # ============================================================
@@ -283,9 +251,10 @@ func test_type_saturation_five_copies_clamped_to_minimum() -> void:
 # ============================================================
 
 func test_deck_thinning_value_small_deck() -> void:
-	# size=5 → ratio=0 → lerpf(2,9,0)=2.0
-	var ctx := _make_ctx_with_deck_size(5)
-	assert_almost_eq(AIChoiceScorer.deck_thinning_value(LiveStateView.new(ctx)), 2.0, 0.01)
+	var w := HeuristicWeights.get_default()
+	var ctx := _make_ctx_with_deck_size(int(w.deck_small))
+	assert_almost_eq(AIChoiceScorer.deck_thinning_value(LiveStateView.new(ctx)),
+		w.deck_thin_small, 0.01)
 
 
 func test_deck_thinning_value_large_deck() -> void:
@@ -307,87 +276,66 @@ func test_deck_thinning_value_medium_deck_between_bounds() -> void:
 # ============================================================
 
 func test_purge_threshold_small_deck() -> void:
-	# size=5 → ratio=0 → lerpf(3,10,0)=3.0
-	var ctx := _make_ctx_with_deck_size(5)
-	assert_almost_eq(AILiveFacts.dynamic_purge_threshold(ctx), 3.0, 0.01)
+	var w := HeuristicWeights.get_default()
+	var ctx := _make_ctx_with_deck_size(int(w.deck_small))
+	assert_almost_eq(AILiveFacts.dynamic_purge_threshold(ctx), w.purge_thresh_small, 0.01)
 
 
 func test_purge_threshold_large_deck() -> void:
-	# size=20 → ratio=1.0 → lerpf(3,10,1)=10.0
-	var ctx := _make_ctx_with_deck_size(20)
-	assert_almost_eq(AILiveFacts.dynamic_purge_threshold(ctx), 10.0, 0.01)
+	var w := HeuristicWeights.get_default()
+	var ctx := _make_ctx_with_deck_size(int(w.deck_large))
+	assert_almost_eq(AILiveFacts.dynamic_purge_threshold(ctx), w.purge_thresh_large, 0.01)
+
+
+func test_purge_threshold_sube_con_el_tamano_del_mazo() -> void:
+	# La regla: cuanto mas grande el mazo, mas exigente hay que ser para purgar.
+	var w := HeuristicWeights.get_default()
+	assert_gt(w.purge_thresh_large, w.purge_thresh_small)
+	assert_gt(AILiveFacts.dynamic_purge_threshold(_make_ctx_with_deck_size(int(w.deck_large))),
+		AILiveFacts.dynamic_purge_threshold(_make_ctx_with_deck_size(int(w.deck_small))))
 
 
 # ============================================================
 #  _resource_surplus_factor
 # ============================================================
+#
+# La REGLA (guarda de comida, umbral por fase, tope al doble) la cubre
+# test_ai_economy contra los campos de peso. Lo propio del mundo vivo es DE DONDE
+# salen food y gpt: de las stats del contexto. Eso es lo que se prueba aqui.
 
-func test_surplus_factor_blocked_by_low_food() -> void:
-	# food=3 < 5 → guard → 1.0 aunque gpt sea muy alto
-	var stats := _make_stats(500, 3)
-	var ctx := _make_ctx(stats)
-	assert_almost_eq(
-		AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 1.0, 0.01)
-
-
-func test_surplus_factor_at_comfortable_threshold_returns_one() -> void:
-	# MID comfortable_gpt=200; food=10, gpt=200 → gpt<=200 → 1.0
-	var stats := _make_stats(200, 10)
-	var ctx := _make_ctx(stats)
-	assert_almost_eq(
-		AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 1.0, 0.01)
-
-
-func test_surplus_factor_double_threshold_returns_max() -> void:
-	# MID comfortable_gpt=200; gpt=400 (×2) → lerpf(1,3,1.0)=3.0
-	var stats := _make_stats(400, 10)
-	var ctx := _make_ctx(stats)
-	assert_almost_eq(
-		AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 3.0, 0.01)
-
-
-func test_surplus_factor_half_above_threshold() -> void:
-	# MID comfortable_gpt=200; gpt=300 → (300-200)/200=0.5 → lerpf(1,3,0.5)=2.0
-	var stats := _make_stats(300, 10)
-	var ctx := _make_ctx(stats)
-	assert_almost_eq(
-		AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 2.0, 0.01)
+func test_surplus_factor_lee_food_y_gpt_de_las_stats() -> void:
+	var w := HeuristicWeights.get_default()
+	var casos := [
+		[int(w.surplus_min_food) - 1, int(w.surplus_comfortable_mid * 3)],  # sin margen
+		[int(w.surplus_min_food) * 2, int(w.surplus_comfortable_mid)],      # en el umbral
+		[int(w.surplus_min_food) * 2, int(w.surplus_comfortable_mid * 2)],  # al doble
+	]
+	for caso in casos:
+		var comida: int = caso[0]
+		var gpt: int = caso[1]
+		var ctx := _make_ctx(_make_stats(gpt, comida))
+		assert_almost_eq(
+			AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID),
+			AIEconomy.resource_surplus_factor(comida, gpt, AIGamePhase.Phase.MID,
+				ctx.get_weights()), 0.001,
+			"comida %d, gpt %d" % [comida, gpt])
 
 
 # ============================================================
 #  _expansion_factor
 # ============================================================
 
-func test_expansion_factor_unknown_returns_neutral() -> void:
-	var ctx := _make_ctx(_make_stats())
-	ctx.colonizable_tiles_count = -1
-	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 0.5, 0.01)
-
-
-func test_expansion_factor_zero_tiles_returns_zero() -> void:
-	var ctx := _make_ctx(_make_stats())
-	ctx.colonizable_tiles_count = 0
-	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 0.0, 0.01)
-
-
-func test_expansion_factor_half_reference() -> void:
-	# avail=7, REFERENCE=15 → 7/15≈0.467
-	var ctx := _make_ctx(_make_stats())
-	ctx.colonizable_tiles_count = 7
-	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 7.0 / 15.0, 0.01)
-
-
-func test_expansion_factor_at_reference_returns_one() -> void:
-	var ctx := _make_ctx(_make_stats())
-	ctx.colonizable_tiles_count = 15
-	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 1.0, 0.01)
-
-
-func test_expansion_factor_above_reference_capped_at_one() -> void:
-	# avail=30 → min(30/15,1.0)=1.0
-	var ctx := _make_ctx(_make_stats())
-	ctx.colonizable_tiles_count = 30
-	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 1.0, 0.01)
+## La REGLA (centinela de desconocido, saturacion en la referencia, tope) la cubre
+## test_ai_territory contra los campos de peso. Lo propio del mundo vivo, y lo unico
+## que se prueba aqui, es DE DONDE sale el conteo: ctx.colonizable_tiles_count.
+func test_expansion_factor_lee_el_conteo_del_contexto() -> void:
+	var w := HeuristicWeights.get_default()
+	for conteo in [-1, 0, 7, int(w.expansion_reference), int(w.expansion_reference) * 2]:
+		var ctx := _make_ctx(_make_stats())
+		ctx.colonizable_tiles_count = conteo
+		assert_almost_eq(AILiveFacts._expansion_factor(ctx),
+			AITerritory.expansion_factor(conteo, ctx.get_weights()), 0.001,
+			"con %d colonizables" % conteo)
 
 
 # ============================================================
@@ -511,19 +459,13 @@ func test_building_demolished_by_mismatch_returns_true() -> void:
 #  _build_cost_factor
 # ============================================================
 
-func test_build_cost_factor_zero_gold_returns_minimum() -> void:
-	# total_gold=0 → 0.6
-	assert_almost_eq(AILiveFacts._build_cost_factor(50, 0), 0.6, 0.01)
-
-
-func test_build_cost_factor_full_spend_returns_minimum() -> void:
-	# cost=total_gold → spend_ratio=1.0 → lerpf(1.0,0.6,1.0)=0.6
-	assert_almost_eq(AILiveFacts._build_cost_factor(100, 100), 0.6, 0.01)
-
-
-func test_build_cost_factor_half_spend() -> void:
-	# cost/total=0.5 → lerpf(1.0,0.6,0.5)=0.8
-	assert_almost_eq(AILiveFacts._build_cost_factor(50, 100), 0.8, 0.01)
+## La REGLA la cubre test_ai_economy; aqui solo que el wrapper aplica los pesos por
+## defecto cuando no se le pasan.
+func test_build_cost_factor_usa_los_pesos_por_defecto() -> void:
+	var w := HeuristicWeights.get_default()
+	for caso in [[50, 0], [100, 100], [50, 100], [1, 10000]]:
+		assert_almost_eq(AILiveFacts._build_cost_factor(caso[0], caso[1]),
+			AIEconomy.build_cost_factor(caso[0], caso[1], w), 0.001)
 
 
 func test_build_cost_factor_residual_spend_near_one() -> void:
@@ -551,7 +493,8 @@ func test_score_recruit_food_veto_returns_negative_ten() -> void:
 	var ctx := _make_ctx(stats)
 	var troop := _make_troop(5, 5, 6, 0)
 	var opt := _make_recruit_option(troop)
-	assert_almost_eq(AIHeuristic.score_option(opt, ctx), -10.0, 0.01)
+	assert_almost_eq(AIHeuristic.score_option(opt, ctx),
+		ctx.get_weights().recruit_veto_score, 0.01)
 	BattleFront.clear_active_instances()
 
 
@@ -562,7 +505,8 @@ func test_score_recruit_gpt_veto_returns_negative_ten() -> void:
 	var ctx := _make_ctx(stats)
 	var troop := _make_troop(5, 5, 0, 20)
 	var opt := _make_recruit_option(troop)
-	assert_almost_eq(AIHeuristic.score_option(opt, ctx), -10.0, 0.01)
+	assert_almost_eq(AIHeuristic.score_option(opt, ctx),
+		ctx.get_weights().recruit_veto_score, 0.01)
 	BattleFront.clear_active_instances()
 
 
@@ -894,19 +838,21 @@ func test_score_card_colonize_no_tiles_returns_low() -> void:
 
 
 func test_score_card_colonize_full_expansion_returns_max() -> void:
-	# avail=15 → lerpf(8,15,1.0)*1.0 = 15.0
+	# Con expansion saturada, Colonizar vale su tope.
 	var ctx := _make_ctx(_make_stats())
-	ctx.colonizable_tiles_count = 15
+	var w := ctx.get_weights()
+	ctx.colonizable_tiles_count = ceili(w.expansion_reference)
 	var card := ColonizeCard.new()
-	assert_almost_eq(AIHeuristic.score_card_for_deck(card, ctx), 15.0, 0.01)
+	assert_almost_eq(AIHeuristic.score_card_for_deck(card, ctx), w.scd_colonize_hi, 0.01)
 
 
 func test_score_card_upgrade_no_upgradeable_returns_low() -> void:
-	# upgrades=0 → 2.0*sat = 2.0
+	# Sin nada que mejorar, la carta vale su suelo.
 	var ctx := _make_ctx(_make_stats())
 	var card := UpgradeBuildingCard.new()
 	card.id = "upgrade"
-	assert_almost_eq(AIHeuristic.score_card_for_deck(card, ctx), 2.0, 0.01)
+	assert_almost_eq(AIHeuristic.score_card_for_deck(card, ctx),
+		ctx.get_weights().scd_upg_none, 0.01)
 
 
 func test_score_card_upgrade_five_upgradeable_returns_max() -> void:
