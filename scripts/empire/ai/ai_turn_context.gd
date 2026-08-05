@@ -58,7 +58,7 @@ func get_front_registry() -> BattleFrontRegistrySingleton:
 # ---------------------------------------------------------------------------
 # Caché de decisión
 # ---------------------------------------------------------------------------
-# Rellenado por AIHeuristic.prepare_decision_cache() una sola vez antes del
+# Rellenado por AIDecisionCache.prepare_decision_cache() una sola vez antes del
 # bucle de scoring de cada decisión. Invalida con invalidate_decision_cache()
 # al ejecutar la opción elegida, de modo que la siguiente decisión recalcula.
 

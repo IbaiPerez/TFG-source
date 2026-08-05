@@ -1,18 +1,19 @@
 extends RefCounted
 class_name AIHeuristic
 
-## Evaluador heurístico de AIPlayOption para el AIController.
+## Evaluador heurístico de AIPlayOption para el AIController: punto de entrada
+## y despacho por tipo de jugada.
 ##
-## Arquitectura de dos capas:
-##   1. Señales de urgencia (gold/food/military/deck) dependientes de la fase:
-##      lo que cuenta como "crisis" en mid game es muy distinto a early.
-##   2. Valor intrínseco de cada opción × urgencia del recurso que aporta.
+## Las FÓRMULAS de scoring no están aquí. Se escriben una sola vez en
+## AIMoveScorer, contra el puerto AIStateView; lo que queda son wrappers finos
+## que aplican las guardas del mundo vivo y construyen la LiveStateView.
+## Las señales de urgencia y su caché viven en [AIDecisionCache], y los
+## recorridos sobre el mundo vivo en [AILiveFacts].
 ##
-## PASS tiene score 0.0 por convenio. Cualquier acción con score positivo
-## se prefiere sobre pasar. Acciones que empeoran el estado (edificios con
-## stats negativos en situación de crisis) pueden puntuar negativo, con lo
-## que PASS gana y la IA no las ejecuta.
-
+## PASS tiene score 0.0 por convenio. Cualquier acción con score positivo se
+## prefiere sobre pasar. Acciones que empeoran el estado (edificios con stats
+## negativos en situación de crisis) pueden puntuar negativo, con lo que PASS
+## gana y la IA no las ejecuta.
 
 ## Punto de entrada principal. Devuelve el score de una opción en el contexto
 ## actual. Score más alto = más deseable.
@@ -41,358 +42,6 @@ static func score_option(option: AIPlayOption, ctx: AITurnContext) -> float:
 	# ChangeLocationTypeCard, DirectBuildCard
 	return _score_simple(option, ctx, phase)
 
-
-# ---------------------------------------------------------------------------
-# Caché de decisión
-# ---------------------------------------------------------------------------
-
-## Precalcula todas las señales de urgencia y datos de estado una sola vez
-## por decisión (antes del bucle que puntúa todas las opciones de una carta).
-## Llamar ctx.invalidate_decision_cache() tras ejecutar la opción elegida.
-static func prepare_decision_cache(ctx: AITurnContext) -> void:
-	if ctx.stats == null:
-		return
-	var phase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles)
-	var w := ctx.get_weights()
-
-	_cache_urgencies(ctx, phase, w)
-	_cache_fronts(ctx)
-	_cache_threat(ctx, w)
-
-	ctx._cache_valid = true
-
-
-## Urgencias económicas y de expansión (puras sobre stats + pesos).
-static func _cache_urgencies(ctx: AITurnContext, phase: AIGamePhase.Phase,
-		w: HeuristicWeights) -> void:
-	ctx._cache_gu        = _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	ctx._cache_fu        = _food_urgency(ctx.stats.food, phase, w)
-	ctx._cache_surplus   = _resource_surplus_factor(ctx, phase)
-	ctx._cache_expansion = _expansion_factor(ctx)
-
-
-## Frentes activos: se recogen una sola vez y los reutilizan _military_urgency y
-## _max_front_pressure, evitando repetir get_active_instances() en cada scoring.
-static func _cache_fronts(ctx: AITurnContext) -> void:
-	var raw_fronts := ctx.get_front_registry().get_active_instances()
-	ctx._cache_active_fronts.clear()
-	for f in raw_fronts:
-		if f != null and not f.is_resolved:
-			ctx._cache_active_fronts.append(f)
-
-
-## Amenaza militar: si participamos en algún frente, si hay enemigo adyacente (solo
-## se comprueba cuando NO hay frente: un frente abierto ya domina la urgencia), y la
-## presión máxima resultante.
-static func _cache_threat(ctx: AITurnContext, w: HeuristicWeights) -> void:
-	ctx._cache_has_active_front   = false
-	ctx._cache_has_adjacent_enemy = false
-	if ctx.stats.empire != null:
-		for front in ctx._cache_active_fronts:
-			if front.attacker_empire == ctx.stats.empire \
-					or front.defender_empire == ctx.stats.empire:
-				ctx._cache_has_active_front = true
-				break
-		if not ctx._cache_has_active_front:
-			for tile in ctx.stats.empire.controlled_tiles:
-				for nb in tile.neighbors:
-					var t := nb as Tile
-					if t != null and t.controller != null \
-							and t.controller != ctx.stats.empire:
-						ctx._cache_has_adjacent_enemy = true
-						break
-				if ctx._cache_has_adjacent_enemy:
-					break
-
-	ctx._cache_front_pressure = _max_front_pressure_from_list(
-		ctx._cache_active_fronts, ctx.stats.empire)
-	ctx._cache_mu = AIUrgency.military_urgency_from(
-		ctx._cache_has_active_front, ctx._cache_has_adjacent_enemy,
-		ctx._cache_front_pressure, w)
-
-
-## Devuelve los frentes activos donde participa el empire de ctx.
-## Solo se usa como fallback cuando el caché de decisión no está disponible.
-static func _get_own_active_fronts(ctx: AITurnContext) -> Array[BattleFront]:
-	var result: Array[BattleFront] = []
-	if ctx.stats == null or ctx.stats.empire == null:
-		return result
-	for front in ctx.get_front_registry().get_active_instances():
-		if front == null or front.is_resolved:
-			continue
-		if front.attacker_empire == ctx.stats.empire \
-				or front.defender_empire == ctx.stats.empire:
-			result.append(front)
-	return result
-
-
-## Versión de _max_front_pressure que recibe la lista de frentes ya filtrada,
-## evitando rellamar get_active_instances() dentro del mismo ciclo de scoring.
-static func _max_front_pressure_from_list(
-		fronts: Array[BattleFront], empire: Empire) -> float:
-	if empire == null:
-		return 0.0
-	var max_p := 0.0
-	for front in fronts:
-		var is_att := front.attacker_empire == empire
-		var is_def := front.defender_empire == empire
-		if not is_att and not is_def:
-			continue
-		var ai_marker := front.marker if is_att else -front.marker
-		var p := AIUrgency.front_pressure(ai_marker, front.threshold)
-		max_p = maxf(max_p, p)
-	return max_p
-
-
-# ---------------------------------------------------------------------------
-# Señales de urgencia
-# ---------------------------------------------------------------------------
-
-## Urgencia de oro: cuánto necesitamos mejorar el gold_per_turn ahora. La fórmula
-## y los umbrales por fase viven en AIUrgency.gold_urgency (compartida con el
-## snapshot). Este wrapper solo aplica el default de pesos y delega.
-## Nota: recibe gpt y phase directamente, no ctx, por lo que el caché se usa en los
-## sitios que la llaman pasando ctx._cache_gu.
-static func _gold_urgency(gpt: int, phase: AIGamePhase.Phase,
-		w: HeuristicWeights = null) -> float:
-	if w == null: w = HeuristicWeights.get_default()
-	return AIUrgency.gold_urgency(gpt, phase, w)
-
-
-## Urgencia de comida: cuánto necesitamos mejorar el balance de food. Delega en
-## AIUrgency.food_urgency (compartida con el snapshot).
-static func _food_urgency(food: int, phase: AIGamePhase.Phase,
-		w: HeuristicWeights = null) -> float:
-	if w == null: w = HeuristicWeights.get_default()
-	return AIUrgency.food_urgency(food, phase, w)
-
-
-## Urgencia militar: combina un baseline según la amenaza real con la
-## presión de frentes activos. El baseline ya no depende del turno/fase,
-## sino del estado militar concreto (enemigos adyacentes, frentes activos).
-## Usa el caché de decisión cuando está disponible para evitar recorrer
-## todos los frentes y tiles en cada llamada dentro del mismo ciclo de scoring.
-static func _military_urgency(ctx: AITurnContext, _phase: AIGamePhase.Phase) -> float:
-	if ctx._cache_valid:
-		return ctx._cache_mu
-
-	# Fallback sin caché (usado en tests y en AIEventResolver).
-	var has_active_front := false
-	if ctx.stats != null and ctx.stats.empire != null:
-		for front in ctx.get_front_registry().get_active_instances():
-			if front == null or front.is_resolved:
-				continue
-			if front.attacker_empire == ctx.stats.empire \
-					or front.defender_empire == ctx.stats.empire:
-				has_active_front = true
-				break
-
-	var has_adjacent_enemy := false
-	if not has_active_front and ctx.stats != null and ctx.stats.empire != null:
-		for tile in ctx.stats.empire.controlled_tiles:
-			for neighbor in tile.neighbors:
-				if neighbor is Tile \
-						and neighbor.controller != null \
-						and neighbor.controller != ctx.stats.empire:
-					has_adjacent_enemy = true
-					break
-			if has_adjacent_enemy:
-				break
-
-	var pressure := _max_front_pressure(ctx)
-	return AIUrgency.military_urgency_from(has_active_front, has_adjacent_enemy,
-		pressure, ctx.get_weights())
-
-
-## Devuelve la presión máxima de los frentes donde participa la IA (0.0–1.0).
-## Presión = qué tan cerca estamos de perder el frente más comprometido.
-static func _max_front_pressure(ctx: AITurnContext) -> float:
-	if ctx._cache_valid:
-		return ctx._cache_front_pressure
-	# Fallback sin caché.
-	var max_p := 0.0
-	for front in ctx.get_front_registry().get_active_instances():
-		if front == null or front.is_resolved:
-			continue
-		var is_attacker := front.attacker_empire == ctx.stats.empire
-		var is_defender := front.defender_empire == ctx.stats.empire
-		if not is_attacker and not is_defender:
-			continue
-		var ai_marker := front.marker if is_attacker else -front.marker
-		var pressure := AIUrgency.front_pressure(ai_marker, front.threshold)
-		max_p = maxf(max_p, pressure)
-	return max_p
-
-
-## Urgencia de mazo: cuánto necesitamos más cartas disponibles. El vivo mide el
-## draw_pile; los umbrales viven en AIUrgency.deck_urgency (compartida).
-static func _deck_urgency(ctx: AITurnContext) -> float:
-	var draw_size := ctx.stats.draw_pile.cards.size() if ctx.stats.draw_pile else 0
-	return AIUrgency.deck_urgency(draw_size, ctx.get_weights())
-
-
-## Número total de cartas en el mazo activo (draw + discard pile).
-## No incluye played_pile ni la mano corriente (drawn_cards).
-static func _current_deck_size(ctx: AITurnContext) -> int:
-	if ctx.stats == null:
-		return 0
-	var n := 0
-	if ctx.stats.draw_pile:
-		n += ctx.stats.draw_pile.cards.size()
-	if ctx.stats.discard_pile:
-		n += ctx.stats.discard_pile.cards.size()
-	return n
-
-
-## Cuenta cuántas cartas del mismo tipo (misma clase GDScript) hay en el mazo
-## activo (draw + discard). Devuelve al menos 1 para que el factor nunca sea 0.
-static func _card_type_count(card: Card, ctx: AITurnContext) -> int:
-	if ctx.stats == null:
-		return 1
-	var script: Script = card.get_script() as Script
-	var count := 0
-	if ctx.stats.draw_pile:
-		for c in ctx.stats.draw_pile.cards:
-			if c != null and c.get_script() == script:
-				count += 1
-	if ctx.stats.discard_pile:
-		for c in ctx.stats.discard_pile.cards:
-			if c != null and c.get_script() == script:
-				count += 1
-	return maxi(count, 1)
-
-
-## Factor de excedente económico [1.0, 3.0].
-## Cuando el empire tiene oro y comida muy por encima de los umbrales cómodos
-## para su fase, el coste de oportunidad de reclutar o abrir frentes es mínimo
-## y estas acciones se potencian. Requiere food >= 5 (sin margen de comida no
-## se pueden sostener tropas aunque el oro sobre).
-static func _resource_surplus_factor(ctx: AITurnContext, phase: AIGamePhase.Phase) -> float:
-	if ctx.stats == null:
-		return 1.0
-	return AIEconomy.resource_surplus_factor(
-		ctx.stats.food, ctx.stats.gold_per_turn, phase, ctx.get_weights())
-
-
-## Factor de presión expansionista [0.0, 1.0] basado en tiles colonizables
-## adyacentes al territorio actual. Independiente de la fase (turno).
-## 1.0 = muchas tiles libres alrededor (expansión plena)
-## 0.0 = sin tiles colonizables (mapa saturado)
-## Cuando colonizable_tiles_count == -1 (tests sin mapa) → 0.5 neutro.
-static func _expansion_factor(ctx: AITurnContext) -> float:
-	# El vivo usa el conteo precomputado del contexto (puede ser -1 en tests sin mapa).
-	return AITerritory.expansion_factor(ctx.colonizable_tiles_count, ctx.get_weights())
-
-
-
-## Valor de adelgazar el mazo en una carta, proporcional al tamaño del mazo.
-## Mazo pequeño (≤DECK_SMALL): el ciclo ya es rápido, purgar aporta poco.
-## Mazo grande (≥DECK_LARGE): el ciclo es lento, purgar acelera las cartas clave.
-## Umbral dinámico de puntuación mínima para purgar una carta del mazo en tienda.
-## Mazo pequeño: umbral bajo → solo eliminar cartas casi inútiles.
-## Mazo grande/saturado: umbral alto → eliminar hasta cartas de utilidad moderada
-## para acelerar el ciclo de las más valiosas.
-## Es public porque lo usa también AIEventResolver.
-static func dynamic_purge_threshold(ctx: AITurnContext) -> float:
-	# Política compartida con el snapshot.
-	return AIShopPolicy.purge_threshold(LiveStateView.new(ctx))
-
-
-## Número total de huecos de edificio vacíos en las tiles controladas.
-## Un hueco es un slot donde se puede construir (tile.max_buildings - tile.buildings.size()).
-## Usado para escalar BuildCard: si no hay huecos la carta es inútil.
-static func _buildable_slots(ctx: AITurnContext) -> int:
-	if ctx.stats == null or ctx.stats.empire == null:
-		return 0
-	var total := 0
-	for tile in ctx.stats.empire.controlled_tiles:
-		total += maxi(0, tile.max_buildings - tile.buildings.size())
-	return total
-
-
-## Número de edificios construidos que tienen al menos una mejora disponible
-## (upgrades_to no vacío). Usado para escalar UpgradeBuildingCard.
-static func _upgradeable_buildings(ctx: AITurnContext) -> int:
-	if ctx.stats == null or ctx.stats.empire == null:
-		return 0
-	var count := 0
-	for tile in ctx.stats.empire.controlled_tiles:
-		for building in tile.buildings:
-			if building != null and not building.upgrades_to.is_empty():
-				count += 1
-	return count
-
-
-## Devuelve true si un edificio quedará demolido al asignar new_loc a la tile.
-## Replica la lógica de ChangeLocationTypeEffect: se destruye si
-## allowed_location_type no está vacío y no contiene new_loc (comparando por
-## valor de enum, no por referencia, para robustez en la heurística).
-static func _building_demolished_by(building: Building, new_loc: LocationType) -> bool:
-	if building.allowed_location_type.is_empty():
-		return false          # sin restricción de location → sobrevive siempre
-	for allowed in building.allowed_location_type:
-		if allowed.type == new_loc.type:
-			return false      # el nuevo tipo está en la lista → sobrevive
-	return true               # new_loc no está → se demolerá
-
-
-## Devuelve true si el edificio explota el recurso natural de la tile
-## Y es una versión mejorada (no el edificio base): algún edificio en
-## stats.possible_buildings lo tiene en su lista upgrades_to.
-static func _is_upgraded_resource_building(building: Building, tile: Tile,
-		ctx: AITurnContext) -> bool:
-	if building.required_natural_resource == null:
-		return false
-	if building.required_natural_resource != tile.natural_resource:
-		return false
-	if ctx.stats == null or ctx.stats.possible_buildings == null:
-		return false
-	for possible in ctx.stats.possible_buildings:
-		if building in possible.upgrades_to:
-			return true   # `building` es el resultado de un upgrade → está mejorado
-	return false
-
-
-## Puntúa los edificios que se DESBLOQUEAN al pasar de old_loc a new_loc
-## en una tile concreta. Solo se cuentan edificios que:
-##  - requieren new_loc (su allowed_location_type lo incluye)
-##  - NO podían construirse en old_loc (nuevo con este tier)
-##  - son compatibles con el bioma y el recurso natural de la tile
-##  - aún no están construidos en la tile
-## Devuelve la suma de su valor económico, topada en 15.0 para evitar dominancia.
-static func _score_unlocked_buildings(tile: Tile, old_loc: LocationType,
-		new_loc: LocationType, ctx: AITurnContext,
-		gu: float, fu: float, mu: float) -> float:
-	if ctx.stats == null or ctx.stats.possible_buildings == null:
-		return 0.0
-	var w := ctx.get_weights()
-	var total := 0.0
-	for b in ctx.stats.possible_buildings:
-		if b == null or b.allowed_location_type.is_empty():
-			continue
-		# El edificio debe encajar en new_loc pero NO en old_loc.
-		var fits_new := false
-		var fits_old := false
-		for allowed in b.allowed_location_type:
-			if allowed.type == new_loc.type: fits_new = true
-			if allowed.type == old_loc.type: fits_old = true
-		if not fits_new or fits_old:
-			continue
-		# Compatibilidad de bioma.
-		if not b.allowed_biomes.is_empty() \
-				and tile.mesh_data.type not in b.allowed_biomes:
-			continue
-		# Compatibilidad de recurso natural.
-		if b.required_natural_resource != null \
-				and b.required_natural_resource != tile.natural_resource:
-			continue
-		# Ya construido: no aporta desbloqueado nuevo.
-		if b in tile.buildings:
-			continue
-		total += b.gold_produced * w.unlock_gold * gu \
-			   + b.food_produced * w.unlock_food * fu \
-			   + b.flat_defense_bonus * w.unlock_defense * mu
-	return minf(total, w.unlock_cap)
 
 
 # ---------------------------------------------------------------------------
@@ -426,35 +75,6 @@ static func _score_recruit(option: AIRecruitOption, ctx: AITurnContext,
 	return AIMoveScorer.score_recruit(LiveStateView.new(ctx), option.troop)
 
 
-## Bonus de complementariedad: favorece tropas que equilibran el pool actual
-## y además contrarrestan la composición visible del rival en frentes activos.
-## ctx puede ser null (tests o llamadas sin info de rival → solo balance interno).
-static func _complement_bonus(troop: Troop, pool: Array[Troop],
-		ctx: AITurnContext = null) -> float:
-	var w := ctx.get_weights() if ctx != null else HeuristicWeights.get_default()
-	# D7: recolectar tipos de tropa del rival visibles en frentes activos. Sin
-	# world_view/rival (tests) → lista vacía → counter neutro. La fórmula del
-	# complemento y del counter viven en AIMilitary (compartidas con el snapshot).
-	var rival_types: Array[int] = []
-	if ctx != null and ctx.world_view != null:
-		var rival := ctx.world_view.get_rival_view()
-		if rival != null and rival.empire != null:
-			var all_fronts := ctx._cache_active_fronts if ctx._cache_valid \
-				else ctx.get_front_registry().get_active_instances()
-			for front in all_fronts:
-				if front.is_resolved:
-					continue
-				var rival_side_troops: Array[Troop] = front.attacker_troops \
-					if front.attacker_empire == rival.empire else front.defender_troops
-				if front.attacker_empire != rival.empire \
-						and front.defender_empire != rival.empire:
-					continue
-				for t in rival_side_troops:
-					if t.type not in rival_types:
-						rival_types.append(t.type)
-
-	return AIMilitary.complement_bonus(troop, pool, w) \
-		* AIMilitary.counter_bonus(troop.type, rival_types, w)
 
 
 static func _score_open_front(option: AIOpenFrontOption, ctx: AITurnContext,
@@ -538,49 +158,8 @@ static func _score_colonize(option: AIPlayOption, ctx: AITurnContext,
 	return AIMoveScorer.score_colonize(LiveStateView.new(ctx), tile)
 
 
-## Tiles nuevas que se volverían colonizables exclusivamente gracias a colonizar
-## `tile`. Una vecina libre cuenta como "nueva" solo si ningún otro tile del
-## territorio actual ya la hace accesible. Cuanto mayor, más abre esta tile
-## rutas de expansión hacia espacio libre (difícil de rodear).
-static func _frontier_value(tile: Tile, ctx: AITurnContext) -> int:
-	if ctx.stats == null or ctx.stats.empire == null:
-		return 0
-	var count := 0
-	for nb in tile.neighbors:
-		var t := nb as Tile
-		if t == null or t.controller != null:
-			continue
-		var already_reachable := false
-		for nn in t.neighbors:
-			var nt := nn as Tile
-			if nt == null or nt == tile:
-				continue
-			if nt.controller == ctx.stats.empire:
-				already_reachable = true
-				break
-		if not already_reachable:
-			count += 1
-	return count
 
 
-## Multiplicador del bonus de frontera según el grado de encierro.
-## Ratio = tiles_colonizables / tiles_controladas.
-## Ratio bajo → la IA está quedando rodeada → escalar el incentivo de escapar.
-static func _encirclement_pressure(ctx: AITurnContext) -> float:
-	var w := ctx.get_weights()
-	# Sin empire o sin conteo de mapa (tests): valor neutro. La fórmula por ratio
-	# vive en AITerritory.encirclement_pressure (compartida con el snapshot).
-	if ctx.stats == null or ctx.stats.empire == null:
-		return w.encircle_default
-	var avail := ctx.colonizable_tiles_count
-	if avail < 0:
-		return w.encircle_default
-	var controlled := maxi(ctx.stats.empire.controlled_tiles.size(), 1)
-	return AITerritory.encirclement_pressure(avail, controlled, w)
-
-
-## Village→Town: +5 food_consumption y +2 building slots.
-## Town→Megalópolis: +5 food_consumption adicional y +2 building slots más.
 ## El delta real de food_consumption se lee de los recursos, no está hardcodeado.
 static func _score_change_location(option: AIPlayOption, ctx: AITurnContext,
 		_phase: AIGamePhase.Phase) -> float:
@@ -657,6 +236,7 @@ static func should_buy_shop_item(item: ShopItem, ctx: AITurnContext) -> bool:
 	return AIShopPolicy.should_buy(LiveStateView.new(ctx), item.card)
 
 
+
 # ---------------------------------------------------------------------------
 # Efectos de edificio
 # ---------------------------------------------------------------------------
@@ -671,9 +251,9 @@ static func _score_building_effects(effects: Array[BuildingEffect],
 		return 0.0
 	var w := ctx.get_weights()
 	var score := 0.0
-	var gu := _gold_urgency(ctx.stats.gold_per_turn, phase, w)
-	var fu := _food_urgency(ctx.stats.food, phase, w)
-	var mu := _military_urgency(ctx, phase)
+	var gu := AIDecisionCache._gold_urgency(ctx.stats.gold_per_turn, phase, w)
+	var fu := AIDecisionCache._food_urgency(ctx.stats.food, phase, w)
+	var mu := AIDecisionCache._military_urgency(ctx, phase)
 	for effect in effects:
 		if effect == null:
 			continue
@@ -719,63 +299,8 @@ static func _score_stat_effect(effect: AddStatModifierEffect,
 			return AIBuildingEffects.cards_per_turn_score(v, my_share_h, w)
 		StatModifier.StatType.TROOPS_PER_RECRUIT:
 			return AIBuildingEffects.troops_per_recruit_score(v, mu,
-				_current_troops_per_recruit_bonus(ctx), w)
+				AILiveFacts._current_troops_per_recruit_bonus(ctx), w)
 		_:
 			return AIBuildingEffects.stat_effect_simple(effect.stat_type, v,
 				ctx.stats.gold_per_turn, ctx.stats.food, ctx.stats.troop_pool.size(),
 				gu, fu, mu, w)
-
-
-## Suma el bonus TROOPS_PER_RECRUIT ya activo en los edificios construidos del empire.
-## Usado para calcular el rendimiento decreciente al valorar un nuevo cuartel.
-static func _current_troops_per_recruit_bonus(ctx: AITurnContext) -> int:
-	if ctx.stats == null or ctx.stats.empire == null:
-		return 0
-	var total := 0
-	for tile in ctx.stats.empire.controlled_tiles:
-		for building in tile.buildings:
-			if building == null:
-				continue
-			for effect in building.effects:
-				if effect is AddStatModifierEffect:
-					var sme := effect as AddStatModifierEffect
-					if sme.stat_type == StatModifier.StatType.TROOPS_PER_RECRUIT:
-						total += int(sme.value)
-	return total
-
-
-## Factor de carrera territorial [0.5, 2.0] basado en la distribución de tiles.
-## mode &"colonize"/"open_front": amplifica acciones expansivas cuando la carrera
-## es ajustada o el rival se acerca al 55% del territorio conocido.
-## mode &"economy": reduce el valor de mejoras económicas cuando ya dominamos.
-## Devuelve 1.0 si world_view es null (tests sin info de rival).
-static func _territory_race_factor(ctx: AITurnContext,
-		mode: StringName = &"colonize") -> float:
-	if ctx.world_view == null:
-		return 1.0
-	var rival := ctx.world_view.get_rival_view()
-	if rival == null or rival.empire == null:
-		return 1.0
-	var my_tiles := ctx.stats.empire.controlled_tiles.size() \
-		if ctx.stats.empire != null else 0
-	var rival_tiles := rival.empire.controlled_tiles.size()
-	var colonizable := maxi(ctx.colonizable_tiles_count, 0)
-	return AITerritory.territory_race_factor(
-		my_tiles, rival_tiles, colonizable, mode, ctx.get_weights())
-
-
-## Factor de coste: penaliza edificios que consumen una fracción alta del oro.
-## Rango build_cost_min (gasto total) → 1.0 (gasto residual). Suaviza la
-## preferencia por edificios baratos cuando el gold disponible es ajustado.
-static func _build_cost_factor(cost: int, total_gold: int,
-		w: HeuristicWeights = null) -> float:
-	if w == null: w = HeuristicWeights.get_default()
-	return AIEconomy.build_cost_factor(cost, total_gold, w)
-
-
-## Multiplicador de dificultad de ataque según el bioma de la tile enemiga.
-## Montaña 0.60, Pantano 0.70, Bosque 0.80 … Pradera 1.20.
-static func _attack_biome_factor(tile: Tile) -> float:
-	if tile == null or tile.mesh_data == null:
-		return 1.0
-	return BiomeConfig.shared().get_attack_multiplier(tile.mesh_data.type)

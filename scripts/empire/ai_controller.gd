@@ -185,7 +185,7 @@ func _run_decision_loop(ctx: AITurnContext, empire_name: String) -> void:
 
 		# Preparar caché de urgencias una sola vez para todo este ciclo de scoring.
 		# Se invalida tras ejecutar la opción porque el estado del mundo cambia.
-		AIHeuristic.prepare_decision_cache(ctx)
+		AIDecisionCache.prepare_decision_cache(ctx)
 		var chosen := decision_policy.pick_best(options, ctx)
 		ctx.invalidate_decision_cache()
 

@@ -343,7 +343,7 @@ func test_frontier_value_zero_when_all_neighbors_controlled() -> void:
 	t.neighbors = [a, b]
 	empire.controlled_tiles = [a, b]
 
-	assert_eq(AIHeuristic._frontier_value(t, ctx), 0,
+	assert_eq(AILiveFacts._frontier_value(t, ctx), 0,
 		"Tile rodeada de territorio propio no debe abrir tiles nuevas")
 
 
@@ -372,7 +372,7 @@ func test_frontier_value_counts_tiles_only_reachable_via_target() -> void:
 	d.neighbors = [t]
 	empire.controlled_tiles = [a]
 
-	assert_eq(AIHeuristic._frontier_value(t, ctx), 3,
+	assert_eq(AILiveFacts._frontier_value(t, ctx), 3,
 		"B, C y D son solo accesibles colonizando T: debe contar 3")
 
 
@@ -403,7 +403,7 @@ func test_frontier_value_excludes_tiles_already_reachable() -> void:
 	d.neighbors = [t]
 	empire.controlled_tiles = [a, b]
 
-	assert_eq(AIHeuristic._frontier_value(t, ctx), 1,
+	assert_eq(AILiveFacts._frontier_value(t, ctx), 1,
 		"Solo D es nueva; C ya es accesible vía B")
 
 
@@ -429,7 +429,7 @@ func test_frontier_value_ignores_controlled_neighbors() -> void:
 	b.neighbors = [t]
 	empire.controlled_tiles = [a, e2]
 
-	assert_eq(AIHeuristic._frontier_value(t, ctx), 1,
+	assert_eq(AILiveFacts._frontier_value(t, ctx), 1,
 		"Solo B debe contar; E2 es controlado y se ignora")
 
 
@@ -440,7 +440,7 @@ func test_frontier_value_returns_zero_without_empire() -> void:
 	var t := _make_tile()
 	autofree(t)
 
-	assert_eq(AIHeuristic._frontier_value(t, ctx), 0,
+	assert_eq(AILiveFacts._frontier_value(t, ctx), 0,
 		"Sin empire en el contexto, frontier_value debe devolver 0")
 
 
@@ -451,28 +451,28 @@ func test_frontier_value_returns_zero_without_empire() -> void:
 func test_encirclement_pressure_minimum_when_ratio_above_2() -> void:
 	# 5 controladas, 15 colonizables → ratio=3.0 ≥ 2.0 → presión 1.5
 	var ctx := _make_ctx_with_colonizable(5, 15)
-	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 1.5, 0.01,
+	assert_almost_eq(AILiveFacts._encirclement_pressure(ctx), 1.5, 0.01,
 		"Ratio ≥ 2.0 debe dar presión mínima 1.5 (mapa muy abierto)")
 
 
 func test_encirclement_pressure_medium_when_ratio_between_1_and_2() -> void:
 	# 10 controladas, 15 colonizables → ratio=1.5 → presión 2.5
 	var ctx := _make_ctx_with_colonizable(10, 15)
-	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 2.5, 0.01,
+	assert_almost_eq(AILiveFacts._encirclement_pressure(ctx), 2.5, 0.01,
 		"Ratio entre 1.0 y 2.0 debe dar presión media 2.5")
 
 
 func test_encirclement_pressure_high_when_ratio_between_half_and_1() -> void:
 	# 10 controladas, 7 colonizables → ratio=0.7 → presión 4.0
 	var ctx := _make_ctx_with_colonizable(10, 7)
-	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 4.0, 0.01,
+	assert_almost_eq(AILiveFacts._encirclement_pressure(ctx), 4.0, 0.01,
 		"Ratio entre 0.5 y 1.0 debe dar presión alta 4.0")
 
 
 func test_encirclement_pressure_maximum_when_nearly_enclosed() -> void:
 	# 10 controladas, 3 colonizables → ratio=0.3 < 0.5 → presión máxima 5.0
 	var ctx := _make_ctx_with_colonizable(10, 3)
-	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 5.0, 0.01,
+	assert_almost_eq(AILiveFacts._encirclement_pressure(ctx), 5.0, 0.01,
 		"Ratio < 0.5 debe dar presión máxima 5.0 (casi encerrada)")
 
 
@@ -482,7 +482,7 @@ func test_encirclement_pressure_neutral_when_colonizable_unknown() -> void:
 	var ctx := _make_ctx(stats)
 	ctx.colonizable_tiles_count = -1
 
-	assert_almost_eq(AIHeuristic._encirclement_pressure(ctx), 1.5, 0.01,
+	assert_almost_eq(AILiveFacts._encirclement_pressure(ctx), 1.5, 0.01,
 		"Colonizable desconocido (-1) debe devolver valor neutro 1.5")
 
 

@@ -98,47 +98,47 @@ func _make_shop_item(card: Card) -> ShopItem:
 
 func test_gold_urgency_early_crisis() -> void:
 	# gpt=5 < 10 → 3.0
-	assert_almost_eq(AIHeuristic._gold_urgency(5, AIGamePhase.Phase.EARLY), 3.0, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(5, AIGamePhase.Phase.EARLY), 3.0, 0.01)
 
 func test_gold_urgency_early_low() -> void:
 	# gpt=20 (10..30) → 1.8
-	assert_almost_eq(AIHeuristic._gold_urgency(20, AIGamePhase.Phase.EARLY), 1.8, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(20, AIGamePhase.Phase.EARLY), 1.8, 0.01)
 
 func test_gold_urgency_early_medium() -> void:
 	# gpt=45 (30..60) → 1.0
-	assert_almost_eq(AIHeuristic._gold_urgency(45, AIGamePhase.Phase.EARLY), 1.0, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(45, AIGamePhase.Phase.EARLY), 1.0, 0.01)
 
 func test_gold_urgency_early_comfortable() -> void:
 	# gpt=80 (≥60) → 0.7
-	assert_almost_eq(AIHeuristic._gold_urgency(80, AIGamePhase.Phase.EARLY), 0.7, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(80, AIGamePhase.Phase.EARLY), 0.7, 0.01)
 
 func test_gold_urgency_mid_crisis() -> void:
 	# gpt=30 < 50 → 3.0
-	assert_almost_eq(AIHeuristic._gold_urgency(30, AIGamePhase.Phase.MID), 3.0, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(30, AIGamePhase.Phase.MID), 3.0, 0.01)
 
 func test_gold_urgency_mid_low() -> void:
 	# gpt=100 (50..150) → 2.0
-	assert_almost_eq(AIHeuristic._gold_urgency(100, AIGamePhase.Phase.MID), 2.0, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(100, AIGamePhase.Phase.MID), 2.0, 0.01)
 
 func test_gold_urgency_mid_medium() -> void:
 	# gpt=200 (150..250) → 1.3
-	assert_almost_eq(AIHeuristic._gold_urgency(200, AIGamePhase.Phase.MID), 1.3, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(200, AIGamePhase.Phase.MID), 1.3, 0.01)
 
 func test_gold_urgency_mid_target() -> void:
 	# gpt=300 (250..400) → 1.0
-	assert_almost_eq(AIHeuristic._gold_urgency(300, AIGamePhase.Phase.MID), 1.0, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(300, AIGamePhase.Phase.MID), 1.0, 0.01)
 
 func test_gold_urgency_mid_surplus() -> void:
 	# gpt=500 (≥400) → 0.7
-	assert_almost_eq(AIHeuristic._gold_urgency(500, AIGamePhase.Phase.MID), 0.7, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(500, AIGamePhase.Phase.MID), 0.7, 0.01)
 
 func test_gold_urgency_late_negative() -> void:
 	# gpt=-5 < 0 → 3.0
-	assert_almost_eq(AIHeuristic._gold_urgency(-5, AIGamePhase.Phase.LATE), 3.0, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(-5, AIGamePhase.Phase.LATE), 3.0, 0.01)
 
 func test_gold_urgency_late_comfortable() -> void:
 	# gpt=250 (200..500) → 0.7 (rendimiento decreciente en late rico)
-	assert_almost_eq(AIHeuristic._gold_urgency(250, AIGamePhase.Phase.LATE), 0.7, 0.01)
+	assert_almost_eq(AIDecisionCache._gold_urgency(250, AIGamePhase.Phase.LATE), 0.7, 0.01)
 
 
 # ============================================================
@@ -146,34 +146,34 @@ func test_gold_urgency_late_comfortable() -> void:
 # ============================================================
 
 func test_food_urgency_early_negative() -> void:
-	assert_almost_eq(AIHeuristic._food_urgency(-1, AIGamePhase.Phase.EARLY), 3.0, 0.01)
+	assert_almost_eq(AIDecisionCache._food_urgency(-1, AIGamePhase.Phase.EARLY), 3.0, 0.01)
 
 func test_food_urgency_early_tight() -> void:
 	# food=1 (0..2) → 1.8
-	assert_almost_eq(AIHeuristic._food_urgency(1, AIGamePhase.Phase.EARLY), 1.8, 0.01)
+	assert_almost_eq(AIDecisionCache._food_urgency(1, AIGamePhase.Phase.EARLY), 1.8, 0.01)
 
 func test_food_urgency_early_acceptable() -> void:
 	# food=3 (2..5) → 1.0
-	assert_almost_eq(AIHeuristic._food_urgency(3, AIGamePhase.Phase.EARLY), 1.0, 0.01)
+	assert_almost_eq(AIDecisionCache._food_urgency(3, AIGamePhase.Phase.EARLY), 1.0, 0.01)
 
 func test_food_urgency_early_comfortable() -> void:
 	# food=10 (≥5) → 0.8
-	assert_almost_eq(AIHeuristic._food_urgency(10, AIGamePhase.Phase.EARLY), 0.8, 0.01)
+	assert_almost_eq(AIDecisionCache._food_urgency(10, AIGamePhase.Phase.EARLY), 0.8, 0.01)
 
 func test_food_urgency_mid_negative() -> void:
-	assert_almost_eq(AIHeuristic._food_urgency(-1, AIGamePhase.Phase.MID), 3.0, 0.01)
+	assert_almost_eq(AIDecisionCache._food_urgency(-1, AIGamePhase.Phase.MID), 3.0, 0.01)
 
 func test_food_urgency_mid_tight() -> void:
 	# food=3 (0..5) → 2.0 (más estricto que early)
-	assert_almost_eq(AIHeuristic._food_urgency(3, AIGamePhase.Phase.MID), 2.0, 0.01)
+	assert_almost_eq(AIDecisionCache._food_urgency(3, AIGamePhase.Phase.MID), 2.0, 0.01)
 
 func test_food_urgency_mid_margin() -> void:
 	# food=7 (5..10) → 1.2
-	assert_almost_eq(AIHeuristic._food_urgency(7, AIGamePhase.Phase.MID), 1.2, 0.01)
+	assert_almost_eq(AIDecisionCache._food_urgency(7, AIGamePhase.Phase.MID), 1.2, 0.01)
 
 func test_food_urgency_mid_comfortable() -> void:
 	# food=15 (≥10) → 1.0
-	assert_almost_eq(AIHeuristic._food_urgency(15, AIGamePhase.Phase.MID), 1.0, 0.01)
+	assert_almost_eq(AIDecisionCache._food_urgency(15, AIGamePhase.Phase.MID), 1.0, 0.01)
 
 
 # ============================================================
@@ -236,7 +236,7 @@ func test_deck_urgency_small_pile_scores_higher_than_large() -> void:
 ## fórmula vive ahora en AIDeckScorer). Conserva la cobertura del conteo sobre un mazo
 ## real + el clamp, apoyándose en el helper superviviente _card_type_count.
 func _type_sat(card: Card, ctx: AITurnContext) -> float:
-	return clampf(1.0 / float(AIHeuristic._card_type_count(card, ctx)),
+	return clampf(1.0 / float(AILiveFacts._card_type_count(card, ctx)),
 		ctx.get_weights().type_sat_min, 1.0)
 
 
@@ -309,13 +309,13 @@ func test_deck_thinning_value_medium_deck_between_bounds() -> void:
 func test_purge_threshold_small_deck() -> void:
 	# size=5 → ratio=0 → lerpf(3,10,0)=3.0
 	var ctx := _make_ctx_with_deck_size(5)
-	assert_almost_eq(AIHeuristic.dynamic_purge_threshold(ctx), 3.0, 0.01)
+	assert_almost_eq(AILiveFacts.dynamic_purge_threshold(ctx), 3.0, 0.01)
 
 
 func test_purge_threshold_large_deck() -> void:
 	# size=20 → ratio=1.0 → lerpf(3,10,1)=10.0
 	var ctx := _make_ctx_with_deck_size(20)
-	assert_almost_eq(AIHeuristic.dynamic_purge_threshold(ctx), 10.0, 0.01)
+	assert_almost_eq(AILiveFacts.dynamic_purge_threshold(ctx), 10.0, 0.01)
 
 
 # ============================================================
@@ -327,7 +327,7 @@ func test_surplus_factor_blocked_by_low_food() -> void:
 	var stats := _make_stats(500, 3)
 	var ctx := _make_ctx(stats)
 	assert_almost_eq(
-		AIHeuristic._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 1.0, 0.01)
+		AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 1.0, 0.01)
 
 
 func test_surplus_factor_at_comfortable_threshold_returns_one() -> void:
@@ -335,7 +335,7 @@ func test_surplus_factor_at_comfortable_threshold_returns_one() -> void:
 	var stats := _make_stats(200, 10)
 	var ctx := _make_ctx(stats)
 	assert_almost_eq(
-		AIHeuristic._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 1.0, 0.01)
+		AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 1.0, 0.01)
 
 
 func test_surplus_factor_double_threshold_returns_max() -> void:
@@ -343,7 +343,7 @@ func test_surplus_factor_double_threshold_returns_max() -> void:
 	var stats := _make_stats(400, 10)
 	var ctx := _make_ctx(stats)
 	assert_almost_eq(
-		AIHeuristic._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 3.0, 0.01)
+		AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 3.0, 0.01)
 
 
 func test_surplus_factor_half_above_threshold() -> void:
@@ -351,7 +351,7 @@ func test_surplus_factor_half_above_threshold() -> void:
 	var stats := _make_stats(300, 10)
 	var ctx := _make_ctx(stats)
 	assert_almost_eq(
-		AIHeuristic._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 2.0, 0.01)
+		AILiveFacts._resource_surplus_factor(ctx, AIGamePhase.Phase.MID), 2.0, 0.01)
 
 
 # ============================================================
@@ -361,33 +361,33 @@ func test_surplus_factor_half_above_threshold() -> void:
 func test_expansion_factor_unknown_returns_neutral() -> void:
 	var ctx := _make_ctx(_make_stats())
 	ctx.colonizable_tiles_count = -1
-	assert_almost_eq(AIHeuristic._expansion_factor(ctx), 0.5, 0.01)
+	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 0.5, 0.01)
 
 
 func test_expansion_factor_zero_tiles_returns_zero() -> void:
 	var ctx := _make_ctx(_make_stats())
 	ctx.colonizable_tiles_count = 0
-	assert_almost_eq(AIHeuristic._expansion_factor(ctx), 0.0, 0.01)
+	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 0.0, 0.01)
 
 
 func test_expansion_factor_half_reference() -> void:
 	# avail=7, REFERENCE=15 → 7/15≈0.467
 	var ctx := _make_ctx(_make_stats())
 	ctx.colonizable_tiles_count = 7
-	assert_almost_eq(AIHeuristic._expansion_factor(ctx), 7.0 / 15.0, 0.01)
+	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 7.0 / 15.0, 0.01)
 
 
 func test_expansion_factor_at_reference_returns_one() -> void:
 	var ctx := _make_ctx(_make_stats())
 	ctx.colonizable_tiles_count = 15
-	assert_almost_eq(AIHeuristic._expansion_factor(ctx), 1.0, 0.01)
+	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 1.0, 0.01)
 
 
 func test_expansion_factor_above_reference_capped_at_one() -> void:
 	# avail=30 → min(30/15,1.0)=1.0
 	var ctx := _make_ctx(_make_stats())
 	ctx.colonizable_tiles_count = 30
-	assert_almost_eq(AIHeuristic._expansion_factor(ctx), 1.0, 0.01)
+	assert_almost_eq(AILiveFacts._expansion_factor(ctx), 1.0, 0.01)
 
 
 # ============================================================
@@ -396,7 +396,7 @@ func test_expansion_factor_above_reference_capped_at_one() -> void:
 
 func test_buildable_slots_empty_empire() -> void:
 	var ctx := _make_ctx(_make_stats())
-	assert_eq(AIHeuristic._buildable_slots(ctx), 0)
+	assert_eq(AILiveFacts._buildable_slots(ctx), 0)
 
 
 func test_buildable_slots_tile_with_free_slots() -> void:
@@ -407,7 +407,7 @@ func test_buildable_slots_tile_with_free_slots() -> void:
 	t.max_buildings = 2
 	t.buildings = []
 	stats.empire.controlled_tiles = [t]
-	assert_eq(AIHeuristic._buildable_slots(ctx), 2)
+	assert_eq(AILiveFacts._buildable_slots(ctx), 2)
 
 
 func test_buildable_slots_full_tile() -> void:
@@ -418,7 +418,7 @@ func test_buildable_slots_full_tile() -> void:
 	t.max_buildings = 2
 	t.buildings = [_make_building(), _make_building()]
 	stats.empire.controlled_tiles = [t]
-	assert_eq(AIHeuristic._buildable_slots(ctx), 0)
+	assert_eq(AILiveFacts._buildable_slots(ctx), 0)
 
 
 func test_buildable_slots_mixed_tiles() -> void:
@@ -433,7 +433,7 @@ func test_buildable_slots_mixed_tiles() -> void:
 	t2.max_buildings = 2
 	t2.buildings = [_make_building(), _make_building()]
 	stats.empire.controlled_tiles = [t1, t2]
-	assert_eq(AIHeuristic._buildable_slots(ctx), 2)
+	assert_eq(AILiveFacts._buildable_slots(ctx), 2)
 
 
 # ============================================================
@@ -449,7 +449,7 @@ func test_upgradeable_buildings_none() -> void:
 	b.upgrades_to = []
 	t.buildings = [b]
 	stats.empire.controlled_tiles = [t]
-	assert_eq(AIHeuristic._upgradeable_buildings(ctx), 0)
+	assert_eq(AILiveFacts._upgradeable_buildings(ctx), 0)
 
 
 func test_upgradeable_buildings_one() -> void:
@@ -461,7 +461,7 @@ func test_upgradeable_buildings_one() -> void:
 	b.upgrades_to = [_make_building()]
 	t.buildings = [b]
 	stats.empire.controlled_tiles = [t]
-	assert_eq(AIHeuristic._upgradeable_buildings(ctx), 1)
+	assert_eq(AILiveFacts._upgradeable_buildings(ctx), 1)
 
 
 func test_upgradeable_buildings_counts_across_tiles() -> void:
@@ -475,7 +475,7 @@ func test_upgradeable_buildings_counts_across_tiles() -> void:
 		t.buildings = [b]
 		t.max_buildings = 2
 		stats.empire.controlled_tiles.append(t)
-	assert_eq(AIHeuristic._upgradeable_buildings(ctx), 2)
+	assert_eq(AILiveFacts._upgradeable_buildings(ctx), 2)
 
 
 # ============================================================
@@ -486,7 +486,7 @@ func test_building_demolished_by_empty_allowed_never_demolished() -> void:
 	var b := _make_building()
 	b.allowed_location_type = []
 	var new_loc := _make_location(Tile.location_type.Town)
-	assert_false(AIHeuristic._building_demolished_by(b, new_loc),
+	assert_false(AILiveFacts._building_demolished_by(b, new_loc),
 		"Edificio sin restricciones no debe demolerse")
 
 
@@ -494,7 +494,7 @@ func test_building_demolished_by_matching_location_survives() -> void:
 	var b := _make_building()
 	var village := _make_location(Tile.location_type.Village)
 	b.allowed_location_type = [village]
-	assert_false(AIHeuristic._building_demolished_by(b, village),
+	assert_false(AILiveFacts._building_demolished_by(b, village),
 		"Edificio permitido en Village debe sobrevivir si la nueva loc es Village")
 
 
@@ -503,7 +503,7 @@ func test_building_demolished_by_mismatch_returns_true() -> void:
 	var village := _make_location(Tile.location_type.Village)
 	b.allowed_location_type = [village]
 	var town := _make_location(Tile.location_type.Town)
-	assert_true(AIHeuristic._building_demolished_by(b, town),
+	assert_true(AILiveFacts._building_demolished_by(b, town),
 		"Edificio permitido solo en Village debe demolerse al asignar Town")
 
 
@@ -513,22 +513,22 @@ func test_building_demolished_by_mismatch_returns_true() -> void:
 
 func test_build_cost_factor_zero_gold_returns_minimum() -> void:
 	# total_gold=0 → 0.6
-	assert_almost_eq(AIHeuristic._build_cost_factor(50, 0), 0.6, 0.01)
+	assert_almost_eq(AILiveFacts._build_cost_factor(50, 0), 0.6, 0.01)
 
 
 func test_build_cost_factor_full_spend_returns_minimum() -> void:
 	# cost=total_gold → spend_ratio=1.0 → lerpf(1.0,0.6,1.0)=0.6
-	assert_almost_eq(AIHeuristic._build_cost_factor(100, 100), 0.6, 0.01)
+	assert_almost_eq(AILiveFacts._build_cost_factor(100, 100), 0.6, 0.01)
 
 
 func test_build_cost_factor_half_spend() -> void:
 	# cost/total=0.5 → lerpf(1.0,0.6,0.5)=0.8
-	assert_almost_eq(AIHeuristic._build_cost_factor(50, 100), 0.8, 0.01)
+	assert_almost_eq(AILiveFacts._build_cost_factor(50, 100), 0.8, 0.01)
 
 
 func test_build_cost_factor_residual_spend_near_one() -> void:
 	# cost=1, total=10000 → ratio≈0 → factor≈1.0
-	var f := AIHeuristic._build_cost_factor(1, 10000)
+	var f := AILiveFacts._build_cost_factor(1, 10000)
 	assert_true(f > 0.99, "Gasto residual debe dar factor cercano a 1.0")
 
 
@@ -583,7 +583,7 @@ func test_score_recruit_normal_returns_positive() -> void:
 
 func test_complement_bonus_empty_pool_returns_one() -> void:
 	var pool: Array[Troop] = []
-	assert_almost_eq(AIHeuristic._complement_bonus(_make_troop(3, 3), pool), 1.0, 0.01)
+	assert_almost_eq(AILiveFacts._complement_bonus(_make_troop(3, 3), pool), 1.0, 0.01)
 
 
 func test_complement_bonus_offensive_pool_favors_defensive_troop() -> void:
@@ -593,7 +593,7 @@ func test_complement_bonus_offensive_pool_favors_defensive_troop() -> void:
 	for _i in 4:
 		pool.append(_make_troop(10, 0))
 	assert_almost_eq(
-		AIHeuristic._complement_bonus(_make_troop(0, 10), pool), 2.0, 0.01)
+		AILiveFacts._complement_bonus(_make_troop(0, 10), pool), 2.0, 0.01)
 
 
 func test_complement_bonus_balanced_pool_returns_one() -> void:
@@ -602,7 +602,7 @@ func test_complement_bonus_balanced_pool_returns_one() -> void:
 	for _i in 2:
 		pool.append(_make_troop(5, 5))
 	assert_almost_eq(
-		AIHeuristic._complement_bonus(_make_troop(5, 5), pool), 1.0, 0.01)
+		AILiveFacts._complement_bonus(_make_troop(5, 5), pool), 1.0, 0.01)
 
 
 func test_complement_bonus_moderately_offensive_pool() -> void:
@@ -611,7 +611,7 @@ func test_complement_bonus_moderately_offensive_pool() -> void:
 	# troop: atk=3, def=5 → ratio=0.6 < 1.0
 	var pool: Array[Troop] = [_make_troop(9, 5)]
 	assert_almost_eq(
-		AIHeuristic._complement_bonus(_make_troop(3, 5), pool), 1.5, 0.01)
+		AILiveFacts._complement_bonus(_make_troop(3, 5), pool), 1.5, 0.01)
 
 
 # ============================================================

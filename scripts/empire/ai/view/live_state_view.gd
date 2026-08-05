@@ -52,15 +52,15 @@ func expansion_factor() -> float:
 
 
 func encirclement_pressure() -> float:
-	return AIHeuristic._encirclement_pressure(_ctx)
+	return AILiveFacts._encirclement_pressure(_ctx)
 
 
 func territory_race_factor(mode: StringName) -> float:
-	return AIHeuristic._territory_race_factor(_ctx, mode)
+	return AILiveFacts._territory_race_factor(_ctx, mode)
 
 
 func frontier_value(tile) -> int:
-	return AIHeuristic._frontier_value(tile as Tile, _ctx)
+	return AILiveFacts._frontier_value(tile as Tile, _ctx)
 
 
 func tile_gold_production(tile) -> int:
@@ -85,7 +85,7 @@ func tile_adjacent_to_rival(tile) -> bool:
 
 
 func military_urgency() -> float:
-	return _ctx._cache_mu if _ctx._cache_valid else AIHeuristic._military_urgency(_ctx, phase())
+	return _ctx._cache_mu if _ctx._cache_valid else AIDecisionCache._military_urgency(_ctx, phase())
 
 
 func gold() -> int:
@@ -119,11 +119,11 @@ func troop_pool() -> Array[Troop]:
 
 func resource_surplus_factor() -> float:
 	return _ctx._cache_surplus if _ctx._cache_valid \
-		else AIHeuristic._resource_surplus_factor(_ctx, phase())
+		else AILiveFacts._resource_surplus_factor(_ctx, phase())
 
 
 func complement_bonus(troop: Troop) -> float:
-	return AIHeuristic._complement_bonus(troop, _ctx.stats.troop_pool, _ctx)
+	return AILiveFacts._complement_bonus(troop, _ctx.stats.troop_pool, _ctx)
 
 
 func troops_per_recruit_bonus(troop: Troop) -> int:
@@ -203,7 +203,7 @@ func tactic_targets() -> Array:
 func recruit_front_max_troops() -> int:
 	# Gate del vivo: cualquier frente activo (caché=todos, o los propios sin caché).
 	var fronts := _ctx._cache_active_fronts if _ctx._cache_valid \
-		else AIHeuristic._get_own_active_fronts(_ctx)
+		else AIDecisionCache._get_own_active_fronts(_ctx)
 	if fronts.is_empty():
 		return -1
 	var max_own := 0
@@ -228,7 +228,7 @@ func tile_resource_food(tile) -> int:
 
 
 func tile_attack_biome_factor(tile) -> float:
-	return AIHeuristic._attack_biome_factor(tile as Tile)
+	return AILiveFacts._attack_biome_factor(tile as Tile)
 
 
 func open_front_source_value(source_tile) -> float:
@@ -262,20 +262,20 @@ func change_location_adjust(base: float, tile, new_loc, gu: float, fu: float, mu
 	for building in t.buildings:
 		if building == null:
 			continue
-		if AIHeuristic._building_demolished_by(building, loc):
+		if AILiveFacts._building_demolished_by(building, loc):
 			demolished_penalty += building.gold_produced * w.changeloc_demo_gold * gu \
 							  + building.food_produced * w.changeloc_demo_food * fu \
 							  + float(building.flat_defense_bonus) * w.changeloc_demo_defense
 		else:
-			if AIHeuristic._is_upgraded_resource_building(building, t, _ctx):
+			if AILiveFacts._is_upgraded_resource_building(building, t, _ctx):
 				resource_building_survives = true
 	var resource_bonus := w.changeloc_resource_bonus if resource_building_survives else 0.0
-	var unlock_bonus := AIHeuristic._score_unlocked_buildings(t, old_loc, loc, _ctx, gu, fu, mu)
+	var unlock_bonus := AILiveFacts._score_unlocked_buildings(t, old_loc, loc, _ctx, gu, fu, mu)
 	return base - demolished_penalty + resource_bonus + unlock_bonus
 
 
 func same_type_card_count(card: Card) -> int:
-	return AIHeuristic._card_type_count(card, _ctx)
+	return AILiveFacts._card_type_count(card, _ctx)
 
 
 func colonizable_count() -> int:
@@ -283,11 +283,11 @@ func colonizable_count() -> int:
 
 
 func upgradeable_count() -> int:
-	return AIHeuristic._upgradeable_buildings(_ctx)
+	return AILiveFacts._upgradeable_buildings(_ctx)
 
 
 func buildable_slots() -> int:
-	return AIHeuristic._buildable_slots(_ctx)
+	return AILiveFacts._buildable_slots(_ctx)
 
 
 func change_location_target_count(target_type: int) -> int:
@@ -299,7 +299,7 @@ func change_location_target_count(target_type: int) -> int:
 
 
 func deck_size() -> int:
-	return AIHeuristic._current_deck_size(_ctx)
+	return AILiveFacts._current_deck_size(_ctx)
 
 
 func recoverable_cards() -> Array[Card]:

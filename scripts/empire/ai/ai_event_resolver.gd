@@ -227,7 +227,7 @@ static func _resolve_shop_event(event: ShopEvent, stats: Stats,
 		if worst == null:
 			break
 		var worst_score := AIHeuristic.score_card_for_deck(worst, hctx)
-		if worst_score >= AIHeuristic.dynamic_purge_threshold(hctx):
+		if worst_score >= AILiveFacts.dynamic_purge_threshold(hctx):
 			break  # todas las cartas son suficientemente valiosas para el mazo actual
 		if config.purge_card(worst, stats):
 			GameLogger.debug("    [IA-Shop] purga carta '%s' (score %.1f)" % [
