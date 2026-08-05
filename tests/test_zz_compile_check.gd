@@ -1,7 +1,17 @@
 extends GutTest
 
-## Comprueba que todos los scripts tocados por la localización compilan
-## (con autoloads disponibles, a diferencia del modo --script suelto).
+## Comprueba que los scripts tocados por la localización compilan (con autoloads
+## disponibles, a diferencia del modo --script suelto).
+##
+## La cobertura EXHAUSTIVA de scripts/ la da test_zz_all_scripts_compile; esta
+## lista se conserva porque documenta cuáles son los ficheros de la localización,
+## e incluye algunos que no viven bajo scripts/ui.
+##
+## OJO: la comprobación NO puede ser `assert_not_null(load(p))`. `load()` de un
+## script con un parse error devuelve un GDScript a medio compilar, no null, así
+## que esa aserción no falla nunca — es lo que hacía este fichero hasta ahora, y
+## por eso no habría cazado una rotura en ninguno de los 43. Lo que discrimina es
+## `can_instantiate()`.
 
 func test_localized_scripts_compile() -> void:
 	var scripts := [
@@ -50,4 +60,5 @@ func test_localized_scripts_compile() -> void:
 		"res://scripts/cards_resources/card_draw_card.gd",
 	]
 	for p: String in scripts:
-		assert_not_null(load(p), "Debe compilar: " + p)
+		var script := load(p) as GDScript
+		assert_true(script != null and script.can_instantiate(), "Debe compilar: " + p)
