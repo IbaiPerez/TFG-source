@@ -212,11 +212,7 @@ static func _writable(state: AIRealState, tile_id: int) -> AIRealState.TileSnap:
 static func _clear_tactics_for_side(front: AIRealState.FrontSnap, side: BattleFront.Side) -> void:
 	var bonuses: Array[TacticBonus] = front.attacker_bonuses if side == BattleFront.Side.ATTACKER \
 		else front.defender_bonuses
-	var i := bonuses.size() - 1
-	while i >= 0:
-		if bonuses[i].tactic_name != "":
-			bonuses.remove_at(i)
-		i -= 1
+	CombatMath.clear_tactics(bonuses)
 
 
 ## Modificador de bioma de una carta táctica para una casilla (espejo de

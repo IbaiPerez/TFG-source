@@ -109,8 +109,8 @@ static func _tick_front(state: AIRealState, front: AIRealState.FrontSnap) -> boo
 	var atk_pressure := _front_pressure(state, front, BattleFront.Side.ATTACKER)
 	var def_pressure := _front_pressure(state, front, BattleFront.Side.DEFENDER)
 	front.marker += atk_pressure - def_pressure
-	_tick_bonuses(front.attacker_bonuses)
-	_tick_bonuses(front.defender_bonuses)
+	CombatMath.tick_bonuses(front.attacker_bonuses)
+	CombatMath.tick_bonuses(front.defender_bonuses)
 	if _front_can_resolve(front):
 		_resolve_front(state, front)
 		return true
@@ -119,15 +119,7 @@ static func _tick_front(state: AIRealState, front: AIRealState.FrontSnap) -> boo
 
 ## Decrementa la duración de los bonuses temporales y elimina los expirados
 ## (espejo de BattleFront._tick_bonuses).
-static func _tick_bonuses(bonuses: Array) -> void:
-	var i := bonuses.size() - 1
-	while i >= 0:
-		var b := bonuses[i] as TacticBonus
-		if b != null and b.duration >= 0:
-			b.duration -= 1
-			if b.duration <= 0:
-				bonuses.remove_at(i)
-		i -= 1
+
 
 
 ## Espejo de BattleFront.can_resolve: duración mínima cumplida + |marker| ≥ umbral.

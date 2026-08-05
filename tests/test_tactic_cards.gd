@@ -156,9 +156,10 @@ func test_troop_type_bonus_is_permanent_without_duration() -> void:
 		"defense_per_troop": 2.0,
 	})
 
-	front._tick_bonuses(front.attacker_bonuses)
-	front._tick_bonuses(front.attacker_bonuses)
-	front._tick_bonuses(front.attacker_bonuses)
+	# La regla de caducidad vive en CombatMath, compartida con el snapshot del MCTS.
+	CombatMath.tick_bonuses(front.attacker_bonuses)
+	CombatMath.tick_bonuses(front.attacker_bonuses)
+	CombatMath.tick_bonuses(front.attacker_bonuses)
 
 	assert_eq(front.attacker_bonuses.size(), 1, "Bonus permanente no debe eliminarse al hacer tick")
 

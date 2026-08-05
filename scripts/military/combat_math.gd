@@ -138,6 +138,53 @@ static func as_tactic_bonus(raw: Variant) -> TacticBonus:
 	return TacticBonus.from_dict(raw as Dictionary)
 
 
+## Decrementa la duración de los bonuses y elimina los agotados. Los de duración
+## negativa son permanentes y no expiran.
+##
+## Tolera el formato Dictionary legacy porque el mundo vivo aún lo admite; en el
+## snapshot esa rama nunca se toma (allí los bonuses siempre nacen tipados).
+static func tick_bonuses(bonuses: Array) -> void:
+	var i := bonuses.size() - 1
+	while i >= 0:
+		var raw: Variant = bonuses[i]
+		if raw is TacticBonus:
+			var b := raw as TacticBonus
+			if b.duration >= 0:
+				b.duration -= 1
+				if b.duration <= 0:
+					bonuses.remove_at(i)
+		elif raw is Dictionary:
+			var d := raw as Dictionary
+			if d.has("duration"):
+				d["duration"] = int(d["duration"]) - 1
+				if int(d["duration"]) <= 0:
+					bonuses.remove_at(i)
+		i -= 1
+
+
+## Elimina las TÁCTICAS de la lista (bonuses con `tactic_name` no vacío) y devuelve
+## cuántas quitó. NO toca el resto de bonuses: planos manuales, de evento o de
+## edificio. Es la regla que hace que cada bando tenga como mucho UNA táctica
+## activa — las cartas tácticas llaman aquí antes de aplicarse.
+static func clear_tactics(bonuses: Array) -> int:
+	var removed := 0
+	var i := bonuses.size() - 1
+	while i >= 0:
+		if as_tactic_bonus(bonuses[i]).tactic_name != "":
+			bonuses.remove_at(i)
+			removed += 1
+		i -= 1
+	return removed
+
+
+## True si la lista tiene alguna táctica activa (bonus con `tactic_name` no vacío).
+static func has_active_tactic(bonuses: Array) -> bool:
+	for raw in bonuses:
+		if as_tactic_bonus(raw).tactic_name != "":
+			return true
+	return false
+
+
 ## Cuántas tropas del bando son de un tipo (Troop.TroopType) concreto.
 static func count_troops_by_type(troops: Array[Troop], troop_type: int) -> int:
 	var count := 0
