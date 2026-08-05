@@ -1,27 +1,66 @@
 extends GutTest
 
-## Tests de AITerritory: los factores territoriales unificados (refactor C4 §1.3.c).
-## Antes vivían duplicados en AIHeuristic (estado vivo) y AIRealEvalStrong (snapshot).
-## Fijan las bandas de expansión, encierro y carrera territorial sobre los pesos por
-## defecto. La paridad de comportamiento entre ambos mundos la cubren además, a alto
-## nivel, test_ai_heuristic* y test_ai_real_eval_strong.
+## Tests de AITerritory: expansión, encierro y carrera territorial.
+##
+## Las aserciones van contra el CAMPO DE PESO y las entradas se construyen desde el
+## UMBRAL correspondiente, no con números elegidos a mano. La diferencia importa:
+## con literales, cambiar `encircle_r1` dejaba el test en verde midiendo otra banda
+## —el peor fallo posible en un test, porque sigue pasando y ya no comprueba lo que
+## dice su nombre.
+##
+## `0.0` y `1.0` se dejan literales donde son identidades (sin expansión / sin
+## amplificación), no pesos.
+
+const NEUTRO := 1.0
 
 
 func _w() -> HeuristicWeights:
 	return HeuristicWeights.new()
 
 
+## Cuenta de colonizables que produce el ratio pedido sobre `controladas`.
+func _colonizables_para_ratio(ratio: float, controladas: int) -> int:
+	return int(round(ratio * controladas))
+
+
+## Reparto de casillas que produce las cuotas pedidas. El resto va a libres.
+func _reparto(my_share: float, rival_share: float) -> Array[int]:
+	var total := 1000
+	var mias := int(round(my_share * total))
+	var rival := int(round(rival_share * total))
+	return [mias, rival, total - mias - rival]
+
+
 # ------------------------------------------------------------------
 #  Expansión
 # ------------------------------------------------------------------
 
-func test_expansion_factor_unknown_zero_and_saturation() -> void:
-	var w := _w()   # expansion_reference=15, expansion_unknown=0.5
-	assert_almost_eq(AITerritory.expansion_factor(-1, w), 0.5, 0.001)   # desconocido
+func test_expansion_factor_desconocido_y_cero() -> void:
+	var w := _w()
+	# −1 es el centinela de "no hay mapa" (tests, contextos sin mundo).
+	assert_almost_eq(AITerritory.expansion_factor(-1, w), w.expansion_unknown, 0.001)
 	assert_almost_eq(AITerritory.expansion_factor(0, w), 0.0, 0.001)
-	assert_almost_eq(AITerritory.expansion_factor(3, w), 0.2, 0.001)    # 3/15
-	assert_almost_eq(AITerritory.expansion_factor(15, w), 1.0, 0.001)   # satura
-	assert_almost_eq(AITerritory.expansion_factor(30, w), 1.0, 0.001)   # sigue saturado
+
+
+func test_expansion_factor_satura_en_la_referencia() -> void:
+	var w := _w()
+	# ceili, no int: truncar dejaría la entrada JUSTO por debajo de la referencia si
+	# el peso no es entero, y el test fallaría por la truncación y no por la regla.
+	var referencia := ceili(w.expansion_reference)
+	assert_almost_eq(AITerritory.expansion_factor(referencia, w), NEUTRO, 0.001)
+	# Y sigue topado por encima: más casillas libres no dan más de 1.0.
+	assert_almost_eq(AITerritory.expansion_factor(referencia * 2, w), NEUTRO, 0.001)
+	assert_almost_eq(AITerritory.expansion_factor(referencia * 100, w), NEUTRO, 0.001)
+
+
+func test_expansion_factor_es_creciente_antes_de_saturar() -> void:
+	var w := _w()
+	var referencia := int(w.expansion_reference)
+	var pocas := AITerritory.expansion_factor(maxi(referencia / 5, 1), w)
+	var muchas := AITerritory.expansion_factor(maxi(referencia / 2, 2), w)
+	assert_gt(pocas, 0.0)
+	assert_gt(muchas, pocas, "más casillas libres, más presión expansionista")
+	assert_lt(muchas, NEUTRO, "pero por debajo de la referencia no satura")
 
 
 # ------------------------------------------------------------------
@@ -29,11 +68,34 @@ func test_expansion_factor_unknown_zero_and_saturation() -> void:
 # ------------------------------------------------------------------
 
 func test_encirclement_pressure_ratio_bands() -> void:
-	var w := _w()   # r2=2.0/high=1.5, r1=1.0/mid=2.5, r05=0.5/low=4.0, min=5.0
-	assert_almost_eq(AITerritory.encirclement_pressure(20, 10, w), 1.5, 0.001)  # ratio 2.0
-	assert_almost_eq(AITerritory.encirclement_pressure(10, 10, w), 2.5, 0.001)  # ratio 1.0
-	assert_almost_eq(AITerritory.encirclement_pressure(5, 10, w), 4.0, 0.001)   # ratio 0.5
-	assert_almost_eq(AITerritory.encirclement_pressure(2, 10, w), 5.0, 0.001)   # ratio 0.2 (rodeado)
+	var w := _w()
+	var controladas := 100
+	# Cada umbral de ratio devuelve su banda. Los umbrales son inclusivos (>=),
+	# así que se prueba JUSTO en el umbral, que es donde se decide.
+	var casos := [
+		[w.encircle_r2, w.encircle_high],
+		[w.encircle_r1, w.encircle_mid],
+		[w.encircle_r05, w.encircle_low],
+	]
+	for caso in casos:
+		var ratio: float = caso[0]
+		var esperado: float = caso[1]
+		assert_almost_eq(AITerritory.encirclement_pressure(
+			_colonizables_para_ratio(ratio, controladas), controladas, w),
+			esperado, 0.001, "ratio %.2f debe caer en su banda" % ratio)
+
+	# Por debajo del umbral más bajo: rodeado, presión máxima.
+	assert_almost_eq(AITerritory.encirclement_pressure(
+		_colonizables_para_ratio(w.encircle_r05 / 2.0, controladas), controladas, w),
+		w.encircle_min, 0.001)
+
+
+func test_encirclement_pressure_crece_al_estrecharse_el_cerco() -> void:
+	# El ORDEN de las bandas es la regla: menos salida = más urgencia por escapar.
+	var w := _w()
+	assert_gt(w.encircle_min, w.encircle_low)
+	assert_gt(w.encircle_low, w.encircle_mid)
+	assert_gt(w.encircle_mid, w.encircle_high)
 
 
 # ------------------------------------------------------------------
@@ -41,23 +103,55 @@ func test_encirclement_pressure_ratio_bands() -> void:
 # ------------------------------------------------------------------
 
 func test_territory_race_colonize_modes() -> void:
-	var w := _w()  # close_share=0.60/×2.0, lead_share=0.50/×1.5, block_share=0.55/×1.5
-	# Dominando (share ≈0.857 ≥ 0.60) → cierre ×2.0.
-	assert_almost_eq(AITerritory.territory_race_factor(6, 1, 0, &"colonize", w), 2.0, 0.001)
-	# Liderando (share 0.50, < 0.60) → lead ×1.5.
-	assert_almost_eq(AITerritory.territory_race_factor(5, 4, 1, &"colonize", w), 1.5, 0.001)
-	# Rival cerca de su límite (rival_share 0.60 ≥ 0.55) → bloqueo ×1.5.
-	assert_almost_eq(AITerritory.territory_race_factor(2, 6, 2, &"colonize", w), 1.5, 0.001)
-	# Reparto equilibrado con espacio libre → neutro ×1.0.
-	assert_almost_eq(AITerritory.territory_race_factor(3, 3, 4, &"colonize", w), 1.0, 0.001)
+	var w := _w()
+	# Cerca de la dominación → se amplifica todo lo que acerque al final.
+	var cierre := _reparto(w.tr_close_share + 0.05, 0.10)
+	assert_almost_eq(AITerritory.territory_race_factor(
+		cierre[0], cierre[1], cierre[2], &"colonize", w), w.tr_close_factor, 0.001)
+
+	# Liderando pero sin cerrar → amplificación menor.
+	var lidera := _reparto(w.tr_lead_share, 0.10)
+	assert_almost_eq(AITerritory.territory_race_factor(
+		lidera[0], lidera[1], lidera[2], &"colonize", w), w.tr_lead_factor, 0.001)
+
+	# El RIVAL cerca de su límite → bloquear vale tanto como avanzar.
+	var bloqueo := _reparto(0.10, w.tr_block_share)
+	assert_almost_eq(AITerritory.territory_race_factor(
+		bloqueo[0], bloqueo[1], bloqueo[2], &"colonize", w), w.tr_block_factor, 0.001)
+
+	# Reparto equilibrado con espacio libre de sobra → sin amplificación.
+	var neutro := _reparto(0.30, 0.30)
+	assert_almost_eq(AITerritory.territory_race_factor(
+		neutro[0], neutro[1], neutro[2], &"colonize", w), NEUTRO, 0.001)
 
 
 func test_territory_race_open_front_shares_colonize_logic() -> void:
+	# Abrir frente gana territorio igual que colonizar: misma amplificación.
 	var w := _w()
-	assert_almost_eq(AITerritory.territory_race_factor(6, 1, 0, &"open_front", w), 2.0, 0.001)
+	var cierre := _reparto(w.tr_close_share + 0.05, 0.10)
+	assert_eq(
+		AITerritory.territory_race_factor(cierre[0], cierre[1], cierre[2], &"open_front", w),
+		AITerritory.territory_race_factor(cierre[0], cierre[1], cierre[2], &"colonize", w),
+		"open_front y colonize comparten la lógica de carrera")
 
 
 func test_territory_race_economy_mode() -> void:
-	var w := _w()  # economy: solo aplica el descuento en modo cierre (tr_econ_factor=0.7)
-	assert_almost_eq(AITerritory.territory_race_factor(6, 1, 0, &"economy", w), 0.7, 0.001)
-	assert_almost_eq(AITerritory.territory_race_factor(3, 3, 4, &"economy", w), 1.0, 0.001)
+	var w := _w()
+	# Con ventaja territorial, la economía vale MENOS: es un descuento, no un bonus.
+	var cierre := _reparto(w.tr_close_share + 0.05, 0.10)
+	assert_almost_eq(AITerritory.territory_race_factor(
+		cierre[0], cierre[1], cierre[2], &"economy", w), w.tr_econ_factor, 0.001)
+	assert_lt(w.tr_econ_factor, NEUTRO, "en modo economía el factor descuenta")
+
+	# Sin ventaja no descuenta nada.
+	var neutro := _reparto(0.30, 0.30)
+	assert_almost_eq(AITerritory.territory_race_factor(
+		neutro[0], neutro[1], neutro[2], &"economy", w), NEUTRO, 0.001)
+
+
+func test_territory_race_modo_desconocido_es_neutro() -> void:
+	# Guarda: un modo que no existe no debe amplificar nada por accidente.
+	var w := _w()
+	var cierre := _reparto(w.tr_close_share + 0.05, 0.10)
+	assert_almost_eq(AITerritory.territory_race_factor(
+		cierre[0], cierre[1], cierre[2], &"modo_inventado", w), NEUTRO, 0.001)

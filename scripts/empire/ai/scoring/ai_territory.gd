@@ -8,10 +8,10 @@ class_name AITerritory
 ## representación y pasa los escalares aquí, de modo que la fórmula y los umbrales
 ## viven en un único lugar y el optimizador (SA/GA) ajusta ambos mundos a la vez.
 ##
-## Los recorridos del grafo de tiles SIN pesos (_frontier_value, y el
-## _colonizable_count del snapshot) NO se unifican aquí: no hay riesgo de divergencia
-## con el optimizador y se deduplicarán con el puerto AITileView en el subpaso que
-## porta los _score_<tipo> (1.3.g), donde el recorrido de tiles es masivo.
+## Los recorridos del grafo de casillas SIN pesos (valor de frontera, conteo de
+## colonizables) NO viven aquí, y no por olvido: no hay riesgo de divergencia con el
+## optimizador porque no ponderan nada. Cada mundo hace el suyo en AILiveFacts y
+## AISnapshotFacts, que es la mitad "cómo se lee este mundo".
 
 
 ## Presión expansionista [0.0, 1.0] por nº de tiles colonizables adyacentes.
