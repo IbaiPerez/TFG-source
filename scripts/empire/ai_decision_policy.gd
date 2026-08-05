@@ -83,7 +83,7 @@ func pick_best(options: Array[AIPlayOption], ctx: AITurnContext) -> AIPlayOption
 ##     correspondiente → el llamante cae a la heurística.
 func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 		cfg: AIConfig) -> AIPlayOption:
-	var state := AIRealState.from_context(ctx)
+	var state := AIRealStateBuilder.from_context(ctx)
 
 	# Determinización del rival (SO-ISMCTS): deck conocido + tamaño de mano.
 	var known_deck: Array[Card] = []
@@ -148,7 +148,7 @@ func _pick_best_option_mcts(options: Array[AIPlayOption], ctx: AITurnContext,
 
 ## Mapea una jugada del snapshot (AIRealOptions.Move) a la AIPlayOption real
 ## equivalente entre las opciones legales del turno, casando por carta + target
-## (índice de tile en WorldMap.map, igual que AIRealState.from_context). Devuelve
+## (índice de tile en WorldMap.map, igual que AIRealStateBuilder.from_context). Devuelve
 ## null si ninguna casa (el llamante cae a la heurística).
 ## `active_fronts` y `ctx` los aporta el llamante para no recalcularlos por jugada:
 ## antes cada llamada duplicaba el registro global de frentes y resolvía

@@ -38,7 +38,7 @@ var total_map_tiles: int = 0
 var tile_index: Dictionary = {}
 
 
-## Id estable de una tile (mismo que usa AIRealState.from_context). -1 si se
+## Id estable de una tile (mismo que usa AIRealStateBuilder.from_context). -1 si se
 ## desconoce, igual que devolvía `Array.find` cuando la tile no estaba.
 func index_of_tile(tile: Tile) -> int:
 	if tile == null:

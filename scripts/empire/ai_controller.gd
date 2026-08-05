@@ -167,7 +167,7 @@ func _build_turn_context() -> AITurnContext:
 	# snapshot, porque las jugadas del MCTS se casan con las opciones por ese id.
 	var world: Array = WorldMap.map
 	ctx.total_map_tiles = world.size()
-	ctx.tile_index = AIRealState.build_tile_index(world)
+	ctx.tile_index = AIRealStateBuilder.build_tile_index(world)
 
 	# Nuevo turno: el árbol de turnos anteriores ya no es válido (intervinieron
 	# el rival y advance_turn). La reutilización de subárbol es SOLO intra-turno.

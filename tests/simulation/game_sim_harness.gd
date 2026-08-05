@@ -343,7 +343,7 @@ func _spawn_ai_controllers() -> void:
 
 	# Registro mínimo de controllers para que cada IA vea al rival vía
 	# AIController._build_world_view() — IMPRESCINDIBLE para el MCTS: sin un
-	# rival visible, AIRealState.from_context deja rival_tiles=0 y la
+	# rival visible, AIRealStateBuilder.from_context deja rival_tiles=0 y la
 	# evaluación da 1.0 (victoria) en todo estado, degenerando la búsqueda.
 	# También habilita el deck observer (_ensure_observer_ready).
 	#
@@ -461,7 +461,7 @@ func _capture_self_eval(round_num: int, ai: AIController) -> void:
 	ctx.drawn_cards = []
 	ctx.world_view = ai._build_world_view()
 	ctx.total_map_tiles = WorldMap.map.size()
-	var snap := AIRealState.from_context(ctx)
+	var snap := AIRealStateBuilder.from_context(ctx)
 	var mode := "MCTS" if (ai.ai_config != null \
 		and ai.ai_config.mode == AIConfig.Mode.MCTS) else "HEURISTIC"
 	self_eval_trace.append({
