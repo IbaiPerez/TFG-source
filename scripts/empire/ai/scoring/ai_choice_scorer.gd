@@ -2,15 +2,15 @@ extends RefCounted
 class_name AIChoiceScorer
 
 ## Valoración de una opción (TurnEventChoice) de evento, escrita UNA sola vez
-## contra el puerto AIStateView. Antes vivía DUPLICADA:
-##   - AIHeuristic.score_choice        → con pesos, pero solo 6 ramas de efecto.
-##   - AIRealEvents._score_choice      → literales hardcodeados, pero MÁS ramas.
+## contra el puerto AIStateView. Antes vivía DUPLICADA: el mundo vivo la puntuaba
+## con pesos pero solo distinguía 6 ramas de efecto, y el snapshot distinguía MÁS
+## ramas pero con literales a fuego.
 ##
 ## HALLAZGO: no era un caso de "el snapshot aproxima al vivo". Cada mundo cubría
 ## cosas distintas, así que la unificación es la UNIÓN de ambos:
 ##   · del VIVO se toma la valoración real de AddCardEffect (AIDeckScorer, ya
 ##     compartido) y las urgencias con fase/pesos;
-##   · del ESPEJO se toman las ramas que el vivo no distinguía y trataba como
+##   · del SNAPSHOT se toman las ramas que el vivo no distinguía y trataba como
 ##     "efecto desconocido": Scaled(Gold|Food)Effect, ColonizeAdjacentEffect,
 ##     AddToCardPool/UnlockBuilding y los modifiers. Sus literales pasan a pesos
 ##     (choice_colonize / choice_unlock / choice_modifier), con default = el

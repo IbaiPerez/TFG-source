@@ -245,7 +245,7 @@ func test_choice_selection_picks_highest_value() -> void:
 # ============================================================
 
 func _apply(effect: TurnEventEffect, s: AIRealState) -> void:
-	AIRealEvents._apply_effect(effect, s, AIRealState.OWNER_SELF, _seeded_rng())
+	AIRealEventEffects._apply_effect(effect, s, AIRealState.OWNER_SELF, _seeded_rng())
 
 
 func test_apply_modifier_effect_affects_economy() -> void:

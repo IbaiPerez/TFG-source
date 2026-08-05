@@ -2,14 +2,12 @@ extends RefCounted
 class_name AIShopPolicy
 
 ## Política de tienda (comprar / purgar), escrita UNA sola vez
-## contra el puerto AIStateView. Antes vivía DUPLICADA:
-##   - AIHeuristic.should_buy_shop_item / dynamic_purge_threshold / pick_card_to_remove
-##     (mundo vivo, con pesos shop_thresh_* / purge_thresh_* / deck_*).
-##   - AIRealEvents._should_buy / _purge_threshold / _pick_weakest_card
-##     (snapshot, con 5.0/12.0 y 3.0/10.0 HARDCODEADOS y la banda (deck−5)/15).
+## contra el puerto AIStateView. Antes vivía DUPLICADA: el mundo vivo decidía con
+## los pesos shop_thresh_* / purge_thresh_* / deck_*, y el snapshot con 5.0/12.0 y
+## 3.0/10.0 a fuego y la banda (deck−5)/15.
 ##
-## Los pesos ya existían: el espejo simplemente no los usaba. Al unificar, el
-## snapshot pasa a respetarlos → [CAMBIA COMPORTAMIENTO] en el snapshot.
+## Los pesos YA EXISTÍAN: el snapshot simplemente no los usaba. Al unificar pasa a
+## respetarlos, así que esto CAMBIÓ SU COMPORTAMIENTO — no es un refactor neutro.
 ##
 ## Sin efectos secundarios: solo decide. Cada mundo aplica el resultado a su manera
 ## (ShopItem.purchase/purge_card en vivo; mutar emp.deck/gold en el snapshot).

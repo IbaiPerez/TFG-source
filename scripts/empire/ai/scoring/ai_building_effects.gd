@@ -10,9 +10,10 @@ class_name AIBuildingEffects
 ## y SOLO dentro de su rama del match, preservando la evaluación perezosa (esos
 ## recorridos son caros y corren en el camino caliente del MCTS en el snapshot).
 ##
-## La rama AddCardToDeckEffect NO se unifica aquí: cada mundo puntúa la carta con un
-## valorador distinto (AIHeuristic.score_card_for_deck completo vs
-## AIRealEvents._score_card_for_deck suelo) — eso es otro subpaso.
+## La rama AddCardToDeckEffect no se resuelve aquí, pero tampoco diverge: los dos
+## mundos la puntúan con AIDeckScorer. Se deja en cada llamante porque cada uno
+## construye su propia vista del puerto y no conviene asignar otra en el camino
+## caliente.
 
 
 ## Casos "simples" de AddStatModifierEffect: puros sobre primitivas + pesos. Los dos

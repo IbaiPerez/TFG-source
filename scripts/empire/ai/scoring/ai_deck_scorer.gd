@@ -2,18 +2,14 @@ extends RefCounted
 class_name AIDeckScorer
 
 ## Valoración de una carta para el mazo, escrita UNA sola vez,
-## contra el puerto AIStateView. Antes vivía DUPLICADA:
-##   - AIHeuristic.score_card_for_deck   → fórmula COMPLETA (pesos + fase + urgencias
-##                                          + recorridos de tiles: colonizable/upgradeable/
-##                                          slots/change_location/recuperables).
-##   - AIRealEvents._score_card_for_deck → APROXIMACIÓN-SUELO (magnitudes planas 11/12/
-##                                          10/9…, sin fase ni recorridos de tiles).
+## contra el puerto AIStateView. LOS DOS mundos la usan: el vivo a través de
+## LiveStateView y el snapshot de SnapshotStateView.
 ##
-## Paso (a) — byte-idéntico: SOLO el mundo VIVO delega aquí (AIHeuristic.score_card_for_deck
-## pasa a ser un wrapper que construye LiveStateView; LiveStateView reproduce EXACTAMENTE
-## los helpers de AIHeuristic, incluidas las urgencias cacheadas de la decisión). El
-## SNAPSHOT conmuta en el paso (b) [CAMBIA COMPORTAMIENTO]: adopta esta fórmula completa
-## vía SnapshotStateView, borrando su aproximación-suelo.
+## Antes estaba escrita dos veces, y no como copia sino con AMBICIÓN distinta: el
+## mundo vivo tenía la fórmula completa (pesos + fase + urgencias + recorridos de
+## casillas) y el snapshot una aproximación-suelo de magnitudes planas, sin fase ni
+## recorridos. Al unificar se adoptó la completa, así que el snapshot GANÓ
+## discriminación — no es un refactor neutro y por eso se midió.
 
 ## IMPORTANTE (rendimiento): las urgencias se consultan DENTRO de la rama que las
 ## necesita, nunca al entrar. En el snapshot `military_urgency` recorre los frentes y

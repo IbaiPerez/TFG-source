@@ -16,7 +16,7 @@ func _rng(s: int = 1) -> RandomNumberGenerator:
 ## Resuelve la tienda sobre el imperio propio de `s` (C6 §1.6.5b: _resolve_shop
 ## recibe state/owner para poder construir la vista del valorador unificado).
 func _resolve(s: AIRealState, turn: int, rng: RandomNumberGenerator) -> void:
-	AIRealEvents._resolve_shop(_basic_shop(), s, AIRealState.OWNER_SELF, s.own, turn, rng)
+	AIRealShop._resolve_shop(_basic_shop(), s, AIRealState.OWNER_SELF, s.own, turn, rng)
 
 
 ## Vista del imperio propio, para los helpers de decisión que la reciben.
