@@ -150,7 +150,7 @@ func test_colonize_takes_tile_and_urbanizes() -> void:
 	var uncol := _make_location(Tile.location_type.Uncolonized, 0, 0)
 	s.tiles[0] = _snap_from_tile(0, _make_resource(6, 3), uncol, [], AIRealState.OWNER_NONE)
 	s.total_map_tiles = 1
-	AIRealSimulator.apply_colonize(s, 0)
+	AIRealEffects.apply_colonize(s, 0)
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.owner, AIRealState.OWNER_SELF, "La casilla pasa a ser propia")
 	assert_eq(t.location_type, Tile.location_type.Village,
@@ -163,7 +163,7 @@ func test_colonize_adds_production() -> void:
 	var uncol := _make_location(Tile.location_type.Uncolonized, 0, 0)
 	s.tiles[0] = _snap_from_tile(0, _make_resource(6, 3), uncol, [], AIRealState.OWNER_NONE)
 	s.total_map_tiles = 1
-	AIRealSimulator.apply_colonize(s, 0)
+	AIRealEffects.apply_colonize(s, 0)
 	assert_eq(s.own.gold_per_turn, 6, "Colonizar suma el oro del recurso (Village food_cons=0)")
 	assert_eq(s.own.food, 3, "Colonizar suma la comida del recurso")
 
@@ -172,7 +172,7 @@ func test_colonize_increments_tile_count() -> void:
 	var s := AIRealState.new()
 	var uncol := _make_location(Tile.location_type.Uncolonized, 0, 0)
 	s.tiles[0] = _snap_from_tile(0, _make_resource(1, 0), uncol, [], AIRealState.OWNER_NONE)
-	AIRealSimulator.apply_colonize(s, 0)
+	AIRealEffects.apply_colonize(s, 0)
 	assert_eq(s.count_tiles(AIRealState.OWNER_SELF), 1)
 
 
@@ -184,7 +184,7 @@ func test_build_adds_building_and_production() -> void:
 	var s := _state_one_owned_tile(_make_resource(2, 0))
 	s.own.gold = 100
 	var b := _make_building("mina", 10, 0)
-	AIRealSimulator.apply_build(s, 0, b)
+	AIRealEffects.apply_build(s, 0, b)
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.buildings.size(), 1, "El edificio se añade a la casilla")
 	assert_eq(s.own.gold_per_turn, 12, "gpt = recurso(2) + edificio(10)")
@@ -194,7 +194,7 @@ func test_build_deducts_construction_cost() -> void:
 	var s := _state_one_owned_tile(_make_resource(2, 0))
 	s.own.gold = 100
 	var b := _make_building("mina", 10, 0)  # construction_cost = 50
-	AIRealSimulator.apply_build(s, 0, b)
+	AIRealEffects.apply_build(s, 0, b)
 	assert_eq(s.own.gold, 50, "Construir descuenta el coste de construcción")
 
 
@@ -206,7 +206,7 @@ func test_build_blocked_when_no_free_slot() -> void:
 		[_make_building("existente", 5, 0)])
 	s.own.gold = 100
 	AIRealSimulator.recompute_own_economy(s)
-	AIRealSimulator.apply_build(s, 0, _make_building("nuevo", 10, 0))
+	AIRealEffects.apply_build(s, 0, _make_building("nuevo", 10, 0))
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.buildings.size(), 1, "Sin slots libres no se construye")
 	assert_eq(s.own.gold, 100, "Build bloqueado no descuenta oro")
@@ -218,7 +218,7 @@ func test_build_blocked_when_duplicate_name() -> void:
 	s.tiles[0] = _snap_from_tile(0, _make_resource(2, 0), town,
 		[_make_building("mina", 5, 0)])
 	s.own.gold = 100
-	AIRealSimulator.apply_build(s, 0, _make_building("mina", 10, 0))
+	AIRealEffects.apply_build(s, 0, _make_building("mina", 10, 0))
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.buildings.size(), 1, "No se permite un edificio con nombre duplicado")
 
@@ -235,7 +235,7 @@ func test_upgrade_replaces_building() -> void:
 	s.own.gold = 200
 	AIRealSimulator.recompute_own_economy(s)
 	var new_b := _make_building("mina_mejorada", 15, 0)
-	AIRealSimulator.apply_upgrade(s, 0, old_b, new_b)
+	AIRealEffects.apply_upgrade(s, 0, old_b, new_b)
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.buildings.size(), 1, "El upgrade mantiene un solo edificio")
 	assert_eq(t.buildings[0].name, "mina_mejorada", "El edificio viejo se sustituye")
@@ -248,7 +248,7 @@ func test_upgrade_noop_when_old_not_present() -> void:
 	s.own.gold = 200
 	var phantom := _make_building("inexistente", 5, 0)
 	var new_b := _make_building("nuevo", 15, 0)
-	AIRealSimulator.apply_upgrade(s, 0, phantom, new_b)
+	AIRealEffects.apply_upgrade(s, 0, phantom, new_b)
 	assert_eq((s.tiles[0] as AIRealState.TileSnap).buildings.size(), 0,
 		"Upgrade sobre un edificio ausente no hace nada")
 	assert_eq(s.own.gold, 200, "Upgrade no-op no descuenta oro")
@@ -264,7 +264,7 @@ func test_change_location_increases_slots_and_consumption() -> void:
 	s.tiles[0] = _snap_from_tile(0, _make_resource(4, 6), village, [])
 	AIRealSimulator.recompute_own_economy(s)
 	var town := _make_location(Tile.location_type.Town, 3, 5)
-	AIRealSimulator.apply_change_location(s, 0, town)
+	AIRealEffects.apply_change_location(s, 0, town)
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.location_type, Tile.location_type.Town, "Sube a Town")
 	assert_eq(t.max_buildings, 3, "Town habilita más slots")
@@ -281,7 +281,7 @@ func test_change_location_demolishes_incompatible_buildings() -> void:
 	s.tiles[0] = _snap_from_tile(0, _make_resource(2, 0), village_lt, [village_only])
 	AIRealSimulator.recompute_own_economy(s)
 	var town := _make_location(Tile.location_type.Town, 3, 0)
-	AIRealSimulator.apply_change_location(s, 0, town)
+	AIRealEffects.apply_change_location(s, 0, town)
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.buildings.size(), 0, "El edificio restringido a Village se demuele")
 	assert_eq(s.own.gold_per_turn, 2, "Tras demoler, gpt = solo el recurso")
@@ -294,7 +294,7 @@ func test_change_location_keeps_unrestricted_buildings() -> void:
 	var anywhere := _make_building("almacen", 8, 0)
 	s.tiles[0] = _snap_from_tile(0, _make_resource(2, 0), village_lt, [anywhere])
 	var town := _make_location(Tile.location_type.Town, 3, 0)
-	AIRealSimulator.apply_change_location(s, 0, town)
+	AIRealEffects.apply_change_location(s, 0, town)
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.buildings.size(), 1, "Un edificio sin restricción sobrevive al cambio")
 
@@ -306,7 +306,7 @@ func test_change_location_keeps_unrestricted_buildings() -> void:
 func test_generate_gold_adds_immediate_gold() -> void:
 	var s := _state_one_owned_tile(_make_resource(2, 0))
 	s.own.gold = 100
-	AIRealSimulator.apply_generate_gold(s, 75)
+	AIRealEffects.apply_generate_gold(s, 75)
 	assert_eq(s.own.gold, 175, "GenerateGold suma oro inmediato")
 	assert_eq(s.own.gold_per_turn, 2, "GenerateGold no altera el gpt")
 
@@ -331,7 +331,7 @@ func test_advance_turn_recomputes_after_colonize() -> void:
 	s.tiles[0].owner = AIRealState.OWNER_NONE
 	s.tiles[1] = _snap_from_tile(1, _make_resource(7, 0), uncol, [], AIRealState.OWNER_NONE)
 	s.own.gold = 0
-	AIRealSimulator.apply_colonize(s, 1)
+	AIRealEffects.apply_colonize(s, 1)
 	AIRealSimulator.advance_turn(s)
 	assert_eq(s.own.gold_per_turn, 7, "Tras colonizar la tile 1, gpt = 7")
 	assert_eq(s.own.gold, 7, "El ingreso del turno refleja la nueva casilla")
@@ -357,7 +357,7 @@ func test_clone_is_independent_tiles() -> void:
 	var s := _state_one_owned_tile(_make_resource(5, 2))
 	s.own.gold = 100
 	var c := s.clone()
-	AIRealSimulator.apply_build(c, 0, _make_building("x", 9, 0))
+	AIRealEffects.apply_build(c, 0, _make_building("x", 9, 0))
 	var orig := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(orig.buildings.size(), 0, "Clonar (COW) no debe alterar los edificios del original")
 	assert_eq((c.tiles[0] as AIRealState.TileSnap).buildings.size(), 1,

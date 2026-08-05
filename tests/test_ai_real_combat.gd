@@ -119,7 +119,7 @@ func _assert_front_parity(atk_biome: int, def_biome: int,
 		if front.is_resolved or fs.is_resolved:
 			break
 		front.tick()
-		AIRealSimulator._tick_front(state, fs)
+		AIRealCombat._tick_front(state, fs)
 		assert_almost_eq(fs.marker, front.marker, 0.001,
 			"Marcador debe coincidir en el turno %d (sim %.4f vs real %.4f)"
 				% [turn, fs.marker, front.marker])
@@ -206,7 +206,7 @@ func test_front_parity_resolves_same_turn_and_winner() -> void:
 		if fs.is_resolved and sim_turn < 0: sim_turn = turn
 		if front.is_resolved and fs.is_resolved: break
 		if not front.is_resolved: front.tick()
-		if not fs.is_resolved: AIRealSimulator._tick_front(state, fs)
+		if not fs.is_resolved: AIRealCombat._tick_front(state, fs)
 
 	assert_true(fs.is_resolved, "El frente simulado debe resolverse")
 	assert_true(front.is_resolved, "El frente real debe resolverse")
@@ -223,7 +223,7 @@ func test_recruit_adds_troops_and_deducts_gold() -> void:
 	var state := AIRealState.new()
 	state.own.gold = 100
 	var troop := _make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30)
-	AIRealSimulator.apply_recruit(state, troop, 2)
+	AIRealEffects.apply_recruit(state, troop, 2)
 	assert_eq(state.own.troop_pool.size(), 2, "Recluta 2 tropas")
 	assert_eq(state.own.gold, 40, "Descuenta 2×30 de oro")
 
@@ -232,7 +232,7 @@ func test_recruit_stops_when_out_of_gold() -> void:
 	var state := AIRealState.new()
 	state.own.gold = 50
 	var troop := _make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30)
-	AIRealSimulator.apply_recruit(state, troop, 3)
+	AIRealEffects.apply_recruit(state, troop, 3)
 	assert_eq(state.own.troop_pool.size(), 1, "Solo recluta 1 (oro para una)")
 	assert_eq(state.own.gold, 20, "Queda el oro insuficiente para la segunda")
 
@@ -255,7 +255,7 @@ func _two_tile_state(adjacent: bool = true) -> AIRealState:
 
 func test_open_front_creates_front() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	assert_not_null(front, "Debe crear el frente")
 	assert_eq(s.fronts.size(), 1, "El frente se añade al estado")
 	assert_eq(front.attacker_owner, AIRealState.OWNER_SELF)
@@ -264,15 +264,15 @@ func test_open_front_creates_front() -> void:
 
 func test_open_front_rejects_non_adjacent() -> void:
 	var s := _two_tile_state(false)
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	assert_null(front, "No se abre frente contra una casilla no adyacente")
 	assert_eq(s.fronts.size(), 0)
 
 
 func test_open_front_rejects_tile_already_in_front() -> void:
 	var s := _two_tile_state()
-	AIRealSimulator.apply_open_front(s, 0, 1)
-	var second := AIRealSimulator.apply_open_front(s, 0, 1)
+	AIRealEffects.apply_open_front(s, 0, 1)
+	var second := AIRealEffects.apply_open_front(s, 0, 1)
 	assert_null(second, "Una casilla ya en frente no puede entrar en otro")
 
 
@@ -287,8 +287,8 @@ func test_open_front_respects_max_fronts() -> void:
 	(s.tiles[1] as AIRealState.TileSnap).neighbor_ids = [0]
 	(s.tiles[2] as AIRealState.TileSnap).neighbor_ids = [3]
 	(s.tiles[3] as AIRealState.TileSnap).neighbor_ids = [2]
-	var first := AIRealSimulator.apply_open_front(s, 0, 1)
-	var second := AIRealSimulator.apply_open_front(s, 2, 3)
+	var first := AIRealEffects.apply_open_front(s, 0, 1)
+	var second := AIRealEffects.apply_open_front(s, 2, 3)
 	assert_not_null(first, "El primer frente se abre")
 	assert_null(second, "El segundo se rechaza por el límite de frentes (1)")
 
@@ -309,19 +309,19 @@ func _make_tactic(p_name: String, types: Array[int],
 
 func test_tactic_applies_bonus() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	var tactic := _make_tactic("Carga", [Troop.TroopType.CABALLERIA] as Array[int], 50.0, 0.0)
-	AIRealSimulator.apply_tactic(s, front, tactic)
+	AIRealEffects.apply_tactic(s, front, tactic)
 	assert_eq(front.attacker_bonuses.size(), 1, "Se añade el bonus al bando atacante")
 	assert_eq(front.attacker_bonuses[0].tactic_name, "Carga")
 
 
 func test_tactic_replaces_previous() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
-	AIRealSimulator.apply_tactic(s, front,
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
+	AIRealEffects.apply_tactic(s, front,
 		_make_tactic("Vieja", [] as Array[int], 10.0, 0.0))
-	AIRealSimulator.apply_tactic(s, front,
+	AIRealEffects.apply_tactic(s, front,
 		_make_tactic("Nueva", [] as Array[int], 20.0, 0.0))
 	assert_eq(front.attacker_bonuses.size(), 1, "Solo una táctica activa por bando")
 	assert_eq(front.attacker_bonuses[0].tactic_name, "Nueva", "La nueva sustituye a la vieja")
@@ -333,22 +333,22 @@ func test_tactic_replaces_previous() -> void:
 
 func test_assign_fills_up_to_min() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	for _i in range(5):
 		s.own.troop_pool.append(_make_troop(Troop.TroopType.INFANTERIA_LIGERA, 6, 4))
-	AIRealSimulator.assign_troops_to_fronts(s, AIRealState.OWNER_SELF)
+	AIRealCombat.assign_troops_to_fronts(s, AIRealState.OWNER_SELF)
 	assert_eq(front.attacker_troops.size(), 3, "Primera pasada llena hasta MIN (3)")
 	assert_eq(s.own.troop_pool.size(), 2, "Quedan 2 tropas en el pool")
 
 
 func test_assign_best_troop_by_role_attacker() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	var weak := _make_troop(Troop.TroopType.INFANTERIA_LIGERA, 3, 9)
 	var strong := _make_troop(Troop.TroopType.INFANTERIA_LIGERA, 12, 2)
 	s.own.troop_pool = [weak, strong]
 	# Atacante: primera tropa asignada debe ser la de mayor ataque.
-	var slot := AIRealSimulator._SnapFrontSlot.new(s.own, front, BattleFront.Side.ATTACKER)
+	var slot := AIRealCombat._SnapFrontSlot.new(s.own, front, BattleFront.Side.ATTACKER)
 	slot.assign_best()
 	assert_eq(front.attacker_troops[0], strong, "Atacante asigna primero la de mayor ataque")
 
@@ -375,7 +375,7 @@ func test_economy_subtracts_front_surcharge() -> void:
 	(s.tiles[0] as AIRealState.TileSnap).natural_resource = _make_resource(50, 20)
 	(s.tiles[0] as AIRealState.TileSnap).resource_gold = 50
 	(s.tiles[0] as AIRealState.TileSnap).resource_food = 20
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	# 2 tropas asignadas como atacante: recargo +5 y +10 = 15 oro y 15 comida.
 	front.attacker_troops = [
 		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 0, 0),
@@ -413,7 +413,7 @@ func _snap_with_resource(id: int, gold: int, food: int,
 
 func test_resolve_conquers_defender_tile_when_attacker_wins() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	front.attacker_troops = [
 		_make_troop(Troop.TroopType.INFANTERIA_PESADA, 30, 10),
 		_make_troop(Troop.TroopType.INFANTERIA_PESADA, 30, 10),
@@ -424,7 +424,7 @@ func test_resolve_conquers_defender_tile_when_attacker_wins() -> void:
 	for _i in range(40):
 		if front.is_resolved:
 			break
-		AIRealSimulator._tick_front(s, front)
+		AIRealCombat._tick_front(s, front)
 	assert_true(front.is_resolved, "El frente se resuelve")
 	assert_eq((s.tiles[1] as AIRealState.TileSnap).owner, AIRealState.OWNER_SELF,
 		"El atacante (SELF) conquista la casilla defensora")
@@ -432,7 +432,7 @@ func test_resolve_conquers_defender_tile_when_attacker_wins() -> void:
 
 func test_resolve_returns_survivors_to_pool() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	var attackers: Array[Troop] = [
 		_make_troop(Troop.TroopType.INFANTERIA_PESADA, 30, 10),
 		_make_troop(Troop.TroopType.INFANTERIA_PESADA, 30, 10),
@@ -444,7 +444,7 @@ func test_resolve_returns_survivors_to_pool() -> void:
 	for _i in range(40):
 		if front.is_resolved:
 			break
-		AIRealSimulator._tick_front(s, front)
+		AIRealCombat._tick_front(s, front)
 	# El ganador conserva parte de sus tropas → vuelven al pool propio.
 	assert_gt(s.own.troop_pool.size(), 0,
 		"Los supervivientes del atacante vuelven a su pool")
@@ -456,7 +456,7 @@ func test_resolve_demolishes_one_building_on_conquest() -> void:
 	var s := _two_tile_state()
 	(s.tiles[1] as AIRealState.TileSnap).buildings = [
 		_make_building("muralla", 5), _make_building("torre", 3)]
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	front.attacker_troops = [
 		_make_troop(Troop.TroopType.INFANTERIA_PESADA, 30, 10),
 		_make_troop(Troop.TroopType.INFANTERIA_PESADA, 30, 10),
@@ -466,7 +466,7 @@ func test_resolve_demolishes_one_building_on_conquest() -> void:
 	for _i in range(40):
 		if front.is_resolved:
 			break
-		AIRealSimulator._tick_front(s, front)
+		AIRealCombat._tick_front(s, front)
 	# Re-leer s.tiles[1]: el copy-on-write de la conquista reemplaza el TileSnap,
 	# así que una referencia tomada antes quedaría obsoleta.
 	assert_eq((s.tiles[1] as AIRealState.TileSnap).buildings.size(), 1,
@@ -482,7 +482,7 @@ func test_advance_turn_assigns_and_ticks_front() -> void:
 	(s.tiles[0] as AIRealState.TileSnap).natural_resource = _make_resource(100, 50)
 	(s.tiles[0] as AIRealState.TileSnap).resource_gold = 100
 	(s.tiles[0] as AIRealState.TileSnap).resource_food = 50
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	for _i in range(3):
 		s.own.troop_pool.append(_make_troop(Troop.TroopType.INFANTERIA_LIGERA, 6, 4, 30, 0, 0))
 	AIRealSimulator.advance_turn(s)
@@ -497,7 +497,7 @@ func test_advance_turn_assigns_and_ticks_front() -> void:
 
 func test_clone_fronts_are_independent() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	front.attacker_troops = [_make_troop(Troop.TroopType.PIQUEROS, 5, 5)]
 	front.marker = 4.0
 	var c := s.clone()
@@ -511,7 +511,7 @@ func test_clone_fronts_are_independent() -> void:
 
 func test_clone_front_bonuses_are_independent() -> void:
 	var s := _two_tile_state()
-	var front := AIRealSimulator.apply_open_front(s, 0, 1)
+	var front := AIRealEffects.apply_open_front(s, 0, 1)
 	var bonus := TacticBonus.new()
 	bonus.tactic_name = "X"
 	bonus.duration = 3

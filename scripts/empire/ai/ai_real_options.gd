@@ -86,23 +86,23 @@ static func apply(state: AIRealState, move: Move, p_owner: int = AIRealState.OWN
 		rng: RandomNumberGenerator = null) -> void:
 	match move.kind:
 		&"COLONIZE":
-			AIRealSimulator.apply_colonize(state, move.tile_id, p_owner)
+			AIRealEffects.apply_colonize(state, move.tile_id, p_owner)
 		&"BUILD", &"DIRECT_BUILD":
-			AIRealSimulator.apply_build(state, move.tile_id, move.building, p_owner)
+			AIRealEffects.apply_build(state, move.tile_id, move.building, p_owner)
 		&"UPGRADE":
-			AIRealSimulator.apply_upgrade(state, move.tile_id, move.old_building,
+			AIRealEffects.apply_upgrade(state, move.tile_id, move.old_building,
 				move.new_building, p_owner)
 		&"CHANGE_LOCATION":
-			AIRealSimulator.apply_change_location(state, move.tile_id, move.location, p_owner)
+			AIRealEffects.apply_change_location(state, move.tile_id, move.location, p_owner)
 		&"GENERATE_GOLD":
-			AIRealSimulator.apply_generate_gold(state, move.amount, p_owner)
+			AIRealEffects.apply_generate_gold(state, move.amount, p_owner)
 		&"RECRUIT":
-			AIRealSimulator.apply_recruit(state, move.troop, move.troop_count, p_owner)
+			AIRealEffects.apply_recruit(state, move.troop, move.troop_count, p_owner)
 		&"OPEN_FRONT":
-			AIRealSimulator.apply_open_front(state, move.tile_id, move.def_tile_id, p_owner)
+			AIRealEffects.apply_open_front(state, move.tile_id, move.def_tile_id, p_owner)
 		&"TACTIC":
 			if move.front_idx >= 0 and move.front_idx < state.fronts.size():
-				AIRealSimulator.apply_tactic(state, state.fronts[move.front_idx]
+				AIRealEffects.apply_tactic(state, state.fronts[move.front_idx]
 					as AIRealState.FrontSnap, move.card, p_owner)
 		&"CARD_DRAW", &"PASS":
 			pass   # CARD_DRAW: la mano del turno la gestiona el árbol (tempo).

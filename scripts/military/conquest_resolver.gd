@@ -3,7 +3,7 @@ class_name ConquestResolver
 
 ## Regla de CONQUISTA: qué edificios se destruyen al tomar una casilla enemiga.
 ## Escrita una sola vez y usada por los dos mundos —
-## `BattleFrontManager._apply_conquest` (juego) y `AIRealSimulator._apply_conquest`
+## `BattleFrontManager._apply_conquest` (juego) y `AIRealCombat._apply_conquest`
 ## (simulación del MCTS)— para que la IA prevea exactamente lo que va a ocurrir.
 ##
 ## CRITERIO: se destruye el edificio MÁS CARO de la casilla (por `construction_cost`).

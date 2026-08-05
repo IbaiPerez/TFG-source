@@ -103,7 +103,7 @@ func gold() -> int:
 
 
 func effective_build_cost(b: Building) -> int:
-	return AIRealSimulator._effective_build_cost(b, _emp)
+	return AIRealEffects._effective_build_cost(b, _emp)
 
 
 func score_building_effects(effects: Array[BuildingEffect], gu: float, fu: float, mu: float) -> float:
@@ -214,8 +214,8 @@ func tile_location_type(tile) -> int:
 
 
 func open_front_pairs(_card) -> Array:
-	if AIRealSimulator._active_front_count(_state, _owner) \
-			>= AIRealSimulator._get_max_fronts(_state, _owner):
+	if AIRealEffects._active_front_count(_state, _owner) \
+			>= AIRealEffects._get_max_fronts(_state, _owner):
 		return []
 	var enemy := AIRealState.OWNER_RIVAL if _owner == AIRealState.OWNER_SELF \
 		else AIRealState.OWNER_SELF
@@ -278,7 +278,7 @@ func tile_resource_food(tile) -> int:
 
 
 func tile_attack_biome_factor(tile) -> float:
-	return AIRealSimulator._biome().get_attack_multiplier((tile as AIRealState.TileSnap).biome)
+	return AIRealCombat._biome().get_attack_multiplier((tile as AIRealState.TileSnap).biome)
 
 
 func open_front_source_value(source_tile) -> float:
@@ -307,7 +307,7 @@ func change_location_adjust(base: float, tile, new_loc, gu: float, fu: float, _m
 	for building in t.buildings:
 		if building == null:
 			continue
-		if not AIRealSimulator._building_survives(building, loc.type):
+		if not AIRealEffects._building_survives(building, loc.type):
 			demolished_penalty += float(building.gold_produced) * _w.changeloc_demo_gold * gu \
 				+ float(building.food_produced) * _w.changeloc_demo_food * fu \
 				+ float(building.flat_defense_bonus) * _w.changeloc_demo_defense
@@ -381,7 +381,7 @@ func open_front_win_factor(enemy_tile, biome_factor: float) -> float:
 	for b in e.buildings:
 		if b != null:
 			rival_def += float(b.flat_defense_bonus)
-	rival_def *= AIRealSimulator._biome().get_defense_multiplier(e.biome)
+	rival_def *= AIRealCombat._biome().get_defense_multiplier(e.biome)
 	for f in _state.fronts:
 		var front := f as AIRealState.FrontSnap
 		if front.is_resolved:

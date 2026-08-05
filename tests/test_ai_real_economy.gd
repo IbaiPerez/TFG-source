@@ -186,7 +186,7 @@ func test_build_cost_applies_discount() -> void:
 	b.name = "mina"
 	b.construction_cost = 50
 	b.gold_produced = 5
-	AIRealSimulator.apply_build(s, 0, b)
+	AIRealEffects.apply_build(s, 0, b)
 	assert_eq(s.own.gold, 960, "Coste con −20%: 1000 − 40")
 
 
@@ -196,7 +196,7 @@ func test_build_cost_no_discount() -> void:
 	b.name = "mina"
 	b.construction_cost = 50
 	b.gold_produced = 5
-	AIRealSimulator.apply_build(s, 0, b)
+	AIRealEffects.apply_build(s, 0, b)
 	assert_eq(s.own.gold, 950, "Sin descuento: 1000 − 50")
 
 
@@ -207,7 +207,7 @@ func test_build_cost_clamped_to_minimum() -> void:
 	b.name = "mina"
 	b.construction_cost = 100
 	b.gold_produced = 5
-	AIRealSimulator.apply_build(s, 0, b)
+	AIRealEffects.apply_build(s, 0, b)
 	assert_eq(s.own.gold, 980, "Coste mínimo 20%: 1000 − 20")
 
 

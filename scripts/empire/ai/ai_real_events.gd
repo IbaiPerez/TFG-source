@@ -484,7 +484,7 @@ static func _apply_colonize_adjacent(state: AIRealState, p_owner: int,
 	if pool.is_empty():
 		return
 	var chosen: int = pool[rng.randi_range(0, pool.size() - 1)]
-	AIRealSimulator.apply_colonize(state, chosen, p_owner)
+	AIRealEffects.apply_colonize(state, chosen, p_owner)
 
 
 static func _apply_urbanize_megalopolis(state: AIRealState, p_owner: int,
@@ -505,7 +505,7 @@ static func _apply_urbanize_megalopolis(state: AIRealState, p_owner: int,
 			best_score = tile_score
 			best_id = id
 	if best_id >= 0:
-		AIRealSimulator.apply_change_location(state, best_id, MEGALOPOLIS, p_owner)
+		AIRealEffects.apply_change_location(state, best_id, MEGALOPOLIS, p_owner)
 
 
 # ============================================================
