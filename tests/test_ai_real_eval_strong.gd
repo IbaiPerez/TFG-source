@@ -100,7 +100,7 @@ func test_territory_race_amplifies_when_dominating() -> void:
 	for i in range(6):
 		s.tiles[i] = _snap(i, AIRealState.OWNER_SELF)
 	s.tiles[9] = _snap(9, AIRealState.OWNER_RIVAL)
-	assert_eq(AIRealEvalStrong._territory_race_factor(s, AIRealState.OWNER_SELF, &"colonize"),
+	assert_eq(AISnapshotFacts._territory_race_factor(s, AIRealState.OWNER_SELF, &"colonize"),
 		2.0, "Dominando (≥60% de la carrera) el factor territorial es ×2")
 
 
@@ -112,7 +112,7 @@ func test_territory_race_neutral_when_balanced() -> void:
 	s.tiles[1] = _snap(1, AIRealState.OWNER_RIVAL)
 	s.tiles[2] = _snap(2, AIRealState.OWNER_NONE)
 	s.tiles[3] = _snap(3, AIRealState.OWNER_NONE)
-	assert_eq(AIRealEvalStrong._territory_race_factor(s, AIRealState.OWNER_SELF, &"colonize"),
+	assert_eq(AISnapshotFacts._territory_race_factor(s, AIRealState.OWNER_SELF, &"colonize"),
 		1.0, "Con reparto equilibrado el factor territorial es neutro")
 
 

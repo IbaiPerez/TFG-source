@@ -62,19 +62,19 @@ func food_urgency() -> float:
 
 
 func expansion_factor() -> float:
-	return AIRealEvalStrong._expansion_factor(_state, _owner, _w)
+	return AISnapshotFacts._expansion_factor(_state, _owner, _w)
 
 
 func encirclement_pressure() -> float:
-	return AIRealEvalStrong._encirclement_pressure(_state, _owner, _w)
+	return AISnapshotFacts._encirclement_pressure(_state, _owner, _w)
 
 
 func territory_race_factor(mode: StringName) -> float:
-	return AIRealEvalStrong._territory_race_factor(_state, _owner, mode, _w)
+	return AISnapshotFacts._territory_race_factor(_state, _owner, mode, _w)
 
 
 func frontier_value(tile) -> int:
-	return AIRealEvalStrong._frontier_value(_state, (tile as AIRealState.TileSnap).id, _owner)
+	return AISnapshotFacts._frontier_value(_state, (tile as AIRealState.TileSnap).id, _owner)
 
 
 func tile_gold_production(tile) -> int:
@@ -95,7 +95,7 @@ func tile_adjacent_to_rival(tile) -> bool:
 
 
 func military_urgency() -> float:
-	return AIRealEvalStrong._military_urgency(_state, _owner, _w)
+	return AISnapshotFacts._military_urgency(_state, _owner, _w)
 
 
 func gold() -> int:
@@ -130,11 +130,11 @@ func troop_pool() -> Array[Troop]:
 
 
 func resource_surplus_factor() -> float:
-	return AIRealEvalStrong._resource_surplus_factor(_emp, phase(), _w)
+	return AISnapshotFacts._resource_surplus_factor(_emp, phase(), _w)
 
 
 func complement_bonus(troop: Troop) -> float:
-	return AIRealEvalStrong._complement_bonus(troop, _emp.troop_pool, _state, _owner, _w)
+	return AISnapshotFacts._complement_bonus(troop, _emp.troop_pool, _state, _owner, _w)
 
 
 func troops_per_recruit_bonus(troop: Troop) -> int:
@@ -328,7 +328,7 @@ func same_type_card_count(card: Card) -> int:
 
 
 func colonizable_count() -> int:
-	return AIRealEvalStrong._colonizable_count(_state, _owner)
+	return AISnapshotFacts._colonizable_count(_state, _owner)
 
 
 func upgradeable_count() -> int:
