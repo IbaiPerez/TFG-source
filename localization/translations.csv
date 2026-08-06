@@ -510,3 +510,5 @@ CREDITS_ENGINE,Built with Godot Engine 4.5,Desarrollado con Godot Engine 4.5
 CREDITS_ART,Artwork,Recursos gráficos
 CREDITS_ART_INTRO,"Icons from game-icons.net, hand-drawn by:","Iconos de game-icons.net, dibujados a mano por:"
 CREDITS_ART_LICENSE,Licensed under Creative Commons Attribution 3.0:,Bajo licencia Creative Commons Attribution 3.0:
+EVT_SKIP_LABEL,Do nothing,No hacer nada
+EVT_SKIP_DESC,Decline the event and continue your turn.,Declinar el evento y continuar el turno.

@@ -3,7 +3,10 @@ class_name TurnEventChoiceButton
 
 @onready var button: Button = $Button
 @onready var tooltip_panel: PanelContainer = $Tooltip
-@onready var tooltip_text_label: Label = %TooltipText
+## RichTextLabel, no Label: las descripciones de choice pueden traer BBCode
+## —EVT_CARD_OFFERING_CH1_DESC pone el nombre de la carta en negrita— y un Label
+## las mostraria como etiquetas literales.
+@onready var tooltip_text_label: RichTextLabel = %TooltipText
 
 var choice:TurnEventChoice
 var affordable:bool = true

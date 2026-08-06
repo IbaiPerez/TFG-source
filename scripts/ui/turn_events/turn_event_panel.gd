@@ -83,8 +83,8 @@ func _populate_choices() -> void:
 
 	if event.allow_skip:
 		var skip_choice := TurnEventChoice.new()
-		skip_choice.label = "No hacer nada"
-		skip_choice.description = "Declinar el evento y continuar el turno."
+		skip_choice.label = tr("EVT_SKIP_LABEL")
+		skip_choice.description = tr("EVT_SKIP_DESC")
 		_add_choice_button(skip_choice, true)
 
 
