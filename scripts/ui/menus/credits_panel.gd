@@ -41,7 +41,10 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build_ui() -> void:
 	UIDialog.add_dim_background(self)
 
-	var vbox := UIDialog.add_centered_panel(self, Vector2(640, 460), 10)
+	# Alto holgado a propósito: el enlace de la licencia es largo y, si el panel
+	# se queda justo, la última línea se corta a media altura en vez de envolver
+	# limpiamente.
+	var vbox := UIDialog.add_centered_panel(self, Vector2(680, 520), 10)
 	vbox.add_child(UIDialog.make_title(tr("MENU_CREDITS")))
 	vbox.add_child(HSeparator.new())
 	vbox.add_child(_make_body())
@@ -68,7 +71,10 @@ func _make_body() -> ScrollContainer:
 	content.add_child(_make_text(tr("CREDITS_ART_INTRO")))
 	content.add_child(_make_text("• " + ", ".join(ICON_AUTHORS)))
 	content.add_child(_make_notice())
-	content.add_child(_make_text(tr("CREDITS_ART_LICENSE") + " " + ICON_LICENSE_URL))
+	# El enlace va en su propia línea: pegado al texto de la licencia envolvía por
+	# la mitad de la URL, que queda ilegible.
+	content.add_child(_make_text(tr("CREDITS_ART_LICENSE")))
+	content.add_child(_make_text(ICON_LICENSE_URL))
 
 	scroll.add_child(content)
 	return scroll
