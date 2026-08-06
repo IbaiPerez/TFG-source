@@ -170,6 +170,13 @@ Lo que ha rendido en este repo, por orden:
 - Una tarea, un commit. Suite en verde antes y después.
 - Si toca la IA: además el smoke del benchmark MCTS.
 - **Sin coautoría** en los mensajes.
-- El working tree arrastra churn de `assets/` y `.tres` (UIDs de textura que
-  regenera el reimport) que **no es del refactor**: excluirlo de los commits.
+- El working tree arrastra churn de `assets/` que **no es del refactor**:
+  excluirlo de los commits.
+- **Ojo con los `.tres`**: no todo cambio de UID ahí es ruido descartable. Cuando
+  el `.tres` apunta a un asset cuyo `.import` se ha regenerado, ese cambio es la
+  **corrección**, y descartarlo deja la referencia rota — Godot lo salva cayendo a
+  la ruta de texto (`invalid UID … using text path instead`), así que la suite
+  sigue verde y solo se ve lanzando el juego. Para distinguirlos hay que comparar
+  el `uid` del `.tres` con el del `.import` correspondiente, no mirar si el diff
+  "solo tiene líneas uid".
 - `_ai_docs/` está en `.gitignore`; no referenciarlo desde el código.
