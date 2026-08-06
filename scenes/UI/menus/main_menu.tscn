@@ -83,6 +83,13 @@ size_flags_horizontal = 4
 text = "MENU_TUTORIAL"
 theme_override_font_sizes/font_size = 24
 
+[node name="CreditsButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 0)
+size_flags_horizontal = 4
+text = "MENU_CREDITS"
+theme_override_font_sizes/font_size = 24
+
 [node name="ExitButton" type="Button" parent="CenterContainer/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(200, 0)
@@ -117,4 +124,5 @@ script = ExtResource("2_lang")
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/OptionsButton" to="." method="_on_options_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/TutorialButton" to="." method="_on_tutorial_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/CreditsButton" to="." method="_on_credits_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ButtonContainer/ExitButton" to="." method="_on_exit_button_pressed"]

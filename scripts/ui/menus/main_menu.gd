@@ -6,11 +6,13 @@ const SAVE_LOAD_PANEL_SCRIPT := preload("res://scripts/ui/menus/save_load_panel.
 @onready var _load_button:     Button = $CenterContainer/VBoxContainer/ButtonContainer/LoadButton
 @onready var _tutorial_button: Button = $CenterContainer/VBoxContainer/ButtonContainer/TutorialButton
 @onready var _options_button:  Button = $CenterContainer/VBoxContainer/ButtonContainer/OptionsButton
+@onready var _credits_button:  Button = $CenterContainer/VBoxContainer/ButtonContainer/CreditsButton
 @onready var _exit_button:     Button = $CenterContainer/VBoxContainer/ButtonContainer/ExitButton
 
 
 func _ready() -> void:
-	var buttons: Array[Button] = [_play_button, _load_button, _options_button, _tutorial_button, _exit_button]
+	var buttons: Array[Button] = [_play_button, _load_button, _options_button,
+		_tutorial_button, _credits_button, _exit_button]
 	for i in range(buttons.size()):
 		var prev := buttons[(i - 1 + buttons.size()) % buttons.size()]
 		var next := buttons[(i + 1) % buttons.size()]
@@ -37,6 +39,10 @@ func _on_load_button_pressed() -> void:
 
 func _on_tutorial_button_pressed() -> void:
 	add_child(TutorialPanel.new())
+
+
+func _on_credits_button_pressed() -> void:
+	add_child(CreditsPanel.new())
 
 
 func _on_options_button_pressed() -> void:

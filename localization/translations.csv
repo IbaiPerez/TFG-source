@@ -503,3 +503,10 @@ PAUSE_MAIN_MENU,Main Menu,Menú Principal
 GAMEOVER_TITLE,Game Over,Fin de partida
 GAMEOVER_VICTORY,Victory! %s has dominated the map.,¡Victoria! %s ha dominado el mapa.
 GAMEOVER_DEFEAT,Defeat. %s has won the game.,Derrota. %s ha ganado la partida.
+MENU_CREDITS,Credits,Créditos
+CREDITS_DEVELOPMENT,Development,Desarrollo
+CREDITS_AUTHOR,Design and programming: Ibai Pérez,Diseño y programación: Ibai Pérez
+CREDITS_ENGINE,Built with Godot Engine 4.5,Desarrollado con Godot Engine 4.5
+CREDITS_ART,Artwork,Recursos gráficos
+CREDITS_ART_INTRO,"Icons from game-icons.net, hand-drawn by:","Iconos de game-icons.net, dibujados a mano por:"
+CREDITS_ART_LICENSE,Licensed under Creative Commons Attribution 3.0:,Bajo licencia Creative Commons Attribution 3.0:
