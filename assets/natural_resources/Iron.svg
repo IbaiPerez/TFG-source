@@ -1,23 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <circle cx="64" cy="64" r="60" fill="#D8D8E0" stroke="#4A4A5A" stroke-width="3"/>
-
-  <!-- Ground shadow -->
-  <ellipse cx="64" cy="100" rx="44" ry="5" fill="#3A3A4A" opacity="0.2"/>
-
-  <!-- Back-center ore chunk (largest) -->
-  <path d="M38,88 L32,70 L42,52 L62,44 L80,48 L92,62 L90,82 L76,94 L54,98 Z"
-        fill="#626272" stroke="#3A3A4A" stroke-width="2"/>
-  <!-- Metallic highlight crack -->
-  <path d="M44,60 Q56,48 72,52" fill="none" stroke="#9898A8" stroke-width="2.5" stroke-linecap="round"/>
-  <path d="M54,72 Q64,64 74,70" fill="none" stroke="#888898" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-
-  <!-- Left foreground chunk -->
-  <path d="M14,96 L10,78 L20,64 L36,60 L50,66 L54,82 L44,96 L28,100 Z"
-        fill="#545464" stroke="#3A3A4A" stroke-width="1.5"/>
-  <path d="M18,72 Q28,62 44,66" fill="none" stroke="#888898" stroke-width="2" stroke-linecap="round"/>
-
-  <!-- Right foreground chunk (small) -->
-  <path d="M80,94 L78,78 L88,68 L104,66 L114,74 L112,90 L100,98 L84,98 Z"
-        fill="#545464" stroke="#3A3A4A" stroke-width="1.5"/>
-  <path d="M84,74 Q94,66 108,70" fill="none" stroke="#888898" stroke-width="2" stroke-linecap="round"/>
+  <g transform="translate(23.04,23.04) scale(0.16)"><path fill="#4A4A5A" fill-rule="evenodd" d="M322.248 85.684L61.432 224.717l-41.145 109.94 7.233 3.85 153.673 81.8 308.495-164.215-37.752-99.903-129.688-70.506zm119.035 95.187l25.11 66.45-102.56 54.594L430.39 186.64l10.893-5.77zm-89.576 47.417L284.957 343.9l-41.67 22.182 72.195-118.62 36.225-19.175zM72.38 248.78l28.21 14.933-54.012 54.012L72.38 248.78zm210.827 15.767L211.19 382.87l.26.16-17.208 9.16 5.795-83.618 83.17-44.025zm-165.334 8.312l16.963 8.98-60.445 60.445-16.93-9.012 60.413-60.414zM181.42 306.9l-6.174 89.07-54.1-28.798 60.274-60.272z"/></g>
 </svg>

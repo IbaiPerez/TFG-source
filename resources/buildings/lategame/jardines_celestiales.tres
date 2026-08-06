@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="4_bld"]
 [ext_resource type="Script" uid="uid://dy7ew041vlors" path="res://scripts/building/effect/add_stat_modifier_effect.gd" id="6_eff"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="7_beff"]
+[ext_resource type="Texture2D" path="res://assets/buildings/lategame/jardines_celestiales.svg" id="8_img"]
 
 [sub_resource type="Resource" id="eff_jardcel_food"]
 script = ExtResource("6_eff")
@@ -15,14 +16,11 @@ stat_type = 3
 value = 15.0
 tooltipe_text = "EFF_FOOD_GLOBAL_15"
 
-[sub_resource type="Resource" id="Resource_mkm3q"]
-metadata/__load_path__ = "res://assets/buildings/lategame/jardines_celestiales.svg"
-
 [resource]
 script = ExtResource("4_bld")
 name = "BLD_JARDINES_NAME"
 allowed_location_type = Array[ExtResource("1_loc")]([ExtResource("2_town"), ExtResource("3_mega")])
-image = SubResource("Resource_mkm3q")
+image = ExtResource("8_img")
 construction_cost = 550
 gold_produced = 8
 food_produced = 14

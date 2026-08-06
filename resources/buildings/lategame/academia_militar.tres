@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c0k8g56a31cdg" path="res://scripts/tile/location_type.gd" id="1_loc"]
 [ext_resource type="Resource" uid="uid://cd0fssryl0wg2" path="res://resources/location_type/megalopolis.tres" id="2_mega"]
 [ext_resource type="Script" uid="uid://2ce384crr8i0" path="res://scripts/building/building.gd" id="3_bld"]
-[ext_resource type="Texture2D" uid="uid://cvyqwqag8b2ss" path="res://assets/buildings/lategame/cuartel_expansion.svg" id="4_img"]
+[ext_resource type="Texture2D" path="res://assets/buildings/lategame/academia_militar.svg" id="4_img"]
 [ext_resource type="Script" uid="uid://cixgkcsj1q2j6" path="res://scripts/building/effect/building_effect.gd" id="5_beff"]
 [ext_resource type="Script" uid="uid://dy7ew041vlors" path="res://scripts/building/effect/add_stat_modifier_effect.gd" id="6_statmod"]
 [ext_resource type="Script" uid="uid://bep412pwthtmf" path="res://scripts/building/effect/add_card_to_deck_effect.gd" id="7_addcard"]

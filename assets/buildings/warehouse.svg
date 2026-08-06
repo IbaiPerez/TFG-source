@@ -1,24 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <circle cx="64" cy="64" r="60" fill="#F0E8D0" stroke="#8B6914" stroke-width="3"/>
-
-  <!-- Building -->
-  <rect x="22" y="48" width="84" height="52" rx="2" fill="#C4A04A" stroke="#8B6914" stroke-width="2"/>
-  <!-- Roof -->
-  <polygon points="18,50 64,22 110,50" fill="#8B6914" stroke="#6B4C0A" stroke-width="2" stroke-linejoin="round"/>
-  <!-- Large door -->
-  <rect x="38" y="64" width="52" height="36" rx="2" fill="#6B4C0A" stroke="#4A3408" stroke-width="1.5"/>
-  <!-- Door slats -->
-  <line x1="52" y1="64" x2="52" y2="100" stroke="#5A3C0A" stroke-width="1" opacity="0.5"/>
-  <line x1="64" y1="64" x2="64" y2="100" stroke="#5A3C0A" stroke-width="1" opacity="0.5"/>
-  <line x1="76" y1="64" x2="76" y2="100" stroke="#5A3C0A" stroke-width="1" opacity="0.5"/>
-  <!-- Cross beams on door -->
-  <line x1="38" y1="78" x2="90" y2="78" stroke="#4A3408" stroke-width="2"/>
-  <!-- Crate peeking out -->
-  <rect x="42" y="82" width="16" height="14" rx="1" fill="#DAB860" stroke="#8B6914" stroke-width="1.5"/>
-  <line x1="42" y1="89" x2="58" y2="89" stroke="#8B6914" stroke-width="1"/>
-  <line x1="50" y1="82" x2="50" y2="96" stroke="#8B6914" stroke-width="1"/>
-  <!-- Second crate -->
-  <rect x="62" y="85" width="14" height="12" rx="1" fill="#C4A04A" stroke="#8B6914" stroke-width="1.5"/>
-  <line x1="62" y1="91" x2="76" y2="91" stroke="#8B6914" stroke-width="1"/>
-
+  <circle cx="64" cy="64" r="60" fill="#F0ECE4" stroke="#8A8070" stroke-width="3"/>
+  <g transform="translate(23.04,23.04) scale(0.16)"><path fill="#5C4A32" fill-rule="evenodd" d="M41 41v62h30V41H41zm48 0v62h30V41H89zm48 0v62h30V41h-30zm222 7v71H16v18h343v174H16v18h343v167h18v-39h62v39h18V329h39v-18h-39V137h39v-18h-39V48h-18v71h-62V48h-18zM185 73v30h158V73H185zm192 64h62v46h-62v-46zm-240 16v142h46V153h-46zm-41 16c-12.81 0-23 10.19-23 23s10.19 23 23 23 23-10.19 23-23-10.19-23-23-23zm105 16v110h110V185H201zm176 16h62v46h-62v-46zM41 233v62h78v-62H41zm336 32h62v46h-62v-46zm0 64h62v46h-62v-46zm-137 24c-8.39 0-15 6.61-15 15s6.61 15 15 15 15-6.61 15-15-6.61-15-15-15zm137 40h62v46h-62v-46zm-352 8v94h254v-94H25zm228.977 14.23 4.046 17.54-208 48-4.046-17.54 208-48zM297 449v46h46v-46h-46z"/></g>
 </svg>

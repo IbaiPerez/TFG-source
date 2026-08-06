@@ -1,16 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <!-- Fondo escudo -->
-  <path d="M64 8 L112 32 L112 72 Q112 104 64 120 Q16 104 16 72 L16 32 Z" fill="#2E5A88" stroke="#143A5C" stroke-width="3"/>
-  <!-- Tres escudos en fila (formación) -->
-  <path d="M30 50 L46 50 L46 78 Q38 88 30 78 Z" fill="#3D7AB8" stroke="#143A5C" stroke-width="2"/>
-  <path d="M56 46 L72 46 L72 80 Q64 92 56 80 Z" fill="#3D7AB8" stroke="#143A5C" stroke-width="2"/>
-  <path d="M82 50 L98 50 L98 78 Q90 88 82 78 Z" fill="#3D7AB8" stroke="#143A5C" stroke-width="2"/>
-  <!-- Lanzas detrás -->
-  <line x1="36" y1="14" x2="36" y2="50" stroke="#6B4E23" stroke-width="3" stroke-linecap="round"/>
-  <line x1="64" y1="10" x2="64" y2="46" stroke="#6B4E23" stroke-width="3" stroke-linecap="round"/>
-  <line x1="92" y1="14" x2="92" y2="50" stroke="#6B4E23" stroke-width="3" stroke-linecap="round"/>
-  <polygon points="36,8 32,18 40,18" fill="#A0A0A0" stroke="#666" stroke-width="1"/>
-  <polygon points="64,4 60,14 68,14" fill="#A0A0A0" stroke="#666" stroke-width="1"/>
-  <polygon points="92,8 88,18 96,18" fill="#A0A0A0" stroke="#666" stroke-width="1"/>
-  <text x="64" y="110" text-anchor="middle" font-size="10" font-weight="bold" fill="#F5E6C8" font-family="sans-serif">Falange</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect x="4" y="4" width="504" height="504" rx="26" fill="#ECDCD3" stroke="#8B2A1A" stroke-width="8"/>
+  <rect x="26" y="26" width="460" height="460" rx="14" fill="none" stroke="#8B2A1A" stroke-width="3" opacity="0.55"/>
+  <circle cx="256" cy="256" r="175" fill="#F6EAE2"/>
+  <g transform="translate(115.2,115.2) scale(0.55)"><path fill="#74221A" fill-rule="evenodd" d="M433.877 19.855l-78.62 158.668 47.82 53.934-15.673 260.824h38.79l15.697-261.233 51.04-45.25-59.053-166.942zm-130.48 20.598L216.073 152.55l28.397 49.186-28.616 106.387-.102-.176-9.545 35.62.076.134-40.234 149.58h32.68l29.676-111.186.026.045 9.527-35.556-.054-.09 36.656-137.344 48.415-27.95L303.4 40.452h-.002zM111.632 153.21l14.48 116.54 44.42 11.904L193 320.648l9.555-35.66-9.256-16.1 12.022-44.87-93.69-70.81zm-49.357 74.31l-42.68 79.31 23.57 28.455L30.786 493.28h18.746L61.83 336.26l27.608-22.865-27.163-85.875h-.002zm257.06 10.878l-22.354 87.248 29.686 21.932L345.04 493.28h18.84l-18.823-149.235 21.293-28.824-47.016-76.822zm175.103 28.614l-40.108 226.27h18.98l21.128-119.188V267.012zm-339.903 38.886l-55.35 71.05 18.618 32.247-20.41 84.086h19.233l19.51-80.385 30.81-17.788-12.408-89.21h-.002zm96.623 63.645l-9.517 35.516 50.837 88.22h29.8l-71.12-123.737z"/></g>
 </svg>
