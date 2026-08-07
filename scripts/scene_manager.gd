@@ -175,6 +175,12 @@ func _apply_snapshot_settings(new_scene: Node, snapshot: Dictionary) -> void:
 	if settings_path == "" or not ResourceLoader.exists(settings_path):
 		return
 	var settings:GenerationSettings = load(settings_path) as GenerationSettings
+	# La semilla se restaura del snapshot, no del .tres: `init_seed` la escribe en
+	# el recurso EN MEMORIA y nunca en disco, así que tras reiniciar el juego el
+	# recurso vuelve a 0 y la partida cargada perdía de qué mundo venía. No
+	# regenera nada (el mundo se reconstruye de los tiles serializados); sirve
+	# para que quien la consulte —el informe de partida— sepa la semilla real.
+	settings.map_seed = int(snapshot.get("map_seed", settings.map_seed))
 	new_scene.generation_settings = settings
 	var wg:Node = new_scene.get_node_or_null("%WorldGenerator")
 	if wg:

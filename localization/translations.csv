@@ -503,6 +503,14 @@ PAUSE_MAIN_MENU,Main Menu,Menú Principal
 GAMEOVER_TITLE,Game Over,Fin de partida
 GAMEOVER_VICTORY,Victory! %s has dominated the map.,¡Victoria! %s ha dominado el mapa.
 GAMEOVER_DEFEAT,Defeat. %s has won the game.,Derrota. %s ha ganado la partida.
+PAUSE_FEEDBACK,Send feedback,Enviar comentarios
+FEEDBACK_TITLE,Help improve the game,Ayuda a mejorar el juego
+FEEDBACK_INTRO,"Copy this summary and paste it into the survey: it identifies your game (version, map seed and result) so it can be reproduced exactly as you played it. It contains no personal data.","Copia este resumen y pégalo en la encuesta: identifica tu partida (versión, semilla del mapa y resultado) para poder reproducirla tal y como la jugaste. No contiene ningún dato personal."
+FEEDBACK_COPY,Copy summary,Copiar resumen
+FEEDBACK_COPIED,Copied!,¡Copiado!
+FEEDBACK_OPEN_SURVEY,Open survey,Abrir encuesta
+FEEDBACK_SURVEY_UNAVAILABLE,The survey is not available yet in this build.,La encuesta todavía no está disponible en esta versión.
+FEEDBACK_URL_HINT,"If the survey does not open, copy this address into your browser:","Si la encuesta no se abre, copia esta dirección en tu navegador:"
 MENU_CREDITS,Credits,Créditos
 CREDITS_DEVELOPMENT,Development,Desarrollo
 CREDITS_AUTHOR,Design and programming: Ibai Pérez Fernández,Diseño y programación: Ibai Pérez Fernández

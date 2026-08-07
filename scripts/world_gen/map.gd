@@ -200,11 +200,36 @@ func _on_game_over(winner: Empire) -> void:
 
 	var is_player_winner := (player_handler.stats != null
 			and player_handler.stats.empire == winner)
-	var dialog := AcceptDialog.new()
-	dialog.title = tr("GAMEOVER_TITLE")
-	dialog.dialog_text = (tr("GAMEOVER_VICTORY") % winner.name
+	# `Empire.name` guarda la CLAVE de traducción ("EMP_MEDICI_NAME"), no el
+	# nombre: sin `tr()` el diálogo enseñaba la clave en crudo.
+	var winner_name := tr(winner.name)
+
+	var panel := FeedbackPanel.new()
+	panel.report = capture_play_report(PlayReport.Outcome.VICTORY
 			if is_player_winner
-			else tr("GAMEOVER_DEFEAT") % winner.name)
-	dialog.confirmed.connect(func(): Events.navigate_to_main_menu.emit())
-	add_child(dialog)
-	dialog.popup_centered()
+			else PlayReport.Outcome.DEFEAT)
+	panel.title_text = tr("GAMEOVER_TITLE")
+	panel.subtitle_text = (tr("GAMEOVER_VICTORY") % winner_name
+			if is_player_winner
+			else tr("GAMEOVER_DEFEAT") % winner_name)
+	panel.close_text = tr("PAUSE_MAIN_MENU")
+	panel.on_closed = func() -> void: Events.navigate_to_main_menu.emit()
+	add_child(panel)
+
+
+## Resumen de la partida en curso para el panel de feedback.
+##
+## Vive aquí porque es el único punto que tiene a la vez la semilla del mundo,
+## el imperio del jugador y el turno. El menú de pausa llega a él por `owner`,
+## que apunta a esta escena por estar la pausa instanciada dentro de map.tscn.
+func capture_play_report(outcome: int) -> PlayReport:
+	var empire: Empire = (player_handler.stats.empire
+			if player_handler != null and player_handler.stats != null
+			else null)
+	return PlayReport.capture(
+			outcome,
+			generation_settings.map_seed if generation_settings != null else 0,
+			empire.name if empire != null else "",
+			turn_manager.round_number if turn_manager != null else 0,
+			empire.controlled_tiles.size() if empire != null else 0,
+			WorldMap.map.size())
