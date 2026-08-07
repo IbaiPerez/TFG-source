@@ -7,6 +7,7 @@
 [resource]
 script = ExtResource("2_kcpkn")
 id = "Build Card"
+name_key = "CARD_BUILD_NAME"
 icon = ExtResource("3_icon")
 needs_confirmation = true
 tooltipe_text = ""

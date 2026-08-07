@@ -9,6 +9,7 @@
 script = ExtResource("2_script")
 buildings = Array[ExtResource("1_bldg")]([ExtResource("4_building")])
 id = "Build Palacio Imperial"
+name_key = "CARD_BUILD_PALACE_NAME"
 type = 2
 icon = ExtResource("3_icon")
 tooltipe_text = "CARD_BUILD_PALACIO_TIP"

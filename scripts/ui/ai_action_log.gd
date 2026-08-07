@@ -93,9 +93,9 @@ func _describe_card(card: Card, payload: Dictionary) -> String:
 		return tr("AILOG_RECRUITS") % (tr(t.name) if t.name else tr("GENERIC_TROOP"))
 	if payload.has("chosen_card") and payload["chosen_card"] != null:
 		var c: Card = payload["chosen_card"]
-		return tr("AILOG_RECOVERS") % (c.id.capitalize() if c.id else tr("GENERIC_CARD"))
-	# Fallback: el id de la carta.
-	return tr("AILOG_PLAYS") % (card.id.capitalize() if card.id else tr("GENERIC_CARD"))
+		return tr("AILOG_RECOVERS") % (c.get_display_name() if c else tr("GENERIC_CARD"))
+	# Nombre traducido; el `id` es interno y no se muestra al jugador.
+	return tr("AILOG_PLAYS") % (card.get_display_name() if card else tr("GENERIC_CARD"))
 
 
 func _append_line(text: String, color: Color) -> void:

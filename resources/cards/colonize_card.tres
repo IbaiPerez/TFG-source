@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("2_oxi6w")
 id = "Colonize"
+name_key = "CARD_COLONIZE_NAME"
 icon = ExtResource("1_oxi6w")
 tooltipe_text = ""
 metadata/_custom_type_script = "uid://c2mper5y287uw"

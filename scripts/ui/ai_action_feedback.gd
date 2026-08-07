@@ -35,8 +35,9 @@ func _on_ai_card_played(card: Card, anchor_tile: Tile, empire: Empire,
 ## tooltip tiene markup BBCode, lo strippeamos en una primera versión —
 ## el label 3D no renderiza BBCode.
 func _describe_card(card: Card) -> String:
-	# Usar el id como fallback amigable. Las cartas suelen tener id
-	# corto y descriptivo ("colonize", "build", "recruit", etc.).
-	if card.id and card.id != "":
-		return card.id.capitalize()
-	return "?"
+	# Nombre traducido: el `id` es interno y sale siempre en inglés y sin tildes
+	# ("Build Escuela de Planificacion"), que es lo que se leía aquí antes.
+	if card == null:
+		return "?"
+	var nombre := card.get_display_name()
+	return nombre if not nombre.is_empty() else "?"

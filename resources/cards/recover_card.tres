@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_rcvr")
 id = "Recover"
+name_key = "CARD_RECOVER_NAME"
 type = 2
 target = 1
 needs_confirmation = true

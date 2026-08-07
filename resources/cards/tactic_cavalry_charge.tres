@@ -21,6 +21,7 @@ biome_modifiers = {
 6: 0.2
 }
 id = "Tactic Cavalry Charge"
+name_key = "TACTIC_CAVALRY_CHARGE_NAME"
 type = 1
 target = 2
 needs_confirmation = false

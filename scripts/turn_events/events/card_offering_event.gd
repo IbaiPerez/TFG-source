@@ -39,7 +39,9 @@ func prepare(context:EventContext) -> void:
 
 	var choice := TurnEventChoice.new()
 	choice.label = tr("EVT_CARD_OFFERING_CH1_LABEL")
-	choice.description = tr("EVT_CARD_OFFERING_CH1_DESC") % _selected_card.id
+	# Nombre traducido, no el `id`: este texto lo lee el jugador y el id es interno
+	# ("Build Escuela de Planificacion", sin tildes y siempre en ingles).
+	choice.description = tr("EVT_CARD_OFFERING_CH1_DESC") % _selected_card.get_display_name()
 	choice.effects = [AddCardEffect.new(_selected_card)]
 	choices = [choice]
 

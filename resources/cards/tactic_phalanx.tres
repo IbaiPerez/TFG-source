@@ -21,6 +21,7 @@ biome_modifiers = {
 6: 1.5
 }
 id = "Tactic Phalanx"
+name_key = "TACTIC_PHALANX_NAME"
 type = 1
 target = 2
 needs_confirmation = false

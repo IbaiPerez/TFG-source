@@ -12,6 +12,7 @@
 script = ExtResource("1_script")
 available_troops = [ExtResource("3_militia"), ExtResource("4_cavalry"), ExtResource("5_pikemen"), ExtResource("6_heavy"), ExtResource("7_ranged")]
 id = "Recruit"
+name_key = "CARD_RECRUIT_NAME"
 type = 0
 target = 1
 needs_confirmation = true

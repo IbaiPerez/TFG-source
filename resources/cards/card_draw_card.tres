@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_083s0")
 id = "CardDraw"
+name_key = "CARD_DRAW_NAME"
 icon = ExtResource("2_icon")
 type = 1
 target = 1

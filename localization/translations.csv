@@ -512,3 +512,16 @@ CREDITS_ART_INTRO,"Icons from game-icons.net, hand-drawn by:","Iconos de game-ic
 CREDITS_ART_LICENSE,Licensed under Creative Commons Attribution 3.0:,Bajo licencia Creative Commons Attribution 3.0:
 EVT_SKIP_LABEL,Do nothing,No hacer nada
 EVT_SKIP_DESC,Decline the event and continue your turn.,Declinar el evento y continuar el turno.
+CARD_BUILD_LIBRARY_NAME,Build Library,Construir Biblioteca
+CARD_BUILD_SANCTUARY_NAME,Build Forest Sanctuary,Construir Santuario del Bosque
+CARD_BUILD_TEMPLE_NAME,Build Temple,Construir Templo
+CARD_DRAW_NAME,Draw Card,Robar Carta
+CARD_OPEN_FRONT_NAME,Open Front,Abrir Frente
+CARD_RECOVER_NAME,Recover,Recuperar
+CARD_RECRUIT_NAME,Recruit,Reclutar
+CARD_UPGRADE_NAME,Upgrade Building,Mejorar Edificio
+CARD_URBAN_PROJECT_NAME,Urban Project,Proyecto Urbano
+CARD_BUILD_COLOSSEUM_NAME,Build Colosseum,Construir Coliseo
+CARD_BUILD_SCHOOL_NAME,Build Planning School,Construir Escuela de Planificación
+CARD_BUILD_OFFICE_NAME,Build Construction Office,Construir Oficina de Construcción
+CARD_BUILD_PALACE_NAME,Build Imperial Palace,Construir Palacio Imperial

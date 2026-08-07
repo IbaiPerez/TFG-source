@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_yyc4h")
 id = "Upgrade Building Card"
+name_key = "CARD_UPGRADE_NAME"
 icon = ExtResource("2_icon")
 needs_confirmation = true
 tooltipe_text = ""

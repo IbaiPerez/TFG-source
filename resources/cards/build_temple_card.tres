@@ -9,6 +9,7 @@
 script = ExtResource("2_script")
 buildings = Array[ExtResource("1_bldg")]([ExtResource("4_building")])
 id = "Build Temple"
+name_key = "CARD_BUILD_TEMPLE_NAME"
 type = 2
 icon = ExtResource("3_icon")
 needs_confirmation = true

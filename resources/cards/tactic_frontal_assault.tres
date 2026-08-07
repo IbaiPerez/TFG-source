@@ -21,6 +21,7 @@ biome_modifiers = {
 6: 0.7
 }
 id = "Tactic Frontal Assault"
+name_key = "TACTIC_FRONTAL_NAME"
 type = 1
 target = 2
 needs_confirmation = false
