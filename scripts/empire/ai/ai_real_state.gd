@@ -49,9 +49,12 @@ class TileSnap:
 			g += b.gold_produced
 		return g
 
-	## Comida neta que produce esta casilla (espejo de Tile.recalculate_modifiers):
-	## natural_food − food_consumption + Σ(building.food_produced) + bonus porcentual
-	## sobre el food natural.
+	## Comida neta que produce esta casilla POR SI SOLA (espejo de la parte local de
+	## Tile.recalculate_modifiers): natural_food − food_consumption +
+	## Σ(building.food_produced) + bonus porcentual sobre el food natural.
+	##
+	## NO incluye lo que le llega de las vecinas: eso necesita el estado completo y
+	## vive en `AIRealState.incoming_neighbor_bonus`, que es quien cierra el espejo.
 	func food_production() -> int:
 		var f := resource_food - food_consumption
 		var pct := 0.0
@@ -279,6 +282,32 @@ func empire(p_owner: int) -> EmpireSnap:
 
 
 ## Número de casillas controladas por `owner` (OWNER_SELF / OWNER_RIVAL).
+## Bonificaciones que la casilla `t` recibe de los edificios de sus VECINAS.
+## Espejo de `Tile.incoming_neighbor_bonus`. Devuelve {gold, food, percent}.
+##
+## Se salta el recorrido entero si ningún edificio del vecindario reparte nada, que
+## es el caso normal: esto se ejecuta por casilla y por jugada dentro del MCTS.
+func incoming_neighbor_bonus(t: TileSnap) -> Dictionary:
+	var out := {"gold": 0, "food": 0, "percent": 0.0}
+	if t == null:
+		return out
+	for nid in t.neighbor_ids:
+		var nb := tiles.get(nid) as TileSnap
+		if nb == null or nb.buildings.is_empty():
+			continue
+		for b in nb.buildings:
+			for bonus in b.neighbor_bonuses:
+				if bonus == null or bonus.is_empty():
+					continue
+				if not bonus.applies_to(t.owner != OWNER_NONE and nb.owner == t.owner,
+						t.location_type, t.biome, t.natural_resource):
+					continue
+				out["gold"] += bonus.gold
+				out["food"] += bonus.food
+				out["percent"] += bonus.food_percent
+	return out
+
+
 func count_tiles(p_owner: int) -> int:
 	var n := 0
 	for id in tiles:

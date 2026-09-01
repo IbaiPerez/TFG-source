@@ -87,20 +87,34 @@ func _set_building(value:Building) -> void:
 
 func _populate_effects(effects:Array[BuildingEffect]) -> void:
 	UILayout.clear_children(effects_container)
-	
-	if effects.is_empty():
+
+	# Las bonificaciones a las casillas VECINAS se describen aquí aunque no sean
+	# `BuildingEffect`: para el jugador son lo mismo —"qué hace este edificio"— y el
+	# molino no tiene nada que enseñar en sus cifras de producción propias.
+	var vecindad := NeighborBonusFormatter.describe_all(building)
+
+	if effects.is_empty() and vecindad == "":
 		effects_separator.visible = false
 		return
-	
+
 	effects_separator.visible = true
+	if vecindad != "":
+		effects_container.add_child(_effect_label(vecindad))
+
 	for effect in effects:
-		var rtl := RichTextLabel.new()
-		rtl.bbcode_enabled = true
-		rtl.fit_content = true
-		rtl.scroll_active = false
-		rtl.custom_minimum_size = Vector2(200, 0)
-		rtl.text = tr(effect.tooltipe_text)
-		effects_container.add_child(rtl)
+		effects_container.add_child(_effect_label(tr(effect.tooltipe_text)))
+
+
+## Fila de texto del bloque de efectos. Antes se construía inline; ahora hay dos
+## clases de fila (efectos y vecindad) y merecía un sitio.
+func _effect_label(texto: String) -> RichTextLabel:
+	var rtl := RichTextLabel.new()
+	rtl.bbcode_enabled = true
+	rtl.fit_content = true
+	rtl.scroll_active = false
+	rtl.custom_minimum_size = Vector2(200, 0)
+	rtl.text = texto
+	return rtl
 
 
 func _on_mouse_entered() -> void:

@@ -158,10 +158,16 @@ static func score_build(view: AIStateView, b: Building, tile) -> float:
 	var gu := view.gold_urgency()
 	var fu := view.food_urgency()
 	var mu := view.military_urgency()
-	# Los edificios con mantenimiento (gold_produced < 0) reciben peso reducido.
-	var gold_weight := w.gold_weight_pos if b.gold_produced >= 0 else w.gold_weight_maint
-	var score := float(b.gold_produced) * gold_weight * gu \
-		+ float(b.food_produced) * w.food_weight * fu \
+	# Un edificio puede producir en su casilla, en las VECINAS o en las dos. El
+	# molino no produce nada localmente: todo su valor está en el vecindario, y sin
+	# sumarlo aquí puntuaría como un edificio que solo cuesta oro.
+	var vecindad := view.neighbor_bonus_yield(b, tile)
+	var oro := b.gold_produced + vecindad.x
+	var comida := b.food_produced + vecindad.y
+	# Los edificios con mantenimiento (oro neto < 0) reciben peso reducido.
+	var gold_weight := w.gold_weight_pos if oro >= 0 else w.gold_weight_maint
+	var score := float(oro) * gold_weight * gu \
+		+ float(comida) * w.food_weight * fu \
 		+ float(b.flat_defense_bonus) * w.defense_weight * mu \
 		+ view.score_building_effects(b.effects, gu, fu, mu)
 	score = AIEconomy.apply_build_cost(score, view.effective_build_cost(b), w)

@@ -63,6 +63,10 @@ func frontier_value(tile) -> int:
 	return AILiveFacts._frontier_value(tile as Tile, _ctx)
 
 
+func neighbor_bonus_yield(b: Building, tile) -> Vector2i:
+	return AILiveFacts._neighbor_bonus_yield(b, tile as Tile)
+
+
 func tile_gold_production(tile) -> int:
 	return (tile as Tile).gold_production
 

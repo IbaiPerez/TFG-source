@@ -533,3 +533,9 @@ CARD_BUILD_COLOSSEUM_NAME,Build Colosseum,Construir Coliseo
 CARD_BUILD_SCHOOL_NAME,Build Planning School,Construir Escuela de Planificación
 CARD_BUILD_OFFICE_NAME,Build Construction Office,Construir Oficina de Construcción
 CARD_BUILD_PALACE_NAME,Build Imperial Palace,Construir Palacio Imperial
+BLD_NEIGHBOR_BONUS,%s to each adjacent %s,%s a cada %s adyacente
+BLD_NEIGHBOR_FOOD,%s food,%s de comida
+BLD_NEIGHBOR_GOLD,%s gold,%s de oro
+BLD_NEIGHBOR_FOOD_PCT,%s%% food,%s%% de comida
+BLD_NEIGHBOR_ANY_TILE,tile,casilla
+BLD_NEIGHBOR_OWN,you own,propia

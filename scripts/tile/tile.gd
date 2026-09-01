@@ -96,8 +96,55 @@ func recalculate_modifiers() -> void:
 		gold_production += b.gold_produced
 		food_production += b.food_produced
 		food_percent_total += b.food_percent_bonus
+	var incoming := incoming_neighbor_bonus()
+	gold_production += incoming["gold"]
+	food_production += incoming["food"]
+	food_percent_total += incoming["percent"]
 	if food_percent_total != 0.0:
 		food_production += int(natural_food * food_percent_total / 100.0)
+
+
+## Suma de las bonificaciones que ESTA casilla recibe de los edificios de sus
+## vecinas (ver [NeighborBonus]). Espejo de `AIRealState.incoming_neighbor_bonus`.
+##
+## Lee a las vecinas pero NO las recalcula: si lo hiciera, cada recálculo
+## dispararía el de al lado y el de al lado el de esta, sin fin. La propagación
+## se hace explícita en `recalculate_with_neighbors`, un solo nivel.
+func incoming_neighbor_bonus() -> Dictionary:
+	var out := {"gold": 0, "food": 0, "percent": 0.0}
+	if location == null:
+		return out
+	var biome: int = mesh_data.type if mesh_data != null else -1
+	for n in neighbors:
+		var nb := n as Tile
+		if nb == null:
+			continue
+		for b in nb.buildings:
+			for bonus in b.neighbor_bonuses:
+				if bonus == null or bonus.is_empty():
+					continue
+				if not bonus.applies_to(controller != null and nb.controller == controller,
+						location.type, biome, natural_resource):
+					continue
+				out["gold"] += bonus.gold
+				out["food"] += bonus.food
+				out["percent"] += bonus.food_percent
+	return out
+
+
+## Recalcula esta casilla Y sus vecinas.
+##
+## Un edificio con `neighbor_bonuses` cambia la producción de las casillas de al
+## lado, así que construirlo, demolerlo, conquistar la casilla o urbanizarla no
+## puede limitarse a recalcular la propia: las vecinas se quedarían con la cifra
+## vieja hasta que algo las tocara. No es recursivo — cada `recalculate_modifiers`
+## ya lee a sus vecinas, así que un nivel basta.
+func recalculate_with_neighbors() -> void:
+	recalculate_modifiers()
+	for n in neighbors:
+		var nb := n as Tile
+		if nb != null:
+			nb.recalculate_modifiers()
 
 func can_build(building: Building) -> bool:
 	if buildings.size() >= max_buildings:
@@ -141,7 +188,7 @@ func build(building:Building, stats:Stats) -> void:
 	# de crisis, etc.) con clamp MIN_COST_MULTIPLIER. Si stats no tiene
 	# modifier_manager (tests aislados), el helper devuelve el coste raw.
 	stats.total_gold -= building.get_effective_construction_cost(stats)
-	recalculate_modifiers()
+	recalculate_with_neighbors()
 	building_completed.emit(building)
 
 func can_upgrade(old_building: Building, new_building: Building) -> bool:
@@ -195,7 +242,7 @@ func upgrade(old_building: Building, new_building: Building, stats: Stats) -> vo
 		e.apply_effect(self, stats)
 	# Coste efectivo (con descuento de Banca Florentina, eventos, etc.).
 	stats.total_gold -= new_building.get_effective_construction_cost(stats)
-	recalculate_modifiers()
+	recalculate_with_neighbors()
 	building_demolished.emit(old_building)
 	building_completed.emit(new_building)
 
@@ -206,7 +253,7 @@ func demolish(building:Building, stats:Stats) -> void:
 	buildings.erase(building)
 	for e in building.effects:
 		e.remove_effect(self,stats)
-	recalculate_modifiers()
+	recalculate_with_neighbors()
 	building_demolished.emit(building)
 
 func set_biome_material():
@@ -230,11 +277,19 @@ func set_controller(new_controller:Empire):
 		controller = new_controller
 		update_borders()
 		update_neighbors_borders()
+		# Conquistar una casilla activa o apaga las bonificaciones de vecindad
+		# marcadas `only_same_owner`, en los dos sentidos: las que esta casilla
+		# recibe y las que sus edificios reparten.
+		recalculate_with_neighbors()
 
 func set_location_type(new_location:LocationType):
 	if location != new_location:
 		location = new_location
-	recalculate_modifiers()
+	# Urbanizar cambia si la casilla CUMPLE las condiciones de sus vecinas (el
+	# molino alimenta pueblos, no ciudades), así que hay que repasar el vecindario.
+	# Durante la generación del mapa las vecinas aún no están enlazadas y esto
+	# equivale a `recalculate_modifiers()`.
+	recalculate_with_neighbors()
 
 func update_neighbors_borders() -> void:
 	for neighbor in neighbors:

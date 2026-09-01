@@ -66,6 +66,16 @@ func frontier_value(_tile) -> int:
 func tile_adjacent_to_rival(_tile) -> bool:
 	push_error("AIStateView.tile_adjacent_to_rival() sin implementar"); return false
 
+## Oro y comida por turno que `b` repartiría a las VECINAS de `tile` si se
+## construyera ahí (ver [NeighborBonus]). Vector2i(oro, comida).
+##
+## Sin esto, un edificio cuya única salida es la vecindad puntúa CERO en
+## `score_build` —su `food_produced` local es 0— y la IA no lo construye jamás.
+## `tile == null` (DIRECT_BUILD, sin casilla concreta) → sin vecindad conocida.
+func neighbor_bonus_yield(_b: Building, _tile) -> Vector2i:
+	return Vector2i.ZERO
+
+
 func tile_gold_production(_tile) -> int:
 	push_error("AIStateView.tile_gold_production() sin implementar"); return 0
 

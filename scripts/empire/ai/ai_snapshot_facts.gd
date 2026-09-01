@@ -248,3 +248,23 @@ static func _upgradeable_buildings(state: AIRealState, p_owner: int) -> int:
 			if building != null and not building.upgrades_to.is_empty():
 				count += 1
 	return count
+
+
+## Backend de `AIStateView.neighbor_bonus_yield` en el SNAPSHOT. Gemelo de
+## `AILiveFacts._neighbor_bonus_yield`: misma forma, distinto recorrido del mundo.
+static func _neighbor_bonus_yield(state: AIRealState, b: Building,
+		t: AIRealState.TileSnap) -> Vector2i:
+	if b == null or t == null or not b.has_neighbor_bonuses():
+		return Vector2i.ZERO
+	var total := Vector2i.ZERO
+	for nid in t.neighbor_ids:
+		var nb := state.tiles.get(nid) as AIRealState.TileSnap
+		if nb == null:
+			continue
+		var mismo := nb.owner != AIRealState.OWNER_NONE and nb.owner == t.owner
+		for bonus in b.neighbor_bonuses:
+			if bonus == null or bonus.is_empty():
+				continue
+			if bonus.applies_to(mismo, nb.location_type, nb.biome, nb.natural_resource):
+				total += Vector2i(bonus.gold, bonus.food)
+	return total

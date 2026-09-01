@@ -312,3 +312,24 @@ static func _attack_biome_factor(tile: Tile) -> float:
 	if tile == null or tile.mesh_data == null:
 		return 1.0
 	return BiomeConfig.shared().get_attack_multiplier(tile.mesh_data.type)
+
+
+## Backend de `AIStateView.neighbor_bonus_yield` en el mundo VIVO: oro y comida que
+## `b` repartiría a las vecinas de `tile` si se construyera ahí. Gemelo de
+## `AISnapshotFacts._neighbor_bonus_yield`.
+static func _neighbor_bonus_yield(b: Building, tile: Tile) -> Vector2i:
+	if b == null or tile == null or not b.has_neighbor_bonuses():
+		return Vector2i.ZERO
+	var total := Vector2i.ZERO
+	for n in tile.neighbors:
+		var nb := n as Tile
+		if nb == null or nb.location == null:
+			continue
+		var biome: int = nb.mesh_data.type if nb.mesh_data != null else -1
+		var mismo := nb.controller != null and nb.controller == tile.controller
+		for bonus in b.neighbor_bonuses:
+			if bonus == null or bonus.is_empty():
+				continue
+			if bonus.applies_to(mismo, nb.location.type, biome, nb.natural_resource):
+				total += Vector2i(bonus.gold, bonus.food)
+	return total

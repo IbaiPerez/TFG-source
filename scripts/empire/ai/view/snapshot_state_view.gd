@@ -77,6 +77,11 @@ func frontier_value(tile) -> int:
 	return AISnapshotFacts._frontier_value(_state, (tile as AIRealState.TileSnap).id, _owner)
 
 
+func neighbor_bonus_yield(b: Building, tile) -> Vector2i:
+	return AISnapshotFacts._neighbor_bonus_yield(
+		_state, b, tile as AIRealState.TileSnap)
+
+
 func tile_gold_production(tile) -> int:
 	return (tile as AIRealState.TileSnap).gold_production()
 

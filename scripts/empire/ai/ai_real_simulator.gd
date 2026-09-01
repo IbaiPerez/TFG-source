@@ -50,6 +50,12 @@ static func recompute_economy(state: AIRealState, p_owner: int) -> void:
 		if t.owner == p_owner:
 			base_gold += t.gold_production() + ModifierQuery.tile_gold_bonus(mods, t.natural_resource)
 			base_food += t.food_production() + ModifierQuery.tile_food_bonus(mods, t.natural_resource)
+			# Lo que le llega de las vecinas (molino y demás): vive fuera de TileSnap
+			# porque necesita el estado completo, no solo la casilla.
+			var vecinos := state.incoming_neighbor_bonus(t)
+			base_gold += vecinos["gold"]
+			base_food += vecinos["food"] \
+				+ int(t.resource_food * float(vecinos["percent"]) / 100.0)
 	base_gold += ModifierQuery.flat_gold(mods)
 	base_food += ModifierQuery.flat_food(mods)
 

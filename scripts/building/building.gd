@@ -21,6 +21,20 @@ class_name Building
 ## la casilla. Se aplica en Tile.recalculate_modifiers() solo al food del
 ## natural_resource (no a otros edificios ni al consumo de la localizacion).
 @export var food_percent_bonus: float = 0.0
+## Bonificaciones que este edificio concede a las casillas VECINAS (ver
+## [NeighborBonus]). Son independientes de lo que produzca en la suya: un edificio
+## puede no producir nada localmente y existir solo para alimentar a sus vecinas.
+## Cada entrada lleva sus propias condiciones sobre a qué casillas alcanza.
+@export var neighbor_bonuses: Array[NeighborBonus] = []
+
+
+## True si el edificio concede algo a sus vecinas. Atajo para no recorrer la lista
+## en los caminos calientes (el snapshot de la IA recorre vecindades por jugada).
+func has_neighbor_bonuses() -> bool:
+	for b in neighbor_bonuses:
+		if b != null and not b.is_empty():
+			return true
+	return false
 
 
 ## Si el imperio puede pagar AHORA este edificio, con el coste ya descontado por
