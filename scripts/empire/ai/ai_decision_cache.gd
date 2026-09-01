@@ -23,8 +23,8 @@ class_name AIDecisionCache
 static func prepare_decision_cache(ctx: AITurnContext) -> void:
 	if ctx.stats == null:
 		return
-	var phase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles)
 	var w := ctx.get_weights()
+	var phase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles, w)
 
 	_cache_urgencies(ctx, phase, w)
 	_cache_fronts(ctx)
@@ -110,7 +110,9 @@ static func _max_front_pressure_from_list(
 		if not is_att and not is_def:
 			continue
 		var ai_marker := front.marker if is_att else -front.marker
-		var p := AIUrgency.front_pressure(ai_marker, front.threshold)
+		# Umbral EFECTIVO (decae con los turnos), no el de configuración: es contra
+		# él contra el que el frente se resuelve de verdad.
+		var p := AIUrgency.front_pressure(ai_marker, front.get_current_threshold())
 		max_p = maxf(max_p, p)
 	return max_p
 
@@ -190,7 +192,7 @@ static func _max_front_pressure(ctx: AITurnContext) -> float:
 		if not is_attacker and not is_defender:
 			continue
 		var ai_marker := front.marker if is_attacker else -front.marker
-		var pressure := AIUrgency.front_pressure(ai_marker, front.threshold)
+		var pressure := AIUrgency.front_pressure(ai_marker, front.get_current_threshold())
 		max_p = maxf(max_p, pressure)
 	return max_p
 

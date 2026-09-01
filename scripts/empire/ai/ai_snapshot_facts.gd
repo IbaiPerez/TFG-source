@@ -71,8 +71,9 @@ static func _territory_race_factor(state: AIRealState, p_owner: int,
 		mode: StringName = &"colonize", w: HeuristicWeights = null) -> float:
 	if w == null: w = HeuristicWeights.get_default()
 	var rival := OWNER_RIVAL if p_owner == OWNER_SELF else OWNER_SELF
+	# Cuota sobre el MAPA, no sobre las casillas en disputa: ver AITerritory.
 	return AITerritory.territory_race_factor(state.count_tiles(p_owner),
-		state.count_tiles(rival), _colonizable_count(state, p_owner), mode, w)
+		state.count_tiles(rival), state.total_map_tiles, mode, w)
 
 
 ## Backend de `AIStateView.colonizable_count`: tiles sin colonizar adyacentes al
@@ -174,7 +175,8 @@ static func _max_front_pressure(state: AIRealState, p_owner: int) -> float:
 		if side == BattleFront.Side.NONE:
 			continue
 		var ai_marker := front.marker if side == BattleFront.Side.ATTACKER else -front.marker
-		var pressure := AIUrgency.front_pressure(ai_marker, front.threshold)
+		# Espejo del vivo: umbral EFECTIVO, no el de configuración.
+		var pressure := AIUrgency.front_pressure(ai_marker, front.current_threshold())
 		max_p = maxf(max_p, pressure)
 	return max_p
 
@@ -200,3 +202,49 @@ static func _current_troops_per_recruit_bonus(state: AIRealState, p_owner: int) 
 					if sme.stat_type == StatModifier.StatType.TROOPS_PER_RECRUIT:
 						total += int(sme.value)
 	return total
+
+
+# ---------------------------------------------------------------------------
+# Recorridos para la valoración de carta en el mazo
+# ---------------------------------------------------------------------------
+# Gemelos de AILiveFacts._card_type_count / _buildable_slots / _upgradeable_buildings.
+# Vivían inline en SnapshotStateView mientras el mundo vivo ya delegaba aquí: la
+# asimetría no era intencional, solo deuda. La diferencia real entre mundos es la
+# FUENTE (mazo combinado vs draw+discard, TileSnap vs Tile), no la regla.
+
+## Backend de `AIStateView.same_type_card_count`: copias de la misma clase de carta
+## en el mazo del imperio. Devuelve al menos 1 para que el factor nunca sea 0.
+static func _card_type_count(card: Card, emp: AIRealState.EmpireSnap) -> int:
+	if card == null or emp == null:
+		return 1
+	var script := card.get_script() as Script
+	var count := 0
+	for c in emp.deck:
+		if c != null and c.get_script() == script:
+			count += 1
+	return maxi(count, 1)
+
+
+## Backend de `AIStateView.buildable_slots`: huecos de edificio libres sumados sobre
+## las casillas propias. Si no hay huecos, una BuildCard es inútil.
+static func _buildable_slots(state: AIRealState, p_owner: int) -> int:
+	var total := 0
+	for id in state.tiles:
+		var t := state.tiles[id] as AIRealState.TileSnap
+		if t.owner == p_owner:
+			total += maxi(0, t.max_buildings - t.buildings.size())
+	return total
+
+
+## Backend de `AIStateView.upgradeable_count`: edificios propios con al menos una
+## mejora disponible. Escala el valor de UpgradeBuildingCard.
+static func _upgradeable_buildings(state: AIRealState, p_owner: int) -> int:
+	var count := 0
+	for id in state.tiles:
+		var t := state.tiles[id] as AIRealState.TileSnap
+		if t.owner != p_owner:
+			continue
+		for building in t.buildings:
+			if building != null and not building.upgrades_to.is_empty():
+				count += 1
+	return count

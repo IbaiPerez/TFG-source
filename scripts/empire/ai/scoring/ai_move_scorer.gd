@@ -121,14 +121,14 @@ static func score_recruit(view: AIStateView, troop: Troop) -> float:
 	if view.gold_per_turn() - troop.maintenance_gold < 0:
 		return w.recruit_veto_score
 
-	# Veto por recargo cuadrático de frente: con n tropas en un bando el coste es
-	# charge·n·(n+1)/2 de comida/turno. -1 = el veto no aplica en este mundo/estado.
+	# Veto por recargo de frente: si esta tropa acabara guarneciendo el frente más
+	# poblado, pagaría su base multiplicada por la curva del frente. Se proyecta lo
+	# que AÑADIRÍA. -1 = el veto no aplica en este mundo/estado.
 	var max_own := view.recruit_front_max_troops()
 	if max_own >= 0:
-		var n_after := max_own + 1
-		var delta_charge := w.recruit_front_charge_per_troop * n_after * (n_after + 1) / 2.0 \
-			- w.recruit_front_charge_per_troop * max_own * (max_own + 1) / 2.0
-		if view.food() - delta_charge < w.recruit_front_food_margin:
+		var extra := w.recruit_front_charge_belief \
+			* (CombatMath.front_food_upkeep_multiplier(max_own + 1) - 1.0)
+		if view.food() - float(troop.maintenance_food) * extra < w.recruit_front_food_margin:
 			return w.recruit_veto_score
 
 	var mu := view.military_urgency()
@@ -164,7 +164,7 @@ static func score_build(view: AIStateView, b: Building, tile) -> float:
 		+ float(b.food_produced) * w.food_weight * fu \
 		+ float(b.flat_defense_bonus) * w.defense_weight * mu \
 		+ view.score_building_effects(b.effects, gu, fu, mu)
-	score *= AIEconomy.build_cost_factor(view.effective_build_cost(b), view.gold(), w)
+	score = AIEconomy.apply_build_cost(score, view.effective_build_cost(b), w)
 
 	if tile != null:
 		if b.required_natural_resource != null \
@@ -192,7 +192,7 @@ static func score_upgrade(view: AIStateView, ob: Building, nb: Building) -> floa
 		+ float(dd) * w.defense_weight * mu \
 		+ view.score_building_effects(nb.effects, gu, fu, mu) \
 		- view.score_building_effects(ob.effects, gu, fu, mu)
-	return score * AIEconomy.build_cost_factor(view.effective_build_cost(nb), view.gold(), w)
+	return AIEconomy.apply_build_cost(score, view.effective_build_cost(nb), w)
 
 
 ## COLONIZE: producción de la casilla + presión de expansión + valor de frontera

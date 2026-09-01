@@ -35,7 +35,7 @@ static func score_state(state: AIRealState, w: HeuristicWeights = null) -> float
 	if rival_tiles == 0: return 1.0
 	if my_tiles == 0: return -1.0
 
-	var phase := detect_phase(state)
+	var phase := detect_phase(state, AIRealState.OWNER_SELF, w)
 	var w_t := w.state_w_t_early; var w_e := w.state_w_e_early
 	var w_m := w.state_w_m_early; var w_k := w.state_w_k_early
 	match phase:
@@ -128,10 +128,11 @@ static func is_terminal(state: AIRealState) -> bool:
 ## (AIGamePhase.detect_from); aquí solo se recogen las primitivas del
 ## snapshot, que es lo único que difería del mundo vivo.
 static func detect_phase(state: AIRealState,
-		p_owner: int = AIRealState.OWNER_SELF) -> AIGamePhase.Phase:
+		p_owner: int = AIRealState.OWNER_SELF,
+		w: HeuristicWeights = null) -> AIGamePhase.Phase:
 	var emp := state.own if p_owner == AIRealState.OWNER_SELF else state.rival
 	return AIGamePhase.detect_from(emp.gold_per_turn, state.count_tiles(p_owner),
-		state.total_map_tiles)
+		state.total_map_tiles, w)
 
 
 # ---------------------------------------------------------------------------

@@ -228,7 +228,7 @@ static func _score_tactic(move: AIRealOptions.Move, state: AIRealState,
 	var relevant_tile_id := front.defender_tile_id if is_attacker else front.attacker_tile_id
 	var ai_marker := front.marker if is_attacker else -front.marker
 	return AIMoveScorer.score_tactic(SnapshotStateView.new(state, p_owner, w),
-		move.card as TacticCard, own_troops, ai_marker, front.threshold,
+		move.card as TacticCard, own_troops, ai_marker, front.current_threshold(),
 		state.tiles.get(relevant_tile_id))
 
 

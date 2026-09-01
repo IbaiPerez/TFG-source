@@ -460,18 +460,18 @@ func test_building_demolished_by_mismatch_returns_true() -> void:
 # ============================================================
 
 ## La REGLA la cubre test_ai_economy; aqui solo que el wrapper aplica los pesos por
-## defecto cuando no se le pasan.
+## defecto cuando no se le pasan. El segundo argumento es el VALOR del edificio.
 func test_build_cost_factor_usa_los_pesos_por_defecto() -> void:
 	var w := HeuristicWeights.get_default()
-	for caso in [[50, 0], [100, 100], [50, 100], [1, 10000]]:
+	for caso in [[50, 0.0], [100, 100.0], [50, 100.0], [1, 10000.0]]:
 		assert_almost_eq(AILiveFacts._build_cost_factor(caso[0], caso[1]),
 			AIEconomy.build_cost_factor(caso[0], caso[1], w), 0.001)
 
 
-func test_build_cost_factor_residual_spend_near_one() -> void:
-	# cost=1, total=10000 → ratio≈0 → factor≈1.0
-	var f := AILiveFacts._build_cost_factor(1, 10000)
-	assert_true(f > 0.99, "Gasto residual debe dar factor cercano a 1.0")
+func test_build_cost_factor_coste_residual_es_neutro() -> void:
+	# coste=1 frente a un valor de 10000 → ratio≈0 → factor≈1.0
+	var f := AILiveFacts._build_cost_factor(1, 10000.0)
+	assert_true(f > 0.99, "Un coste residual frente al valor debe dar factor ≈ 1.0")
 
 
 # ============================================================

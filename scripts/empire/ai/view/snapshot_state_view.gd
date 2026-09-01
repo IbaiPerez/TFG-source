@@ -41,7 +41,7 @@ func food() -> int:
 
 func phase() -> AIGamePhase.Phase:
 	if _phase < 0:
-		_phase = AIRealEval.detect_phase(_state, _owner)
+		_phase = AIRealEval.detect_phase(_state, _owner, _w)
 	return _phase
 
 
@@ -319,12 +319,7 @@ func change_location_adjust(base: float, tile, new_loc, gu: float, fu: float, _m
 # draw/discard; ambas medidas representan "el mazo activo" en su mundo.
 
 func same_type_card_count(card: Card) -> int:
-	var script := card.get_script() as Script
-	var count := 0
-	for c in _emp.deck:
-		if c != null and c.get_script() == script:
-			count += 1
-	return maxi(count, 1)   # ≥1, igual que el vivo (evita dividir por cero)
+	return AISnapshotFacts._card_type_count(card, _emp)
 
 
 func colonizable_count() -> int:
@@ -332,24 +327,11 @@ func colonizable_count() -> int:
 
 
 func upgradeable_count() -> int:
-	var count := 0
-	for id in _state.tiles:
-		var t := _state.tiles[id] as AIRealState.TileSnap
-		if t.owner != _owner:
-			continue
-		for building in t.buildings:
-			if building != null and not building.upgrades_to.is_empty():
-				count += 1
-	return count
+	return AISnapshotFacts._upgradeable_buildings(_state, _owner)
 
 
 func buildable_slots() -> int:
-	var total := 0
-	for id in _state.tiles:
-		var t := _state.tiles[id] as AIRealState.TileSnap
-		if t.owner == _owner:
-			total += maxi(0, t.max_buildings - t.buildings.size())
-	return total
+	return AISnapshotFacts._buildable_slots(_state, _owner)
 
 
 func change_location_target_count(target_type: int) -> int:
@@ -376,20 +358,26 @@ func open_front_win_factor(enemy_tile, biome_factor: float) -> float:
 	var own_atk := 0.0
 	for t in _emp.troop_pool:
 		own_atk += float(t.attack)
-	own_atk *= biome_factor
+	own_atk *= biome_factor * _emp.combat_multiplier
 	var rival_def := 0.0
 	for b in e.buildings:
 		if b != null:
 			rival_def += float(b.flat_defense_bonus)
-	rival_def *= AIRealCombat._biome().get_defense_multiplier(e.biome)
+	var biome_def := AIRealCombat._biome().get_defense_multiplier(e.biome)
+	var rival_troop_def := 0.0
 	for f in _state.fronts:
 		var front := f as AIRealState.FrontSnap
 		if front.is_resolved:
 			continue
 		if front.defender_tile_id == e.id and front.defender_owner == enemy:
 			for t in front.defender_troops:
-				rival_def += float(t.defense)
+				rival_troop_def += float(t.defense)
 			break
+	# Espejo de CombatMath (igual en el mundo vivo): los edificios defienden PLANOS;
+	# solo las tropas pasan por el bioma y por la penalización económica. El ataque
+	# sigue la misma regla, arriba.
+	var enemy_emp := _state.rival if enemy == AIRealState.OWNER_RIVAL else _state.own
+	rival_def += rival_troop_def * biome_def * enemy_emp.combat_multiplier
 	if own_atk + rival_def > 0.0:
 		var ratio := own_atk / maxf(rival_def, 1.0)
 		win_factor = clampf(ratio / (ratio + 1.0), _w.openfront_win_min, _w.openfront_win_max)

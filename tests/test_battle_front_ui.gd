@@ -199,10 +199,12 @@ func test_panel_shows_maintenance_cost_per_side() -> void:
 	var tile_b := _create_tile(Tile.biome_type.Grassland, empire_b)
 	var front := BattleFront.new(tile_a, tile_b, empire_a, empire_b)
 
-	# Tres tropas → mantenimiento progresivo: 5+10+15 = 30 oro / 30 comida
+	# Tres tropas: cada una paga SU base por la curva del frente. El importe se
+	# deriva de la regla para que el test no se quede fijado a una cifra concreta.
 	front.assign_troop(_create_troop("T1"), BattleFront.Side.ATTACKER)
 	front.assign_troop(_create_troop("T2"), BattleFront.Side.ATTACKER)
 	front.assign_troop(_create_troop("T3"), BattleFront.Side.ATTACKER)
+	var maint := front.get_front_maintenance(BattleFront.Side.ATTACKER)
 
 	var panel: BattleFrontPanel = BATTLE_FRONT_PANEL.instantiate()
 	panel.setup(front, empire_a)
@@ -212,10 +214,11 @@ func test_panel_shows_maintenance_cost_per_side() -> void:
 	var attacker_text := panel.attacker_stats_label.get_parsed_text()
 	assert_string_contains(attacker_text, "Mant.",
 		"El bloque de stats debe etiquetar el coste de mantenimiento")
-	assert_string_contains(attacker_text, "-30 oro",
-		"Debe reflejar el oro extra que el frente está consumiendo")
-	assert_string_contains(attacker_text, "-30 comida",
-		"Debe reflejar la comida extra que el frente está consumiendo")
+	assert_string_contains(attacker_text, "-%d oro" % maint["gold"],
+		"Debe reflejar el oro que el frente está consumiendo")
+	assert_string_contains(attacker_text, "-%d comida" % maint["food"],
+		"Debe reflejar la comida que el frente está consumiendo")
+	assert_gt(maint["gold"], 0, "precondición: la guarnición debe costar algo")
 
 	panel.queue_free()
 

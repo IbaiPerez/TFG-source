@@ -331,14 +331,30 @@ func test_tactic_replaces_previous() -> void:
 #  Asignación de tropas
 # ============================================================
 
-func test_assign_fills_up_to_min() -> void:
-	var s := _two_tile_state()
-	var front := AIRealEffects.apply_open_front(s, 0, 1)
+func test_assign_reparte_segun_la_economia_sin_conteo_fijo() -> void:
+	# Ya no hay un mínimo ni un máximo: cuántas tropas entran depende de la comida y
+	# del oro. Lo que sí es invariante es que ninguna se cree ni se pierda, y que con
+	# más holgura entren más.
+	var pobre := _two_tile_state()
+	pobre.own.food = 0
+	pobre.own.gold_per_turn = 0
+	var f_pobre := AIRealEffects.apply_open_front(pobre, 0, 1)
 	for _i in range(5):
-		s.own.troop_pool.append(_make_troop(Troop.TroopType.INFANTERIA_LIGERA, 6, 4))
-	AIRealCombat.assign_troops_to_fronts(s, AIRealState.OWNER_SELF)
-	assert_eq(front.attacker_troops.size(), 3, "Primera pasada llena hasta MIN (3)")
-	assert_eq(s.own.troop_pool.size(), 2, "Quedan 2 tropas en el pool")
+		pobre.own.troop_pool.append(_make_troop(Troop.TroopType.INFANTERIA_LIGERA, 6, 4))
+	AIRealCombat.assign_troops_to_fronts(pobre, AIRealState.OWNER_SELF)
+	assert_eq(f_pobre.attacker_troops.size() + pobre.own.troop_pool.size(), 5,
+		"El reparto no puede crear ni perder tropas")
+
+	var rico := _two_tile_state()
+	rico.own.food = 400
+	rico.own.gold_per_turn = 400
+	var f_rico := AIRealEffects.apply_open_front(rico, 0, 1)
+	for _i in range(5):
+		rico.own.troop_pool.append(_make_troop(Troop.TroopType.INFANTERIA_LIGERA, 6, 4))
+	AIRealCombat.assign_troops_to_fronts(rico, AIRealState.OWNER_SELF)
+
+	assert_gt(f_rico.attacker_troops.size(), f_pobre.attacker_troops.size(),
+		"Con la despensa llena deben entrar más tropas que en la ruina")
 
 
 func test_assign_best_troop_by_role_attacker() -> void:
@@ -376,14 +392,21 @@ func test_economy_subtracts_front_surcharge() -> void:
 	(s.tiles[0] as AIRealState.TileSnap).resource_gold = 50
 	(s.tiles[0] as AIRealState.TileSnap).resource_food = 20
 	var front := AIRealEffects.apply_open_front(s, 0, 1)
-	# 2 tropas asignadas como atacante: recargo +5 y +10 = 15 oro y 15 comida.
+	# Dos tropas guarnecidas: cada una paga SU base por la curva del frente. Las
+	# tropas de antes tenían mantenimiento 0, así que con la regla nueva no habrían
+	# restado nada y el test habría pasado sin comprobar nada.
 	front.attacker_troops = [
-		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 0, 0),
-		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 0, 0),
+		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 5, 2),
+		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 5, 2),
 	]
 	AIRealSimulator.recompute_own_economy(s)
-	assert_eq(s.own.gold_per_turn, 35, "gpt = tile(50) − recargo(5+10)")
-	assert_eq(s.own.food, 5, "food = tile(20) − recargo(5+10)")
+
+	var oro := int(round(5 * CombatMath.front_gold_upkeep_multiplier(1)
+		+ 5 * CombatMath.front_gold_upkeep_multiplier(2)))
+	var comida := int(round(2 * CombatMath.front_food_upkeep_multiplier(1)
+		+ 2 * CombatMath.front_food_upkeep_multiplier(2)))
+	assert_eq(s.own.gold_per_turn, 50 - oro, "gpt = tile(50) − guarnición")
+	assert_eq(s.own.food, 20 - comida, "food = tile(20) − guarnición")
 
 
 func test_combat_multiplier_drops_on_deficit() -> void:
@@ -486,8 +509,8 @@ func test_advance_turn_assigns_and_ticks_front() -> void:
 	for _i in range(3):
 		s.own.troop_pool.append(_make_troop(Troop.TroopType.INFANTERIA_LIGERA, 6, 4, 30, 0, 0))
 	AIRealSimulator.advance_turn(s)
-	assert_eq(front.attacker_troops.size(), 3,
-		"advance_turn asigna las tropas del pool al frente")
+	assert_gt(front.attacker_troops.size(), 0,
+		"advance_turn asigna tropas del pool al frente")
 	assert_eq(front.turns_elapsed, 1, "advance_turn tickea el frente una vez")
 
 

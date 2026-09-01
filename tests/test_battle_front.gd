@@ -302,9 +302,22 @@ func test_front_maintenance_scales_progressively() -> void:
 	front.assign_troop(t3, BattleFront.Side.ATTACKER)
 
 	var maint := front.get_front_maintenance(BattleFront.Side.ATTACKER)
-	# 5 + 10 + 15 = 30
-	assert_eq(maint["gold"], 30, "Mantenimiento progresivo: 5+10+15 = 30 oro")
-	assert_eq(maint["food"], 30, "Mantenimiento progresivo: 5+10+15 = 30 comida")
+	# Cada tropa paga SU base por la curva del frente: base·(1 + g + g²).
+	# Se deriva de la regla, no de un literal: si la curva cambia, el test la sigue.
+	var curva_oro := CombatMath.front_gold_upkeep_multiplier(1) \
+		+ CombatMath.front_gold_upkeep_multiplier(2) \
+		+ CombatMath.front_gold_upkeep_multiplier(3)
+	var curva_comida := CombatMath.front_food_upkeep_multiplier(1) \
+		+ CombatMath.front_food_upkeep_multiplier(2) \
+		+ CombatMath.front_food_upkeep_multiplier(3)
+	assert_eq(maint["gold"], int(round(t1.maintenance_gold * curva_oro)),
+		"Tres tropas iguales pagan su base en oro por la curva del frente")
+	assert_eq(maint["food"], int(round(t1.maintenance_food * curva_comida)),
+		"Idem en comida")
+	assert_gt(maint["gold"], t1.maintenance_gold * 3,
+		"El frente encarece: tres tropas cuestan más que tres veces una")
+	assert_gt(curva_comida, curva_oro,
+		"La comida debe escalar MÁS que el oro: es la que limita las guarniciones")
 
 
 func test_front_maintenance_empty() -> void:

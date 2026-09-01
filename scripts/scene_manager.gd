@@ -304,7 +304,8 @@ func _on_battle_front_selected(front: BattleFront) -> void:
 		existing.queue_free()
 
 	var panel: BattleFrontPanel = BATTLE_FRONT_PANEL.instantiate()
-	panel.setup(front, player_handler.stats.empire)
+	panel.setup(front, player_handler.stats.empire,
+		player_handler.stats.modifier_manager)
 	panel.assign_troop_requested.connect(_on_assign_troop_requested.bind(player_handler))
 	ui_layer.add_child(panel)
 

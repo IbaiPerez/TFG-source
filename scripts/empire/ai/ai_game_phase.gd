@@ -4,47 +4,56 @@ class_name AIGamePhase
 ## Determina la fase de la partida según el estado económico y territorial,
 ## no según el turno, para que sea independiente del tamaño del mapa.
 ##
-## EARLY  gpt < 100  Y  tiles < 12   — ambas condiciones necesarias.
-##        Un empire pequeño pero rico (mapa mini con muchos edificios)
-##        ya ha superado la fase inicial aunque lleve pocos turnos.
-## LATE   gpt ≥ 350  O  tiles ≥ 30   — una sola condición es suficiente.
-##        Controlar mucho territorio o tener alta producción indica madurez.
+## EARLY  cuota < phase_early_share  Y  gpt < phase_early_gpt — ambas necesarias.
+##        Un imperio pequeño pero rico (mapa mini con muchos edificios) ya ha
+##        superado la fase inicial aunque lleve pocos turnos.
+## LATE   cuota >= phase_late_share  O  gpt >= phase_late_gpt escalado al mapa —
+##        una sola condición basta: mucho territorio o mucha producción es madurez.
 ## MID    todo lo demás.
+##
+## Los umbrales son PESOS (HeuristicWeights), no reglas: ninguna regla del juego
+## depende de la fase, solo la IA la lee para elegir curva de urgencia y pesos. Con
+## `w == null` se usan los pesos por defecto.
 
 enum Phase { EARLY, MID, LATE }
 
-## Detecta la fase de la partida.
-## Si total_map_tiles > 0, usa territory_share en lugar de umbrales absolutos
-## (evita entrar en LATE con el 11% del mapa en mapas grandes).
-## Si total_map_tiles == 0 usa el comportamiento legacy para compatibilidad
-## con tests y contextos sin mapa (AIEventResolver).
-static func detect(stats: Stats, total_map_tiles: int = 0) -> Phase:
+## Fallback sin info de mapa (logs de simulación, contextos sin WorldMap): umbrales
+## ABSOLUTOS de casillas. No son pesos a propósito — en partida real siempre se
+## conoce el tamaño del mapa, así que esta rama no daría señal al optimizador.
+const LATE_TILES_NO_MAP: int = 30
+const EARLY_TILES_NO_MAP: int = 12
+
+
+## Detecta la fase de la partida sobre el mundo vivo.
+static func detect(stats: Stats, total_map_tiles: int = 0,
+		w: HeuristicWeights = null) -> Phase:
 	var tiles := stats.empire.controlled_tiles.size() if stats.empire != null else 0
-	return detect_from(stats.gold_per_turn, tiles, total_map_tiles)
+	return detect_from(stats.gold_per_turn, tiles, total_map_tiles, w)
 
 
-## Regla de fase, escrita UNA sola vez sobre primitivas. Antes estaba
-## duplicada aquí y en AIRealEval.detect_phase con los mismos umbrales; solo
-## difería en CÓMO obtiene cada mundo el gpt y el recuento de casillas (Stats vs
-## AIRealState), así que el recorrido se queda en cada llamante y la regla se
-## comparte. `total_map_tiles == 0` → fallback legacy con umbrales absolutos.
-static func detect_from(gpt: int, tiles: int, total_map_tiles: int) -> Phase:
+## Regla de fase, escrita UNA sola vez sobre primitivas. Cada mundo aporta solo
+## CÓMO obtiene el gpt y el recuento de casillas (Stats vs AIRealState); la regla se
+## comparte. `total_map_tiles == 0` → fallback con umbrales absolutos.
+static func detect_from(gpt: int, tiles: int, total_map_tiles: int,
+		w: HeuristicWeights = null) -> Phase:
+	if w == null:
+		w = HeuristicWeights.get_default()
+
 	if total_map_tiles > 0:
 		var share := float(tiles) / float(total_map_tiles)
-		# LATE: ≥30% del mapa O GPT escalado al tamaño del mapa.
-		# El umbral GPT escala linealmente con el mapa (127 tiles = default r=6).
-		var late_gpt := int(float(GameBalance.PHASE_LATE_GPT) * float(total_map_tiles) \
-			/ float(GameBalance.DEFAULT_MAP_TILE_COUNT))
-		if share >= GameBalance.PHASE_LATE_SHARE or gpt >= late_gpt:
+		# El umbral de gpt de LATE escala linealmente con el tamaño del mapa: en un
+		# mapa el doble de grande hace falta el doble de producción para que la
+		# partida esté igual de avanzada.
+		var late_gpt := w.phase_late_gpt * float(total_map_tiles) \
+			/ float(GameBalance.DEFAULT_MAP_TILE_COUNT)
+		if share >= w.phase_late_share or float(gpt) >= late_gpt:
 			return Phase.LATE
-		# EARLY: <8% del mapa Y economía inicial.
-		if share < GameBalance.PHASE_EARLY_SHARE and gpt < GameBalance.PHASE_EARLY_GPT:
+		if share < w.phase_early_share and float(gpt) < w.phase_early_gpt:
 			return Phase.EARLY
 		return Phase.MID
 
-	# Fallback legacy (sin info del mapa):
-	if gpt >= GameBalance.PHASE_LATE_GPT or tiles >= GameBalance.PHASE_LATE_TILES_LEGACY:
+	if float(gpt) >= w.phase_late_gpt or tiles >= LATE_TILES_NO_MAP:
 		return Phase.LATE
-	if gpt < GameBalance.PHASE_EARLY_GPT and tiles < GameBalance.PHASE_EARLY_TILES_LEGACY:
+	if float(gpt) < w.phase_early_gpt and tiles < EARLY_TILES_NO_MAP:
 		return Phase.EARLY
 	return Phase.MID

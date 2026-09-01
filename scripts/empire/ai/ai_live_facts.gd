@@ -45,11 +45,11 @@ static func _card_type_count(card: Card, ctx: AITurnContext) -> int:
 	return maxi(count, 1)
 
 
-## Factor de excedente económico [1.0, 3.0].
-## Cuando el empire tiene oro y comida muy por encima de los umbrales cómodos
-## para su fase, el coste de oportunidad de reclutar o abrir frentes es mínimo
-## y estas acciones se potencian. Requiere food >= 5 (sin margen de comida no
-## se pueden sostener tropas aunque el oro sobre).
+## Factor de excedente económico [1.0, surplus_max].
+## Cuando el empire tiene oro y comida muy por encima de sus umbrales, el coste
+## de oportunidad de reclutar o abrir frentes es mínimo y estas acciones se
+## potencian. Los dos ejes rampan igual: neutro en el umbral, pleno al doblarlo
+## (ver AIEconomy.resource_surplus_factor).
 static func _resource_surplus_factor(ctx: AITurnContext, phase: AIGamePhase.Phase) -> float:
 	if ctx.stats == null:
 		return 1.0
@@ -288,18 +288,20 @@ static func _territory_race_factor(ctx: AITurnContext,
 	var my_tiles := ctx.stats.empire.controlled_tiles.size() \
 		if ctx.stats.empire != null else 0
 	var rival_tiles := rival.empire.controlled_tiles.size()
-	var colonizable := maxi(ctx.colonizable_tiles_count, 0)
+	# Cuota sobre el MAPA, no sobre las casillas en disputa: ver AITerritory.
 	return AITerritory.territory_race_factor(
-		my_tiles, rival_tiles, colonizable, mode, ctx.get_weights())
+		my_tiles, rival_tiles, ctx.total_map_tiles, mode, ctx.get_weights())
 
 
-## Factor de coste: penaliza edificios que consumen una fracción alta del oro.
-## Rango build_cost_min (gasto total) → 1.0 (gasto residual). Suaviza la
-## preferencia por edificios baratos cuando el gold disponible es ajustado.
-static func _build_cost_factor(cost: int, total_gold: int,
+## Factor de coste-eficiencia: coste por unidad de valor del edificio, acotado a
+## [build_cost_min, 1.0]. Solo aplica el default de pesos y delega en AIEconomy.
+##
+## OJO: no tiene ningún llamante de producción — score_build y score_upgrade van
+## directos a AIEconomy.apply_build_cost. Sobrevive solo porque lo usan tests.
+static func _build_cost_factor(cost: int, value: float,
 		w: HeuristicWeights = null) -> float:
 	if w == null: w = HeuristicWeights.get_default()
-	return AIEconomy.build_cost_factor(cost, total_gold, w)
+	return AIEconomy.build_cost_factor(cost, value, w)
 
 
 ## Multiplicador de dificultad de ataque según el bioma de la tile enemiga.

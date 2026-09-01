@@ -89,7 +89,15 @@ static func deck_urgency(deck_size: int, w: HeuristicWeights) -> float:
 
 ## Presión [0.0, 1.0] de UN frente desde la perspectiva de la IA: qué tan cerca de
 ## perderlo. `ai_marker` ya trae el signo propio (marker si atacamos, -marker si
-## defendemos). No se protege la división: `threshold` es siempre ≥ MIN_THRESHOLD.
+## defendemos).
+##
+## `threshold` debe ser el umbral EFECTIVO del turno —`BattleFront.get_current_threshold()`
+## en el vivo, `FrontSnap.current_threshold()` en el snapshot—, no el campo de
+## configuración: el frente se resuelve contra el efectivo, que decae hasta
+## FRONT_MIN_THRESHOLD. Pasar el crudo subestimaba la presión hasta la mitad en los
+## frentes largos, justo los que están a punto de perderse.
+##
+## No se protege la división: el umbral efectivo nunca baja de FRONT_MIN_THRESHOLD.
 static func front_pressure(ai_marker: float, threshold: float) -> float:
 	return clampf(-ai_marker / threshold, 0.0, 1.0)
 

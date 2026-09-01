@@ -11,6 +11,9 @@ signal panel_closed
 ## Referencias al modelo de datos
 var battle_front: BattleFront
 var player_empire: Empire  ## Para saber qué bando es el jugador
+## Para que el mantenimiento mostrado lleve el descuento de modifiers y coincida
+## con lo que ProductionCalculator cobra de verdad. null → sin descuento.
+var modifier_manager: ModifierManager
 
 ## Nodos de la escena (asignados via unique_name_in_owner)
 @onready var title_label: Label = %TitleLabel
@@ -34,9 +37,14 @@ var attacker_color: Color
 var defender_color: Color
 
 
-func setup(front: BattleFront, empire: Empire) -> void:
+## `modifier_manager` es opcional para no romper a quien solo quiere pintar el
+## panel, pero SIN el los costes mostrados no llevarian el descuento de modifiers y
+## el jugador veria un numero distinto del que se le cobra.
+func setup(front: BattleFront, empire: Empire,
+		p_modifier_manager: ModifierManager = null) -> void:
 	battle_front = front
 	player_empire = empire
+	modifier_manager = p_modifier_manager
 
 
 func _ready() -> void:
@@ -139,7 +147,7 @@ func _update_side_stats(side: BattleFront.Side, label: RichTextLabel) -> void:
 	var pressure := battle_front.get_pressure(side)
 	var troops_atk := battle_front.get_assigned_troops_attack(side)
 	var troops_def := battle_front.get_assigned_troops_defense(side)
-	var maint: Dictionary = battle_front.get_front_maintenance(side)
+	var maint: Dictionary = battle_front.get_front_maintenance(side, modifier_manager)
 
 	# Multiplicador medio efectivo contra la composición enemiga.
 	# Sirve para mostrar al jugador si su lineup está siendo super/no efectivo.

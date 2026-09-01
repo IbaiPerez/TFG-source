@@ -141,16 +141,22 @@ func apply_bonus_to_front(front: BattleFront, side: BattleFront.Side, bonus: Var
 	Events.battle_front_bonus_applied.emit(front, side)
 
 
-## Obtiene el coste total de mantenimiento extra por tropas en frentes.
-## Retorna { "gold": int, "food": int }.
+## Coste total de mantenimiento de las tropas guarnecidas en frentes.
+## Incluye el descuento de modifiers, para que coincida con lo que cobra
+## ProductionCalculator. Retorna { "gold": int, "food": int }.
 func get_total_front_maintenance(side: BattleFront.Side) -> Dictionary:
 	var total_gold: int = 0
 	var total_food: int = 0
 	for front in active_fronts:
-		var maint := front.get_front_maintenance(side)
+		var maint := front.get_front_maintenance(side, _own_modifier_manager())
 		total_gold += maint["gold"]
 		total_food += maint["food"]
 	return { "gold": total_gold, "food": total_food }
+
+
+## ModifierManager propio, si lo hay (tests aislados pueden no tener stats).
+func _own_modifier_manager() -> ModifierManager:
+	return stats.modifier_manager if stats != null else null
 
 
 ## Busca un frente activo que involucre una tile específica.

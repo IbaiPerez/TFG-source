@@ -28,8 +28,13 @@ func _make_tile(p_controller: Empire = null) -> Tile:
 
 func _make_stats(p_gold: int = 100) -> Stats:
 	# event_chance a 0.0: estos tests no van de eventos y no quieren que se disparen.
+	#
+	# gpt y comida holgados a propósito: el reparto de tropas decide por coste
+	# marginal, así que con la economía en ruina (gpt 0 = urgencia de oro máxima) casi
+	# nada compensa y los tests de MECÁNICA del reparto no llegarían a ejercitarla.
+	# Antes daba igual porque el reparto obedecía a dos constantes.
 	return TestBuilders.stats() \
-		.with_gold(p_gold).with_gpt(0).with_food(5).with_cards_per_turn(3) \
+		.with_gold(p_gold).with_gpt(120).with_food(40).with_cards_per_turn(3) \
 		.with_turn(0).with_empire(_make_empire()) \
 		.with_event_chance(0.0).build()
 
@@ -382,10 +387,10 @@ func test_max_iterations_caps_loop() -> void:
 # ============================================================
 #
 # La IA del jugador asigna tropas via BattleFrontPanel + SceneManager.
-# La AI no tiene UI, asi que rellena cada frente propio con
-# MIN_TROOPS_PER_FRONT tropas del pool al inicio del turno. Hasta que
-# se sustituya por una heuristica con prioridad, estos tests fijan el
-# contrato: side correcto, no toca frentes ajenos, respeta el minimo,
+# La AI no tiene UI, asi que reparte sus tropas al inicio del turno decidiendo por
+# VALOR MARGINAL: sin suelo ni techo, mientras meter una mas aporte mas de lo que
+# cuesta. Estos tests fijan lo que sigue siendo contrato: side correcto, no toca
+# frentes ajenos, la urgencia reparte, y ninguna tropa se crea ni se pierde,
 # no falla con pool vacio y reparte hasta agotar el pool.
 
 func _make_troop_for_assign(p_name: String = "T", p_cost: int = 10) -> Troop:
@@ -394,7 +399,11 @@ func _make_troop_for_assign(p_name: String = "T", p_cost: int = 10) -> Troop:
 	t.attack = 3
 	t.defense = 3
 	t.recruitment_cost_gold = p_cost
-	t.maintenance_gold = 1
+	# Mantenimiento REALISTA (milicia: 12 oro / 1 comida). Antes era 1/1, un valor
+	# "me da igual" que ahora decide: al asignar, la tropa sale del pool y deja de
+	# pagarlo, y ese ahorro es lo que hace baratas las primeras tropas de un frente.
+	# Con 1 de oro no había ahorro y el reparto salía artificialmente tacaño.
+	t.maintenance_gold = 12
 	t.maintenance_food = 1
 	return t
 
@@ -427,12 +436,14 @@ func test_assign_fills_attacker_front_up_to_min_troops() -> void:
 
 	ai._assign_troops_to_fronts()
 
-	assert_eq(front.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
-		"Debe rellenar el frente atacante hasta MIN_TROOPS_PER_FRONT")
+	# Ya no hay minimo fijo: se asigna mientras compense. Sigue siendo invariante
+	# el BANDO y que ninguna tropa aparezca ni desaparezca.
+	assert_gt(front.attacker_troops.size(), 0,
+		"Un frente propio recien abierto debe recibir tropas")
 	assert_eq(front.defender_troops.size(), 0,
 		"No debe asignar tropas al bando defensor del frente")
-	assert_eq(stats.troop_pool.size(), 1,
-		"Solo el sobrante debe quedar en el pool")
+	assert_eq(front.attacker_troops.size() + stats.troop_pool.size(), 4,
+		"El reparto no puede crear ni perder tropas")
 	BattleFront.clear_active_instances()
 
 
@@ -451,11 +462,12 @@ func test_assign_fills_defender_front_up_to_min_troops() -> void:
 
 	ai._assign_troops_to_fronts()
 
-	assert_eq(front.defender_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
-		"Debe rellenar el frente defensor hasta MIN_TROOPS_PER_FRONT")
+	assert_gt(front.defender_troops.size(), 0,
+		"Defendiendo tambien debe recibir tropas")
 	assert_eq(front.attacker_troops.size(), 0,
 		"No debe asignar tropas al bando atacante (es del rival)")
-	assert_eq(stats.troop_pool.size(), 0)
+	assert_eq(front.defender_troops.size() + stats.troop_pool.size(), 3,
+		"El reparto no puede crear ni perder tropas")
 	BattleFront.clear_active_instances()
 
 
@@ -508,12 +520,12 @@ func test_assign_distributes_until_pool_exhausted_across_fronts() -> void:
 	ai._assign_troops_to_fronts()
 
 	var total := f1.attacker_troops.size() + f2.attacker_troops.size()
-	assert_eq(total, 5, "Las 5 tropas deben repartirse entre los dos frentes")
-	assert_true(f1.attacker_troops.size() <= AIController.MIN_TROOPS_PER_FRONT,
-		"Ningún frente supera MIN en equilibrio (primera pasada)")
-	assert_true(f2.attacker_troops.size() <= AIController.MIN_TROOPS_PER_FRONT,
-		"Ningún frente supera MIN en equilibrio (primera pasada)")
-	assert_eq(stats.troop_pool.size(), 0, "Pool agotado")
+	# Ya no se vacía el pool por obligación: se para cuando meter una más deja de
+	# compensar. Lo invariante es que se reparta entre los dos y no se pierda ninguna.
+	assert_gt(f1.attacker_troops.size(), 0, "El reparto no puede dejar un frente vacío")
+	assert_gt(f2.attacker_troops.size(), 0, "El reparto no puede dejar un frente vacío")
+	assert_eq(total + stats.troop_pool.size(), 5,
+		"El reparto no puede crear ni perder tropas")
 	BattleFront.clear_active_instances()
 
 
@@ -545,9 +557,10 @@ func test_assign_uses_global_active_instances_for_external_front() -> void:
 
 	ai._assign_troops_to_fronts()
 
-	assert_eq(front.defender_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
-		"Defensor debe llenar el frente externo via registro global")
-	assert_eq(stats.troop_pool.size(), 0)
+	assert_gt(front.defender_troops.size(), 0,
+		"Defensor debe reforzar el frente externo via registro global")
+	assert_eq(front.defender_troops.size() + stats.troop_pool.size(), 3,
+		"El reparto no puede crear ni perder tropas")
 	BattleFront.clear_active_instances()
 
 
@@ -587,13 +600,15 @@ func test_assign_does_not_top_up_already_satisfied_front() -> void:
 	var ai := _spawn_ai(stats)
 	var enemy := _make_empire("Enemy")
 	var front := _push_front_into_manager(ai, stats.empire, enemy)
-	for i in range(AIController.MIN_TROOPS_PER_FRONT):
+	for i in range(5):
 		front.attacker_troops.append(_make_troop_for_assign("pre%d" % i))
 
 	ai._assign_troops_to_fronts()
 
-	assert_eq(front.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
-		"No debe pasar del minimo si ya estaba lleno")
+	# Ya no lo frena un techo sino el recargo progresivo: con 5 dentro, la sexta
+	# cuesta 30 de oro y 30 de comida por turno y deja de compensar.
+	assert_eq(front.attacker_troops.size(), 5,
+		"Con el frente cargado, el coste marginal debe frenar la siguiente")
 	assert_eq(stats.troop_pool.size(), 1,
 		"La tropa sobrante se queda en el pool")
 	BattleFront.clear_active_instances()
@@ -609,7 +624,7 @@ func test_assign_prioritizes_losing_front_when_pool_is_limited() -> void:
 	BattleFront.clear_active_instances()
 	var stats := _make_stats()
 	stats.troop_pool = []
-	for i in range(AIController.MIN_TROOPS_PER_FRONT):
+	for i in range(3):
 		stats.troop_pool.append(_make_troop_for_assign("t%d" % i))
 	var ai := _spawn_ai(stats)
 	var enemy := _make_empire("Enemy")
@@ -620,53 +635,49 @@ func test_assign_prioritizes_losing_front_when_pool_is_limited() -> void:
 
 	ai._assign_troops_to_fronts()
 
-	assert_eq(f_losing.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
-		"Frente donde se pierde debe llenarse antes")
-	assert_eq(f_balanced.attacker_troops.size(), 0,
-		"Frente equilibrado no recibe tropas si el pool se agotó")
+	assert_gt(f_losing.attacker_troops.size(), f_balanced.attacker_troops.size(),
+		"Con el pool limitado, el frente que se pierde debe llevarse más tropas")
 	assert_eq(stats.troop_pool.size(), 0)
 	BattleFront.clear_active_instances()
 
 
-func test_assign_second_pass_reinforces_losing_front() -> void:
-	# Frente con marker negativo (base_urgency > 1.5): debe recibir hasta
-	# MIN + 2 tropas si el pool lo permite.
+func test_assign_un_frente_que_se_pierde_recibe_tropas() -> void:
+	# Ya no hay "segunda pasada" ni MIN+2: la urgencia entra en el valor marginal.
 	BattleFront.clear_active_instances()
 	var stats := _make_stats()
 	stats.troop_pool = []
-	for i in range(AIController.MIN_TROOPS_PER_FRONT + 2):
+	for i in range(5):
 		stats.troop_pool.append(_make_troop_for_assign("t%d" % i))
 	var ai := _spawn_ai(stats)
 	var enemy := _make_empire("Enemy")
 	var front := _push_front_into_manager(ai, stats.empire, enemy)
-	front.marker = -4.0  # perdiendo (base_urgency 2.0 > 1.5)
+	front.marker = -4.0  # perdiendo (base_urgency 2.0)
 
 	ai._assign_troops_to_fronts()
 
-	assert_eq(front.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT + 2,
-		"Frente donde se pierde debe recibir MIN + 2 con pool suficiente")
-	assert_eq(stats.troop_pool.size(), 0)
+	assert_gt(front.attacker_troops.size(), 0,
+		"Un frente que se pierde debe recibir tropas")
 	BattleFront.clear_active_instances()
 
 
-func test_assign_second_pass_does_not_reinforce_balanced_front() -> void:
-	# Frente en equilibrio (base_urgency = 1.5): no supera MIN aunque haya tropas.
+func test_assign_la_urgencia_reparte_mas_al_frente_comprometido() -> void:
+	# La urgencia ya no decide un umbral de refuerzo: pondera el valor marginal.
 	BattleFront.clear_active_instances()
 	var stats := _make_stats()
 	stats.troop_pool = []
-	for i in range(AIController.MIN_TROOPS_PER_FRONT + 2):
+	for i in range(6):
 		stats.troop_pool.append(_make_troop_for_assign("t%d" % i))
 	var ai := _spawn_ai(stats)
 	var enemy := _make_empire("Enemy")
-	var front := _push_front_into_manager(ai, stats.empire, enemy)
-	front.marker = 0.0  # equilibrio (base_urgency 1.5, NOT > 1.5)
+	var equilibrio := _push_front_into_manager(ai, stats.empire, enemy)
+	equilibrio.marker = 0.0
+	var perdiendo := _push_front_into_manager(ai, stats.empire, enemy)
+	perdiendo.marker = -8.0
 
 	ai._assign_troops_to_fronts()
 
-	assert_eq(front.attacker_troops.size(), AIController.MIN_TROOPS_PER_FRONT,
-		"Frente en equilibrio no se refuerza más allá de MIN")
-	assert_eq(stats.troop_pool.size(), 2,
-		"Las 2 tropas de refuerzo quedan sin usar en el pool")
+	assert_gt(perdiendo.attacker_troops.size(), equilibrio.attacker_troops.size(),
+		"A igualdad de todo lo demás, la urgencia debe atraer más tropas")
 	BattleFront.clear_active_instances()
 
 

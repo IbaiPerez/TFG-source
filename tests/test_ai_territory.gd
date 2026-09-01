@@ -23,12 +23,16 @@ func _colonizables_para_ratio(ratio: float, controladas: int) -> int:
 	return int(round(ratio * controladas))
 
 
-## Reparto de casillas que produce las cuotas pedidas. El resto va a libres.
+## Reparto que produce las cuotas pedidas SOBRE EL MAPA. Devuelve
+## [mías, rival, total_map_tiles]; el resto del mapa queda sin colonizar.
+##
+## El tercer elemento era antes el conteo de colonizables, porque la cuota se
+## normalizaba contra las casillas «en disputa». Al pasar a normalizar contra el
+## mapa, ese hueco lo ocupa el tamaño del mapa: si no se actualizara, estos tests
+## seguirían pasando pero midiendo cuotas completamente distintas.
 func _reparto(my_share: float, rival_share: float) -> Array[int]:
 	var total := 1000
-	var mias := int(round(my_share * total))
-	var rival := int(round(rival_share * total))
-	return [mias, rival, total - mias - rival]
+	return [int(round(my_share * total)), int(round(rival_share * total)), total]
 
 
 # ------------------------------------------------------------------
@@ -135,18 +139,23 @@ func test_territory_race_open_front_shares_colonize_logic() -> void:
 		"open_front y colonize comparten la lógica de carrera")
 
 
-func test_territory_race_economy_mode() -> void:
+func test_el_modo_economy_fue_eliminado_y_es_neutro() -> void:
+	# La rama existía pero NINGÚN llamante de producción la usaba: solo este test la
+	# mantenía viva, dándole apariencia de función. Su peso (tr_econ_factor) era
+	# además una dimensión del optimizador sobre la que el fitness es plano.
 	var w := _w()
-	# Con ventaja territorial, la economía vale MENOS: es un descuento, no un bonus.
 	var cierre := _reparto(w.tr_close_share + 0.05, 0.10)
 	assert_almost_eq(AITerritory.territory_race_factor(
-		cierre[0], cierre[1], cierre[2], &"economy", w), w.tr_econ_factor, 0.001)
-	assert_lt(w.tr_econ_factor, NEUTRO, "en modo economía el factor descuenta")
+		cierre[0], cierre[1], cierre[2], &"economy", w), NEUTRO, 0.001,
+		"un modo sin llamante debe ser neutro, no aplicar un peso fantasma")
 
-	# Sin ventaja no descuenta nada.
-	var neutro := _reparto(0.30, 0.30)
-	assert_almost_eq(AITerritory.territory_race_factor(
-		neutro[0], neutro[1], neutro[2], &"economy", w), NEUTRO, 0.001)
+
+func test_sin_conteo_de_mapa_no_se_amplifica() -> void:
+	# total_map_tiles == 0 es el caso de los tests sin mapa: sin saber el tamaño no
+	# se puede juzgar la carrera.
+	var w := _w()
+	assert_almost_eq(AITerritory.territory_race_factor(500, 100, 0, &"colonize", w),
+		NEUTRO, 0.001)
 
 
 func test_territory_race_modo_desconocido_es_neutro() -> void:

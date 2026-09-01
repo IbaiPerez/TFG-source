@@ -25,7 +25,7 @@ func food() -> int:
 
 
 func phase() -> AIGamePhase.Phase:
-	return AIGamePhase.detect(_ctx.stats, _ctx.total_map_tiles)
+	return AIGamePhase.detect(_ctx.stats, _ctx.total_map_tiles, weights())
 
 
 func turn_number() -> int:
@@ -313,6 +313,12 @@ func recoverable_cards() -> Array[Card]:
 	return result
 
 
+## Penalización de combate por déficit económico. 1.0 si no hay imperio (tests
+## aislados), que es el valor neutro del propio Empire.
+func _combat_multiplier_of(e: Empire) -> float:
+	return e.combat_multiplier if e != null else 1.0
+
+
 func open_front_win_factor(enemy_tile, biome_factor: float) -> float:
 	var w := weights()
 	var win_factor := w.openfront_win_default
@@ -325,13 +331,17 @@ func open_front_win_factor(enemy_tile, biome_factor: float) -> float:
 	var own_atk := 0.0
 	for t in _ctx.stats.troop_pool:
 		own_atk += float(t.attack)
-	own_atk *= biome_factor
+	# Espejo de CombatMath.total_attack: el ataque de TROPAS pasa por el bioma y
+	# por la penalización económica del imperio.
+	own_atk *= biome_factor * _combat_multiplier_of(_ctx.stats.empire)
 	var rival_def := 0.0
 	for b in e.buildings:
 		if b != null:
 			rival_def += float(b.flat_defense_bonus)
+	var biome_def := 1.0
 	if e.mesh_data != null:
-		rival_def *= BiomeConfig.shared().get_defense_multiplier(e.mesh_data.type)
+		biome_def = BiomeConfig.shared().get_defense_multiplier(e.mesh_data.type)
+	var rival_troop_def := 0.0
 	var all_fronts := _ctx._cache_active_fronts if _ctx._cache_valid \
 		else _ctx.get_front_registry().get_active_instances()
 	for front in all_fronts:
@@ -339,8 +349,11 @@ func open_front_win_factor(enemy_tile, biome_factor: float) -> float:
 			continue
 		if front.defender_tile == e and front.defender_empire == rival.empire:
 			for t in front.defender_troops:
-				rival_def += float(t.defense)
+				rival_troop_def += float(t.defense)
 			break
+	# Espejo de CombatMath.total_defense: los edificios quedan PLANOS y solo la
+	# defensa de tropas pasa por el bioma y por la penalización económica.
+	rival_def += rival_troop_def * biome_def * _combat_multiplier_of(rival.empire)
 	if own_atk + rival_def > 0.0:
 		var ratio := own_atk / maxf(rival_def, 1.0)
 		return clampf(ratio / (ratio + 1.0), w.openfront_win_min, w.openfront_win_max)

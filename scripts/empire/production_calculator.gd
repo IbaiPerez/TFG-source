@@ -26,8 +26,11 @@ class_name ProductionCalculator
 ##      (los costes negativos no se amplifican).
 ##   4. Resta el mantenimiento base de tropas, con el descuento porcentual
 ##      clampeado por `ModifierManager.clamp_cost_multiplier`.
-##   5. Resta el recargo escalado por tropas asignadas a frentes (NO se
-##      le aplica el descuento porcentual: el recargo es de coste plano).
+##   5. Resta el mantenimiento de las tropas GUARNECIDAS en frentes: su coste
+##      base multiplicado por la curva del frente, distinta para oro y comida
+##      (CombatMath.front_gold/food_upkeep_multiplier).
+##      Estas tropas no estan en `troop_pool`, asi que el paso 4 no las cuenta: cada
+##      tropa se cobra exactamente una vez.
 
 var stats: Stats
 var modifier_manager: ModifierManager
@@ -46,6 +49,11 @@ func _init(p_stats: Stats, p_modifier_manager: ModifierManager,
 ## Devuelve un Dictionary con los campos:
 ##   - `gold` (int): Oro neto del turno (lo que va a `gold_per_turn`).
 ##   - `food` (int): Comida neta del turno (lo que va a `food`).
+##   - `base_gold` / `base_food` (int): produccion BRUTA (tiles + modifiers),
+##     antes de restar mantenimiento y recargo. Neto y bruto no se pueden
+##     derivar el uno del otro desde fuera, y sin el bruto no se distingue
+##     "produce poco" de "gasta mucho": el mismo gpt sale de mucha produccion
+##     con mucha guarnicion o de poca de las dos.
 ##   - `base_troop_gold` (int): Mantenimiento base de tropas en oro.
 ##   - `base_troop_food` (int): Mantenimiento base de tropas en comida.
 ##   - `front_surcharge_gold` (int): Recargo de frentes en oro.
@@ -67,6 +75,8 @@ func calculate_turn() -> Dictionary:
 	return {
 		"gold": final_gold,
 		"food": final_food,
+		"base_gold": base["gold"],
+		"base_food": base["food"],
 		"base_troop_gold": maint["gold"],
 		"base_troop_food": maint["food"],
 		"front_surcharge_gold": fronts["gold"],
@@ -108,12 +118,12 @@ func _calculate_troop_maintenance() -> Dictionary:
 	return { "gold": total_gold, "food": total_food }
 
 
-## Paso 5: recargo escalado por tropas asignadas a frentes activos.
+## Paso 5: mantenimiento de las tropas guarnecidas en frentes activos.
 ##
-## NO se aplica descuento porcentual: el recargo es un coste plano cuyo
-## escalado se rompe si lo descontaramos. La penalizacion economica
-## (`_update_combat_multiplier`) si tiene este recargo en cuenta como
-## parte del mantenimiento total.
+## Cada una paga SU base por la curva del frente, no un recargo plano: guarnecer
+## infanteria pesada cuesta mas que guarnecer milicia. El descuento porcentual de
+## modifiers se aplica igual que en el pool (paso 4) y por-tropa, para que un
+## modificador de imperio no se apague al desplegar la tropa.
 func _calculate_front_surcharges() -> Dictionary:
 	var gold := 0
 	var food := 0
@@ -125,7 +135,7 @@ func _calculate_front_surcharges() -> Dictionary:
 			side = BattleFront.Side.ATTACKER
 		else:
 			side = BattleFront.Side.DEFENDER
-		var maint := front.get_front_maintenance(side)
+		var maint := front.get_front_maintenance(side, modifier_manager)
 		gold += maint["gold"]
 		food += maint["food"]
 	return { "gold": gold, "food": food }

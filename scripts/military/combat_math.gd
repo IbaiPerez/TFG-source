@@ -86,6 +86,30 @@ static func pressure(attack: float, enemy_defense: float) -> float:
 	return attack / (1.0 + enemy_defense)
 
 
+## Multiplicadores del mantenimiento base de la `position`-ésima tropa (1-indexada)
+## de un bando. Convexos y con f(1) = 1.0: la primera paga exactamente su base y cada
+## tropa adicional encarece más que la anterior.
+##
+## La comida crece MÁS DEPRISA que el oro a propósito (ver GameBalance): es lo que
+## hace que sea la comida, y no el oro, la que limite las guarniciones grandes.
+##
+## Compartidos por BattleFront (juego real), AIRealSimulator (snapshot del MCTS) y
+## TroopAssignmentPolicy (la decisión), para que los tres cobren y proyecten las
+## MISMAS curvas.
+static func front_gold_upkeep_multiplier(position: int) -> float:
+	return _front_upkeep(position, GameBalance.FRONT_UPKEEP_GROWTH_GOLD)
+
+
+static func front_food_upkeep_multiplier(position: int) -> float:
+	return _front_upkeep(position, GameBalance.FRONT_UPKEEP_GROWTH_FOOD)
+
+
+static func _front_upkeep(position: int, growth: float) -> float:
+	if position <= 1:
+		return 1.0
+	return pow(growth, float(position - 1))
+
+
 ## Umbral efectivo del frente en el turno actual: decae linealmente desde
 ## `base_threshold` hasta FRONT_MIN_THRESHOLD en FRONT_THRESHOLD_DECAY_TURNS turnos.
 ## No decae si el decay está desactivado o el inicial ya es <= mínimo.

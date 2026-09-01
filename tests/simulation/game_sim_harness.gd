@@ -485,7 +485,7 @@ func _capture_snapshot(round_num: int, ai: AIController) -> Dictionary:
 		"empire": empire.name if empire else "",
 		"ai_label": ai.name,
 		"turn_number": stats.turn_number,
-		"economy": _capture_economy(stats),
+		"economy": _capture_economy(stats, ai),
 		"deck": _capture_deck(stats, ai),
 		"map": _capture_map(empire),
 		"military": _capture_military(stats, ai),
@@ -494,7 +494,7 @@ func _capture_snapshot(round_num: int, ai: AIController) -> Dictionary:
 	}
 
 
-func _capture_economy(stats: Stats) -> Dictionary:
+func _capture_economy(stats: Stats, ai: AIController = null) -> Dictionary:
 	# `combat_multiplier` vive en el Empire y lo recalcula `EmpireController`
 	# cada turno segun el deficit relativo de oro+comida (Opcion 3). Lo
 	# exponemos para poder ver, post-mortem, cuantos snapshots estuvieron en
@@ -508,6 +508,39 @@ func _capture_economy(stats: Stats) -> Dictionary:
 		"food": stats.food,
 		"total_purges_done": stats.total_purges_done,
 		"combat_multiplier": combat_mult,
+		"production": _capture_production(ai),
+	}
+
+
+## Desglose produccion BRUTA / gasto del turno que se acaba de aplicar, leido de
+## `EmpireController.last_production` (no recalculado: para cuando se toma el
+## snapshot el imperio ya ha jugado y el estado no es el del inicio del turno).
+##
+## Sin esto, `gold_per_turn` es un neto opaco: no distingue "produce poco" de
+## "gasta mucho en guarniciones", que es justo lo que hay que separar para juzgar
+## el escalado del coste de frente. `front_*` es la parte que introdujo la regla
+## nueva; `troop_*` es el mantenimiento base del pool.
+func _capture_production(ai: AIController) -> Dictionary:
+	var vacio := {
+		"gross_gold": 0, "gross_food": 0,
+		"troop_gold": 0, "troop_food": 0,
+		"front_gold": 0, "front_food": 0,
+		"net_gold": 0, "net_food": 0,
+		"total_troop_maint": 0,
+	}
+	if ai == null or ai.last_production.is_empty():
+		return vacio
+	var p: Dictionary = ai.last_production
+	return {
+		"gross_gold": p.get("base_gold", 0),
+		"gross_food": p.get("base_food", 0),
+		"troop_gold": p.get("base_troop_gold", 0),
+		"troop_food": p.get("base_troop_food", 0),
+		"front_gold": p.get("front_surcharge_gold", 0),
+		"front_food": p.get("front_surcharge_food", 0),
+		"net_gold": p.get("gold", 0),
+		"net_food": p.get("food", 0),
+		"total_troop_maint": p.get("total_troop_maint", 0),
 	}
 
 
@@ -605,18 +638,31 @@ func _capture_military(stats: Stats, ai: AIController) -> Dictionary:
 	var fronts_as_atk := 0
 	var fronts_as_def := 0
 	var markers := []
+	# Las tropas guarnecidas ya NO estan en `troop_pool`, asi que sin contarlas
+	# aparte el ejercito de un imperio con frentes abiertos parece encogerse.
+	# `garrison_max` es la que decide si la curva de coste esta topando las
+	# guarniciones donde se diseño (el cruce con el lineal cae en 4-5).
+	var garrisoned := 0
+	var garrison_max := 0
 	for front in BattleFront.get_active_instances():
-		if front.attacker_empire == stats.empire:
+		var soy_atacante := front.attacker_empire == stats.empire
+		if soy_atacante:
 			fronts_as_atk += 1
 		if front.defender_empire == stats.empire:
 			fronts_as_def += 1
-		if front.attacker_empire == stats.empire or front.defender_empire == stats.empire:
+		if soy_atacante or front.defender_empire == stats.empire:
+			var propias: int = front.attacker_troops.size() if soy_atacante \
+				else front.defender_troops.size()
+			garrisoned += propias
+			garrison_max = maxi(garrison_max, propias)
 			markers.append({
 				"marker": front.marker,
 				"turns_elapsed": front.turns_elapsed,
+				"threshold": front.get_current_threshold(),
 				"atk_troops": front.attacker_troops.size(),
 				"def_troops": front.defender_troops.size(),
-				"i_am_attacker": front.attacker_empire == stats.empire,
+				"own_troops": propias,
+				"i_am_attacker": soy_atacante,
 			})
 
 	# Historial acumulado de frentes resueltos para este imperio (puede estar
@@ -633,6 +679,9 @@ func _capture_military(stats: Stats, ai: AIController) -> Dictionary:
 
 	return {
 		"troop_pool_size": stats.troop_pool.size(),
+		"troops_garrisoned": garrisoned,
+		"troops_total": stats.troop_pool.size() + garrisoned,
+		"garrison_max": garrison_max,
 		"troops_by_type": by_type,
 		"fronts_as_attacker": fronts_as_atk,
 		"fronts_as_defender": fronts_as_def,
@@ -688,6 +737,11 @@ func _make_snapshot_ctx(ai: AIController) -> AITurnContext:
 	ctx.battle_front_manager = ai.battle_front_manager
 	ctx.rng = RandomNumberGenerator.new()
 	ctx.colonizable_tiles_count = _count_colonizable_tiles(ai.stats.empire)
+	# Sin estos dos, las señales que se registran NO son las que uso la IA: la
+	# fase caia al fallback sin mapa (umbrales absolutos de casillas en vez de
+	# cuota) y los pesos eran los por defecto aunque el config cargara otros.
+	ctx.total_map_tiles = WorldMap.map.size()
+	ctx.config = ai.ai_config
 	return ctx
 
 
@@ -710,8 +764,9 @@ func _capture_heuristic(ai: AIController) -> Dictionary:
 	var stats := ai.stats
 	if stats == null or stats.empire == null:
 		return {}
-	var phase := AIGamePhase.detect(stats)
 	var ctx := _make_snapshot_ctx(ai)
+	var w := ctx.get_weights()
+	var phase := AIGamePhase.detect(stats, ctx.total_map_tiles, w)
 
 	var total := WorldMap.map.size()
 	var controlled := stats.empire.controlled_tiles.size()
@@ -719,8 +774,8 @@ func _capture_heuristic(ai: AIController) -> Dictionary:
 
 	return {
 		"phase": AIGamePhase.Phase.keys()[phase],
-		"gold_urgency": AIDecisionCache._gold_urgency(stats.gold_per_turn, phase),
-		"food_urgency": AIDecisionCache._food_urgency(stats.food, phase),
+		"gold_urgency": AIDecisionCache._gold_urgency(stats.gold_per_turn, phase, w),
+		"food_urgency": AIDecisionCache._food_urgency(stats.food, phase, w),
 		"military_urgency": AIDecisionCache._military_urgency(ctx, phase),
 		"deck_urgency": AIDecisionCache._deck_urgency(ctx),
 		"expansion_factor": AILiveFacts._expansion_factor(ctx),

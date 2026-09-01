@@ -40,7 +40,11 @@ const SPEC := {
 	"encircle_high": {"opt": true}, "encircle_mid": {"opt": true},
 	"encircle_low": {"opt": true}, "encircle_min": {"opt": true},
 	"tr_close_factor": {"opt": true}, "tr_lead_factor": {"opt": true},
-	"tr_block_factor": {"opt": true}, "tr_econ_factor": {"opt": true, "unit": true},
+	"tr_block_factor": {"opt": true},
+	# tr_econ_factor NO entra: su rama (mode "economy") no tenía ningún llamante, así
+	# que el fitness era PLANO en esa dirección y SA/GA solo hacía un paseo aleatorio
+	# por ella —el campeón la dejó en 0.588 sin que eso cambiara una sola partida—.
+	# Una dimensión inerte no es gratis: consume evaluaciones, que aquí son partidas.
 	# Edificios
 	"gold_weight_pos": {"opt": true}, "gold_weight_maint": {"opt": true},
 	"food_weight": {"opt": true}, "defense_weight": {"opt": true},
@@ -68,6 +72,18 @@ const SPEC := {
 	# Efectos de edificio
 	"se_flat_gold": {"opt": true}, "se_flat_food": {"opt": true},
 	"se_card_draw": {"opt": true}, "se_tpr_base": {"opt": true}, "se_tpr_mu": {"opt": true},
+	# Va al FINAL de las entradas opt a propósito: el orden de declaración define el
+	# layout del vector, así que añadir aquí conserva los índices de todas las demás
+	# y el .tres del campeón sigue siendo válido (serializa por nombre, no por
+	# posición). Insertarla en su grupo temático habría desplazado 20 dimensiones.
+	"build_cost_ref": {"opt": true}, "assign_power_weight": {"opt": true},
+	# Fronteras de fase. Las cuotas van "unit" porque son fracciones del mapa: la
+	# regla general [d*0.25, d*4] llevaría phase_late_share a 1.2, una cuota
+	# inalcanzable que apagaría la rama entera. Los umbrales de gpt sí usan la regla
+	# general. `validate` impide que EARLY y LATE se crucen.
+	"phase_late_share": {"opt": true, "unit": true},
+	"phase_early_share": {"opt": true, "unit": true},
+	"phase_early_gpt": {"opt": true}, "phase_late_gpt": {"opt": true},
 	# --- No optimizables por defecto pero acotados a [0,1] (pesos de score_state) ---
 	"state_w_t_early": {"unit": true}, "state_w_e_early": {"unit": true},
 	"state_w_m_early": {"unit": true}, "state_w_k_early": {"unit": true},
@@ -127,7 +143,21 @@ static func validate(w: HeuristicWeights) -> Array[String]:
 	_require_non_decreasing(errors, "deck_urg", [w.deck_urg_t0, w.deck_urg_t1])
 	if w.state_t_share_mix < 0.0 or w.state_t_share_mix > 1.0:
 		errors.append("state_t_share_mix fuera de [0,1]: %.3f" % w.state_t_share_mix)
+	_require_phase_order(errors, w)
 	return errors
+
+
+## Las fronteras de fase deben ir en orden ESTRICTO. Cruzadas, la detección sigue
+## devolviendo una fase —no falla— pero deja de significar lo que dice: si el umbral
+## EARLY supera al LATE, se entra en LATE antes de poder ser EARLY y MID se evapora.
+## El optimizador mueve las cuatro de forma independiente, así que puede cruzarlas.
+static func _require_phase_order(errors: Array[String], w: HeuristicWeights) -> void:
+	if w.phase_early_share >= w.phase_late_share:
+		errors.append("phase_early_share >= phase_late_share: %.3f >= %.3f" % [
+			w.phase_early_share, w.phase_late_share])
+	if w.phase_early_gpt >= w.phase_late_gpt:
+		errors.append("phase_early_gpt >= phase_late_gpt: %.1f >= %.1f" % [
+			w.phase_early_gpt, w.phase_late_gpt])
 
 
 static func _require_non_decreasing(errors: Array[String], label: String, values: Array) -> void:

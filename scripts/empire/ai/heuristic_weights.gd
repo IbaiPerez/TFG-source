@@ -1,27 +1,29 @@
 extends Resource
 class_name HeuristicWeights
 
-## Pesos y umbrales de la heurística de decisión de la IA (AIHeuristic).
-##
-## Extrae a un Resource todos los números mágicos que controlan el scoring de
-## AIHeuristic, para poder ajustarlos sin tocar código y para que un optimizador
-## (Simulated Annealing / algoritmo genético) los pueda leer, mutar y guardar
-## como .tres.
-##
-## Los valores por defecto reproducen EXACTAMENTE los literales que estaban
-## hardcodeados en ai_heuristic.gd: con `HeuristicWeights.new()` (o el default
-## cacheado) el comportamiento de la heurística es byte-idéntico al anterior.
+## Tabla de valores de la heurística de decisión de la IA (AIHeuristic): los números
+## que dicen cuánto vale cada cosa, fuera del código para poder ajustarlos sin
+## tocarlo y para que el optimizador (SA/GA) los lea, mute y guarde como .tres.
 ##
 ## Inyección: AITurnContext.get_weights() devuelve los pesos activos (los de
 ## AIConfig.heuristic_weights si están asignados, o el default cacheado). Ver
 ## AIHeuristic para los puntos de uso.
 ##
-## Este fichero es SOLO la tabla de valores. Qué campos son optimizables, en qué
-## rango se mueven y cómo se traducen a vector vive en [HeuristicWeightsSpec], que
-## es quien depende de aquí — nunca al revés: este Resource se carga desde .tres y
-## un ciclo de clases rompería ese load() en silencio.
-##
-## `clone()` se queda porque es cosa del Resource, no del optimizador.
+## Qué campos son optimizables, en qué rango se mueven y cómo se traducen a vector
+## vive en [HeuristicWeightsSpec], que es quien depende de aquí — nunca al revés:
+## este Resource se carga desde .tres y un ciclo de clases rompería ese load() en
+## silencio.
+
+
+# Fronteras entre fases (AIGamePhase.detect_from). NO son reglas del juego: nada en
+# las reglas depende de la fase, es solo la lectura con la que la IA elige qué curva
+# de urgencia y qué pesos aplica. Por eso viven aquí y el optimizador las mueve:
+# dónde empieza a jugar como si fuera tarde no hay motivo para fijarlo a mano.
+@export_group("Fases de partida")
+@export var phase_late_share: float = 0.30   ## LATE con >= esta cuota del mapa
+@export var phase_early_share: float = 0.08  ## EARLY solo por debajo de esta cuota...
+@export var phase_early_gpt: float = 100.0   ## ...y con el gpt por debajo de esto
+@export var phase_late_gpt: float = 350.0    ## LATE por gpt, escalado al mapa real
 
 
 # Urgencia de oro (AIUrgency.gold_urgency): umbrales de gpt (t*) y valores (v*) por fase.
@@ -115,7 +117,10 @@ class_name HeuristicWeights
 @export var surplus_max: float = 3.0
 @export var expansion_reference: float = 15.0     ## _expansion_factor: tiles adj. para presión máx.
 @export var expansion_unknown: float = 0.5        ## valor neutro sin mapa
-@export var build_cost_min: float = 0.6           ## _build_cost_factor: suelo al gastar todo el oro
+@export var build_cost_min: float = 0.6           ## build_cost_factor: suelo del factor de coste
+## Coste por unidad de VALOR a partir del cual un edificio se considera caro del todo
+## (el factor toca su suelo). Con build_cost_min acota la banda de reordenación.
+@export var build_cost_ref: float = 4.0
 
 # Deck sizing (compartido por _deck_thinning_value, dynamic_purge_threshold,
 # should_buy_shop_item, score_card_for_deck CardDraw y _current_deck_size ratios).
@@ -145,6 +150,8 @@ class_name HeuristicWeights
 @export var tr_lead_factor: float = 1.5
 @export var tr_block_share: float = 0.55
 @export var tr_block_factor: float = 1.5
+## VESTIGIAL: no lo lee nadie ni está en el SPEC. Se conserva para que
+## `heuristic_weights_optimized.tres`, que lo serializa, siga cargando sin avisos.
 @export var tr_econ_factor: float = 0.7
 
 
@@ -166,14 +173,20 @@ class_name HeuristicWeights
 @export_group("Reclutamiento")
 @export var recruit_veto_score: float = -10.0        ## score de veto duro
 @export var recruit_food_veto_margin: float = -5.0   ## food - maintenance < margen → veto
-## Recargo cuadrático de comida por tropa que la heurística PROYECTA al reclutar.
-## Espeja `GameBalance.FRONT_SURCHARGE_PER_TROOP` (la regla real), pero se mantiene
-## como peso aparte a propósito: es la ESTIMACIÓN que usa la IA para decidir, y
-## puede ajustarse (por .tres o por el optimizador) sin tocar la regla del juego.
-## Si el balance real cambia, revisar si este default debe seguirlo.
-@export var recruit_front_charge_per_troop: float = 5.0
+## Cuánto se CREE la IA el recargo de frente al decidir si recluta: escala el extra
+## que proyecta pagar si la tropa acabara guarnecida. 1.0 = se lo cree tal cual.
+## Se mantiene como peso aparte de la regla (CombatMath.front_food_upkeep_multiplier) a
+## propósito: es una ESTIMACIÓN sobre un futuro incierto —la tropa puede no llegar a
+## asignarse— y debe poder ajustarse sin tocar el balance del juego.
+@export var recruit_front_charge_belief: float = 1.0
 @export var recruit_front_food_margin: float = 5.0   ## comida mínima tras el recargo
 @export var recruit_atkdef_weight: float = 3.0
+## Convierte el poder de una tropa en unidades de score al decidir CUÁNTAS meter en
+## un frente (TroopAssignmentPolicy). Aparte de recruit_atkdef_weight a propósito: a
+## quién recluto y dónde lo pongo son decisiones distintas. El default se fijó para
+## que el rango pretendido sea alcanzable —con 6.0 el techo efectivo (4) quedaba por
+## DEBAJO del tope rígido de 5 que este diseño vino a quitar—; el fino, al optimizador.
+@export var assign_power_weight: float = 10.0
 @export var recruit_saturation_k: float = 0.04       ## rendimiento decreciente por pool
 @export var recruit_cost_eff_base: float = 30.0      ## coste base de referencia (sqrt(base/cost))
 @export var recruit_type_diversity_k: float = 0.2    ## penalización por monocultura de tipo

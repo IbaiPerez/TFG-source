@@ -20,6 +20,18 @@ func _w() -> HeuristicWeights:
 	return HeuristicWeights.new()
 
 
+## Comida que SATURA el eje de la comida, para que los tests del eje del ORO midan
+## solo el oro. Los dos ejes rampan igual —neutro en el umbral, pleno al doblarlo—,
+## así que hace falta el DOBLE del umbral, no el umbral justo.
+##
+## Antes bastaba con `int(w.surplus_min_food)` porque el eje de la comida era un
+## acantilado binario: en el umbral ya daba el máximo. Al convertirlo en rampa, ese
+## valor pasó a ser el punto NEUTRO y estos tests empezaron a medir un factor de 1.0
+## creyendo que medían el eje del oro.
+func _comida_holgada(w: HeuristicWeights) -> int:
+	return int(w.surplus_min_food) * 2
+
+
 # ------------------------------------------------------------------
 #  Excedente de recursos
 # ------------------------------------------------------------------
@@ -46,7 +58,7 @@ func test_surplus_neutral_below_comfortable() -> void:
 func test_surplus_scales_above_comfortable() -> void:
 	var w := _w()
 	var comodo := w.surplus_comfortable_mid
-	var comida := int(w.surplus_min_food)
+	var comida := _comida_holgada(w)
 
 	# Los dos EXTREMOS son exactos sea cual sea el umbral: en el umbral, neutro;
 	# al doble, el máximo.
@@ -73,7 +85,7 @@ func test_surplus_esta_topado_muy_por_encima_del_doble() -> void:
 	# caso, quitar el clamp de la fórmula dejaba la suite en verde y el excedente
 	# crecía sin techo — un imperio rico habría valorado lo militar hasta el absurdo.
 	var w := _w()
-	var comida := int(w.surplus_min_food)
+	var comida := _comida_holgada(w)
 	for factor in [3.0, 10.0, 100.0]:
 		assert_almost_eq(AIEconomy.resource_surplus_factor(
 			comida, int(w.surplus_comfortable_mid * factor), AIGamePhase.Phase.MID, w),
@@ -83,7 +95,7 @@ func test_surplus_esta_topado_muy_por_encima_del_doble() -> void:
 
 func test_surplus_uses_phase_thresholds() -> void:
 	var w := _w()
-	var comida := int(w.surplus_min_food)
+	var comida := _comida_holgada(w)
 	# Cada fase tiene su propio umbral cómodo: lo que es excedente en EARLY no lo es
 	# en LATE. El test lo comprueba en los dos extremos de la escala.
 	assert_almost_eq(AIEconomy.resource_surplus_factor(
@@ -103,21 +115,32 @@ func test_surplus_uses_phase_thresholds() -> void:
 #  Coste de construcción
 # ------------------------------------------------------------------
 
-func test_build_cost_factor_zero_gold_returns_minimum() -> void:
-	assert_almost_eq(AIEconomy.build_cost_factor(50, 0, _w()), _w().build_cost_min, 0.001)
+# El segundo argumento es el VALOR del edificio, no el oro en caja: el factor mide
+# coste por unidad de valor. Estos tests decían antes "full_spend" / "half_spend",
+# nombres de una fracción de gasto que ya no existe — y que, tras el cambio, habrían
+# seguido pasando midiendo otra cosa si no se reescriben.
+
+func test_build_cost_factor_sin_valor_toca_el_suelo() -> void:
+	# Un edificio que no aporta nada es el peor negocio posible, cueste lo que cueste.
+	assert_almost_eq(AIEconomy.build_cost_factor(50, 0.0, _w()), _w().build_cost_min, 0.001)
 
 
-func test_build_cost_factor_full_spend_returns_minimum() -> void:
-	# Gastar TODO el oro toca el suelo, igual que no tener nada.
-	assert_almost_eq(AIEconomy.build_cost_factor(100, 100, _w()), _w().build_cost_min, 0.001)
-
-
-func test_build_cost_factor_half_spend() -> void:
+func test_build_cost_factor_toca_el_suelo_en_la_referencia() -> void:
+	# El suelo se alcanza cuando el coste por unidad de valor llega a build_cost_ref.
 	var w := _w()
-	assert_almost_eq(AIEconomy.build_cost_factor(50, 100, w),
+	var valor := 100.0
+	assert_almost_eq(AIEconomy.build_cost_factor(int(valor * w.build_cost_ref), valor, w),
+		w.build_cost_min, 0.001)
+
+
+func test_build_cost_factor_a_media_referencia_esta_a_media_banda() -> void:
+	var w := _w()
+	var valor := 100.0
+	assert_almost_eq(
+		AIEconomy.build_cost_factor(int(valor * w.build_cost_ref * 0.5), valor, w),
 		lerpf(NEUTRO, w.build_cost_min, 0.5), 0.001)
 
 
-func test_build_cost_factor_residual_spend_near_one() -> void:
-	# Un gasto residual apenas penaliza: el factor tiende a neutro.
-	assert_gt(AIEconomy.build_cost_factor(1, 10000, _w()), 0.99)
+func test_build_cost_factor_coste_residual_frente_al_valor_es_neutro() -> void:
+	# Un coste ínfimo comparado con lo que da apenas penaliza.
+	assert_gt(AIEconomy.build_cost_factor(1, 10000.0, _w()), 0.99)

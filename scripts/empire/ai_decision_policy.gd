@@ -195,13 +195,29 @@ func _map_move_to_option(m: AIRealOptions.Move,
 
 
 ## Decisión por heurística pura. También es el fallback de MCTS.
+##
+## El listón parte de 0.0, no de -INF, porque ese es el convenio que declara
+## AIHeuristic: PASS vale 0.0 y solo una acción con score ESTRICTAMENTE POSITIVO
+## se prefiere sobre pasar. Con -INF, una jugada nula —abrir frente sin tropas
+## libres, o una táctica que no afecta a ninguna tropa del bando— puntuaba 0.0,
+## se convertía en la mejor por ser la primera enumerada y ganaba a PASS, que
+## llegaba después con el mismo 0.0 y no lo desplazaba por el `>` estricto. El
+## resultado dependía del ORDEN de la lista; ahora depende solo del contrato.
 func _pick_best_option_heuristic(options: Array[AIPlayOption],
 		ctx: AITurnContext) -> AIPlayOption:
 	var best: AIPlayOption = null
-	var best_score := -INF
+	var best_score := 0.0
+	var pass_option: AIPlayOption = null
 	for option in options:
+		if option == null:
+			continue
+		if option.is_pass:
+			pass_option = option
+			continue
 		var s := AIHeuristic.score_option(option, ctx)
 		if s > best_score:
 			best_score = s
 			best = option
-	return best
+	# Nada supera el listón → pasar. Si el llamante no incluyó PASS, null: el
+	# controller lo trata igual (cierra el turno).
+	return best if best != null else pass_option

@@ -3,7 +3,7 @@
 Qué se ejecuta por defecto, qué va bajo demanda y cómo lanzar cada cosa.
 
 > Este fichero documentaba antes **41 tests del sistema de bloqueo de menús**, que era
-> toda la suite cuando se escribió. Hoy son ~1.400 en 89 scripts, y su comando de
+> toda la suite cuando se escribió. Hoy son 1.431 en 96 scripts, y su comando de
 > arranque apuntaba a `addons/gut/run_tests.gd`, **que no existe**. Reescrito.
 
 ## Corrida por defecto
@@ -12,7 +12,8 @@ Qué se ejecuta por defecto, qué va bajo demanda y cómo lanzar cada cosa.
 godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
 ```
 
-Unos **25 segundos**. Cubre dominio, IA, persistencia, UI y los helpers.
+Unos **45 segundos**. Cubre dominio, IA, persistencia y UI; los helpers entran por la vía
+de `test_helpers_audit.gd`.
 
 En Windows, el ejecutable con consola es el que imprime a stdout:
 
@@ -36,15 +37,29 @@ los subdirectorios. Es deliberado:
 en silencio** y sigue dando ese mensaje con menos tests. Hay que mirar el recuento:
 
 ```
-Scripts              89
-Tests              1394
-Passing Tests      1394
-Orphans               0
+Scripts              96
+Tests              1431
+Passing Tests      1430
+Risky/Pending         1
+Asserts            3602
+Time              45.658s
 ```
 
+**Las líneas malas solo salen si hay algo malo.** `Failing Tests`, `Risky/Pending`,
+`Orphans`, `Errors` y `Warnings` pasan por `_log_non_zero_total` (`addons/gut/summary.gd`),
+así que **su ausencia significa cero**. `Scripts`, `Tests` y `Passing Tests` salen siempre.
+
 - **Scripts**: si baja, algo dejó de compilar.
+- **Risky/Pending**: tests que terminan sin evaluar ninguna aserción. **Hoy hay 1, y es
+  esperado**: `test_la_encuesta_se_publica_para_todos_los_idiomas_o_para_ninguno` sale
+  antes de aseverar mientras `BuildInfo.SURVEY_URLS` esté vacío. Se cerrará sola al pegar
+  las URLs de los formularios. Si aparece alguna más, hay algo que mirar.
 - **Orphans**: nodos sin liberar. `Tile` extiende `Node3D`, así que los tests que los
   crean con `.new()` deben pasarlos por `add_child_autofree()`.
+
+Al salir, el motor reporta fugas de RID y de `ObjectDB` en modo headless. Es ruido del
+cierre del renderizador dummy, no un fallo de la suite: lo que manda es el bloque de
+recuento.
 
 Un `class_name` nuevo exige reimportar **antes** de correr GUT, o falla en cascada con
 «Identifier not declared» por caché de clases obsoleta:

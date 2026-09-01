@@ -45,6 +45,12 @@ func test_run_simulation() -> void:
 	# error estandar de la media ~1/sqrt(3) ≈ 0.58x respecto a 5 runs,
 	# suficiente para distinguir tendencias de balance en late-game.
 	multi.num_runs = 15
+	# Escotilla para humo: `SIM_RUNS=2` corre la tanda corta con el mismo codigo
+	# y el mismo formato de salida, para validar la instrumentacion antes de
+	# comprometer las 15 partidas. Sin la variable, 15.
+	var runs_env := OS.get_environment("SIM_RUNS")
+	if runs_env != "":
+		multi.num_runs = maxi(1, int(runs_env))
 	multi.max_rounds = 500  # limite de seguridad; la partida termina por victoria
 	multi.rng_master_seed = 20260516  # YYYYMMDD para tener un seed estable y fechado
 	# Este test analiza el BALANCE de la heurística (Fase B): ambos bandos usan
@@ -193,6 +199,11 @@ func _print_summary(multi) -> void:
 	_print_milestone(multi, "AI_A")
 	_print_milestone(multi, "AI_B")
 
+	# Balance produccion/gasto por FASE, que es la pregunta de balance: si el
+	# coste de guarnecer escala con lo que un imperio produce en ese momento.
+	_print_economy_by_phase(multi)
+	_print_garrison_histogram(multi)
+
 
 func _fmt(stats: Dictionary) -> String:
 	return "%.0f±%.0f" % [stats.get("mean", 0.0), stats.get("std", 0.0)]
@@ -247,3 +258,106 @@ func _summary_array(values: Array, total_runs: int) -> String:
 		vmax = max(vmax, v)
 	var mean := sum / values.size()
 	return "media %.1f [%d, %d] (%d/%d)" % [mean, vmin, vmax, values.size(), total_runs]
+
+
+# --- Balance produccion / gasto -------------------------------------------
+
+## Agrupa TODOS los snapshots de TODAS las runs por fase de partida y promedia
+## el desglose economico. Es distinto de `aggregate()`, que promedia por RONDA:
+## la ronda 30 puede ser MID en un mapa y LATE en otro, y lo que se quiere saber
+## aqui es si el gasto escala con lo que se produce en cada momento del juego.
+func _print_economy_by_phase(multi) -> void:
+	var por_fase := {}
+	for r in multi.runs:
+		for snap in r["snapshots"]:
+			var eco: Dictionary = snap.get("economy", {})
+			var pr: Dictionary = eco.get("production", {})
+			if pr.is_empty() or pr.get("total_troop_maint", -1) == -1:
+				continue
+			var fase: String = str(snap.get("heuristic", {}).get("phase", "?"))
+			if not por_fase.has(fase):
+				por_fase[fase] = []
+			por_fase[fase].append(snap)
+
+	print("\n[Sim] === BALANCE PRODUCCION / GASTO POR FASE ===")
+	print("[Sim] (medias sobre todos los snapshots de las %d runs)" % multi.runs.size())
+	print("[Sim] %-6s %6s | %9s %9s | %9s %9s | %9s %9s | %8s %8s" % [
+		"Fase", "n", "BrutoOro", "BrutoCom", "TropaOro", "TropaCom",
+		"FrenteOro", "FrenteCom", "NetoOro", "NetoCom"])
+	for fase in ["EARLY", "MID", "LATE"]:
+		if not por_fase.has(fase):
+			continue
+		var ss: Array = por_fase[fase]
+		print("[Sim] %-6s %6d | %9.1f %9.1f | %9.1f %9.1f | %9.1f %9.1f | %8.1f %8.1f" % [
+			fase, ss.size(),
+			_media(ss, "production.gross_gold"), _media(ss, "production.gross_food"),
+			_media(ss, "production.troop_gold"), _media(ss, "production.troop_food"),
+			_media(ss, "production.front_gold"), _media(ss, "production.front_food"),
+			_media(ss, "production.net_gold"), _media(ss, "production.net_food")])
+
+	print("\n[Sim] %-6s %10s %10s %10s %10s %10s" % [
+		"Fase", "Pool", "Guarnec.", "MaxGuarn", "MultCbt", "%Malus"])
+	for fase in ["EARLY", "MID", "LATE"]:
+		if not por_fase.has(fase):
+			continue
+		var ss: Array = por_fase[fase]
+		print("[Sim] %-6s %10.2f %10.2f %10.2f %10.3f %9.1f%%" % [
+			fase,
+			_media_mil(ss, "troop_pool_size"), _media_mil(ss, "troops_garrisoned"),
+			_media_mil(ss, "garrison_max"),
+			_media_eco(ss, "combat_multiplier"), _pct_malus(ss)])
+
+
+## Reparto de TAMAÑOS de guarnicion vistos. La curva de coste cruza el
+## crecimiento lineal en la quinta tropa (oro) y en la segunda (comida): si el
+## diseño funciona, la masa deberia concentrarse por debajo de 5 sin que exista
+## ningun tope duro que lo imponga.
+func _print_garrison_histogram(multi) -> void:
+	var hist := {}
+	var total := 0
+	for r in multi.runs:
+		for snap in r["snapshots"]:
+			for m in snap.get("military", {}).get("front_markers", []):
+				var n: int = int(m.get("own_troops", 0))
+				hist[n] = int(hist.get(n, 0)) + 1
+				total += 1
+	if total == 0:
+		print("\n[Sim] Sin frentes con guarnicion en toda la tanda.")
+		return
+	print("\n[Sim] === TAMAÑO DE GUARNICION (bando propio, %d observaciones) ===" % total)
+	var claves: Array = hist.keys()
+	claves.sort()
+	for n in claves:
+		var c: int = hist[n]
+		var pct := 100.0 * float(c) / float(total)
+		print("[Sim] %2d tropas %6d  %5.1f%%  %s" % [n, c, pct, "#".repeat(int(pct / 2.0))])
+
+
+func _media(ss: Array, campo: String) -> float:
+	var suma := 0.0
+	for s2 in ss:
+		suma += float(s2["economy"]["production"].get(campo.split(".")[1], 0))
+	return suma / float(ss.size()) if not ss.is_empty() else 0.0
+
+
+func _media_eco(ss: Array, campo: String) -> float:
+	var suma := 0.0
+	for s2 in ss:
+		suma += float(s2["economy"].get(campo, 0))
+	return suma / float(ss.size()) if not ss.is_empty() else 0.0
+
+
+func _media_mil(ss: Array, campo: String) -> float:
+	var suma := 0.0
+	for s2 in ss:
+		suma += float(s2["military"].get(campo, 0))
+	return suma / float(ss.size()) if not ss.is_empty() else 0.0
+
+
+## Porcentaje de snapshots en penalizacion economica (multiplicador < 1).
+func _pct_malus(ss: Array) -> float:
+	var n := 0
+	for s2 in ss:
+		if float(s2["economy"].get("combat_multiplier", 1.0)) < 0.999:
+			n += 1
+	return 100.0 * float(n) / float(ss.size()) if not ss.is_empty() else 0.0

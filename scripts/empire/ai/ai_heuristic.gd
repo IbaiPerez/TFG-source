@@ -21,7 +21,7 @@ static func score_option(option: AIPlayOption, ctx: AITurnContext) -> float:
 	if option == null or option.is_pass:
 		return 0.0
 
-	var phase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles)
+	var phase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles, ctx.get_weights())
 
 	if option is AIBuildOption:
 		return _score_build(option as AIBuildOption, ctx, phase)
@@ -101,7 +101,7 @@ static func _score_tactic(option: AITacticOption, ctx: AITurnContext,
 		if is_attacker else option.front.attacker_tile
 	var ai_marker := option.front.marker if is_attacker else -option.front.marker
 	return AIMoveScorer.score_tactic(LiveStateView.new(ctx), option.card as TacticCard,
-		own_troops, ai_marker, option.front.threshold, relevant_tile)
+		own_troops, ai_marker, option.front.get_current_threshold(), relevant_tile)
 
 
 static func _score_draw(option: AIDrawCardOption, ctx: AITurnContext) -> float:

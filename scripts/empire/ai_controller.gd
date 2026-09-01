@@ -48,11 +48,6 @@ class_name AIController
 ## donde AIWorldView se construye solo con las stats propias (sin rivales).
 var turn_manager: TurnManager
 
-## Mínimo de tropas por frente que la heurística garantiza en la primera pasada.
-## La segunda pasada puede añadir hasta +2 en frentes donde se pierde.
-## Alias público (lo leen los tests) de la constante de TroopAssignmentPolicy.
-const MIN_TROOPS_PER_FRONT: int = TroopAssignmentPolicy.MIN_TROOPS_PER_FRONT
-
 var _rng: RandomNumberGenerator
 var _drawn_cards: Array[Card] = []
 ## Observer de cartas del rival. null hasta que turn_manager tiene un rival disponible.
@@ -223,8 +218,9 @@ func _end_turn(empire_name: String) -> void:
 	# turno (al jugar Recruit) y frentes abiertos en este mismo turno (al
 	# jugar Open Front). Sin esta segunda pasada los frentes recien creados
 	# nacen vacios y el defensor no tiene oportunidad de reaccionar antes
-	# del primer tick. Como la asignacion respeta MIN_TROOPS_PER_FRONT,
-	# llamarla dos veces es idempotente para los frentes ya satisfechos.
+	# del primer tick. Llamarla dos veces no duplica tropas: la asignacion decide
+	# por valor marginal, y el recargo progresivo del frente ya poblado hace que la
+	# segunda llamada no encuentre nada que compense.
 	_assign_troops_to_fronts()
 
 	# Evaluar y resolver evento de turno (Fase 4).
@@ -320,4 +316,5 @@ func _build_world_view() -> AIWorldView:
 ## Reparto de tropas del pool a los frentes propios. El algoritmo vive en
 ## AIFrontAssignment (y su politica compartida con el simulador del MCTS).
 func _assign_troops_to_fronts() -> void:
-	AIFrontAssignment.assign(battle_front_manager, stats)
+	var w: HeuristicWeights = ai_config.heuristic_weights if ai_config != null else null
+	AIFrontAssignment.assign(battle_front_manager, stats, w, WorldMap.map.size())

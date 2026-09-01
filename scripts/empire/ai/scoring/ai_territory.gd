@@ -38,22 +38,35 @@ static func encirclement_pressure(colonizable: int, controlled: int,
 
 
 ## Amplifica jugadas que acercan a la dominación (o bloquean al rival cerca de su
-## límite de victoria). `mode` ∈ {colonize, open_front, economy}. Las cuotas se
-## calculan sobre el total de tiles en disputa (propias + rival + colonizables).
-static func territory_race_factor(my_tiles: int, rival_tiles: int, colonizable: int,
+## límite de victoria). `mode` ∈ {colonize, open_front}; cualquier otro es neutro.
+##
+## Las cuotas se normalizan contra el MAPA, que es la misma referencia que usa la
+## condición de victoria (GameBalance.VICTORY_TILE_SHARE) y que AIGamePhase.
+##
+## Antes el denominador eran las casillas «en disputa» (propias + rival +
+## COLONIZABLES adyacentes). Como los colonizables son siempre ≤ las libres del mapa,
+## la cuota salía siempre inflada: no había falsos negativos, pero sí falsos
+## positivos, y el más frecuente era el opuesto a lo que el factor dice medir —
+## quedarse ENCAJONADO encogía el denominador y disparaba el «modo cierre». Dos
+## imperios con 20 casillas propias y 10 rivales daban neutro o ×2.0 solo según
+## tuvieran 25 o 3 libres alrededor. Y el encierro ya tiene su propio factor
+## (encirclement_pressure), así que se contaba dos veces.
+##
+## `total_map_tiles <= 0` (tests sin mapa) → neutro: sin saber el tamaño no se puede
+## juzgar la carrera, y no amplificar es lo seguro.
+static func territory_race_factor(my_tiles: int, rival_tiles: int, total_map_tiles: int,
 		mode: StringName, w: HeuristicWeights) -> float:
-	var total := maxi(my_tiles + rival_tiles + colonizable, 1)
-	var my_share := float(my_tiles) / float(total)
-	var rival_share := float(rival_tiles) / float(total)
+	if total_map_tiles <= 0:
+		return 1.0
+	if mode != &"colonize" and mode != &"open_front":
+		return 1.0
+	var my_share := float(my_tiles) / float(total_map_tiles)
+	var rival_share := float(rival_tiles) / float(total_map_tiles)
 
-	if mode == &"colonize" or mode == &"open_front":
-		if my_share >= w.tr_close_share:
-			return w.tr_close_factor   # modo cierre: escalar todo lo que acerca al 70%
-		if my_share >= w.tr_lead_share:
-			return w.tr_lead_factor
-		if rival_share >= w.tr_block_share:
-			return w.tr_block_factor   # modo bloqueo: el rival se acerca a su victoria
-	elif mode == &"economy":
-		if my_share >= w.tr_close_share:
-			return w.tr_econ_factor     # con ventaja territorial, la economía importa menos
+	if my_share >= w.tr_close_share:
+		return w.tr_close_factor   # modo cierre: cerca de la cuota de dominación
+	if my_share >= w.tr_lead_share:
+		return w.tr_lead_factor
+	if rival_share >= w.tr_block_share:
+		return w.tr_block_factor   # modo bloqueo: el rival se acerca a su victoria
 	return 1.0

@@ -79,10 +79,21 @@ static func recompute_economy(state: AIRealState, p_owner: int) -> void:
 		if side == BattleFront.Side.NONE:
 			continue
 		var troops := front.attacker_troops if side == BattleFront.Side.ATTACKER else front.defender_troops
+		# Espejo de BattleFront.get_front_maintenance: cada tropa paga SU base por la
+		# curva del frente Y por el descuento de modifiers, evaluado tropa a tropa
+		# (troop_type_filter). Sin esta segunda parte, un modificador de imperio se
+		# apagaría al desplegar la tropa y el snapshot divergiría del juego real.
+		var front_gold := 0.0
+		var front_food := 0.0
 		for i in range(troops.size()):
-			var sc := (i + 1) * GameBalance.FRONT_SURCHARGE_PER_TROOP
-			surcharge_gold += sc
-			surcharge_food += sc
+			var discount := ProductionMath.maintenance_multiplier(
+				ModifierQuery.troop_maintenance_percent(mods, troops[i]))
+			front_gold += float(troops[i].maintenance_gold) \
+				* CombatMath.front_gold_upkeep_multiplier(i + 1) * discount
+			front_food += float(troops[i].maintenance_food) \
+				* CombatMath.front_food_upkeep_multiplier(i + 1) * discount
+		surcharge_gold += int(round(front_gold))
+		surcharge_food += int(round(front_food))
 
 	emp.gold_per_turn = prod_gold - maint_gold - surcharge_gold
 	emp.food = prod_food - maint_food - surcharge_food
@@ -139,8 +150,8 @@ static func advance_turn(state: AIRealState, rng: RandomNumberGenerator = null,
 	_tick_modifiers(state.own)
 	_tick_modifiers(state.rival)
 
-	AIRealCombat.assign_troops_to_fronts(state, AIRealState.OWNER_SELF)
-	AIRealCombat.assign_troops_to_fronts(state, AIRealState.OWNER_RIVAL)
+	AIRealCombat.assign_troops_to_fronts(state, AIRealState.OWNER_SELF, w)
+	AIRealCombat.assign_troops_to_fronts(state, AIRealState.OWNER_RIVAL, w)
 
 	recompute_economy(state, AIRealState.OWNER_SELF)
 	recompute_economy(state, AIRealState.OWNER_RIVAL)

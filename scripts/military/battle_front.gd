@@ -262,19 +262,36 @@ func has_any_active_tactic() -> bool:
 	return has_active_tactic_on_side(BattleFront.Side.ATTACKER) or has_active_tactic_on_side(BattleFront.Side.DEFENDER)
 
 
-## Calcula el coste de mantenimiento extra por frente (escalado progresivo).
+## Mantenimiento TOTAL de las tropas guarnecidas en este bando del frente.
+##
+## Cada tropa paga su propio coste base multiplicado por
+## `CombatMath.front_gold/food_upkeep_multiplier(posición)`: la primera su base
+## exacta, y las siguientes cada vez más. La comida escala MAS DEPRISA que el oro, así
+## que es la que acaba limitando el tamaño. No es un "recargo" añadido al
+## mantenimiento del pool, sino el mantenimiento COMPLETO de estas tropas: quien las
+## tiene en el frente no las paga además en ProductionCalculator.
+##
 ## Retorna { "gold": int, "food": int } para un bando.
-func get_front_maintenance(side: BattleFront.Side) -> Dictionary:
+func get_front_maintenance(side: BattleFront.Side,
+		modifier_manager: ModifierManager = null) -> Dictionary:
 	var troops := _troops_of(side)
 
-	var extra_gold: int = 0
-	var extra_food: int = 0
+	var total_gold: float = 0.0
+	var total_food: float = 0.0
 	for i in range(troops.size()):
-		# Recargo progresivo: +5, +10, +15... por cada tropa adicional
-		var surcharge: int = (i + 1) * GameBalance.FRONT_SURCHARGE_PER_TROOP
-		extra_gold += surcharge
-		extra_food += surcharge
-	return { "gold": extra_gold, "food": extra_food }
+		# La curva del frente y el descuento de modifiers se COMPONEN, y el descuento
+		# va por tropa: con `troop_type_filter` una guarnición mixta necesita
+		# evaluarlo uno a uno, no como porcentaje sobre el total.
+		var gold_mult := CombatMath.front_gold_upkeep_multiplier(i + 1)
+		var food_mult := CombatMath.front_food_upkeep_multiplier(i + 1)
+		if modifier_manager != null:
+			var discount := ProductionMath.maintenance_multiplier(
+				modifier_manager.get_troop_maintenance_percent(troops[i]))
+			gold_mult *= discount
+			food_mult *= discount
+		total_gold += float(troops[i].maintenance_gold) * gold_mult
+		total_food += float(troops[i].maintenance_food) * food_mult
+	return { "gold": int(round(total_gold)), "food": int(round(total_food)) }
 
 
 ## Calcula las bajas proporcionales tras resolución.

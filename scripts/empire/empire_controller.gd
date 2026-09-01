@@ -12,6 +12,17 @@ var modifier_manager:ModifierManager
 var turn_event_manager:TurnEventManager
 var battle_front_manager:BattleFrontManager
 
+## Desglose del ultimo `ProductionCalculator.calculate_turn()` APLICADO.
+##
+## El resultado se reparte en tres campos de `Stats` (gpt, food, total_gold) que
+## ya no permiten reconstruir de donde salio: con la regla de guarniciones el
+## mismo gpt puede venir de mucha produccion con mucho recargo de frente o de
+## poca de las dos. Recalcularlo desde fuera tampoco sirve, porque para cuando
+## alguien mire el estado ya no es el del inicio del turno.
+##
+## Vacio hasta el primer `_process_turn_start`. Claves: ver `calculate_turn`.
+var last_production: Dictionary = {}
+
 func _init_managers() -> void:
 	modifier_manager = ModifierManager.new()
 	add_child(modifier_manager)
@@ -105,6 +116,7 @@ func _process_turn_start() -> void:
 
 	var calc := ProductionCalculator.new(stats, modifier_manager, battle_front_manager)
 	var result := calc.calculate_turn()
+	last_production = result
 
 	# Las tres escrituras se agrupan en una sola emisión de stats_changed
 	# (evita re-renders de UI redundantes al inicio de cada turno).

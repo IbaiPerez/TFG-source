@@ -19,7 +19,9 @@ class_name AIRealCombat
 ## compartida TroopAssignmentPolicy (misma urgencia y dos pasadas que el juego
 ## real); aquí solo construimos los slots sobre los FrontSnap del estado.
 static func assign_troops_to_fronts(state: AIRealState,
-		p_owner: int = AIRealState.OWNER_SELF) -> void:
+		p_owner: int = AIRealState.OWNER_SELF, w: HeuristicWeights = null) -> void:
+	if w == null:
+		w = HeuristicWeights.get_default()
 	var emp := state.empire(p_owner)
 	if emp == null or emp.troop_pool.is_empty():
 		return
@@ -38,7 +40,11 @@ static func assign_troops_to_fronts(state: AIRealState,
 			own_marker, front.current_threshold())
 		slots.append(slot)
 
-	TroopAssignmentPolicy.assign(slots)
+	# El coste marginal de cada tropa se valora con la escasez ACTUAL de oro y comida.
+	var phase := AIRealEval.detect_phase(state, p_owner, w)
+	TroopAssignmentPolicy.assign(slots, w,
+		AIUrgency.gold_urgency(emp.gold_per_turn, phase, w),
+		AIUrgency.food_urgency(emp.food, phase, w))
 
 
 ## Slot de asignación sobre un FrontSnap (ver TroopAssignmentPolicy). Extrae la
@@ -60,15 +66,25 @@ class _SnapFrontSlot extends RefCounted:
 			else front.defender_troops
 		return troops.size()
 
-	func assign_best() -> bool:
+	func is_attacker() -> bool:
+		return side == BattleFront.Side.ATTACKER
+
+	## Tropa que se asignaría, SIN asignarla: la política necesita valorarla antes de
+	## comprometerla. null si el pool está vacío.
+	func peek_best() -> Troop:
 		if emp.troop_pool.is_empty():
-			return false
+			return null
 		var sorted_pool := emp.troop_pool.duplicate()
 		if side == BattleFront.Side.DEFENDER:
 			sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.defense > b.defense)
 		else:
 			sorted_pool.sort_custom(func(a: Troop, b: Troop) -> bool: return a.attack > b.attack)
-		var best: Troop = sorted_pool[0]
+		return sorted_pool[0]
+
+	func assign_best() -> bool:
+		var best := peek_best()
+		if best == null:
+			return false
 		var idx := emp.troop_pool.find(best)
 		if idx < 0:
 			return false
