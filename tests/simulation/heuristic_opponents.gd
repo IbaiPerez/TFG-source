@@ -3,8 +3,7 @@ class_name HeuristicOpponents
 
 ## Construye el POOL de rivales para HeuristicFitness: la baseline (pesos por
 ## defecto) + arquetipos de heurística con distintas "puntuaciones" (estilos de
-## juego marcadamente distintos) + una política aleatoria. Todo en modo
-## HEURISTIC/RANDOM → sin coste de MCTS.
+## juego marcadamente distintos). Todo en modo HEURISTIC → sin coste de MCTS.
 ##
 ## Enfrentar al candidato contra un pool diverso mide efectividad de forma más
 ## robusta (evita sobreajustar a un único rival) y da más señal al optimizador
@@ -28,14 +27,26 @@ static func core_pool() -> Array:
 	]
 
 
-## Pool completo para la ETAPA 2 (revalidación): baseline + 3 arquetipos + random.
+## Pool completo para la ETAPA 2 (revalidación): baseline + los 3 arquetipos.
+##
+## SIN política aleatoria, y no por gusto: en la corrida real de dos etapas el
+## rival `Mode.RANDOM` separó a los tres finalistas por solo 0.056 de win-rate
+## (0.887 / 0.906 / 0.944) frente al ~0.30 que los separaban los rivales de
+## verdad. Era un quinto del presupuesto de partidas dedicado a una pregunta cuya
+## respuesta ya se sabe —todos le ganan— y además inflaba el win-rate global de
+## todos por igual: la baseline aparentaba 0.606 cuando contra rivales reales iba
+## en 0.535.
+##
+## Hay un segundo motivo, de ruido: como la partida diverge según lo que juega el
+## candidato, cada uno acaba enfrentándose a una REALIZACIÓN distinta de la
+## política aleatoria aunque la semilla sea la misma. Con un rival heurístico eso
+## también pasa, pero su calidad es estable; la de una política aleatoria no.
 static func full_pool() -> Array:
 	return [
 		heur_config(baseline()),
 		heur_config(economic()),
 		heur_config(militarist()),
 		heur_config(expansionist()),
-		random_config(),
 	]
 
 
@@ -48,6 +59,9 @@ static func heur_config(w: HeuristicWeights) -> AIConfig:
 	return c
 
 
+## Config de política aleatoria. Ya NO entra en `full_pool` (ver ahí el porqué),
+## pero se conserva porque `AIModeComparator` la usa como referencia de suelo en
+## las comparaciones de modo, que es donde sí tiene sentido.
 static func random_config() -> AIConfig:
 	var c := AIConfig.new()
 	c.mode = AIConfig.Mode.RANDOM
@@ -100,6 +114,12 @@ static func random_heuristic(rng: RandomNumberGenerator, spread: float = 0.5) ->
 		var b := HeuristicWeightsSpec.get_bounds(k)
 		var factor := rng.randf_range(1.0 - spread, 1.0 + spread)
 		w.set(k, clampf(float(w.get(k)) * factor, b.x, b.y))
+	# Reparar es imprescindible desde que las curvas de urgencia entraron en el
+	# espacio: escalar cada umbral por su propio factor los cruza constantemente.
+	# Medido con spread 0.5: 36 de 50 semillas producían un rival con alguna cadena
+	# rota. Un rival con tramos muertos no es «razonable pero variado» — es más
+	# débil de lo previsto, e inflaría la generalización aparente del campeón.
+	HeuristicWeightsInvariants.repair(w)
 	return w
 
 

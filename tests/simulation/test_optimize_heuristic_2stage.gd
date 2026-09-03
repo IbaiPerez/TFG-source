@@ -1,12 +1,12 @@
 extends GutTest
 
 ## Optimización de pesos de la heurística en DOS ETAPAS contra un POOL de rivales
-## (baseline + arquetipos de heurística + random), SIN MCTS.
+## (baseline + arquetipos de heurística), SIN MCTS.
 ##
 ##   Etapa 1 (búsqueda, barata): SA y GA exploran contra un pool ligero
 ##     (core_pool) con pocas partidas/eval. Objetivo: localizar buenos candidatos.
 ##   Etapa 2 (revalidación, cara): los finalistas (baseline + campeón SA + campeón
-##     GA) se re-evalúan contra el pool completo (full_pool, incluye random) con
+##     GA) se re-evalúan contra el pool completo (full_pool: baseline + 3 arquetipos) con
 ##     MUCHAS partidas y SEMILLAS DISJUNTAS → win-rate con IC95 fiable, sin
 ##     sobreajuste al set de búsqueda.
 ##

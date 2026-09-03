@@ -9,9 +9,10 @@ class_name HeuristicFitness
 ##
 ## El pool de rivales (opponents) permite medir efectividad de forma ROBUSTA sin
 ## sobreajustar a un único oponente y sin el coste del MCTS: baseline (pesos por
-## defecto) + arquetipos de heurística con distintas puntuaciones (económico,
-## militarista, expansionista) + política aleatoria (Mode.RANDOM). Ver
-## HeuristicOpponents. Si `opponents` está vacío, se usa solo la baseline.
+## defecto) + arquetipos de heurística con prioridades distintas (económico,
+## militarista, expansionista). Ver HeuristicOpponents — la política aleatoria se
+## quitó del pool porque casi no discriminaba entre candidatos. Si `opponents`
+## está vacío, se usa solo la baseline.
 ##
 ## Además de aportar robustez, un pool con varios rivales SUAVIZA el problema de
 ## la meseta argmax: un cambio de peso que voltea una decisión en CUALQUIER
