@@ -1002,27 +1002,50 @@ func test_score_choice_null_returns_zero() -> void:
 		AIHeuristic.score_choice(null, _make_ctx(_make_stats())), 0.0, 0.01)
 
 
+## Urgencias que la heurística usará con este contexto. Derivarlas en vez de
+## escribir el número es lo que hace que estos tests sigan midiendo la REGLA
+## —cantidad × peso × urgencia— cuando se recalibra una frontera de fase.
+## Con los literales que había, recalibrar las fases los tumbó a los cuatro:
+## el mismo estado (gpt 100, comida 10) pasó de leerse MID a leerse EARLY.
+func _urgencias(ctx: AITurnContext) -> Dictionary:
+	var w := ctx.get_weights()
+	var fase := AIGamePhase.detect(ctx.stats, ctx.total_map_tiles, w)
+	return {
+		"gu": AIUrgency.gold_urgency(ctx.stats.gold_per_turn, fase, w),
+		"fu": AIUrgency.food_urgency(ctx.stats.food, fase, w),
+		"w": w,
+	}
+
+
 func test_score_choice_gold_effect() -> void:
-	# GoldEventEffect(100), gpt=100 MID → gu=2.0 → 100*0.4*2.0=80.0
 	var ctx := _make_ctx(_make_stats(100, 10))
+	var u := _urgencias(ctx)
+	var esperado: float = 100.0 * u["w"].choice_gold * u["gu"]
 	assert_almost_eq(
-		AIHeuristic.score_choice(_make_choice([GoldEventEffect.new(100)]), ctx), 80.0, 0.01)
+		AIHeuristic.score_choice(_make_choice([GoldEventEffect.new(100)]), ctx),
+		esperado, 0.01, "100 de oro × choice_gold × urgencia de oro")
 
 
 func test_score_choice_food_effect() -> void:
-	# FoodEventEffect(5), food=10 MID → fu=1.0 → 5*0.5*1.0=2.5
 	var ctx := _make_ctx(_make_stats(100, 10))
+	var u := _urgencias(ctx)
+	var esperado: float = 5.0 * u["w"].choice_food * u["fu"]
 	assert_almost_eq(
-		AIHeuristic.score_choice(_make_choice([FoodEventEffect.new(5)]), ctx), 2.5, 0.01)
+		AIHeuristic.score_choice(_make_choice([FoodEventEffect.new(5)]), ctx),
+		esperado, 0.01, "5 de comida × choice_food × urgencia de comida")
 
 
 func test_score_choice_add_card_effect() -> void:
-	# AddCardEffect(GenerateGoldCard(5)) → score_card_for_deck = 5*0.3*2.0=3.0
+	# La carta se valora por lo que vale EN EL MAZO (scd_gold_weight), no por
+	# choice_gold: es una carta que se añade, no oro que entra.
 	var ctx := _make_ctx(_make_stats(100, 10))
+	var u := _urgencias(ctx)
 	var gold_card := GenerateGoldCard.new()
 	gold_card.amount = 5
+	var esperado: float = 5.0 * u["w"].scd_gold_weight * u["gu"]
 	assert_almost_eq(
-		AIHeuristic.score_choice(_make_choice([AddCardEffect.new(gold_card)]), ctx), 3.0, 0.01)
+		AIHeuristic.score_choice(_make_choice([AddCardEffect.new(gold_card)]), ctx),
+		esperado, 0.01, "5 de oro × scd_gold_weight × urgencia de oro")
 
 
 func test_score_choice_remove_card_effect() -> void:
@@ -1049,10 +1072,16 @@ func test_score_choice_cost_penalizes_by_two() -> void:
 
 
 func test_score_choice_multiple_effects_stack() -> void:
-	# GoldEventEffect(100) + FoodEventEffect(5) = 80.0 + 2.5 = 82.5
+	# Lo que se afirma es que los efectos SUMAN, no cuánto suman.
 	var ctx := _make_ctx(_make_stats(100, 10))
-	var choice := _make_choice([GoldEventEffect.new(100), FoodEventEffect.new(5)])
-	assert_almost_eq(AIHeuristic.score_choice(choice, ctx), 82.5, 0.01)
+	var solo_oro := AIHeuristic.score_choice(
+		_make_choice([GoldEventEffect.new(100)]), ctx)
+	var solo_comida := AIHeuristic.score_choice(
+		_make_choice([FoodEventEffect.new(5)]), ctx)
+	var juntos := AIHeuristic.score_choice(
+		_make_choice([GoldEventEffect.new(100), FoodEventEffect.new(5)]), ctx)
+	assert_almost_eq(juntos, solo_oro + solo_comida, 0.01,
+		"los efectos de una opción se acumulan")
 
 
 # ============================================================

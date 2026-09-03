@@ -13,11 +13,29 @@ class_name SearchSpace
 var keys: PackedStringArray
 var rng: RandomNumberGenerator
 
+## índice de la dimensión -> índices de sus compañeras de bloque (ella incluida).
+## Solo entran las que están DENTRO de este espacio: optimizar un subconjunto de
+## claves no debe arrastrar a las que quedaron fuera.
+var _peers: Dictionary = {}
+
 
 func _init(p_keys: PackedStringArray = PackedStringArray(),
 		p_rng: RandomNumberGenerator = null) -> void:
 	keys = p_keys if not p_keys.is_empty() else HeuristicWeightsSpec.OPTIMIZABLE_KEYS
 	rng = p_rng if p_rng != null else RandomNumberGenerator.new()
+	_build_peers()
+
+
+func _build_peers() -> void:
+	var pos := {}
+	for i in range(keys.size()):
+		pos[keys[i]] = i
+	for i in range(keys.size()):
+		var grupo: Array = []
+		for k in HeuristicWeightsSpec.block_peers(keys[i]):
+			if pos.has(k):
+				grupo.append(pos[k])
+		_peers[i] = grupo
 
 
 func dim() -> int:
@@ -39,6 +57,11 @@ func vector_of(w: HeuristicWeights) -> PackedFloat64Array:
 func apply(base: HeuristicWeights, v: PackedFloat64Array) -> HeuristicWeights:
 	var w := base.clone()
 	HeuristicWeightsSpec.apply_vector(w, v, keys)
+	# Proyectar sobre la región coherente ANTES de que nadie lo evalúe. Es el único
+	# sitio por el que pasan todos los candidatos de SA y de GA, así que reparar
+	# aquí garantiza que no se gaste una partida en un juego de pesos con tramos
+	# inalcanzables o gradientes invertidos.
+	HeuristicWeightsSpec.repair(w)
 	return w
 
 
@@ -51,14 +74,33 @@ func clamp_vec(v: PackedFloat64Array) -> PackedFloat64Array:
 
 
 ## SA: perturba `count` dimensiones al azar con ruido gaussiano σ = frac·rango.
-## Baraja Fisher-Yates completo y toma las primeras `count` (igual que el original,
-## para conservar el orden de consumo del RNG).
+## Baraja Fisher-Yates completo y toma las primeras `count`.
+##
+## Si la dimensión elegida pertenece a un BLOQUE, el movimiento se aplica a todo el
+## bloque a la vez. Sin eso, SA no puede alcanzar los movimientos que solo tienen
+## sentido en conjunto: con 3 dimensiones perturbadas de más de 60, la probabilidad
+## de que toque justo las DOS condiciones de la fase LATE en el mismo paso es del
+## orden del 0.1 % — y por separado cada una es casi neutra, así que Metropolis las
+## rechaza. Un bloque grande mueve más dimensiones que `count`; es el objetivo.
 func perturb_dims(v: PackedFloat64Array, sigma_frac: float, count: int) -> PackedFloat64Array:
 	var out := v.duplicate()
 	for i in _pick_dims(count):
-		var b := bounds(i)
-		out[i] = clampf(out[i] + rng.randfn(0.0, (b.y - b.x) * sigma_frac), b.x, b.y)
+		_perturb_block(out, i, sigma_frac)
 	return out
+
+
+## Aplica a la dimensión `i` —y a sus compañeras de bloque— el MISMO desplazamiento
+## relativo, medido como fracción del rango de cada una. La fracción común conserva
+## la forma interna del grupo y desplaza el conjunto, que es justo el movimiento que
+## la búsqueda por coordenadas no puede dar. La forma sigue siendo explorable porque
+## el `repair` posterior solo corrige el ORDEN, no las distancias.
+func _perturb_block(out: PackedFloat64Array, i: int, sigma_frac: float) -> void:
+	# Con una sola dimensión esto es EXACTAMENTE el ruido de antes: `frac` es normal
+	# de σ = sigma_frac y se multiplica por el rango, igual que `randfn(0, σ·rango)`.
+	var frac := rng.randfn(0.0, sigma_frac)
+	for j in _peers.get(i, [i]):
+		var bj := bounds(j)
+		out[j] = clampf(out[j] + frac * (bj.y - bj.x), bj.x, bj.y)
 
 
 func _pick_dims(count: int) -> Array:
@@ -82,11 +124,12 @@ func sample_near(v: PackedFloat64Array, sigma_frac: float) -> PackedFloat64Array
 
 
 ## GA: muta cada gen con probabilidad `prob` (σ = frac·rango). Muta `v` in place.
+## Igual que en SA, un gen de un bloque arrastra a sus compañeras: el cruce puede
+## combinar bloques coherentes, pero solo si la mutación los genera coherentes.
 func mutate(v: PackedFloat64Array, prob: float, sigma_frac: float) -> PackedFloat64Array:
 	for i in range(v.size()):
 		if rng.randf() < prob:
-			var b := bounds(i)
-			v[i] = clampf(v[i] + rng.randfn(0.0, (b.y - b.x) * sigma_frac), b.x, b.y)
+			_perturb_block(v, i, sigma_frac)
 	return v
 
 

@@ -84,6 +84,58 @@ const SPEC := {
 	"phase_late_share": {"opt": true, "unit": true},
 	"phase_early_share": {"opt": true, "unit": true},
 	"phase_early_gpt": {"opt": true}, "phase_late_gpt": {"opt": true},
+	# Umbrales que preguntan «¿va bien mi economía?». Estaban fuera del espacio y
+	# repartidos por tres sitios que no se enteran unos de otros, con lo que el
+	# desfase de escala que arrastraban —calibrados para una economía que el juego
+	# ya no tiene— no había forma de corregirlo. Van en los bloques econ_scale /
+	# econ_scale_food, así que el optimizador los desplaza en conjunto.
+	"surplus_comfortable_early": {"opt": true}, "surplus_comfortable_mid": {"opt": true},
+	"surplus_comfortable_late": {"opt": true},
+	"openfront_econ_early_gpt": {"opt": true}, "openfront_econ_mid_gpt": {"opt": true},
+	"openfront_econ_late_gpt": {"opt": true},
+	"surplus_min_food": {"opt": true},
+	"openfront_econ_early_food": {"opt": true}, "openfront_econ_mid_food": {"opt": true},
+	"openfront_econ_late_food": {"opt": true},
+	# Las curvas de urgencia completas -- umbrales Y valores. Eran el 0 % del espacio
+	# pese a decidir qué mira la IA en cada tramo de partida: la única curva
+	# optimizable era la militar. Los umbrales van con guarda de reparación (arriba);
+	# los valores no la necesitan, el código no exige que decrezcan.
+	"gold_urg_early_t0": {"opt": true}, "gold_urg_early_t1": {"opt": true},
+	"gold_urg_early_t2": {"opt": true},
+	"gold_urg_early_v0": {"opt": true}, "gold_urg_early_v1": {"opt": true},
+	"gold_urg_early_v2": {"opt": true}, "gold_urg_early_v3": {"opt": true},
+	"gold_urg_mid_t0": {"opt": true}, "gold_urg_mid_t1": {"opt": true},
+	"gold_urg_mid_t2": {"opt": true}, "gold_urg_mid_t3": {"opt": true},
+	"gold_urg_mid_v0": {"opt": true}, "gold_urg_mid_v1": {"opt": true},
+	"gold_urg_mid_v2": {"opt": true}, "gold_urg_mid_v3": {"opt": true},
+	"gold_urg_mid_v4": {"opt": true},
+	"gold_urg_late_t0": {"opt": true, "hi": 50.0}, "gold_urg_late_t1": {"opt": true},
+	"gold_urg_late_t2": {"opt": true}, "gold_urg_late_t3": {"opt": true},
+	"gold_urg_late_t4": {"opt": true}, "gold_urg_late_t5": {"opt": true},
+	"gold_urg_late_t6": {"opt": true},
+	"gold_urg_late_v0": {"opt": true}, "gold_urg_late_v1": {"opt": true},
+	"gold_urg_late_v2": {"opt": true}, "gold_urg_late_v3": {"opt": true},
+	"gold_urg_late_v4": {"opt": true}, "gold_urg_late_v5": {"opt": true},
+	"gold_urg_late_v6": {"opt": true}, "gold_urg_late_v7": {"opt": true},
+	"food_urg_early_t0": {"opt": true, "hi": 2.0}, "food_urg_early_t1": {"opt": true},
+	"food_urg_early_t2": {"opt": true},
+	"food_urg_early_v0": {"opt": true}, "food_urg_early_v1": {"opt": true},
+	"food_urg_early_v2": {"opt": true}, "food_urg_early_v3": {"opt": true},
+	"food_urg_mid_t0": {"opt": true, "hi": 5.0}, "food_urg_mid_t1": {"opt": true},
+	"food_urg_mid_t2": {"opt": true},
+	"food_urg_mid_v0": {"opt": true}, "food_urg_mid_v1": {"opt": true},
+	"food_urg_mid_v2": {"opt": true}, "food_urg_mid_v3": {"opt": true},
+	"food_urg_late_t0": {"opt": true, "hi": 5.0}, "food_urg_late_t1": {"opt": true},
+	"food_urg_late_t2": {"opt": true},
+	"food_urg_late_v0": {"opt": true}, "food_urg_late_v1": {"opt": true},
+	"food_urg_late_v2": {"opt": true}, "food_urg_late_v3": {"opt": true},
+	"deck_urg_t0": {"opt": true}, "deck_urg_t1": {"opt": true},
+	"deck_urg_v0": {"opt": true}, "deck_urg_v1": {"opt": true}, "deck_urg_v2": {"opt": true},
+	# Banda de mazo: el eje (bloque deck_axis, arriba) y el umbral de tienda que
+	# faltaba -- deck_thin_*/purge_thresh_* ya entraban, shop_thresh_* no, sin que
+	# hubiera un motivo: comparten exactamente la misma forma (lerp sobre el eje).
+	"deck_small": {"opt": true}, "deck_large": {"opt": true},
+	"shop_thresh_small": {"opt": true}, "shop_thresh_large": {"opt": true},
 	# --- No optimizables por defecto pero acotados a [0,1] (pesos de score_state) ---
 	"state_w_t_early": {"unit": true}, "state_w_e_early": {"unit": true},
 	"state_w_m_early": {"unit": true}, "state_w_k_early": {"unit": true},
@@ -93,6 +145,222 @@ const SPEC := {
 	"state_w_m_late": {"unit": true}, "state_w_k_late": {"unit": true},
 	"state_t_share_mix": {"unit": true},
 }
+
+
+
+# ---------------------------------------------------------------------------
+# Parámetros que hay que mover JUNTOS
+# ---------------------------------------------------------------------------
+
+## Grupos de claves acopladas: mover una sola no dice nada, o dice algo incoherente.
+##
+## El optimizador trata cada dimensión por separado, y eso falla en tres formas
+## distintas que este proyecto ya ha sufrido:
+##
+##  · SUSTITUTOS. Las dos condiciones de LATE van unidas por un `or`, así que subir
+##    una deja que la otra siga saltando. Medido: subir solo la cuota mueve el
+##    reparto de fases 17 puntos, subir solo el gpt lo mueve 2.6, y subir las dos
+##    lo mueve 49. SA perturba 3 dimensiones de más de 60: la probabilidad de que
+##    toque justo ese par es del orden del 0.1 % por paso — nunca lo explora.
+##
+##  · CADENAS ORDENADAS. `encirclement_pressure` es un if/elif con umbrales
+##    decrecientes y valores crecientes. El campeón vigente ROMPIÓ ese gradiente
+##    —dejó `encircle_min` en 2.57, por debajo de `encircle_low` 6.17— porque nada
+##    se lo impedía. No es una hipótesis: está en el .tres.
+##
+##  · RAMAS INALCANZABLES. En `complement_bonus`, mover un umbral de la cadena
+##    puede dejar una rama sin ningún estado que la active. Una dimensión muerta
+##    silenciosa, como la que ya costó descubrir en `tr_econ_factor`.
+##
+## Un bloque se perturba con un factor COMÚN: conserva la forma interna del grupo y
+## desplaza el conjunto, que es el movimiento que la búsqueda por coordenadas no
+## puede hacer. La forma sigue siendo explorable porque las dimensiones también se
+## perturban sueltas.
+const BLOCKS := {
+	# Las dos condiciones de LATE, y las dos de EARLY.
+	"phase_late": ["phase_late_share", "phase_late_gpt"],
+	"phase_early": ["phase_early_share", "phase_early_gpt"],
+	# Los umbrales de encierro y sus valores son dos escalas distintas: los primeros
+	# son ratios colonizables/controladas y los segundos multiplicadores de score.
+	"encircle_thresholds": ["encircle_r2", "encircle_r1", "encircle_r05"],
+	"encircle_values": ["encircle_high", "encircle_mid", "encircle_low", "encircle_min"],
+	# Las dos cadenas de complementariedad, una por eje.
+	"complement_pool": ["complement_pool_hi", "complement_pool_mid",
+		"complement_pool_lomid", "complement_pool_lo"],
+	"complement_troop": ["complement_troop_lo", "complement_troop_mid",
+		"complement_troop_hi"],
+	# Todo lo que pregunta «¿va bien mi economía?» en unidades de gpt, repartido hoy
+	# por tres sitios que no se enteran unos de otros. El desfase que encontramos
+	# —umbrales calibrados para una economía que el juego ya no tiene— es de ESCALA,
+	# así que un factor común lo corrige de una vez. NO se les impone orden: que
+	# `openfront_econ_late_gpt` sea menor que el de MID es intencional (en late game
+	# el frente es el camino a la victoria y merece más tolerancia).
+	"econ_scale": ["surplus_comfortable_early", "surplus_comfortable_mid",
+		"surplus_comfortable_late", "openfront_econ_early_gpt",
+		"openfront_econ_mid_gpt", "openfront_econ_late_gpt"],
+	# El mismo argumento en la otra unidad. La comida tiene su propia escala y va
+	# por su cuenta: los ingresos de oro se disparan durante la partida y los de
+	# comida se quedan en las decenas, así que mezclarlas en un bloque las ataría
+	# a un factor común que no comparten.
+	"econ_scale_food": ["surplus_min_food", "openfront_econ_early_food",
+		"openfront_econ_mid_food", "openfront_econ_late_food"],
+
+	# Las CADENAS de umbral de las curvas de urgencia. `gold_urgency`/`food_urgency`
+	# son un `if x < t0: ... if x < t1: ...` leído de arriba abajo (ver ai_urgency.gd):
+	# si los umbrales se cruzan, un tramo intermedio deja de tener ningún estado que
+	# lo alcance — el mismo riesgo de rama inalcanzable que en `complement_bonus`,
+	# pero aquí eran justo los campos que el usuario pidió abrir primero.
+	"gold_urg_early_thresholds": ["gold_urg_early_t0", "gold_urg_early_t1", "gold_urg_early_t2"],
+	"gold_urg_mid_thresholds": ["gold_urg_mid_t0", "gold_urg_mid_t1",
+		"gold_urg_mid_t2", "gold_urg_mid_t3"],
+	"gold_urg_late_thresholds": ["gold_urg_late_t0", "gold_urg_late_t1", "gold_urg_late_t2",
+		"gold_urg_late_t3", "gold_urg_late_t4", "gold_urg_late_t5", "gold_urg_late_t6"],
+	"food_urg_early_thresholds": ["food_urg_early_t0", "food_urg_early_t1", "food_urg_early_t2"],
+	"food_urg_mid_thresholds": ["food_urg_mid_t0", "food_urg_mid_t1", "food_urg_mid_t2"],
+	"food_urg_late_thresholds": ["food_urg_late_t0", "food_urg_late_t1", "food_urg_late_t2"],
+	"deck_urg_thresholds": ["deck_urg_t0", "deck_urg_t1"],
+
+	# El eje del mazo. `deck_small`/`deck_large` no son "sustitutos" ni una cadena de
+	# umbrales de lectura secuencial: son los DOS EXTREMOS de la misma regla de tres
+	# (`_deck_ratio`), y si se cruzan o se igualan el denominador se anula —división
+	# por cero, NaN silencioso que se propagaría a las tres interpolaciones que
+	# comparten el eje (compra en tienda, purga, adelgazamiento de mazo).
+	"deck_axis": ["deck_small", "deck_large"],
+}
+
+
+## Bloque al que pertenece `key`, o "" si no está en ninguno. Índice inverso
+## construido una vez.
+static var _block_of: Dictionary = _compute_block_of()
+
+static func _compute_block_of() -> Dictionary:
+	var out := {}
+	for nombre in BLOCKS:
+		for k in BLOCKS[nombre]:
+			out[k] = nombre
+	return out
+
+
+static func block_of(key: String) -> String:
+	return _block_of.get(key, "")
+
+
+## Claves del bloque de `key`, o solo `key` si no está en ninguno.
+static func block_peers(key: String) -> PackedStringArray:
+	var nombre := block_of(key)
+	if nombre == "":
+		return PackedStringArray([key])
+	return PackedStringArray(BLOCKS[nombre])
+
+
+# ---------------------------------------------------------------------------
+# Reparación de invariantes
+# ---------------------------------------------------------------------------
+
+## Proyecta `w` sobre la región COHERENTE, ordenando las cadenas que tienen que ir
+## ordenadas. Muta `w` y devuelve cuántos campos tocó.
+##
+## Reparar en vez de rechazar es deliberado: rechazar tira una partida entera de
+## cómputo por un candidato que estaba a un `swap` de ser válido, y con muestreo por
+## rechazo en 25 umbrales la tasa de descarte sería ruinosa. Proyectar conserva la
+## dirección de la mutación y solo corrige el orden.
+##
+## Después de `repair`, `validate` debe devolver vacío. Hay un test que lo exige
+## sobre candidatos generados al azar.
+static func repair(w: HeuristicWeights) -> int:
+	var tocados := 0
+	# Curvas de urgencia: MISMOS umbrales que comprueba `validate()` (los tramos se
+	# leen de arriba abajo, y cruzarlos deja tramos inalcanzables). Antes `validate`
+	# los vigilaba pero nada los corregía —no estaba conectada al bucle del
+	# optimizador— y no eran optimizables; ahora las dos cosas son ciertas, así que
+	# un candidato que las cruce se repara aquí, no se descarta.
+	tocados += _sort_ascending(w, ["gold_urg_early_t0", "gold_urg_early_t1", "gold_urg_early_t2"])
+	tocados += _sort_ascending(w, ["gold_urg_mid_t0", "gold_urg_mid_t1", "gold_urg_mid_t2",
+		"gold_urg_mid_t3"])
+	tocados += _sort_ascending(w, ["gold_urg_late_t0", "gold_urg_late_t1", "gold_urg_late_t2",
+		"gold_urg_late_t3", "gold_urg_late_t4", "gold_urg_late_t5", "gold_urg_late_t6"])
+	tocados += _sort_ascending(w, ["food_urg_early_t0", "food_urg_early_t1", "food_urg_early_t2"])
+	tocados += _sort_ascending(w, ["food_urg_mid_t0", "food_urg_mid_t1", "food_urg_mid_t2"])
+	tocados += _sort_ascending(w, ["food_urg_late_t0", "food_urg_late_t1", "food_urg_late_t2"])
+	tocados += _sort_ascending(w, ["deck_urg_t0", "deck_urg_t1"])
+	# Encierro: umbrales decrecientes, valores crecientes. El gradiente «cuanto más
+	# rodeado, más incentivo a escapar» es intencional y hasta ahora no lo protegía
+	# nada — el campeón lo invirtió.
+	tocados += _sort_descending(w, ["encircle_r2", "encircle_r1", "encircle_r05"])
+	tocados += _sort_ascending(w, ["encircle_high", "encircle_mid", "encircle_low",
+		"encircle_min"])
+	# Complementariedad: el if/elif exige hi > mid > lomid > lo en el eje del pool y
+	# lo < mid < hi en el de la tropa; si se cruzan, hay ramas que no alcanza nadie.
+	tocados += _sort_descending(w, ["complement_pool_hi", "complement_pool_mid",
+		"complement_pool_lomid", "complement_pool_lo"])
+	tocados += _sort_ascending(w, ["complement_troop_lo", "complement_troop_mid",
+		"complement_troop_hi"])
+	tocados += _repair_phase_order(w)
+	tocados += _repair_deck_axis(w)
+	return tocados
+
+
+## Ordena los valores de `keys` de menor a mayor conservando el CONJUNTO. Devuelve
+## cuántas posiciones cambiaron.
+static func _sort_ascending(w: HeuristicWeights, keys: Array) -> int:
+	var vals: Array = []
+	for k in keys:
+		vals.append(float(w.get(k)))
+	var ordenados := vals.duplicate()
+	ordenados.sort()
+	return _write_back(w, keys, vals, ordenados)
+
+
+static func _sort_descending(w: HeuristicWeights, keys: Array) -> int:
+	var vals: Array = []
+	for k in keys:
+		vals.append(float(w.get(k)))
+	var ordenados := vals.duplicate()
+	ordenados.sort()
+	ordenados.reverse()
+	return _write_back(w, keys, vals, ordenados)
+
+
+static func _write_back(w: HeuristicWeights, keys: Array, antes: Array,
+		despues: Array) -> int:
+	var n := 0
+	for i in range(keys.size()):
+		if not is_equal_approx(float(antes[i]), float(despues[i])):
+			w.set(keys[i], despues[i])
+			n += 1
+	return n
+
+
+## El eje del mazo pide orden ESTRICTO y un hueco mínimo: igualados, `_deck_ratio`
+## divide por cero (NaN silencioso que se propaga a las tres interpolaciones que
+## comparten el eje). El hueco es pequeño a propósito — solo evita el cero exacto,
+## no acota la escala del eje, que es justo lo que el optimizador debe poder mover.
+static func _repair_deck_axis(w: HeuristicWeights) -> int:
+	if w.deck_large - w.deck_small >= 0.5:
+		return 0
+	var centro := (w.deck_small + w.deck_large) / 2.0
+	w.deck_small = centro - 0.25
+	w.deck_large = centro + 0.25
+	return 1
+
+
+## Las fronteras de fase piden orden ESTRICTO, no solo no decreciente: iguales, la
+## banda de en medio se queda sin ningún estado. Se separa el par un epsilon.
+static func _repair_phase_order(w: HeuristicWeights) -> int:
+	var n := 0
+	if w.phase_early_share >= w.phase_late_share:
+		var lo := minf(w.phase_early_share, w.phase_late_share)
+		var hi := maxf(w.phase_early_share, w.phase_late_share)
+		w.phase_early_share = minf(lo, hi - 0.01)
+		w.phase_late_share = hi
+		n += 1
+	if w.phase_early_gpt >= w.phase_late_gpt:
+		var lo2 := minf(w.phase_early_gpt, w.phase_late_gpt)
+		var hi2 := maxf(w.phase_early_gpt, w.phase_late_gpt)
+		w.phase_early_gpt = minf(lo2, hi2 - 1.0)
+		w.phase_late_gpt = hi2
+		n += 1
+	return n
 
 
 ## Espacio de búsqueda por defecto de SA/GA: las claves con opt:true en SPEC, en su
@@ -113,6 +381,14 @@ static func _compute_optimizable_keys() -> PackedStringArray:
 static func get_bounds(key: String) -> Vector2:
 	if SPEC.has(key) and SPEC[key].get("unit", false):
 		return Vector2(0.0, 1.0)
+	# Un puñado de umbrales del PRIMER tramo de una cadena valen 0 por diseño (el
+	# tramo empieza en cero), y la regla general confundiría ese 0 con "esto es una
+	# probabilidad" y lo encerraría en [0, 1] — cuando en realidad vive en la misma
+	# escala que sus hermanos de cadena (hasta 2000 en gold_urg_late). "hi" fija el
+	# techo explícitamente para esos campos; el suelo se queda en 0, que sí es
+	# correcto: el tramo no puede empezar en negativo.
+	if SPEC.has(key) and SPEC[key].has("hi"):
+		return Vector2(0.0, float(SPEC[key]["hi"]))
 	var d := float(HeuristicWeights.get_default().get(key))
 	if d == 0.0:
 		return Vector2(0.0, 1.0)

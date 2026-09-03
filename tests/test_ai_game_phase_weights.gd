@@ -55,8 +55,12 @@ func _fase_viva(propias: int, total: int, gpt: int,
 
 func test_la_frontera_de_late_esta_en_la_cuota_que_dice_el_peso() -> void:
 	# Entradas DERIVADAS del umbral: si el campeón lo mueve, el test se mueve con él.
+	# El `+ 1e-9` no es cosmético: con phase_late_share = 0.55, `0.55 * 100` da
+	# 55.00000000000001 y `ceil` devuelve 56, así que `justo - 1` caía JUSTO en el
+	# umbral y el test se acusaba a sí mismo. Derivar entradas de un umbral flotante
+	# exige tolerancia.
 	var w := _w()
-	var justo := int(ceil(w.phase_late_share * TOTAL))
+	var justo := int(ceil(w.phase_late_share * TOTAL - 1e-9))
 	assert_eq(_fase_snapshot(justo, TOTAL, 0, w), AIGamePhase.Phase.LATE,
 		"con la cuota del umbral debe ser LATE")
 	assert_ne(_fase_snapshot(justo - 1, TOTAL, 0, w), AIGamePhase.Phase.LATE,
@@ -148,16 +152,68 @@ func test_las_fronteras_de_fase_entran_en_el_espacio_de_busqueda() -> void:
 		assert_true(keys.has(k), "%s debe ser optimizable" % k)
 
 
+## Grupos incorporados al espacio DESPUÉS del campeón, en orden de incorporación.
+## Cada uno va al final para no desplazar los índices de los anteriores.
+const AÑADIDOS_TRAS_EL_CAMPEON := [
+	["build_cost_ref", "assign_power_weight"],
+	["phase_late_share", "phase_early_share", "phase_early_gpt", "phase_late_gpt"],
+	["surplus_comfortable_early", "surplus_comfortable_mid", "surplus_comfortable_late",
+		"openfront_econ_early_gpt", "openfront_econ_mid_gpt", "openfront_econ_late_gpt",
+		"surplus_min_food", "openfront_econ_early_food", "openfront_econ_mid_food",
+		"openfront_econ_late_food"],
+	# Las curvas de urgencia completas (oro, comida, mazo) + el eje del mazo: la
+	# petición original de esta tanda ("todas las urgencias, sin ningún criterio
+	# aparente"). 61 claves, en el mismo orden en que se declaran en
+	# HeuristicWeights — umbrales y valores intercalados por tramo, tal y como
+	# aparecen en el fichero.
+	["gold_urg_early_t0", "gold_urg_early_t1", "gold_urg_early_t2",
+		"gold_urg_early_v0", "gold_urg_early_v1", "gold_urg_early_v2", "gold_urg_early_v3",
+		"gold_urg_mid_t0", "gold_urg_mid_t1", "gold_urg_mid_t2", "gold_urg_mid_t3",
+		"gold_urg_mid_v0", "gold_urg_mid_v1", "gold_urg_mid_v2", "gold_urg_mid_v3",
+		"gold_urg_mid_v4",
+		"gold_urg_late_t0", "gold_urg_late_t1", "gold_urg_late_t2", "gold_urg_late_t3",
+		"gold_urg_late_t4", "gold_urg_late_t5", "gold_urg_late_t6",
+		"gold_urg_late_v0", "gold_urg_late_v1", "gold_urg_late_v2", "gold_urg_late_v3",
+		"gold_urg_late_v4", "gold_urg_late_v5", "gold_urg_late_v6", "gold_urg_late_v7",
+		"food_urg_early_t0", "food_urg_early_t1", "food_urg_early_t2",
+		"food_urg_early_v0", "food_urg_early_v1", "food_urg_early_v2", "food_urg_early_v3",
+		"food_urg_mid_t0", "food_urg_mid_t1", "food_urg_mid_t2",
+		"food_urg_mid_v0", "food_urg_mid_v1", "food_urg_mid_v2", "food_urg_mid_v3",
+		"food_urg_late_t0", "food_urg_late_t1", "food_urg_late_t2",
+		"food_urg_late_v0", "food_urg_late_v1", "food_urg_late_v2", "food_urg_late_v3",
+		"deck_urg_t0", "deck_urg_t1",
+		"deck_urg_v0", "deck_urg_v1", "deck_urg_v2",
+		"deck_small", "deck_large",
+		"shop_thresh_small", "shop_thresh_large"],
+]
+
+
 func test_las_claves_nuevas_van_al_final_y_no_desplazan_el_layout() -> void:
-	# El orden de OPTIMIZABLE_KEYS ES el layout del vector. Insertarlas en su grupo
-	# temático habría corrido los índices de todas las posteriores y dejado sin
-	# sentido los vectores guardados de las tandas anteriores.
+	# El orden de OPTIMIZABLE_KEYS ES el layout del vector (to_vector/apply_vector).
+	# Insertar una clave en su grupo temático correría los índices de todas las
+	# posteriores y dejaría sin sentido los vectores guardados de tandas anteriores;
+	# el .tres del campeón sobrevive porque serializa por nombre, pero los vectores
+	# de `opt_2stage.json` no. Por eso se añade SIEMPRE al final.
+	var esperado: Array = []
+	for grupo in AÑADIDOS_TRAS_EL_CAMPEON:
+		for k in grupo:
+			esperado.append(k)
+
 	var keys := HeuristicWeightsSpec.OPTIMIZABLE_KEYS
-	var ultimas: Array = []
-	for i in range(keys.size() - CLAVES_FASE.size(), keys.size()):
-		ultimas.append(keys[i])
-	assert_eq(ultimas, CLAVES_FASE,
-		"las fronteras de fase deben ocupar las últimas dimensiones del vector")
+	var cola: Array = []
+	for i in range(keys.size() - esperado.size(), keys.size()):
+		cola.append(keys[i])
+	assert_eq(cola, esperado,
+		"los grupos añadidos tras el campeón deben ocupar la cola del vector, en orden")
+
+
+func test_no_hay_claves_repetidas_en_el_espacio() -> void:
+	# Una clave duplicada ocuparía dos dimensiones que el optimizador movería por
+	# separado; la segunda pisaría a la primera al aplicar el vector.
+	var vistas := {}
+	for k in HeuristicWeightsSpec.OPTIMIZABLE_KEYS:
+		assert_false(vistas.has(k), "%s aparece dos veces en OPTIMIZABLE_KEYS" % k)
+		vistas[k] = true
 
 
 func test_las_cuotas_se_buscan_dentro_de_cero_uno() -> void:

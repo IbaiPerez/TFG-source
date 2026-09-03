@@ -128,12 +128,20 @@ func test_detect_phase_early() -> void:
 
 
 func test_detect_phase_late_by_share() -> void:
+	# La cuota se DERIVA del peso, no se escribe: con 4 de 10 casillas fijas, este
+	# test daba por buena la fase LATE hasta que se recalibro el umbral de 0.30 a
+	# 0.55 y el 40 % del mapa dejo de serlo. Lo que se afirma es que basta la CUOTA
+	# para entrar en LATE, sin ayuda del gpt.
+	var w := HeuristicWeights.get_default()
+	var total := 20
+	var propias := int(ceil(w.phase_late_share * total - 1e-9))
 	var s := AIRealState.new()
-	s.total_map_tiles = 10
-	for i in range(4):  # 40% del mapa
+	s.total_map_tiles = total
+	for i in range(propias):
 		s.tiles[i] = _snap(i, AIRealState.OWNER_SELF)
-	s.own.gold_per_turn = 50
-	assert_eq(AIRealEval.detect_phase(s), AIGamePhase.Phase.LATE)
+	s.own.gold_per_turn = 50   # muy por debajo del umbral de gpt: manda la cuota
+	assert_eq(AIRealEval.detect_phase(s), AIGamePhase.Phase.LATE,
+		"con la cuota en el umbral debe ser LATE aunque el gpt sea bajo")
 
 
 # ============================================================

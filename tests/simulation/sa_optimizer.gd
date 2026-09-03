@@ -46,6 +46,12 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 		keys = HeuristicWeightsSpec.OPTIMIZABLE_KEYS
 	space = SearchSpace.new(keys, rng)
 	var cur := start.clone() if start != null else HeuristicWeights.new()
+	# El punto de partida también se repara: el campeón vigente tiene el gradiente
+	# de encierro invertido, y arrancar de ahí sin corregir arrastraría la
+	# incoherencia a toda la corrida.
+	var reparados := HeuristicWeightsSpec.repair(cur)
+	if reparados > 0:
+		print("[SA] punto de partida reparado: %d campos reordenados" % reparados)
 	var cur_fit := await fitness.evaluate(cur)
 	best_weights = cur.clone()
 	best_fitness = cur_fit
