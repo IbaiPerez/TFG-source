@@ -15,22 +15,12 @@ class_name HeuristicWeights
 ## silencio.
 
 
-# Fronteras entre fases (AIGamePhase.detect_from). NO son reglas del juego: nada en
-# las reglas depende de la fase, es solo la lectura con la que la IA elige qué curva
-# de urgencia y qué pesos aplica. Por eso viven aquí y el optimizador las mueve.
-#
-# CALIBRADAS contra la simulación, no a ojo. Con los valores anteriores
-# (0.30/350/0.08/100) el 80 % de los snapshots caía en LATE y la partida transcurría
-# casi entera en una sola banda: las de EARLY y MID eran decorativas. Recalculando el
-# reparto sobre los mismos 3194 snapshots medidos:
-#
-#     0.30 / 350   ->  2.9 % EARLY   17.3 % MID   79.8 % LATE
-#     0.55 / 1400  -> 10.5 % EARLY   58.5 % MID   31.0 % LATE
-#
-# Los DOS umbrales de LATE hay que moverlos juntos porque la condición es un OR: son
-# disparadores sustitutos, y subir solo uno deja que el otro siga saltando (mover solo
-# la cuota gana 17 puntos; mover solo el gpt, 2.6). El de gpt en 350 estaba calibrado
-# para una economía que el juego ya no tiene — hoy la mediana es 320 y el p75, 825.
+# Fronteras entre fases (AIGamePhase.detect_from). NO son reglas: nada en el juego
+# depende de la fase, es solo la lectura con la que la IA elige curva de urgencia y
+# pesos. CALIBRADAS contra la simulación: con 0.30/350 el 80 % de los snapshots caía
+# en LATE y las bandas de EARLY y MID eran decorativas; con estos valores, medido en
+# partida real, 7.4 / 42.5 / 50.1 %. Los dos umbrales de LATE se mueven juntos porque
+# la condición es un OR (ver HeuristicWeightsInvariants.BLOCKS).
 @export_group("Fases de partida")
 @export var phase_late_share: float = 0.55   ## LATE con >= esta cuota del mapa
 @export var phase_early_share: float = 0.20  ## EARLY solo por debajo de esta cuota...

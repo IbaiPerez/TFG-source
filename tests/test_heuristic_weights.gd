@@ -89,7 +89,7 @@ func test_optimizable_keys_derived_from_spec() -> void:
 
 
 func test_validate_passes_on_defaults() -> void:
-	var errors := HeuristicWeightsSpec.validate(HeuristicWeights.new())
+	var errors := HeuristicWeightsInvariants.validate(HeuristicWeights.new())
 	assert_eq(errors.size(), 0,
 		"los pesos por defecto deben validar sin errores: %s" % str(errors))
 
@@ -97,7 +97,7 @@ func test_validate_passes_on_defaults() -> void:
 func test_validate_detects_non_monotonic_urgency() -> void:
 	var w := HeuristicWeights.new()
 	w.gold_urg_early_t1 = w.gold_urg_early_t0 - 1.0  # rompe la monotonía
-	assert_gt(HeuristicWeightsSpec.validate(w).size(), 0,
+	assert_gt(HeuristicWeightsInvariants.validate(w).size(), 0,
 		"validate() debe detectar una curva de urgencia no creciente")
 
 

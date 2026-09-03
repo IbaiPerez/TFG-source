@@ -241,15 +241,15 @@ func test_el_vector_lleva_y_trae_las_fronteras() -> void:
 func test_validate_rechaza_fronteras_cruzadas() -> void:
 	# El optimizador mueve las cuatro por separado, así que PUEDE cruzarlas. Cruzadas
 	# la detección no falla: devuelve una fase que ya no significa lo que dice.
-	assert_eq(HeuristicWeightsSpec.validate(_w()).size(), 0,
+	assert_eq(HeuristicWeightsInvariants.validate(_w()).size(), 0,
 		"los pesos por defecto deben validar")
 
 	var cruzado := _w()
 	cruzado.phase_early_share = cruzado.phase_late_share + 0.1
-	assert_gt(HeuristicWeightsSpec.validate(cruzado).size(), 0,
+	assert_gt(HeuristicWeightsInvariants.validate(cruzado).size(), 0,
 		"una cuota EARLY por encima de la de LATE debe rechazarse")
 
 	var cruzado_gpt := _w()
 	cruzado_gpt.phase_early_gpt = cruzado_gpt.phase_late_gpt + 1.0
-	assert_gt(HeuristicWeightsSpec.validate(cruzado_gpt).size(), 0,
+	assert_gt(HeuristicWeightsInvariants.validate(cruzado_gpt).size(), 0,
 		"un gpt EARLY por encima del de LATE debe rechazarse")

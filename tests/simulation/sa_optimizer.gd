@@ -49,7 +49,7 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 	# El punto de partida también se repara: el campeón vigente tiene el gradiente
 	# de encierro invertido, y arrancar de ahí sin corregir arrastraría la
 	# incoherencia a toda la corrida.
-	var reparados := HeuristicWeightsSpec.repair(cur)
+	var reparados := HeuristicWeightsInvariants.repair(cur)
 	if reparados > 0:
 		print("[SA] punto de partida reparado: %d campos reordenados" % reparados)
 	var cur_fit := await fitness.evaluate(cur)

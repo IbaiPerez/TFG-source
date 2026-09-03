@@ -32,7 +32,7 @@ func _build_peers() -> void:
 		pos[keys[i]] = i
 	for i in range(keys.size()):
 		var grupo: Array = []
-		for k in HeuristicWeightsSpec.block_peers(keys[i]):
+		for k in HeuristicWeightsInvariants.block_peers(keys[i]):
 			if pos.has(k):
 				grupo.append(pos[k])
 		_peers[i] = grupo
@@ -61,7 +61,7 @@ func apply(base: HeuristicWeights, v: PackedFloat64Array) -> HeuristicWeights:
 	# sitio por el que pasan todos los candidatos de SA y de GA, así que reparar
 	# aquí garantiza que no se gaste una partida en un juego de pesos con tramos
 	# inalcanzables o gradientes invertidos.
-	HeuristicWeightsSpec.repair(w)
+	HeuristicWeightsInvariants.repair(w)
 	return w
 
 
