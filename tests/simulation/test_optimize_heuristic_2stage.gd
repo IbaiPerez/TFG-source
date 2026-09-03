@@ -4,9 +4,11 @@ extends GutTest
 ## (baseline + arquetipos de heurística), SIN MCTS.
 ##
 ##   Etapa 1 (búsqueda, barata): SA y GA exploran contra un pool ligero
-##     (core_pool) con pocas partidas/eval. Objetivo: localizar buenos candidatos.
+##     (search_pool: 3 arquetipos + N aleatorios frescos) con POCAS partidas por
+##     rival. Objetivo: localizar candidatos buenos SIN que se especialicen.
 ##   Etapa 2 (revalidación, cara): los finalistas (baseline + campeón SA + campeón
-##     GA) se re-evalúan contra el pool completo (full_pool: baseline + 3 arquetipos) con
+##     GA) se re-evalúan contra un pool HELD-OUT (selection_pool: baseline + N
+##     aleatorios de semilla disjunta, cero solapamiento con la búsqueda) con
 ##     MUCHAS partidas y SEMILLAS DISJUNTAS → win-rate con IC95 fiable, sin
 ##     sobreajuste al set de búsqueda.
 ##
@@ -25,7 +27,12 @@ extends GutTest
 const ENABLE_FROM_GUI := true
 
 # --- Parámetros por defecto (ajustables por env var) ------------------------
-const STAGE1_GAMES := 10          ## partidas/matchup en la búsqueda
+const STAGE1_RIVALS := 16         ## heurísticas aleatorias frescas en la búsqueda
+const STAGE2_RIVALS := 12         ## heurísticas aleatorias frescas en la selección
+const TOP_K := 5                  ## finalistas que pasa CADA algoritmo a la etapa 2
+const SEARCH_OPP_SEED := 31337    ## fija los rivales de búsqueda: los MISMOS para todos
+const SELECT_OPP_SEED := 80085    ## rivales de selección: DISJUNTO del de búsqueda
+const STAGE1_GAMES := 2           ## partidas/matchup en la búsqueda (muchos rivales)
 const STAGE1_SA_ITERS := 50
 const STAGE1_GA_POP := 10
 const STAGE1_GA_GENS := 6
@@ -57,56 +64,72 @@ func test_two_stage() -> void:
 	fit1.max_rounds = SMOKE_MAX_ROUNDS if smoke else _int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
 	# En smoke solo 1 rival (baseline) para que el flujo termine en segundos.
 	fit1.opponents = [HeuristicOpponents.heur_config(HeuristicOpponents.baseline())] \
-		if smoke else HeuristicOpponents.core_pool()
+		if smoke else HeuristicOpponents.search_pool(
+			SEARCH_OPP_SEED, _int_env("STAGE1_RIVALS", STAGE1_RIVALS))
 	print("[2stage] === ETAPA 1: búsqueda · pool ligero (%d rivales) · %d partidas/matchup ===" % [
 		fit1.opponents.size(), fit1.n_games])
 
+	var k_fin := 1 if smoke else _int_env("TOP_K", TOP_K)
+
 	var sa := SAOptimizer.new(fit1, 4242)
 	sa.iterations = SMOKE_SA_ITERS if smoke else _int_env("STAGE1_SA_ITERS", STAGE1_SA_ITERS)
-	print("[2stage] -- SA (%d iters) --" % sa.iterations)
-	var sa_champ: HeuristicWeights = await sa.run()
+	sa.top_k = k_fin
+	print("[2stage] -- SA (%d iters, top-%d) --" % [sa.iterations, k_fin])
+	await sa.run()
 
 	var ga := GAOptimizer.new(fit1, 999)
 	ga.pop_size = SMOKE_GA_POP if smoke else _int_env("STAGE1_GA_POP", STAGE1_GA_POP)
 	ga.generations = SMOKE_GA_GENS if smoke else _int_env("STAGE1_GA_GENS", STAGE1_GA_GENS)
-	print("[2stage] -- GA (pop %d × %d gen) --" % [ga.pop_size, ga.generations])
-	var ga_champ: HeuristicWeights = await ga.run()
+	ga.top_k = k_fin
+	print("[2stage] -- GA (pop %d × %d gen, top-%d) --" % [ga.pop_size, ga.generations, k_fin])
+	await ga.run()
 
 	# ---- Etapa 2: revalidación pesada de los finalistas ------------------
-	var finalists := [
-		{"name": "baseline", "w": HeuristicWeights.new()},
-		{"name": "sa", "w": sa_champ},
-		{"name": "ga", "w": ga_champ},
-	]
+	# Pasan los K mejores de cada algoritmo, no el argmax: quedarse con el mejor
+	# del pool de BÚSQUEDA es el paso de sobreajuste, porque ese es por
+	# construcción el más afinado a esos rivales. Con top-K decide el held-out.
+	var finalists: Array = [{"name": "baseline", "w": HeuristicWeights.new()}]
+	for i in range(sa.top.size()):
+		finalists.append({"name": "sa_%d" % (i + 1), "w": sa.top.to_array()[i]["weights"]})
+	for i in range(ga.top.size()):
+		finalists.append({"name": "ga_%d" % (i + 1), "w": ga.top.to_array()[i]["weights"]})
+	print("[2stage] finalistas: %d (baseline + %d de SA + %d de GA)" % [
+		finalists.size(), sa.top.size(), ga.top.size()])
 	var fit2 := HeuristicFitness.new(self)
 	fit2.n_games = SMOKE_STAGE2_GAMES if smoke else _int_env("STAGE2_GAMES", STAGE2_GAMES)
 	fit2.seed_master = VALIDATE_SEED
 	fit2.mirror = true
 	fit2.max_rounds = SMOKE_MAX_ROUNDS if smoke else _int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
 	# En smoke, pool reducido (core) para acabar rápido; real usa el completo.
-	fit2.opponents = HeuristicOpponents.core_pool() if smoke else HeuristicOpponents.full_pool()
+	fit2.opponents = HeuristicOpponents.selection_pool(SELECT_OPP_SEED, 2) if smoke \
+		else HeuristicOpponents.selection_pool(
+			SELECT_OPP_SEED, _int_env("STAGE2_RIVALS", STAGE2_RIVALS))
 	print("[2stage] === ETAPA 2: revalidación · pool completo (%d rivales) · %d partidas/matchup · seed DISJUNTO ===" % [
 		fit2.opponents.size(), fit2.n_games])
 
 	var report: Array = []
-	var champion = null
-	var champion_wr := -1.0
 	for f in finalists:
 		var d := await fit2.evaluate_detailed(f["w"])
+		var derrotas := _derrotas_significativas(d["per_opponent"])
 		var row := {
 			"name": f["name"],
 			"winrate": d["winrate"],
 			"ci95_lo": d["ci95_lo"],
 			"ci95_hi": d["ci95_hi"],
 			"decisive": d["decisive"],
+			"significant_losses": derrotas,
+			"weights": f["w"],
 			"per_opponent": _summarize_per_opponent(d["per_opponent"]),
 		}
 		report.append(row)
-		print("[2stage] %-9s WR %.3f  IC95[%.3f, %.3f]  (%d decisivas)" % [
-			f["name"], d["winrate"], d["ci95_lo"], d["ci95_hi"], int(d["decisive"])])
-		if float(d["winrate"]) > champion_wr:
-			champion_wr = float(d["winrate"])
-			champion = f["w"]
+		print("[2stage] %-9s WR %.3f  IC95[%.3f, %.3f]  (%d decisivas)  derrotas sig.: %d" % [
+			f["name"], d["winrate"], d["ci95_lo"], d["ci95_hi"], int(d["decisive"]), derrotas])
+
+	var champion_row := _elegir_campeon(report)
+	var champion = champion_row["weights"]
+	var champion_wr: float = champion_row["winrate"]
+	print("[2stage] CAMPEÓN: %s (WR %.3f, %d derrotas significativas)" % [
+		champion_row["name"], champion_wr, int(champion_row["significant_losses"])])
 
 	# ---- Guardado -------------------------------------------------------
 	assert_not_null(champion, "Debe haber un campeón")
@@ -122,7 +145,7 @@ func test_two_stage() -> void:
 		"validate_seed": VALIDATE_SEED,
 		"stage1_games": fit1.n_games,
 		"stage2_games": fit2.n_games,
-		"finalists": report,
+		"finalists": _report_serializable(report),
 		"champion_winrate": champion_wr,
 		"champion_weights": _weights_dict(champion),
 		"sa_trace": sa.trace,
@@ -163,3 +186,63 @@ func _weights_dict(w: HeuristicWeights) -> Dictionary:
 func _int_env(name: String, fallback: int) -> int:
 	var v := OS.get_environment(name)
 	return int(v) if v != "" else fallback
+
+
+## Copia del informe SIN el objeto de pesos: `JSON.stringify` no sabe serializar
+## un Resource y lo dejaría como basura silenciosa en el fichero.
+func _report_serializable(report: Array) -> Array:
+	var out: Array = []
+	for row in report:
+		var copia := {}
+		for k in row:
+			if k != "weights":
+				copia[k] = row[k]
+		out.append(copia)
+	return out
+
+
+## Cuántos rivales le ganan de forma SIGNIFICATIVA (no por ruido): el extremo
+## superior del IC95 de ese enfrentamiento no llega al 50 %.
+##
+## La barrera tiene que ser estadística y no literal. Un candidato cuyo win-rate
+## REAL contra un rival es exactamente 0.50 se observa por debajo de 0.50 la mitad
+## de las veces, y eso no mejora con más partidas — es la definición de estar en la
+## media. Una barrera literal ("≥50 % contra todos") rechazaría a casi todos: con k
+## rivales parejos, la probabilidad de que al menos uno caiga por debajo es
+## 1 − 0.5^k, que con 12 rivales es del 99.98 %.
+func _derrotas_significativas(per_opponent: Array) -> int:
+	var n := 0
+	for o in per_opponent:
+		if float(o.get("ci95_hi", 1.0)) < 0.5:
+			n += 1
+	return n
+
+
+## Campeón: el de mayor win-rate medio ENTRE LOS QUE no pierden significativamente
+## contra ningún rival.
+##
+## Si nadie pasa la barrera, no se aborta: se elige por menor número de derrotas
+## significativas y, a igualdad, por media. Que la barrera quede desierta también
+## es un resultado, y queda registrado en el JSON para poder contarlo.
+func _elegir_campeon(report: Array) -> Dictionary:
+	var limpios: Array = []
+	for row in report:
+		if int(row["significant_losses"]) == 0:
+			limpios.append(row)
+
+	var candidatos: Array = limpios
+	if limpios.is_empty():
+		print("[2stage] AVISO: ningún finalista pasa la barrera del 50 %. " +
+			"Se elige por menos derrotas significativas y, a igualdad, por media.")
+		var minimo := 9999
+		for row in report:
+			minimo = mini(minimo, int(row["significant_losses"]))
+		for row in report:
+			if int(row["significant_losses"]) == minimo:
+				candidatos.append(row)
+
+	var mejor: Dictionary = candidatos[0]
+	for row in candidatos:
+		if float(row["winrate"]) > float(mejor["winrate"]):
+			mejor = row
+	return mejor

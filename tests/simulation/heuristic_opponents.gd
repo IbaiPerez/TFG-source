@@ -17,37 +17,64 @@ class_name HeuristicOpponents
 
 # --- Configs listas para el pool ---------------------------------------------
 
-## Pool ligero para la ETAPA 1 (búsqueda): baseline + 2 arquetipos contrastados.
-## Menos rivales = evaluaciones más baratas mientras se explora.
-static func core_pool() -> Array:
-	return [
-		heur_config(baseline()),
-		heur_config(militarist()),
-		heur_config(expansionist()),
-	]
-
-
-## Pool completo para la ETAPA 2 (revalidación): baseline + los 3 arquetipos.
+## Pool de la ETAPA 1 (búsqueda): los 3 arquetipos + `k_random` heurísticas de
+## pesos aleatorios frescos. MUCHOS rivales con POCAS partidas cada uno.
 ##
-## SIN política aleatoria, y no por gusto: en la corrida real de dos etapas el
-## rival `Mode.RANDOM` separó a los tres finalistas por solo 0.056 de win-rate
-## (0.887 / 0.906 / 0.944) frente al ~0.30 que los separaban los rivales de
-## verdad. Era un quinto del presupuesto de partidas dedicado a una pregunta cuya
-## respuesta ya se sabe —todos le ganan— y además inflaba el win-rate global de
-## todos por igual: la baseline aparentaba 0.606 cuando contra rivales reales iba
-## en 0.535.
+## El reparto no es un capricho. Con presupuesto total G repartido en k rivales y
+## m partidas por rival, la varianza de la estimación se descompone así:
 ##
-## Hay un segundo motivo, de ruido: como la partida diverge según lo que juega el
-## candidato, cada uno acaba enfrentándose a una REALIZACIÓN distinta de la
-## política aleatoria aunque la semilla sea la misma. Con un rival heurístico eso
-## también pasa, pero su calidad es estable; la de una política aleatoria no.
-static func full_pool() -> Array:
-	return [
-		heur_config(baseline()),
+##     Var = σ²_entre_rivales / k  +  E[p(1−p)] / G
+##
+## El término binomial depende solo del TOTAL, no del reparto — así que a igualdad
+## de partidas, más rivales reduce el error de forma estricta. Con los datos de la
+## corrida anterior (win-rate por rival entre 0.449 y 0.887, σ ≈ 0.15), con 4
+## rivales el error lo dominaba la muestra de RIVALES (≈0.075) y no la de partidas
+## (≈0.02): pasar a ~20 rivales lo reduce a menos de la mitad sin gastar una
+## partida más.
+##
+## Y el objetivo de fondo es otro: cuantos más estilos distintos tenga que batir un
+## candidato, menos margen tiene para especializarse en explotar a uno concreto.
+##
+## `seed` fija los rivales: TODOS los candidatos de una corrida se enfrentan
+## exactamente al mismo pool, o los win-rate no serían comparables entre sí.
+static func search_pool(seed: int, k_random: int = 16, spread: float = 0.5) -> Array:
+	var pool: Array = [
 		heur_config(economic()),
 		heur_config(militarist()),
 		heur_config(expansionist()),
 	]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	for i in range(k_random):
+		pool.append(heur_config(random_heuristic(rng, spread)))
+	return pool
+
+
+## Pool de la ETAPA 2 (selección del campeón): baseline + `k_random` heurísticas
+## aleatorias de una semilla DISTINTA a la de búsqueda. Cero solapamiento con
+## `search_pool`, que es lo que lo hace held-out de verdad.
+##
+## La baseline entra aquí y NO en la búsqueda a propósito: así "el campeón gana a
+## los pesos por defecto" es una afirmación sobre un rival que nunca vio.
+##
+## Aquí sí van muchas partidas por rival: es donde se decide, y donde la barrera
+## del 50 % necesita potencia estadística para distinguir una derrota real del
+## ruido (con 160 decisivas detecta win-rate por debajo de ~0.42; con 8, nada).
+static func selection_pool(seed: int, k_random: int = 12, spread: float = 0.5) -> Array:
+	var pool: Array = [heur_config(baseline())]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	for i in range(k_random):
+		pool.append(heur_config(random_heuristic(rng, spread)))
+	return pool
+
+
+## NOTA sobre la política aleatoria (`Mode.RANDOM`): estuvo en el pool y se quitó.
+## En la corrida real separaba a los tres finalistas por 0.056 de win-rate
+## (0.887 / 0.906 / 0.944) frente al ~0.30 de los rivales de verdad — un quinto del
+## presupuesto de partidas para una pregunta ya respondida, e inflaba el win-rate
+## de todos por igual. `random_config()` sigue existiendo para AIModeComparator,
+## que la usa como referencia de suelo, pero no vuelve a los pools de fitness.
 
 
 # --- Fábricas de AIConfig ----------------------------------------------------

@@ -31,8 +31,10 @@ var elitism: int = 2              ## nº de mejores que pasan intactos
 var init_spread: float = 0.25     ## dispersión inicial (fracción del rango)
 
 # --- Estado / traza ----------------------------------------------------------
+var top_k: int = 5                ## cuántos finalistas devuelve (ver TopCandidates)
 var best_weights: HeuristicWeights
 var best_fitness: float = -1.0
+var top: TopCandidates            ## los `top_k` mejores distintos
 var trace: Array = []             ## [{gen, best, mean}]
 
 
@@ -47,6 +49,7 @@ func run(seed_weights: HeuristicWeights = null) -> HeuristicWeights:
 	if keys.is_empty():
 		keys = HeuristicWeightsSpec.OPTIMIZABLE_KEYS
 	space = SearchSpace.new(keys, rng)
+	top = TopCandidates.new(top_k)
 	_base = seed_weights.clone() if seed_weights != null else HeuristicWeights.new()
 	var base_vec := space.vector_of(_base)
 
@@ -92,9 +95,13 @@ func _eval_vec(v: PackedFloat64Array) -> float:
 
 
 func _track(v: PackedFloat64Array, f: float) -> void:
+	# `space.apply` repara, así que el candidato que se guarda es el mismo que se
+	# evaluó — no el vector crudo, que podría tener cadenas cruzadas.
+	var w := space.apply(_base, v)
+	top.offer(w, f, str(v))
 	if f > best_fitness:
 		best_fitness = f
-		best_weights = space.apply(_base, v)
+		best_weights = w
 
 
 func _tournament(pop: Array, fits: Array) -> PackedFloat64Array:

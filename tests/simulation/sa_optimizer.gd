@@ -29,8 +29,10 @@ var step_frac: float = 0.15       ## σ de perturbación como fracción del rang
 var dims_per_step: int = 3        ## nº de dimensiones perturbadas por vecino
 
 # --- Estado / traza ----------------------------------------------------------
+var top_k: int = 5                ## cuántos finalistas devuelve (ver TopCandidates)
 var best_weights: HeuristicWeights
 var best_fitness: float = -1.0
+var top: TopCandidates            ## los `top_k` mejores distintos
 var trace: Array = []             ## [{iter, temp, cur_fit, best_fit}]
 
 
@@ -45,6 +47,7 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 	if keys.is_empty():
 		keys = HeuristicWeightsSpec.OPTIMIZABLE_KEYS
 	space = SearchSpace.new(keys, rng)
+	top = TopCandidates.new(top_k)
 	var cur := start.clone() if start != null else HeuristicWeights.new()
 	# El punto de partida también se repara: el campeón vigente tiene el gradiente
 	# de encierro invertido, y arrancar de ahí sin corregir arrastraría la
@@ -55,6 +58,7 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 	var cur_fit := await fitness.evaluate(cur)
 	best_weights = cur.clone()
 	best_fitness = cur_fit
+	top.offer(cur, cur_fit, _clave(cur))
 	print("[SA] inicio: fitness base = %.3f (%d dims)" % [cur_fit, keys.size()])
 
 	var temp := t0
@@ -63,6 +67,10 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 		var cand_fit := await fitness.evaluate(cand)
 		var delta := cand_fit - cur_fit
 		var accept := delta >= 0.0 or rng.randf() < exp(delta / maxf(temp, 0.0001))
+		# El top-K se ofrece SIEMPRE, aceptado o no: un candidato rechazado por
+		# Metropolis puede seguir siendo de los mejores vistos, y descartarlo por el
+		# camino que tomó el recocido no tendría sentido.
+		top.offer(cand, cand_fit, _clave(cand))
 		if accept:
 			cur = cand
 			cur_fit = cand_fit
@@ -75,6 +83,11 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 		temp = maxf(temp * alpha, t_min)
 
 	return best_weights
+
+
+## Clave de deduplicación del top-K: el vector de pesos optimizables.
+func _clave(w: HeuristicWeights) -> String:
+	return str(HeuristicWeightsSpec.to_vector(w, keys))
 
 
 ## Genera un vecino perturbando `dims_per_step` dimensiones al azar (vía SearchSpace).

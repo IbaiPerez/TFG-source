@@ -1,78 +1,131 @@
 extends GutTest
 
-## Composición del POOL de rivales del optimizador.
+## Composición de los POOLS de rivales del optimizador.
 ##
 ## Lo que fija este fichero es una decisión de método, no un detalle: contra quién
-## se mide un candidato determina qué acaba optimizando el algoritmo.
-
-func test_el_pool_completo_no_incluye_politica_aleatoria() -> void:
-	# Medido en la corrida real de dos etapas: el rival `Mode.RANDOM` separaba a
-	# los tres finalistas por 0.056 de win-rate (0.887 / 0.906 / 0.944) mientras
-	# los rivales de verdad los separaban ~0.30. Era un quinto del presupuesto de
-	# partidas gastado en una pregunta ya respondida —todos le ganan— e inflaba el
-	# win-rate global de todos por igual.
-	for cfg in HeuristicOpponents.full_pool():
-		assert_ne((cfg as AIConfig).mode, AIConfig.Mode.RANDOM,
-			"la política aleatoria no discrimina entre candidatos: fuera del pool")
+## se mide un candidato determina qué acaba optimizando el algoritmo. El reparto
+## —muchos rivales con pocas partidas en la búsqueda, pocos rivales con muchas
+## partidas en la selección— responde a dos objetivos distintos, y los dos tienen
+## su guarda aquí.
 
 
-func test_el_pool_ligero_tampoco() -> void:
-	for cfg in HeuristicOpponents.core_pool():
-		assert_ne((cfg as AIConfig).mode, AIConfig.Mode.RANDOM)
+const SEED_BUSQUEDA := 31337
+const SEED_SELECCION := 80085
 
 
-func test_los_dos_pools_son_de_heuristica_pura() -> void:
-	# Sin MCTS: cada evaluación es una partida, y el coste del árbol haría
-	# inviable la búsqueda.
-	for pool in [HeuristicOpponents.core_pool(), HeuristicOpponents.full_pool()]:
-		for cfg in pool:
-			assert_eq((cfg as AIConfig).mode, AIConfig.Mode.HEURISTIC)
+## Identidad de un rival: su VECTOR completo de pesos optimizables.
+##
+## Usar dos campos sueltos como firma no vale, y esto lo descubrió el propio test
+## al fallar: `expansionist()` no toca ni `gold_weight_pos` ni
+## `recruit_atkdef_weight`, así que con esa firma era indistinguible de la baseline
+## y denunciaba solapamientos que no existían.
+func _firma(cfg: AIConfig) -> String:
+	return str(HeuristicWeightsSpec.to_vector(cfg.heuristic_weights,
+		HeuristicWeightsSpec.OPTIMIZABLE_KEYS))
 
 
-func test_el_pool_completo_contiene_a_la_baseline() -> void:
-	# La baseline tiene que estar: es la referencia contra la que se juzga si la
-	# optimización ha mejorado algo. Sin ella no hay punto de comparación.
-	var w := HeuristicWeights.new()
-	var encontrada := false
-	for cfg in HeuristicOpponents.full_pool():
-		var op := (cfg as AIConfig).heuristic_weights
-		if op != null and is_equal_approx(op.gold_weight_pos, w.gold_weight_pos) \
-				and is_equal_approx(op.recruit_atkdef_weight, w.recruit_atkdef_weight):
-			encontrada = true
-	assert_true(encontrada, "el pool debe incluir los pesos por defecto")
+# ---------------------------------------------------------------------------
+# Los mismos rivales para todos los candidatos
+# ---------------------------------------------------------------------------
+
+func test_el_pool_de_busqueda_es_reproducible() -> void:
+	# EL invariante que hace comparables los win-rate entre candidatos: dos
+	# llamadas con la misma semilla dan exactamente los mismos rivales. Si el pool
+	# variara, un candidato podría perder por haberle tocado un pool más duro.
+	var a := HeuristicOpponents.search_pool(SEED_BUSQUEDA, 6)
+	var b := HeuristicOpponents.search_pool(SEED_BUSQUEDA, 6)
+	assert_eq(a.size(), b.size())
+	for i in range(a.size()):
+		var wa := (a[i] as AIConfig).heuristic_weights
+		var wb := (b[i] as AIConfig).heuristic_weights
+		for k in HeuristicWeightsSpec.OPTIMIZABLE_KEYS:
+			assert_almost_eq(float(wa.get(k)), float(wb.get(k)), 0.0001,
+				"rival %d difiere en %s entre dos construcciones" % [i, k])
 
 
-func test_los_arquetipos_son_distintos_entre_si() -> void:
-	# Un pool con rivales casi idénticos mide una sola cosa tres veces.
-	var vistos := {}
-	for cfg in HeuristicOpponents.full_pool():
-		var op := (cfg as AIConfig).heuristic_weights
-		if op != null:
-			var firma := "%.3f|%.3f|%.3f" % [op.gold_weight_pos,
-				op.recruit_atkdef_weight, op.colonize_expansion]
-			assert_false(vistos.has(firma), "dos rivales del pool son iguales: %s" % firma)
-			vistos[firma] = true
-	assert_gte(vistos.size(), 4, "baseline + 3 arquetipos contrastados")
+func test_semillas_distintas_dan_rivales_distintos() -> void:
+	var a := HeuristicOpponents.search_pool(SEED_BUSQUEDA, 6)
+	var b := HeuristicOpponents.search_pool(SEED_BUSQUEDA + 1, 6)
+	var iguales := true
+	for i in range(a.size()):
+		var wa := (a[i] as AIConfig).heuristic_weights
+		var wb := (b[i] as AIConfig).heuristic_weights
+		if not is_equal_approx(float(wa.gold_weight_pos), float(wb.gold_weight_pos)):
+			iguales = false
+	assert_false(iguales, "otra semilla debe producir otro pool")
 
 
-func test_los_rivales_del_pool_son_coherentes() -> void:
-	# Los arquetipos escalan grupos de pesos del default; si alguno cruzara una
-	# cadena ordenada, el rival tendría tramos muertos y mediría otra cosa.
-	for cfg in HeuristicOpponents.full_pool():
-		var op := (cfg as AIConfig).heuristic_weights
-		if op != null:
-			assert_eq(HeuristicWeightsInvariants.validate(op).size(), 0,
-				"un rival del pool no debe tener invariantes rotos")
+# ---------------------------------------------------------------------------
+# Búsqueda: muchos rivales
+# ---------------------------------------------------------------------------
+
+func test_el_pool_de_busqueda_tiene_muchos_rivales() -> void:
+	# Con presupuesto total fijo, la varianza de la estimación es
+	# σ²_entre_rivales/k + E[p(1−p)]/G: el término binomial depende solo del TOTAL,
+	# así que más rivales reduce el error sin gastar más partidas. Y sobre todo:
+	# cuantos más estilos haya que batir, menos margen para especializarse.
+	var pool := HeuristicOpponents.search_pool(SEED_BUSQUEDA, 16)
+	assert_gte(pool.size(), 15, "la búsqueda necesita variedad, no precisión")
 
 
-func test_los_rivales_aleatorios_del_heldout_son_coherentes() -> void:
-	# Desde que las curvas de urgencia entraron en el espacio, escalar cada umbral
-	# por su propio factor los cruza constantemente: medido, 36 de 50 semillas
-	# daban un rival con alguna cadena rota. Un rival con tramos muertos es más
-	# débil de lo previsto e inflaría la generalización aparente del campeón.
-	for semilla in range(12):
-		var rng := RandomNumberGenerator.new()
-		rng.seed = semilla
-		var w := HeuristicOpponents.random_heuristic(rng, 0.5)
+func test_los_rivales_de_busqueda_son_coherentes() -> void:
+	for cfg in HeuristicOpponents.search_pool(SEED_BUSQUEDA, 10):
+		var w := (cfg as AIConfig).heuristic_weights
 		assert_eq(HeuristicWeightsInvariants.validate(w).size(), 0,
-			"el rival aleatorio de semilla %d tiene invariantes rotos" % semilla)
+			"un rival con cadenas rotas es más débil de lo previsto")
+
+
+func test_los_rivales_de_busqueda_no_se_repiten() -> void:
+	# Un pool con rivales clonados mide una sola cosa muchas veces.
+	var vistos := {}
+	for cfg in HeuristicOpponents.search_pool(SEED_BUSQUEDA, 12):
+		var f := _firma(cfg as AIConfig)
+		assert_false(vistos.has(f), "dos rivales idénticos en el pool de búsqueda")
+		vistos[f] = true
+
+
+# ---------------------------------------------------------------------------
+# Selección: held-out de verdad
+# ---------------------------------------------------------------------------
+
+func test_los_dos_pools_no_comparten_ningun_rival() -> void:
+	# EL punto de todo esto. Si el pool que ELIGE al campeón comparte rivales con
+	# el que lo BUSCÓ, se está premiando la especialización. Antes compartían tres
+	# de cuatro.
+	var firmas := {}
+	for cfg in HeuristicOpponents.search_pool(SEED_BUSQUEDA, 16):
+		firmas[_firma(cfg as AIConfig)] = true
+	for cfg in HeuristicOpponents.selection_pool(SEED_SELECCION, 12):
+		assert_false(firmas.has(_firma(cfg as AIConfig)),
+			"un rival de selección ya estaba en la búsqueda")
+
+
+func test_la_baseline_esta_en_seleccion_y_no_en_busqueda() -> void:
+	# Deliberado: así «el campeón gana a los pesos por defecto» es una afirmación
+	# sobre un rival que la búsqueda nunca vio.
+	var firma_baseline := str(HeuristicWeightsSpec.to_vector(HeuristicWeights.new(),
+		HeuristicWeightsSpec.OPTIMIZABLE_KEYS))
+
+	var en_seleccion := false
+	for cfg in HeuristicOpponents.selection_pool(SEED_SELECCION, 6):
+		if _firma(cfg as AIConfig) == firma_baseline:
+			en_seleccion = true
+	assert_true(en_seleccion, "la baseline es la referencia: debe estar en selección")
+
+	for cfg in HeuristicOpponents.search_pool(SEED_BUSQUEDA, 16):
+		assert_ne(_firma(cfg as AIConfig), firma_baseline,
+			"la baseline no debe entrar en la búsqueda")
+
+
+# ---------------------------------------------------------------------------
+# Nada de política aleatoria en los pools de fitness
+# ---------------------------------------------------------------------------
+
+func test_ningun_pool_incluye_politica_aleatoria() -> void:
+	# Medido en la corrida real: `Mode.RANDOM` separaba a los finalistas por 0.056
+	# de win-rate frente al ~0.30 de los rivales de verdad.
+	for pool in [HeuristicOpponents.search_pool(SEED_BUSQUEDA, 8),
+			HeuristicOpponents.selection_pool(SEED_SELECCION, 8)]:
+		for cfg in pool:
+			assert_eq((cfg as AIConfig).mode, AIConfig.Mode.HEURISTIC,
+				"los pools de fitness son de heurística pura")

@@ -23,7 +23,7 @@ class_name HeuristicFitness
 ##
 ## Uso:
 ##   var fit := HeuristicFitness.new(self)          # self = GutTest
-##   fit.opponents = HeuristicOpponents.full_pool()
+##   fit.opponents = HeuristicOpponents.search_pool(31337)
 ##   fit.n_games = 24
 ##   var wr := await fit.evaluate(candidate)        # win-rate medio en [0,1]
 
@@ -87,17 +87,40 @@ func evaluate_detailed(candidate: HeuristicWeights, seed_val: int = -1, games: i
 		per_opponent.append(r)
 
 	var wr := float(total_wins) / float(maxi(total_decisive, 1))
-	var ci := 1.96 * sqrt(wr * (1.0 - wr) / float(maxi(total_decisive, 1)))
+	var ci := wilson_interval(total_wins, total_decisive)
 	var result := {
 		"winrate": wr,
 		"wins": total_wins,
 		"decisive": total_decisive,
-		"ci95_lo": clampf(wr - ci, 0.0, 1.0),
-		"ci95_hi": clampf(wr + ci, 0.0, 1.0),
+		"ci95_lo": ci.x,
+		"ci95_hi": ci.y,
 		"per_opponent": per_opponent,
 	}
 	_cache[key] = result
 	return result
+
+
+## Intervalo de confianza al 95 % de una proporción, por el método de WILSON.
+##
+## No es Wald (`p ± 1.96·√(p(1−p)/n)`) a propósito, y el motivo se vio corriendo
+## esto: con 0 victorias de 2, Wald da √0 = 0 y el intervalo colapsa a [0, 0] —
+## afirmando con "certeza" algo que dos partidas no pueden establecer. La barrera
+## del 50 % leía eso como una derrota concluyente y descartaba candidatos por
+## ruido. Wilson en ese mismo caso da [0, 0.658]: no concluye nada, que es lo
+## correcto.
+##
+## Con muestras grandes los dos coinciden, así que no se pierde nada: con 160
+## decisivas sigue detectando un win-rate real por debajo de ~0.42.
+static func wilson_interval(wins: int, n: int, z: float = 1.96) -> Vector2:
+	if n <= 0:
+		return Vector2(0.0, 1.0)
+	var p := float(wins) / float(n)
+	var z2 := z * z
+	var denom := 1.0 + z2 / float(n)
+	var centro := (p + z2 / (2.0 * float(n))) / denom
+	var margen := (z / denom) * sqrt(p * (1.0 - p) / float(n)
+		+ z2 / (4.0 * float(n) * float(n)))
+	return Vector2(clampf(centro - margen, 0.0, 1.0), clampf(centro + margen, 0.0, 1.0))
 
 
 ## AIConfig en modo HEURISTIC con los pesos dados.
@@ -121,7 +144,16 @@ func _matchup(cand_cfg: AIConfig, opp_cfg: AIConfig, g: int, s: int) -> Dictiona
 		wins += int(s2["b_wins"])
 		decisive += int(s2["a_wins"]) + int(s2["b_wins"])
 	var wr := float(wins) / float(maxi(decisive, 1))
-	return {"wins": wins, "decisive": decisive, "winrate": wr, "label": _label(opp_cfg)}
+	# El IC del ENFRENTAMIENTO (no solo el agregado) es lo que permite distinguir
+	# "ha perdido contra este rival" de "ha salido por debajo por ruido": con 8
+	# decisivas no se puede afirmar nada, con 160 se detecta un win-rate real por
+	# debajo de ~0.42.
+	var ci := wilson_interval(wins, decisive)
+	return {
+		"wins": wins, "decisive": decisive, "winrate": wr,
+		"ci95_lo": ci.x, "ci95_hi": ci.y,
+		"label": _label(opp_cfg),
+	}
 
 
 ## Corre una tanda A vs B y devuelve el summary del comparador.
