@@ -5,6 +5,10 @@ class_name HeuristicWeightsSpec
 ## búsqueda, en qué rango se mueve cada uno y cómo se traduce un juego de pesos a
 ## vector y de vuelta.
 ##
+## Vive aparte de HeuristicWeights porque son dos cosas distintas: allí está la
+## TABLA DE VALORES que el juego lee en caliente; aquí, el conocimiento que solo
+## necesitan SA/GA, que son herramientas de desarrollo.
+##
 ## Las RESTRICCIONES que un candidato debe cumplir —y qué claves hay que mover
 ## juntas para poder alcanzarlas— viven en [HeuristicWeightsInvariants].
 ##
@@ -14,28 +18,18 @@ class_name HeuristicWeightsSpec
 ## parseo. Por eso no hay métodos delegadores en HeuristicWeights.
 
 
-## Interfaz de OPTIMIZACIÓN de HeuristicWeights: qué campos forman el espacio de
-## búsqueda, en qué rango se mueve cada uno, qué invariantes deben cumplir y cómo
-## se traduce un juego de pesos a vector y de vuelta.
-##
-## Vive aparte de HeuristicWeights porque son dos cosas distintas: allí está la
-## TABLA DE VALORES que el juego lee en caliente; aquí, el conocimiento que solo
-## necesitan SA/GA, que son herramientas de desarrollo.
-##
-## La dependencia va en UN SOLO SENTIDO (Spec → Weights) a propósito.
-## HeuristicWeights es un Resource que se carga desde .tres; si además apuntase
-## aquí, el ciclo rompería ese load() devolviendo null EN EJECUCIÓN, sin error de
-## parseo. Por eso no hay métodos delegadores en HeuristicWeights.
-
-
 ## Tabla declarativa de metadatos por campo, fuente ÚNICA para el optimizador:
 ##   - "opt": true  → entra en el ESPACIO DE BÚSQUEDA por defecto (OPTIMIZABLE_KEYS).
 ##   - "unit": true → acotado a [0, 1] en get_bounds (probabilidades/ratios que la
 ##                    heurística ya clampa), en vez de la regla general [d*0.25, d*4].
+##   - "hi": x      → tope explícito, para los campos cuyo default es 0.0: la regla
+##                    general daría [0, 0] y la dimensión sería inerte.
 ## Un campo sin entrada aquí NO es optimizable por defecto y usa la regla general.
 ##
-## Deliberadamente NO se marcan opt los umbrales de las curvas de urgencia
-## (romperían su monotonía) ni los pesos de score_state (state_w_*/state_*_norm):
+## Los UMBRALES de las curvas de urgencia sí son optimizables. Su monotonía no se
+## protege excluyéndolos, sino reparando el candidato: ver HeuristicWeightsInvariants.
+##
+## Los que NO se marcan opt son los pesos de score_state (state_w_*/state_*_norm):
 ## score_state no se usa en modo HEURISTIC, así que optimizarlos aquí no tendría
 ## señal de fitness. Se listan (unit) por si se optimiza el mirror del MCTS.
 ## El optimizador puede optimizar cualquier campo pasando su propia lista de keys.
