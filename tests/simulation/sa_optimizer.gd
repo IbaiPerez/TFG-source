@@ -30,6 +30,25 @@ var dims_per_step: int = 3        ## nº de dimensiones perturbadas por vecino
 
 # --- Estado / traza ----------------------------------------------------------
 var top_k: int = 5                ## cuántos finalistas devuelve (ver TopCandidates)
+
+# --- Diagnóstico de aceptación ----------------------------------------------
+# Sin esto, elegir `dims_per_step`, `t0` o `step_frac` es adivinar. Los cuatro
+# contadores separan las cuatro cosas distintas que le pueden pasar a un vecino, y
+# cada una apunta a un dial diferente:
+#
+#   mejora          la búsqueda avanza — lo que se quiere
+#   neutro          MESETA: la perturbación no volteó NINGUNA decisión, así que el
+#                   win-rate sale idéntico. Se acepta (delta >= 0) y la cadena se
+#                   pasea sin aprender. Mucho neutro => perturbar más dimensiones,
+#                   o subir las partidas por evaluación para afinar el fitness.
+#   peor_aceptado   Metropolis dejando pasar un empeoramiento. Mucho => t0 alto
+#                   para la granularidad real del fitness.
+#   rechazado       la cadena se está congelando. Mucho, y pronto => enfriamiento
+#                   demasiado rápido.
+var n_mejora: int = 0
+var n_neutro: int = 0
+var n_peor_aceptado: int = 0
+var n_rechazado: int = 0
 var best_weights: HeuristicWeights
 var best_fitness: float = -1.0
 var top: TopCandidates            ## los `top_k` mejores distintos
@@ -67,6 +86,7 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 		var cand_fit := await fitness.evaluate(cand)
 		var delta := cand_fit - cur_fit
 		var accept := delta >= 0.0 or rng.randf() < exp(delta / maxf(temp, 0.0001))
+		var clase := _clasificar(delta, accept)
 		# El top-K se ofrece SIEMPRE, aceptado o no: un candidato rechazado por
 		# Metropolis puede seguir siendo de los mejores vistos, y descartarlo por el
 		# camino que tomó el recocido no tendría sentido.
@@ -77,12 +97,56 @@ func run(start: HeuristicWeights = null) -> HeuristicWeights:
 			if cand_fit > best_fitness:
 				best_fitness = cand_fit
 				best_weights = cand.clone()
-		trace.append({"iter": it, "temp": temp, "cur_fit": cur_fit, "best_fit": best_fitness})
+		trace.append({"iter": it, "temp": temp, "cur_fit": cur_fit,
+			"best_fit": best_fitness, "delta": delta, "clase": clase})
 		print("[SA] it=%3d T=%.4f cur=%.3f best=%.3f%s" % [
 			it, temp, cur_fit, best_fitness, "  *" if accept and cur_fit == best_fitness else ""])
 		temp = maxf(temp * alpha, t_min)
 
+	_print_diagnostico()
 	return best_weights
+
+
+## Clasifica el vecino y actualiza los contadores. `is_zero_approx` sobre el delta
+## detecta la MESETA: el fitness es un win-rate sobre N partidas, así que si la
+## perturbación no voltea ninguna decisión el valor sale exactamente igual.
+func _clasificar(delta: float, accept: bool) -> String:
+	if is_zero_approx(delta):
+		n_neutro += 1
+		return "neutro"
+	if delta > 0.0:
+		n_mejora += 1
+		return "mejora"
+	if accept:
+		n_peor_aceptado += 1
+		return "peor_aceptado"
+	n_rechazado += 1
+	return "rechazado"
+
+
+func _print_diagnostico() -> void:
+	var n := maxi(n_mejora + n_neutro + n_peor_aceptado + n_rechazado, 1)
+	print("[SA] --- aceptación (%d vecinos, dims/paso=%d, t0=%.3f, step=%.3f) ---" % [
+		n, dims_per_step, t0, step_frac])
+	print("[SA]   mejora        %4d  %5.1f %%" % [n_mejora, 100.0 * n_mejora / n])
+	print("[SA]   neutro/meseta %4d  %5.1f %%" % [n_neutro, 100.0 * n_neutro / n])
+	print("[SA]   peor aceptado %4d  %5.1f %%" % [n_peor_aceptado, 100.0 * n_peor_aceptado / n])
+	print("[SA]   rechazado     %4d  %5.1f %%" % [n_rechazado, 100.0 * n_rechazado / n])
+
+
+## Resumen de la corrida, para comparar configuraciones de calibración.
+func diagnostico() -> Dictionary:
+	var n := maxi(n_mejora + n_neutro + n_peor_aceptado + n_rechazado, 1)
+	return {
+		"dims_per_step": dims_per_step, "t0": t0, "step_frac": step_frac,
+		"iteraciones": n, "best_fitness": best_fitness,
+		"mejora": n_mejora, "neutro": n_neutro,
+		"peor_aceptado": n_peor_aceptado, "rechazado": n_rechazado,
+		"pct_mejora": 100.0 * n_mejora / n,
+		"pct_neutro": 100.0 * n_neutro / n,
+		"pct_peor_aceptado": 100.0 * n_peor_aceptado / n,
+		"pct_rechazado": 100.0 * n_rechazado / n,
+	}
 
 
 ## Clave de deduplicación del top-K: el vector de pesos optimizables.
