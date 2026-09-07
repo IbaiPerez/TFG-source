@@ -30,8 +30,7 @@ extends GutTest
 ## POOL REDUCIDO a propósito: con los 19 rivales de la etapa 1 una evaluación
 ## cuesta ~49 min (medido sobre 2448 partidas: 38.7 s/partida — cronometrar UNA
 ## evaluación del baseline daba 8 s y erraba por un factor 5). Con pool reducido
-## la granularidad del
-## fitness es más GRUESA, así que la fracción de meseta que se mide aquí es una
+## la granularidad del fitness es más GRUESA, así que la fracción de meseta es una
 ## COTA SUPERIOR de la real — con más partidas hay más ocasiones de voltear algo.
 ##
 ## El `best_fitness` que reporta es fitness SOBRE EL POOL DE BÚSQUEDA. Mide con qué
