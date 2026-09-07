@@ -36,6 +36,14 @@ extends GutTest
 ## rapidez trepa cada configuración, NO la calidad del campeón: con 24 partidas por
 ## evaluación, trepar más rápido también puede ser sobreajustar más rápido.
 ##
+## RESOLUCIÓN INSUFICIENTE, medido: con cadenas de 25 vecinos la varianza ENTRE
+## cadenas de una misma configuración (A dio 76%, 32% y 32% de rechazo en tres
+## réplicas) es mayor que las diferencias entre configuraciones que se querían
+## detectar. Separar 20 puntos pediría ~16 cadenas por configuración, unos nueve
+## días de cómputo. Los diales se quedan como estaban. Lo único que sí salió
+## limpio es negativo: la meseta nunca pasó del 16% en diez cadenas, así que no
+## es lo que ata la búsqueda.
+##
 ## Lanzar:
 ##   $env:RUN_CALIBRATE_SA='1'; & godot --headless -s addons/gut/gut_cmdln.gd `
 ##     "-gconfig=" -gtest=res://tests/simulation/test_calibrate_sa.gd -gexit
