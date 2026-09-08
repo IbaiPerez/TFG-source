@@ -126,7 +126,22 @@ func attach_to(gut_test) -> void:
 	_gut_test = gut_test
 
 
+## El log de turno de la IA son ~1500 lineas por partida que en una simulacion no
+## lee nadie, y su coste NO es despreciable: medido, escribir esa salida se lleva
+## una parte del tiempo de partida, y si va a un PIPE —un grep que filtre el log
+## en caliente— el factor medido es 4.6x.
+##
+## SIM_LOG_LEVEL lo baja sin tocar el resultado: AppLogger._log no consume RNG,
+## asi que silenciar no cambia ni una decision ni una partida. Valores, los de
+## AppLogger.Level: 0 DEBUG, 1 INFO, 2 WARN, 3 ERROR.
+func _ajustar_nivel_de_log() -> void:
+	var lvl := OS.get_environment("SIM_LOG_LEVEL")
+	if lvl != "":
+		GameLogger.set_level(int(lvl))
+
+
 func run() -> void:
+	_ajustar_nivel_de_log()
 	BattleFront.clear_active_instances()
 	WorldMap.map = []
 	WorldMap.map_as_dict = {}
