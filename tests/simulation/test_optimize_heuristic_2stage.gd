@@ -55,20 +55,79 @@ func test_two_stage() -> void:
 		pass_test("Saltado: RUN_OPT_2STAGE=1 (o ENABLE_FROM_GUI=true) para ejecutar.")
 		return
 	var smoke := OS.get_environment("OPT_SMOKE") != ""
+	if OS.get_environment("OPT_CK_RESET") != "":
+		OptCheckpoint.borrar()
 
-	# ---- Etapa 1: búsqueda contra el pool ligero -------------------------
-	var fit1 := HeuristicFitness.new(self)
-	fit1.n_games = SMOKE_GAMES if smoke else _int_env("STAGE1_GAMES", STAGE1_GAMES)
-	fit1.seed_master = SEARCH_SEED
-	fit1.mirror = true
-	fit1.max_rounds = SMOKE_MAX_ROUNDS if smoke else _int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
+	var fit1 := _build_fit1(smoke)
+	var fit2 := _build_fit2(smoke)
+	var hue := OptCheckpoint.huella(_config(smoke, fit1, fit2))
+	var m := OptCheckpoint.manifest_valido(hue)
+
+	var e1 := await _etapa1(fit1, smoke, hue, m)
+	var report := await _etapa2(fit2, e1["finalistas"], m)
+	_guardar(report, e1, fit1, fit2)
+
+	WorldMap.map = []
+	WorldMap.map_as_dict = {}
+	BattleFront.clear_active_instances()
+	for e in get_errors():
+		e.handled = true
+
+
+func _build_fit1(smoke: bool) -> HeuristicFitness:
+	var fit := HeuristicFitness.new(self)
+	fit.n_games = SMOKE_GAMES if smoke else _int_env("STAGE1_GAMES", STAGE1_GAMES)
+	fit.seed_master = SEARCH_SEED
+	fit.mirror = true
+	fit.max_rounds = SMOKE_MAX_ROUNDS if smoke \
+		else _int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
 	# En smoke solo 1 rival (baseline) para que el flujo termine en segundos.
-	fit1.opponents = [HeuristicOpponents.heur_config(HeuristicOpponents.baseline())] \
+	fit.opponents = [HeuristicOpponents.heur_config(HeuristicOpponents.baseline())] \
 		if smoke else HeuristicOpponents.search_pool(
 			SEARCH_OPP_SEED, _int_env("STAGE1_RIVALS", STAGE1_RIVALS))
+	return fit
+
+
+func _build_fit2(smoke: bool) -> HeuristicFitness:
+	var fit := HeuristicFitness.new(self)
+	fit.n_games = SMOKE_STAGE2_GAMES if smoke else _int_env("STAGE2_GAMES", STAGE2_GAMES)
+	fit.seed_master = VALIDATE_SEED
+	fit.mirror = true
+	fit.max_rounds = SMOKE_MAX_ROUNDS if smoke \
+		else _int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
+	# En smoke, pool reducido para acabar rápido; real usa el completo.
+	fit.opponents = HeuristicOpponents.selection_pool(SELECT_OPP_SEED, 2) if smoke \
+		else HeuristicOpponents.selection_pool(
+			SELECT_OPP_SEED, _int_env("STAGE2_RIVALS", STAGE2_RIVALS))
+	return fit
+
+
+## Todo lo que, si cambia, invalida un checkpoint a medias.
+func _config(smoke: bool, fit1: HeuristicFitness, fit2: HeuristicFitness) -> Dictionary:
+	return {
+		"smoke": smoke, "search_seed": SEARCH_SEED, "validate_seed": VALIDATE_SEED,
+		"opp1": SEARCH_OPP_SEED, "opp2": SELECT_OPP_SEED,
+		"riv1": fit1.opponents.size(), "riv2": fit2.opponents.size(),
+		"g1": fit1.n_games, "g2": fit2.n_games, "rounds": fit1.max_rounds,
+		"sa_iters": SMOKE_SA_ITERS if smoke else _int_env("STAGE1_SA_ITERS", STAGE1_SA_ITERS),
+		"ga_pop": SMOKE_GA_POP if smoke else _int_env("STAGE1_GA_POP", STAGE1_GA_POP),
+		"ga_gens": SMOKE_GA_GENS if smoke else _int_env("STAGE1_GA_GENS", STAGE1_GA_GENS),
+		"top_k": 1 if smoke else _int_env("TOP_K", TOP_K),
+	}
+
+
+## Devuelve {finalistas, sa_trace, ga_trace}. Si el checkpoint trae los finalistas
+## se salta la búsqueda entera: es determinista, así que reejecutarla daría lo
+## mismo, pero cuesta ~6 h.
+func _etapa1(fit1: HeuristicFitness, smoke: bool, hue: String, m: Dictionary) -> Dictionary:
+	var previos := OptCheckpoint.cargar_finalistas(m) if not m.is_empty() else []
+	if not previos.is_empty():
+		print("[2stage] ETAPA 1 OMITIDA: %d finalistas del checkpoint." % previos.size())
+		return {"finalistas": previos, "sa_trace": m.get("sa_trace", []),
+			"ga_trace": m.get("ga_trace", [])}
+
 	print("[2stage] === ETAPA 1: búsqueda · pool ligero (%d rivales) · %d partidas/matchup ===" % [
 		fit1.opponents.size(), fit1.n_games])
-
 	var k_fin := 1 if smoke else _int_env("TOP_K", TOP_K)
 
 	var sa := SAOptimizer.new(fit1, 4242)
@@ -84,54 +143,68 @@ func test_two_stage() -> void:
 	print("[2stage] -- GA (pop %d × %d gen, top-%d) --" % [ga.pop_size, ga.generations, k_fin])
 	await ga.run()
 
-	# ---- Etapa 2: revalidación pesada de los finalistas ------------------
-	# Pasan los K mejores de cada algoritmo, no el argmax: quedarse con el mejor
-	# del pool de BÚSQUEDA es el paso de sobreajuste, porque ese es por
-	# construcción el más afinado a esos rivales. Con top-K decide el held-out.
-	var finalists: Array = [{"name": "baseline", "w": HeuristicWeights.new()}]
+	var finalistas := _reunir_finalistas(sa, ga)
+	OptCheckpoint.guardar_etapa1(hue, finalistas, sa.trace, ga.trace)
+	return {"finalistas": finalistas, "sa_trace": sa.trace, "ga_trace": ga.trace}
+
+
+## Pasan los K mejores de cada algoritmo, no el argmax: quedarse con el mejor del
+## pool de BÚSQUEDA es el paso de sobreajuste, porque ese es por construcción el
+## más afinado a esos rivales. Con top-K decide el held-out.
+func _reunir_finalistas(sa: SAOptimizer, ga: GAOptimizer) -> Array:
+	var out: Array = [{"name": "baseline", "w": HeuristicWeights.new()}]
 	for i in range(sa.top.size()):
-		finalists.append({"name": "sa_%d" % (i + 1), "w": sa.top.to_array()[i]["weights"]})
+		out.append({"name": "sa_%d" % (i + 1), "w": sa.top.to_array()[i]["weights"]})
 	for i in range(ga.top.size()):
-		finalists.append({"name": "ga_%d" % (i + 1), "w": ga.top.to_array()[i]["weights"]})
+		out.append({"name": "ga_%d" % (i + 1), "w": ga.top.to_array()[i]["weights"]})
 	print("[2stage] finalistas: %d (baseline + %d de SA + %d de GA)" % [
-		finalists.size(), sa.top.size(), ga.top.size()])
-	var fit2 := HeuristicFitness.new(self)
-	fit2.n_games = SMOKE_STAGE2_GAMES if smoke else _int_env("STAGE2_GAMES", STAGE2_GAMES)
-	fit2.seed_master = VALIDATE_SEED
-	fit2.mirror = true
-	fit2.max_rounds = SMOKE_MAX_ROUNDS if smoke else _int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
-	# En smoke, pool reducido (core) para acabar rápido; real usa el completo.
-	fit2.opponents = HeuristicOpponents.selection_pool(SELECT_OPP_SEED, 2) if smoke \
-		else HeuristicOpponents.selection_pool(
-			SELECT_OPP_SEED, _int_env("STAGE2_RIVALS", STAGE2_RIVALS))
+		out.size(), sa.top.size(), ga.top.size()])
+	return out
+
+
+func _etapa2(fit2: HeuristicFitness, finalistas: Array, m: Dictionary) -> Array:
 	print("[2stage] === ETAPA 2: revalidación · pool completo (%d rivales) · %d partidas/matchup · seed DISJUNTO ===" % [
 		fit2.opponents.size(), fit2.n_games])
+	var hechas := {}
+	for fila in m.get("filas", []):
+		hechas[fila["name"]] = fila
 
 	var report: Array = []
-	for f in finalists:
-		var d := await fit2.evaluate_detailed(f["w"])
-		var derrotas := _derrotas_significativas(d["per_opponent"])
-		var row := {
-			"name": f["name"],
-			"winrate": d["winrate"],
-			"ci95_lo": d["ci95_lo"],
-			"ci95_hi": d["ci95_hi"],
-			"decisive": d["decisive"],
-			"significant_losses": derrotas,
-			"weights": f["w"],
-			"per_opponent": _summarize_per_opponent(d["per_opponent"]),
-		}
-		report.append(row)
-		print("[2stage] %-9s WR %.3f  IC95[%.3f, %.3f]  (%d decisivas)  derrotas sig.: %d" % [
-			f["name"], d["winrate"], d["ci95_lo"], d["ci95_hi"], int(d["decisive"]), derrotas])
+	for f in finalistas:
+		var fila
+		if hechas.has(f["name"]):
+			fila = hechas[f["name"]].duplicate()
+			print("[2stage] %-9s (del checkpoint)" % f["name"])
+		else:
+			fila = await _evaluar_finalista(fit2, f)
+			OptCheckpoint.anadir_fila(fila)
+		fila["weights"] = f["w"]
+		report.append(fila)
+	return report
 
+
+func _evaluar_finalista(fit2: HeuristicFitness, f: Dictionary) -> Dictionary:
+	var d := await fit2.evaluate_detailed(f["w"])
+	var derrotas := _derrotas_significativas(d["per_opponent"])
+	print("[2stage] %-9s WR %.3f  IC95[%.3f, %.3f]  (%d decisivas)  derrotas sig.: %d" % [
+		f["name"], d["winrate"], d["ci95_lo"], d["ci95_hi"], int(d["decisive"]), derrotas])
+	# Sin el objeto de pesos: esta fila va tal cual al checkpoint en JSON.
+	return {
+		"name": f["name"], "winrate": d["winrate"],
+		"ci95_lo": d["ci95_lo"], "ci95_hi": d["ci95_hi"],
+		"decisive": d["decisive"], "significant_losses": derrotas,
+		"per_opponent": _summarize_per_opponent(d["per_opponent"]),
+	}
+
+
+func _guardar(report: Array, e1: Dictionary, fit1: HeuristicFitness,
+		fit2: HeuristicFitness) -> void:
 	var champion_row := _elegir_campeon(report)
 	var champion = champion_row["weights"]
 	var champion_wr: float = champion_row["winrate"]
 	print("[2stage] CAMPEÓN: %s (WR %.3f, %d derrotas significativas)" % [
 		champion_row["name"], champion_wr, int(champion_row["significant_losses"])])
 
-	# ---- Guardado -------------------------------------------------------
 	assert_not_null(champion, "Debe haber un campeón")
 	var tres_path := "user://heuristic_weights_2stage.tres"
 	var err := ResourceSaver.save(champion, tres_path)
@@ -141,15 +214,12 @@ func test_two_stage() -> void:
 
 	var payload := {
 		"keys": Array(HeuristicWeightsSpec.OPTIMIZABLE_KEYS),
-		"search_seed": SEARCH_SEED,
-		"validate_seed": VALIDATE_SEED,
-		"stage1_games": fit1.n_games,
-		"stage2_games": fit2.n_games,
+		"search_seed": SEARCH_SEED, "validate_seed": VALIDATE_SEED,
+		"stage1_games": fit1.n_games, "stage2_games": fit2.n_games,
 		"finalists": _report_serializable(report),
 		"champion_winrate": champion_wr,
 		"champion_weights": _weights_dict(champion),
-		"sa_trace": sa.trace,
-		"ga_trace": ga.trace,
+		"sa_trace": e1["sa_trace"], "ga_trace": e1["ga_trace"],
 		"total_games_played": fit1.evals + fit2.evals,
 		"cache_hits": fit1.cache_hits + fit2.cache_hits,
 		"timestamp": Time.get_datetime_string_from_system(true),
@@ -159,12 +229,6 @@ func test_two_stage() -> void:
 		f.store_string(JSON.stringify(payload, "  "))
 		f.close()
 		print("[2stage] informe JSON en: %s" % ProjectSettings.globalize_path("user://opt_2stage.json"))
-
-	WorldMap.map = []
-	WorldMap.map_as_dict = {}
-	BattleFront.clear_active_instances()
-	for e in get_errors():
-		e.handled = true
 
 
 # --- Helpers -----------------------------------------------------------------
