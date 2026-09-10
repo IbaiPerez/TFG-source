@@ -258,16 +258,24 @@ func test_las_nueve_cadenas_de_urgencia_sobreviven_a_una_perturbacion_agresiva()
 		assert_eq(errores.size(), 0, "ronda %d: %s" % [i, ", ".join(errores)])
 
 
-func test_el_campeon_del_repo_se_repara_al_entrar_en_la_busqueda() -> void:
-	# El campeón vigente viola el gradiente de encierro. Arrancar una corrida desde
-	# él sin reparar metería la incoherencia en toda la búsqueda.
+## El campeón DESPLEGADO tiene que ser coherente. No es decorativo: el campeón
+## anterior tenía el gradiente de encierro invertido —`encircle_min` 2.569 por
+## debajo de `encircle_low` 6.174, o sea la IA incentivando MENOS el escape en el
+## caso más grave— y nada lo impedía, porque `validate()` entonces no miraba esa
+## cadena. Se descubrió leyendo el .tres a mano.
+##
+## Desde que `repair()` vive en `SearchSpace.apply()`, todo candidato que sale de
+## la búsqueda es coherente por construcción. Que esto falle significa que se ha
+## desplegado algo que no pasó por ahí, que es justo el agujero que hubo.
+func test_el_campeon_desplegado_es_coherente() -> void:
 	var champ := load("res://resources/ai/heuristic_weights_optimized.tres") as HeuristicWeights
 	assert_not_null(champ, "el campeón debe cargar")
+	var errores := HeuristicWeightsInvariants.validate(champ)
+	assert_eq(errores.size(), 0,
+		"el campeón desplegado viola invariantes: %s" % ", ".join(errores))
 	var copia := champ.clone()
-	assert_gt(HeuristicWeightsInvariants.repair(copia), 0,
-		"el campeón tiene al menos una cadena desordenada")
-	assert_eq(HeuristicWeightsInvariants.validate(copia).size(), 0,
-		"y tras repararlo debe validar")
+	assert_eq(HeuristicWeightsInvariants.repair(copia), 0,
+		"y repair no debe encontrar nada que enderezar")
 
 
 # ---------------------------------------------------------------------------
@@ -445,19 +453,6 @@ func test_validate_ve_el_eje_del_mazo_sin_banda() -> void:
 	w.deck_large = w.deck_small
 	assert_gt(HeuristicWeightsInvariants.validate(w).size(), 0,
 		"sin banda, _deck_ratio divide por cero")
-
-
-func test_el_campeon_del_repo_falla_la_validacion_por_el_encierro() -> void:
-	# Antes de esta corrección `validate(campeon)` daba 0 errores pese a tener el
-	# gradiente roto — medido. Ahora lo señala, y `repair` lo arregla.
-	var champ := load("res://resources/ai/heuristic_weights_optimized.tres") as HeuristicWeights
-	assert_not_null(champ)
-	assert_gt(HeuristicWeightsInvariants.validate(champ).size(), 0,
-		"el campeón tiene encircle_min por debajo de encircle_low")
-	var copia := champ.clone()
-	HeuristicWeightsInvariants.repair(copia)
-	assert_eq(HeuristicWeightsInvariants.validate(copia).size(), 0,
-		"y tras repararlo debe validar limpio")
 
 
 func test_cruzar_una_sola_cadena_de_complementariedad_no_mata_ninguna_rama() -> void:
