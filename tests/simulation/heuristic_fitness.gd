@@ -33,6 +33,11 @@ var n_games: int = 24                     ## partidas por matchup (por rol si mi
 var seed_master: int = 20260706           ## misma semilla → mismas partidas
 var mirror: bool = true                   ## jugar candidato como A y como B y promediar
 var max_rounds: int = 500
+
+## Rondas de CADA partida jugada por esta instancia. El comparador ya las tenía y
+## se tiraban: sin ellas no hay forma de saber cuánto duran las partidas de una
+## corrida sin volver a jugarlas con el log de turno encendido.
+var rounds: Array = []
 var baseline: HeuristicWeights = null     ## rival por defecto si opponents vacío
 var opponents: Array = []                 ## Array[AIConfig]: pool de rivales (ver HeuristicOpponents)
 
@@ -100,6 +105,15 @@ func evaluate_detailed(candidate: HeuristicWeights, seed_val: int = -1, games: i
 	return result
 
 
+func _media(xs: Array) -> float:
+	if xs.is_empty():
+		return 0.0
+	var t := 0.0
+	for x in xs:
+		t += float(x)
+	return t / float(xs.size())
+
+
 ## Intervalo de confianza al 95 % de una proporción, por el método de WILSON.
 ##
 ## No es Wald (`p ± 1.96·√(p(1−p)/n)`) a propósito, y el motivo se vio corriendo
@@ -138,11 +152,14 @@ func _matchup(cand_cfg: AIConfig, opp_cfg: AIConfig, g: int, s: int) -> Dictiona
 	var s1 := await _run(cand_cfg, opp_cfg, g, s)
 	var wins := int(s1["a_wins"])
 	var decisive := int(s1["a_wins"]) + int(s1["b_wins"])
+	var rondas: Array = s1.get("rounds", []).duplicate()
 	if mirror:
 		# Tanda 2: rival = A, candidato = B (mismas partidas, roles cambiados).
 		var s2 := await _run(opp_cfg, cand_cfg, g, s)
 		wins += int(s2["b_wins"])
 		decisive += int(s2["a_wins"]) + int(s2["b_wins"])
+		rondas.append_array(s2.get("rounds", []))
+	rounds.append_array(rondas)
 	var wr := float(wins) / float(maxi(decisive, 1))
 	# El IC del ENFRENTAMIENTO (no solo el agregado) es lo que permite distinguir
 	# "ha perdido contra este rival" de "ha salido por debajo por ruido": con 8
@@ -153,6 +170,7 @@ func _matchup(cand_cfg: AIConfig, opp_cfg: AIConfig, g: int, s: int) -> Dictiona
 		"wins": wins, "decisive": decisive, "winrate": wr,
 		"ci95_lo": ci.x, "ci95_hi": ci.y,
 		"label": _label(opp_cfg),
+		"avg_rounds": _media(rondas),
 	}
 
 

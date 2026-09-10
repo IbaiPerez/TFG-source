@@ -196,6 +196,10 @@ func _aggregate() -> Dictionary:
 		"ms_per_turn_b": ms_b,
 		"cost_overhead_factor": ms_a / maxf(ms_b, 0.0001),
 		"avg_rounds": _avg(rounds),
+		# La lista completa, no solo la media: la distribución de duración es un
+		# resultado por sí misma (cuántas partidas llegan al tope de rondas dice
+		# si el tope está sesgando el win-rate) y la media sola la esconde.
+		"rounds": rounds,
 		"avg_colonized_pct": _avg(colonized),
 		"a_actions": a_actions,
 		"b_actions": b_actions,
