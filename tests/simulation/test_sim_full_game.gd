@@ -59,6 +59,17 @@ func test_run_simulation() -> void:
 	# convierta esta sim en MCTS-vs-MCTS (más lenta y con otro propósito).
 	var heur := AIConfig.new()
 	heur.mode = AIConfig.Mode.HEURISTIC
+	# SIM_CHAMPION=1 usa los pesos DESPLEGADOS en vez de los defaults. Los dos
+	# juegos de valores dan partidas distintas —el campeón mueve 104 de los 132
+	# pesos optimizables— así que sin esto la simulación describe una IA que no
+	# es la que juega el juego.
+	if OS.get_environment("SIM_CHAMPION") != "":
+		var w = load("res://resources/ai/heuristic_weights_optimized.tres")
+		assert_not_null(w, "el campeón desplegado debe cargar")
+		heur.heuristic_weights = w
+		print("[Sim] pesos: CAMPEÓN desplegado")
+	else:
+		print("[Sim] pesos: defaults del script")
 	multi.config_a = heur
 	multi.config_b = heur
 	multi.attach_to(self)
