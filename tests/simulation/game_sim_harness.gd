@@ -43,6 +43,7 @@ var ocean_range := Vector2(0.5, 0.7)
 ## AIConfig por bando. null → el AIController crea su default en _ready()
 ## (mode=MCTS). Asignar configs distintas permite enfrentar modos de IA
 ## (heurística vs MCTS) en la misma partida.
+var policy_a = null          ## si != null, sustituye la politica de decision de AI_A
 var config_a: AIConfig = null
 var config_b: AIConfig = null
 
@@ -355,6 +356,13 @@ func _spawn_ai_controllers() -> void:
 	# completa: misma seed_master → misma sim entera (mapa + decisiones).
 	ai_a = _spawn_ai(stats_a, rng_master.randi(), "AI_A", config_a)
 	ai_b = _spawn_ai(stats_b, rng_master.randi(), "AI_B", config_b)
+
+	# Gancho para conducir el bando A desde fuera (ver ManualPolicy). Sustituir
+	# la politica es el unico punto de inyeccion que no toca el bucle de turno:
+	# el resto del turno —robar, eventos, descartes, cierre— sigue siendo el del
+	# juego real, que es lo que hace que la partida jugada valga como partida.
+	if policy_a != null:
+		ai_a.decision_policy = policy_a
 
 	# Registro mínimo de controllers para que cada IA vea al rival vía
 	# AIController._build_world_view() — IMPRESCINDIBLE para el MCTS: sin un
