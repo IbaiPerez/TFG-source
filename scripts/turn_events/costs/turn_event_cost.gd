@@ -28,12 +28,6 @@ func needs_player_input() -> bool:
 	return player_remove_filter != null
 
 
-func get_removal_candidates(stats:Stats) -> Array[Card]:
-	if player_remove_filter:
-		return player_remove_filter.get_candidates(stats)
-	return []
-
-
 func pay(context:EventContext, chosen_card:Card = null) -> void:
 	context.stats.total_gold -= gold
 	context.stats.food -= food

@@ -108,11 +108,3 @@ func print_generation_results(start : float, dict : Dictionary):
 		s = "s"
 		total *= 0.001
 	GameLogger.info("Total completion time: " + str(total) + s)
-
-
-
-func _on_ui_control_generate_world(new_settings: GenerationSettings) -> void:
-	settings = new_settings
-	for child in tile_parent.get_children():
-		child.queue_free()
-	_ready()

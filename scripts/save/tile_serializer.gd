@@ -139,18 +139,6 @@ static func apply_buildings_pending(tile:Tile, building_keys:Array) -> void:
 	tile.recalculate_modifiers()
 
 
-## Aplica los efectos de los buildings de un tile sobre las stats del
-## controlador. Pensado para llamarse cuando ya tenemos los EmpireController
-## creados y enlazados.
-##
-## Como los efectos pueden ser de varios tipos (gold-on-card, modifiers,
-## etc.), su `apply_effect(tile, stats)` es la fuente de verdad.
-static func apply_building_effects_for_tile(tile:Tile, stats:Stats) -> void:
-	for b in tile.buildings:
-		for e in b.effects:
-			e.apply_effect(tile, stats)
-
-
 ## --- Utilidades ---------------------------------------------------------
 
 static func _path_of(resource:Resource) -> String:

@@ -71,12 +71,6 @@ func load_game(slot_name:String) -> bool:
 	return _load_from_path(path)
 
 
-## Variante para tests: carga un fixture desde res://tests/fixtures/.
-func load_fixture(fixture_name:String) -> bool:
-	var path := SaveConstants.fixture_path(fixture_name)
-	return _load_from_path(path)
-
-
 ## Devuelve los nombres de los slots existentes (sin extensión).
 func list_slots() -> Array[String]:
 	var slots:Array[String] = []

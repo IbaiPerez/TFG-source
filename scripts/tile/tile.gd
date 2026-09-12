@@ -220,12 +220,6 @@ func has_upgradable_buildings(stats:Stats) -> bool:
 			return true
 	return false
 
-func get_upgradable_buildings(stats) -> Array[Building]:
-	var res := []
-	for building in buildings:
-		if building.can_be_upgraded(stats):
-			res.append(building)
-	return res
 
 func upgrade(old_building: Building, new_building: Building, stats: Stats) -> void:
 	if not can_upgrade(old_building, new_building):

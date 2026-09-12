@@ -209,22 +209,3 @@ static func _serialize_buildings(buildings:Array[Building]) -> Array:
 	for b in buildings:
 		out.append(SaveResourceRegistry.building_key(b))
 	return out
-
-
-static func _paths_of(resources:Array) -> Array:
-	var out:Array = []
-	for r in resources:
-		out.append(_path_of(r))
-	return out
-
-
-static func _path_of(resource:Resource) -> String:
-	if resource == null:
-		return ""
-	return resource.resource_path
-
-
-static func _load_or_null(path:String) -> Resource:
-	if path == "" or not ResourceLoader.exists(path):
-		return null
-	return load(path)

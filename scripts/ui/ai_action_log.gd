@@ -112,10 +112,3 @@ func _append_line(text: String, color: Color) -> void:
 		var oldest := _box.get_child(0)
 		_box.remove_child(oldest)
 		oldest.queue_free()
-
-
-## Limpia el log. Útil entre partidas o al cargar saves.
-func clear_log() -> void:
-	for child in _box.get_children():
-		_box.remove_child(child)
-		child.queue_free()

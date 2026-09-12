@@ -9,9 +9,6 @@ func _ready() -> void:
 	Events.change_tile_controller.connect(_on_change_tile_controller)
 	Events.change_tile_location_type.connect(_on_change_location_type)
 
-func update_all_borders() -> void:
-	for tile in WorldMap.map:
-		tile.update_borders()
 
 func _on_change_tile_controller(tile: Tile, new_controller: Empire) -> void:
 	if tile.controller:

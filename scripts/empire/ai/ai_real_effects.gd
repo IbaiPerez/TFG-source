@@ -48,12 +48,6 @@ static func apply_build(state: AIRealState, tile_id: int, building: Building,
 	AIRealSimulator.recompute_economy(state, p_owner)
 
 
-## DirectBuild: idéntico a Build pero el edificio viene fijado por la carta.
-static func apply_direct_build(state: AIRealState, tile_id: int, building: Building,
-		p_owner: int = AIRealState.OWNER_SELF) -> void:
-	apply_build(state, tile_id, building, p_owner)
-
-
 ## Upgrade: sustituye `old_building` por `new_building` en la casilla (espejo de
 ## Tile.upgrade). Descuenta el coste del nuevo edificio y recalcula la economía.
 static func apply_upgrade(state: AIRealState, tile_id: int,
@@ -193,7 +187,6 @@ static func apply_tactic(state: AIRealState, front: AIRealState.FrontSnap,
 		front.attacker_bonuses.append(bonus)
 	else:
 		front.defender_bonuses.append(bonus)
-
 
 
 # --- Internals de los efectos ---------------------------------------------
