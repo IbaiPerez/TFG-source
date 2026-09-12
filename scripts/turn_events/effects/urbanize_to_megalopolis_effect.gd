@@ -8,9 +8,6 @@ const MEGALOPOLIS_TYPE = preload("res://resources/location_type/megalopolis.tres
 
 var min_buildings: int = 3
 
-## Puerto de mutación. null → LiveWorldMutator (emite por Events, en vivo).
-var world_mutator: WorldMutator = null
-
 
 func needs_player_input() -> bool:
 	return true
@@ -38,11 +35,10 @@ func execute_with_tile(tile: Tile, stats: Stats) -> void:
 	if tile == null or tile.location.type != Tile.location_type.Town:
 		return
 
-	var mutator := world_mutator if world_mutator != null else LiveWorldMutator.new()
-	mutator.set_location_type(tile, MEGALOPOLIS_TYPE)
+	Events.change_tile_location_type.emit(tile, MEGALOPOLIS_TYPE)
 
 	# Demoler edificios incompatibles con Megalópolis
 	for building: Building in tile.buildings:
 		if not building.allowed_location_type.is_empty():
 			if MEGALOPOLIS_TYPE not in building.allowed_location_type:
-				mutator.demolish(tile, building, stats)
+				tile.demolish(building, stats)
