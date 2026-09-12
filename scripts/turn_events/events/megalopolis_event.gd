@@ -14,7 +14,7 @@ func _init():
 		# Al menos 1 Town con 3+ edificios
 		TownWithBuildingsCondition.new(3, Comparison.Type.GREATER_EQUAL),
 		# Al menos 200 de oro para poder pagar
-		MinGoldCondition.new(200),
+		GoldThresholdCondition.new(200, Comparison.Type.GREATER_EQUAL),
 	]
 
 	var cost := TurnEventCost.new()

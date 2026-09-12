@@ -14,7 +14,7 @@ func _init():
 
 	conditions = [
 		# Al menos 1 Megalopolis (location_type = 3)
-		ControlledTilesCondition.new(1, Comparison.Type.GREATER_EQUAL, null, -1, 3),
+		ControlledTilesCondition.new(1, Comparison.Type.GREATER_EQUAL, -1, 3),
 		# Controlar 15+ casillas totales
 		ControlledTilesCondition.new(15, Comparison.Type.GREATER_EQUAL),
 	]

@@ -47,10 +47,10 @@ func _make_troop(troop_name: String = "Milicia", atk: int = 3, def: int = 3,
 		.with_maintenance(2, 1).build()
 
 
-func _make_context(stats: Stats, turn: int = 5, bfm: BattleFrontManager = null) -> EventContext:
+func _make_context(stats: Stats, turn: int = 5) -> EventContext:
 	var mgr := ModifierManager.new()
 	add_child_autoqfree(mgr)
-	return EventContext.build(stats, mgr, turn, bfm)
+	return EventContext.build(stats, mgr, turn)
 
 
 # ============================================================
@@ -140,42 +140,6 @@ func test_has_troops_min_count() -> void:
 
 
 # ============================================================
-#  HasActiveFrontsCondition
-# ============================================================
-
-func test_has_active_fronts_true() -> void:
-	var stats := _make_stats()
-	var bfm := BattleFrontManager.new()
-	bfm.stats = stats
-
-	# Crear un frente activo manualmente
-	var atk_tile := _make_tile(stats.empire)
-	var def_tile := _make_tile(Empire.new())
-	atk_tile.neighbors = [def_tile]
-	def_tile.neighbors = [atk_tile]
-	stats.empire.controlled_tiles = [atk_tile]
-	add_child_autoqfree(bfm)
-
-	var front := BattleFront.new(atk_tile, def_tile, stats.empire, def_tile.controller)
-	bfm.active_fronts.append(front)
-
-	var ctx := _make_context(stats, 5, bfm)
-	var condition := HasActiveFrontsCondition.new(1)
-	assert_true(condition.is_met(ctx), "Debe detectar frentes activos")
-
-
-func test_has_active_fronts_false() -> void:
-	var stats := _make_stats()
-	var bfm := BattleFrontManager.new()
-	bfm.stats = stats
-	add_child_autoqfree(bfm)
-
-	var ctx := _make_context(stats, 5, bfm)
-	var condition := HasActiveFrontsCondition.new(1)
-	assert_false(condition.is_met(ctx), "Sin frentes activos no debe cumplirse")
-
-
-# ============================================================
 #  EventContext datos militares
 # ============================================================
 
@@ -186,20 +150,6 @@ func test_context_includes_troop_pool_size() -> void:
 
 	var ctx := _make_context(stats)
 	assert_eq(ctx.troop_pool_size, 2, "Contexto debe reflejar tamaño del pool de tropas")
-
-
-func test_context_includes_active_front_count() -> void:
-	var stats := _make_stats()
-	var bfm := BattleFrontManager.new()
-	bfm.stats = stats
-	add_child_autoqfree(bfm)
-	stats.empire.controlled_tiles = []
-
-	var front := BattleFront.new(_make_tile(), _make_tile(), Empire.new(), Empire.new())
-	bfm.active_fronts.append(front)
-
-	var ctx := _make_context(stats, 5, bfm)
-	assert_eq(ctx.active_front_count, 1, "Contexto debe reflejar frentes activos")
 
 
 func test_context_has_adjacent_enemy_flag() -> void:

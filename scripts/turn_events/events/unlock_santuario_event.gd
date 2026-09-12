@@ -13,7 +13,7 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		ControlledTilesCondition.new(3, Comparison.Type.GREATER_EQUAL, null, 1)
+		ControlledTilesCondition.new(3, Comparison.Type.GREATER_EQUAL, 1)
 	]
 
 	var choice := TurnEventChoice.new()

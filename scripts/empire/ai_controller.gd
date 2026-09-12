@@ -38,6 +38,8 @@ class_name AIController
 @export var action_delay: float = 0.9    ## Segundos entre jugadas
 @export var turn_end_delay: float = 0.5  ## Segundos antes de cerrar el turno
 @export var rng_seed: int = -1           ## -1 → seed aleatorio cada turno
+
+
 ## Configuración del algoritmo de decisión. Asignar un .tres de resources/ai/
 ## para cambiar entre heurística, MCTS aleatorio y MCTS con heurística.
 ## null → crea un AIConfig por defecto (mode=MCTS) en _ready().
@@ -50,6 +52,8 @@ var turn_manager: TurnManager
 
 var _rng: RandomNumberGenerator
 var _drawn_cards: Array[Card] = []
+
+
 ## Observer de cartas del rival. null hasta que turn_manager tiene un rival disponible.
 ## Se inicializa lazy en el primer turno con rival. Persiste entre turnos.
 var _deck_observer: AIDeckObserver = null
@@ -57,7 +61,6 @@ var _deck_observer: AIDeckObserver = null
 ## Politica de decision (MCTS / heuristica / random). Guarda el subarbol
 ## conservado entre decisiones del turno y los contadores de diagnostico.
 var decision_policy: AIDecisionPolicy
-
 
 
 func _ready() -> void:
@@ -234,8 +237,7 @@ func _end_turn(empire_name: String) -> void:
 ## Igual que en el flujo del jugador, usa el turn_event_manager para
 ## consultar candidatos. La diferencia: el resolver IA no abre paneles.
 func _evaluate_and_resolve_event(empire_name: String) -> void:
-	var context := EventContext.build(stats, modifier_manager,
-			stats.turn_number, battle_front_manager)
+	var context := EventContext.build(stats, modifier_manager, stats.turn_number)
 	var event: TurnEvent = turn_event_manager.evaluate(context)
 	if event == null:
 		return
@@ -265,8 +267,6 @@ func _seed_rng_for_turn() -> void:
 		_rng.seed = rng_seed + stats.turn_number
 	else:
 		_rng.randomize()
-
-
 
 
 ## Espera asíncrona configurable. Si delay <= 0 retorna inmediatamente

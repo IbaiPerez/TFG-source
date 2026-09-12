@@ -1,4 +1,6 @@
 extends GutTest
+
+
 ## Tests para TurnEvent, TurnEventChoice, TurnEventCondition, TurnEventEffect,
 ## TurnEventCost, Comparison, CardRemovalFilter, y TurnEventManager.
 
@@ -407,26 +409,6 @@ func test_context_build_populates_gold():
 	assert_eq(ctx.total_gold, 200)
 	assert_eq(ctx.food, 15)
 	assert_eq(ctx.turn_number, 7)
-
-
-func test_context_card_count_by_id():
-	var stats := _make_stats()
-	stats.draw_pile.add_card(_make_card("Build"))
-	stats.draw_pile.add_card(_make_card("Build"))
-	stats.discard_pile.add_card(_make_card("Colonize"))
-	var ctx := _make_context(stats)
-	assert_eq(ctx.card_count_by_id.get("Build", 0), 2)
-	assert_eq(ctx.card_count_by_id.get("Colonize", 0), 1)
-
-
-func test_context_card_count_by_type():
-	var stats := _make_stats()
-	stats.draw_pile.add_card(_make_card("a", Card.Type.BASIC))
-	stats.draw_pile.add_card(_make_card("b", Card.Type.BASIC))
-	stats.draw_pile.add_card(_make_card("c", Card.Type.SPECIAL))
-	var ctx := _make_context(stats)
-	assert_eq(ctx.card_count_by_type.get(Card.Type.BASIC, 0), 2)
-	assert_eq(ctx.card_count_by_type.get(Card.Type.SPECIAL, 0), 1)
 
 
 # ============================================================

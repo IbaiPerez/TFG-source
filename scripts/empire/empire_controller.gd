@@ -180,7 +180,7 @@ func _reshuffle_deck_from_discard() -> void:
 
 ## Evalua eventos de fin de turno. Retorna true si hay un evento pendiente.
 func _evaluate_end_of_turn() -> bool:
-	var context = EventContext.build(stats, modifier_manager, stats.turn_number, battle_front_manager)
+	var context = EventContext.build(stats, modifier_manager, stats.turn_number)
 	var event = turn_event_manager.evaluate(context)
 
 	if event != null:

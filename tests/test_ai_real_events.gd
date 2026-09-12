@@ -111,17 +111,6 @@ func test_food_and_gpt_condition_parity() -> void:
 		gpt_cond.is_met(ctx), "GoldGeneration paridad")
 
 
-func test_card_type_count_condition_parity() -> void:
-	var real := CardTypeCountCondition.new(0, 2, Comparison.Type.GREATER_EQUAL)
-	var cards: Array[Card] = [_make_card("a", 0), _make_card("b", 0), _make_card("c", 1)]
-	var ctx := EventContext.new()
-	ctx.card_count_by_type = {0: 2, 1: 1}
-	var s := AIRealState.new()
-	s.own.deck = cards
-	assert_eq(real.is_met(EventContext.from_snapshot(s, AIRealState.OWNER_SELF)),
-		real.is_met(ctx), "CardTypeCount paridad")
-
-
 func test_unique_event_occurred_condition_parity() -> void:
 	var real := UniqueEventOccurredCondition.new("construction_boom")
 	var ctx := EventContext.new()

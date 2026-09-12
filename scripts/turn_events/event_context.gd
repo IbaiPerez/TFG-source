@@ -14,7 +14,6 @@ class_name EventContext
 ## Datos por casilla controlada que necesitan las condiciones, sin exponer el nodo
 ## `Tile` (que es un Node3D de escena y no existe en el snapshot).
 class TileFacts:
-	var natural_resource: NaturalResource = null
 	var biome: int = -1            ## Tile.biome_type (-1 si se desconoce)
 	var location_type: int = 0     ## Tile.location_type
 	var building_count: int = 0
@@ -28,27 +27,20 @@ var total_gold:int
 var gold_per_turn:int
 var food:int
 var turn_number:int
-var active_modifier_count:int
-
-var cards_in_deck:Array[Card]
-var card_count_by_id:Dictionary
-var card_count_by_type:Dictionary
 
 var controlled_tiles:Array[Tile]
-var tiles_by_resource:Dictionary
-var tiles_by_biome:Dictionary
-var tiles_by_location:Dictionary
 
 ## Agregados de casilla: sustituyen el recorrido de `controlled_tiles`
 ## que hacían las condiciones, para que valgan también sobre el snapshot.
 var tile_facts:Array[TileFacts] = []
+
+
 ## Biomas de las casillas LIBRES adyacentes a territorio propio (biome → true).
 var adjacent_uncontrolled_biomes:Dictionary = {}
 var has_adjacent_uncontrolled:bool = false
 
 ## Datos militares
 var troop_pool_size:int = 0
-var active_front_count:int = 0
 var has_adjacent_enemy:bool = false
 
 ## Contadores históricos del imperio (los leen dos condiciones; antes iban por `stats`).
@@ -56,64 +48,35 @@ var types_ever_recruited:Dictionary = {}
 var used_unique_events:Array[String] = []
 
 
-static func build(p_stats:Stats, p_modifier_manager:ModifierManager, p_turn_number:int,
-		p_battle_front_manager:BattleFrontManager = null) -> EventContext:
+static func build(p_stats:Stats, p_modifier_manager:ModifierManager,
+		p_turn_number:int) -> EventContext:
 	var ctx = EventContext.new()
 	ctx.stats = p_stats
 	ctx.modifier_manager = p_modifier_manager
 	ctx.turn_number = p_turn_number
 
-	_collect_economy(ctx, p_stats, p_modifier_manager)
-	_collect_deck(ctx, p_stats)
+	_collect_economy(ctx, p_stats)
 	_collect_tiles(ctx, p_stats.empire)
-	_collect_military(ctx, p_stats, p_battle_front_manager, p_turn_number)
+	_collect_military(ctx, p_stats, p_turn_number)
 	return ctx
 
 
-static func _collect_economy(ctx:EventContext, p_stats:Stats,
-		p_modifier_manager:ModifierManager) -> void:
+static func _collect_economy(ctx:EventContext, p_stats:Stats) -> void:
 	ctx.total_gold = p_stats.total_gold
 	ctx.gold_per_turn = p_stats.gold_per_turn
 	ctx.food = p_stats.food
 	ctx.controlled_tiles = p_stats.empire.controlled_tiles
-	ctx.active_modifier_count = p_modifier_manager.active_modifiers.size()
 	ctx.types_ever_recruited = p_stats.types_ever_recruited
 	ctx.used_unique_events = p_stats.used_unique_events
 
 
-## Mazo activo (draw + discard) y sus recuentos por id y por tipo.
-static func _collect_deck(ctx:EventContext, p_stats:Stats) -> void:
-	var all_cards:Array[Card] = []
-	all_cards.append_array(p_stats.draw_pile.cards)
-	all_cards.append_array(p_stats.discard_pile.cards)
-	ctx.cards_in_deck = all_cards
-	for card in all_cards:
-		ctx.card_count_by_id[card.id] = ctx.card_count_by_id.get(card.id, 0) + 1
-		ctx.card_count_by_type[card.type] = ctx.card_count_by_type.get(card.type, 0) + 1
-
-
-## Índices y agregados de territorio, en UNA sola pasada sobre las casillas propias
-## (antes eran cinco recorridos independientes del mismo array).
+## Agregados de territorio, en UNA sola pasada sobre las casillas propias.
 ##
 ## Los contenedores ya nacen vacíos y TIPADOS en la declaración: reasignarlos con un
 ## literal sin tipo sería un error en tiempo de ejecución.
 static func _collect_tiles(ctx:EventContext, empire:Empire) -> void:
 	for tile in ctx.controlled_tiles:
-		if tile.natural_resource:
-			if not ctx.tiles_by_resource.has(tile.natural_resource):
-				ctx.tiles_by_resource[tile.natural_resource] = []
-			ctx.tiles_by_resource[tile.natural_resource].append(tile)
-		if tile.mesh_data:
-			if not ctx.tiles_by_biome.has(tile.mesh_data.type):
-				ctx.tiles_by_biome[tile.mesh_data.type] = []
-			ctx.tiles_by_biome[tile.mesh_data.type].append(tile)
-		if tile.location:
-			if not ctx.tiles_by_location.has(tile.location.type):
-				ctx.tiles_by_location[tile.location.type] = []
-			ctx.tiles_by_location[tile.location.type].append(tile)
-
 		var tf := TileFacts.new()
-		tf.natural_resource = tile.natural_resource
 		tf.biome = tile.mesh_data.type if tile.mesh_data else -1
 		tf.location_type = tile.location.type if tile.location else 0
 		tf.building_count = tile.buildings.size()
@@ -137,11 +100,8 @@ static func _collect_tiles(ctx:EventContext, empire:Empire) -> void:
 				ctx.has_adjacent_enemy = true
 
 
-static func _collect_military(ctx:EventContext, p_stats:Stats,
-		p_battle_front_manager:BattleFrontManager, p_turn_number:int) -> void:
+static func _collect_military(ctx:EventContext, p_stats:Stats, p_turn_number:int) -> void:
 	ctx.troop_pool_size = p_stats.troop_pool.size()
-	if p_battle_front_manager:
-		ctx.active_front_count = p_battle_front_manager.active_fronts.size()
 
 	# Salvaguarda de progresión: si a partir del turno 20 ningún rival es
 	# adyacente, probablemente los imperios están en masas de tierra separadas
@@ -168,18 +128,6 @@ static func from_snapshot(state:AIRealState, p_owner:int) -> EventContext:
 	ctx.total_gold = emp.gold
 	ctx.gold_per_turn = emp.gold_per_turn
 	ctx.food = emp.food
-	# El snapshot solo modela los modifiers económicos: misma aproximación que el
-	# espejo al que sustituye.
-	ctx.active_modifier_count = emp.modifiers.size()
-
-	ctx.cards_in_deck = emp.deck
-	ctx.card_count_by_id = {}
-	ctx.card_count_by_type = {}
-	for card in emp.deck:
-		if card == null:
-			continue
-		ctx.card_count_by_id[card.id] = ctx.card_count_by_id.get(card.id, 0) + 1
-		ctx.card_count_by_type[card.type] = ctx.card_count_by_type.get(card.type, 0) + 1
 
 	var enemy := AIRealState.OWNER_RIVAL if p_owner == AIRealState.OWNER_SELF \
 		else AIRealState.OWNER_SELF
@@ -188,7 +136,6 @@ static func from_snapshot(state:AIRealState, p_owner:int) -> EventContext:
 		if t.owner != p_owner:
 			continue
 		var tf := TileFacts.new()
-		tf.natural_resource = t.natural_resource
 		tf.biome = t.biome
 		tf.location_type = t.location_type
 		tf.building_count = t.buildings.size()
@@ -209,10 +156,6 @@ static func from_snapshot(state:AIRealState, p_owner:int) -> EventContext:
 	ctx.types_ever_recruited = emp.types_ever_recruited
 	ctx.used_unique_events = emp.used_unique_events
 	ctx.troop_pool_size = emp.troop_pool.size()
-	for f in state.fronts:
-		var front := f as AIRealState.FrontSnap
-		if not front.is_resolved and front.involves(p_owner):
-			ctx.active_front_count += 1
 
 	# Misma salvaguarda de progresión que el mundo vivo (ver arriba).
 	if not ctx.has_adjacent_enemy and ctx.turn_number >= 20:
