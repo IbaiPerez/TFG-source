@@ -1,56 +1,63 @@
 extends GutTest
 
-## Round-robin headless de 3 EMPAREJAMIENTOS × 2 PRESUPUESTOS de tiempo, por
-## TANDAS. Mide win-rate (con IC95) y eficiencia de la búsqueda (iters por
-## decisión, profundidad efectiva con warm start, override del prior) para
-## comparar la heurística (Fase B) contra SO-ISMCTS (Fase C v2) con rollout
-## HEURÍSTICO vs ALEATORIO.
+## Comparativa FINAL heurística vs SO-ISMCTS por presupuesto de tiempo, con la
+## heurística optimizada (heuristic_weights_optimized.tres) en AMBOS bandos:
+## la misma heurística juega sola (HEUR) y dentro del MCTS (prior + rollout).
 ##
-## Emparejamientos (A juega primero como AI_A; sin pares-espejo):
-##   1. ISMCTS_H  vs HEUR       — ¿la búsqueda con prior/rollout heurístico bate a la heurística?
-##   2. ISMCTS_R  vs HEUR       — ¿y la búsqueda "pura" (prior uniforme + rollout aleatorio)?
-##   3. ISMCTS_H  vs ISMCTS_R   — ¿cuánto aporta la heurística DENTRO del MCTS?
+## Diseño:
+##   - Celdas = emparejamientos × presupuestos (def. ISMCTS_H_vs_HEUR × 500/750/1000 ms).
+##   - Bucle SEMILLA-MAYOR: cada semilla se juega en TODAS las celdas antes de
+##     pasar a la siguiente. Así, se pare cuando se pare, todas las celdas tienen
+##     exactamente las mismas partidas y son comparables entre sí.
+##   - ESPEJO: cada semilla se juega con los asientos cambiados (A/B), para
+##     neutralizar la ventaja de primer turno. WR por contendiente, no por asiento.
+##   - ACOTADO POR HORAS: antes de cada semilla estima si cabe (media × margen).
+##   - Vuelca el JSON de CADA celda tras cada semilla (datos parciales siempre
+##     disponibles) y REANUDA desde esos volcados con MODE_CMP_RESUME=1.
 ##
-## Cada (emparejamiento, presupuesto) es una TANDA de N partidas que vuelca su
-## propio JSON EN CUANTO termina: user://sim_<matchup>_<budget>ms.json (6 ficheros).
-## Mismo seed maestro en todas → MISMAS partidas; las variables son el
-## emparejamiento y el presupuesto. Secuencial (no paralelo): cada tanda usa la
-## CPU entera para que el presupuesto de TIEMPO rinda las iteraciones esperadas.
+## Cómo lanzar (PowerShell, una línea):
+##   $env:RUN_MODE_COMPARISON='1'; & 'C:\Users\ibaip\Desktop\Godot_v4.5-stable_win64.exe\Godot_v4.5-stable_win64_console.exe' --headless -s addons/gut/gut_cmdln.gd "-gconfig=" -gtest=res://tests/simulation/test_sim_mode_comparison.gd -gexit
 ##
-## Cómo lanzar (bash):
-##   RUN_MODE_COMPARISON=1 "C:\Users\ibaip\Desktop\Godot_v4.5-stable_win64.exe\Godot_v4.5-stable_win64.exe" --headless -s addons/gut/gut_cmdln.gd "-gconfig=" \
-##     -gtest=res://tests/simulation/test_sim_mode_comparison.gd -gexit
-## PowerShell:
-##   $env:RUN_MODE_COMPARISON=1; & godot --headless -s addons/gut/gut_cmdln.gd `
-##     "-gconfig=" -gtest=res://tests/simulation/test_sim_mode_comparison.gd -gexit
+## Salida (Windows): %APPDATA%\Godot\app_userdata\Source\sim_final_<matchup>_<budget>ms.json
 ##
-## Salida en Windows: %APPDATA%\Godot\app_userdata\Source\sim_<matchup>_<budget>ms.json
+## Overrides por env:
+##   MODE_CMP_HOURS    presupuesto de reloj (def 40)
+##   MODE_CMP_SEEDS    tope de semillas (def 1000 → manda el reloj)
+##   MODE_CMP_BUDGETS  "500,750,1000"
+##   MODE_CMP_MATCHUPS "ISMCTS_H_vs_HEUR,ISMCTS_R_vs_HEUR" (nombres de MATCHUPS)
+##   MODE_CMP_RESUME=1 reanudar desde los JSON existentes (misma config)
+##   MODE_CMP_SMOKE=1  1 semilla (MODE_CMP_SEEDS) a 40/60 ms y 30 rondas (~1 min) para probar el circuito
 ##
-## Overrides por env: MODE_CMP_BUDGETS="500,1000" (lista), MODE_CMP_GAMES (def 50).
-## CAVEAT coste: el emparejamiento 3 tiene DOS MCTS pensando → es el más lento.
+## Coste orientativo (junio, esta máquina): ~270–290 decisiones MCTS/partida →
+## ~2,7 / 4,0 / 5,2 min por partida a 500 / 750 / 1000 ms. Una semilla (par
+## espejo × 3 presupuestos) ≈ 24 min → 40 h ≈ 100 semillas = 200 partidas/celda.
 
 
 const COMPARATOR := preload("res://tests/simulation/ai_mode_comparator.gd")
+const WEIGHTS_PATH := "res://resources/ai/heuristic_weights_optimized.tres"
 
 const ENABLE_FROM_GUI := false
 
 # --- Parámetros (ajustables) -----------------------------------------------
-const N_GAMES := 50
-## Presupuestos de tiempo por decisión del MCTS (ms). Se barren EN SECUENCIA.
-const BUDGET_SWEEP_MS := [500, 1000]
+const HOURS := 40.0
+const MAX_SEEDS := 1000
+const BUDGET_SWEEP_MS := [500, 750, 1000]
 const ROLLOUT_DEPTH := 10
 const ITER_CAP := 100000          ## Techo de iteraciones (manda el tiempo)
 const MAX_ROUNDS := 500
-const RNG_SEED := 20260611        ## MISMO en todas las tandas → mismas partidas
-const SELF_EVAL_GAMES := 0        ## 0 = sin traza (el foco es WR + eficiencia)
+const RNG_SEED := 20260611        ## Misma secuencia de semillas en todas las celdas
+const SAFETY := 1.5               ## Margen predictivo sobre la media por semilla
 
-## Emparejamientos del round-robin. kind ∈ {"HEUR","MCTS_H","MCTS_R"}.
-## A juega primero (AI_A); ver caveat de ventaja de primer turno en el comparador.
+## kind ∈ {"HEUR","MCTS_H","MCTS_R"}. Por defecto solo el primero (ver env).
 const MATCHUPS := [
 	{"name": "ISMCTS_H_vs_HEUR",     "label_a": "ISMCTS_H", "kind_a": "MCTS_H", "label_b": "HEUR",     "kind_b": "HEUR"},
 	{"name": "ISMCTS_R_vs_HEUR",     "label_a": "ISMCTS_R", "kind_a": "MCTS_R", "label_b": "HEUR",     "kind_b": "HEUR"},
 	{"name": "ISMCTS_H_vs_ISMCTS_R", "label_a": "ISMCTS_H", "kind_a": "MCTS_H", "label_b": "ISMCTS_R", "kind_b": "MCTS_R"},
 ]
+const DEFAULT_MATCHUPS := ["ISMCTS_H_vs_HEUR"]
+
+var _weights: HeuristicWeights = null
+var _max_rounds := MAX_ROUNDS
 
 
 func test_compare_modes() -> void:
@@ -58,43 +65,99 @@ func test_compare_modes() -> void:
 		pass_test("Saltado: pon ENABLE_FROM_GUI=true o RUN_MODE_COMPARISON=1 para ejecutar.")
 		return
 
-	# Presupuestos a barrer. Override por env: MODE_CMP_BUDGETS="500,1000"
-	var budgets: Array = BUDGET_SWEEP_MS
-	var env_budgets := OS.get_environment("MODE_CMP_BUDGETS")
-	if env_budgets != "":
-		budgets = []
-		for tok in env_budgets.split(","):
-			budgets.append(int(tok.strip_edges()))
-	var n_games := N_GAMES
-	var env_games := OS.get_environment("MODE_CMP_GAMES")
-	if env_games != "":
-		n_games = int(env_games)
+	_weights = load(WEIGHTS_PATH) as HeuristicWeights
+	assert_not_null(_weights, "No se cargó %s" % WEIGHTS_PATH)
+	if _weights == null:
+		return
 
-	# Subconjunto de emparejamientos a correr. Override por env (lista de `name`
-	# separados por comas): MODE_CMP_MATCHUPS="ISMCTS_H_vs_HEUR". Sin override, el
-	# round-robin completo. Útil para medir UN emparejamiento (p.ej. A/B de un
-	# cambio en el MCTS contra la heurística, que es un oponente fijo).
-	var matchups: Array = MATCHUPS
-	var env_matchups := OS.get_environment("MODE_CMP_MATCHUPS")
-	if env_matchups != "":
-		var wanted := []
-		for tok in env_matchups.split(","):
-			wanted.append(tok.strip_edges())
-		matchups = []
-		for mu in MATCHUPS:
-			if String(mu["name"]) in wanted:
-				matchups.append(mu)
-		assert_false(matchups.is_empty(),
-			"MODE_CMP_MATCHUPS='%s' no casa con ningún emparejamiento" % env_matchups)
+	var smoke := OS.get_environment("MODE_CMP_SMOKE") != ""
+	var budgets := _int_list_env("MODE_CMP_BUDGETS", BUDGET_SWEEP_MS)
+	var hours := SimEnv.float_env("MODE_CMP_HOURS", HOURS)
+	var max_seeds := SimEnv.int_env("MODE_CMP_SEEDS", MAX_SEEDS)
+	if smoke:
+		budgets = [40, 60]
+		max_seeds = SimEnv.int_env("MODE_CMP_SEEDS", 1)
+		_max_rounds = 30
 
-	# Cada (emparejamiento, presupuesto) corre en SECUENCIA y vuelca su JSON en
-	# cuanto termina, así los primeros resultados están disponibles sin esperar.
+	var cells := _build_cells(_selected_matchups(), budgets)
+	var start_seed := _resume(cells) if OS.get_environment("MODE_CMP_RESUME") != "" else 0
+	print("[ModeCmp] %d celdas · espejo · %.1f h · tope %d semillas · desde semilla %d · depth=%d · seed=%d" % [
+		cells.size(), hours, max_seeds, start_seed, ROLLOUT_DEPTH, RNG_SEED])
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = RNG_SEED
+	for _i in range(start_seed):
+		rng.randi()   # saltar las semillas ya jugadas
+
+	var played := await _sweep(cells, rng, start_seed, max_seeds, int(hours * 3600000.0))
+
+	for cell in cells:
+		var cmp = cell["cmp"]
+		_print_summary(cmp.summary)
+		assert_eq(cmp.games.size(), (start_seed + played) * 2,
+			"La celda %s debe tener %d partidas, tiene %d" % [
+				cell["path"], (start_seed + played) * 2, cmp.games.size()])
+	_clear_world()
+
+
+# --- Bucle semilla-mayor ----------------------------------------------------
+
+## Juega semillas hasta agotar el reloj o el tope. Devuelve las semillas jugadas.
+func _sweep(cells: Array, rng: RandomNumberGenerator, start_seed: int,
+		max_seeds: int, budget_ms: int) -> int:
+	var t0 := Time.get_ticks_msec()
+	var played := 0
+	while start_seed + played < max_seeds:
+		var elapsed := Time.get_ticks_msec() - t0
+		if played > 0 and float(elapsed) + float(elapsed) / float(played) * SAFETY > float(budget_ms):
+			print("[ModeCmp] presupuesto agotado (%.2f h, %.1f min/semilla) → paro" % [
+				elapsed / 3600000.0, float(elapsed) / float(played) / 60000.0])
+			break
+		var idx := start_seed + played
+		var game_seed := rng.randi()
+		for cell in cells:
+			_clear_world()
+			var cmp = cell["cmp"]
+			await cmp.play_seed(idx, game_seed)
+			cmp.finalize()
+			cmp.dump_to(cell["path"])
+			_consume_engine_errors()
+		played += 1
+		print("[ModeCmp] semilla %d hecha · %.2f h · %s" % [
+			idx, (Time.get_ticks_msec() - t0) / 3600000.0, _progress_line(cells)])
+	return played
+
+
+## WR de A por celda, en una línea, para seguir la tanda desde el log.
+func _progress_line(cells: Array) -> String:
+	var parts: Array[String] = []
+	for cell in cells:
+		var s: Dictionary = cell["cmp"].summary
+		parts.append("%dms %d-%d-%d" % [int(s["budget_ms"]), s["a_wins"], s["b_wins"], s["draws"]])
+	return " | ".join(parts)
+
+
+## Reanuda: carga los JSON existentes y devuelve la semilla por la que seguir
+## (la mínima completada en TODAS las celdas; el resto se recorta a ese punto).
+func _resume(cells: Array) -> int:
+	var seeds_done := -1
+	for cell in cells:
+		var n: int = cell["cmp"].load_from(cell["path"])
+		seeds_done = n / 2 if seeds_done < 0 else mini(seeds_done, n / 2)
+	seeds_done = maxi(seeds_done, 0)
+	for cell in cells:
+		var cmp = cell["cmp"]
+		cmp.games.resize(seeds_done * 2)
+		cmp.finalize()
+	return seeds_done
+
+
+# --- Construcción de celdas/configs ------------------------------------------
+
+func _build_cells(matchups: Array, budgets: Array) -> Array:
+	var cells := []
 	for mu in matchups:
 		for budget in budgets:
-			WorldMap.map = []
-			WorldMap.map_as_dict = {}
-			BattleFront.clear_active_instances()
-
 			var b: int = int(budget)
 			var cmp = COMPARATOR.new()
 			cmp.config_a = _build_config(String(mu["kind_a"]), b)
@@ -103,59 +166,66 @@ func test_compare_modes() -> void:
 			cmp.label_b = String(mu["label_b"])
 			cmp.matchup_name = String(mu["name"])
 			cmp.budget_ms = b
-			cmp.n_games = n_games
-			cmp.max_rounds = MAX_ROUNDS
+			cmp.mirror = true
+			cmp.max_rounds = _max_rounds
 			cmp.rng_master_seed = RNG_SEED
-			cmp.self_eval_games = SELF_EVAL_GAMES
 			cmp.attach_to(self)
+			cmp.finalize()   # summary vacío pero con forma, para _progress_line
+			cells.append({"cmp": cmp, "path": "user://sim_final_%s_%dms.json" % [mu["name"], b]})
+	return cells
 
-			print("[ModeCmp] === TANDA: %s @ %d ms · %d partidas · depth=%d · seed=%d ===" % [
-				mu["name"], budget, n_games, ROLLOUT_DEPTH, RNG_SEED])
 
-			await cmp.run()
+func _selected_matchups() -> Array:
+	var wanted := DEFAULT_MATCHUPS
+	var env := OS.get_environment("MODE_CMP_MATCHUPS")
+	if env != "":
+		wanted = []
+		for tok in env.split(","):
+			wanted.append(tok.strip_edges())
+	var out := []
+	for mu in MATCHUPS:
+		if String(mu["name"]) in wanted:
+			out.append(mu)
+	assert_false(out.is_empty(), "MODE_CMP_MATCHUPS='%s' no casa con ningún emparejamiento" % env)
+	return out
 
-			var out_path := "user://sim_%s_%dms.json" % [mu["name"], budget]
-			cmp.dump_to(out_path)
-			print("[ModeCmp] Path absoluto: %s" % ProjectSettings.globalize_path(out_path))
-			_print_summary(cmp.summary)
 
-			assert_eq(int(cmp.summary["games"]), n_games,
-				"La tanda %s @ %d ms debe tener %d partidas, tiene %d" % [
-					mu["name"], budget, n_games, int(cmp.summary["games"])])
+func _build_config(kind: String, budget: int) -> AIConfig:
+	var c := AIConfig.new()
+	c.heuristic_weights = _weights
+	match kind:
+		"HEUR":
+			c.mode = AIConfig.Mode.HEURISTIC
+		"MCTS_H", "MCTS_R":
+			c.mode = AIConfig.Mode.MCTS
+			c.mcts_time_budget_ms = budget
+			c.mcts_iterations = ITER_CAP
+			c.mcts_rollout_depth = ROLLOUT_DEPTH
+			c.mcts_heuristic_rollout = kind == "MCTS_H"
+	return c
 
-			# Consumir errores/warnings del motor de ESTA tanda antes de la siguiente.
-			for e in get_errors():
-				e.handled = true
 
+func _int_list_env(name: String, fallback: Array) -> Array:
+	var env := OS.get_environment(name)
+	if env == "":
+		return fallback
+	var out := []
+	for tok in env.split(","):
+		out.append(int(tok.strip_edges()))
+	return out
+
+
+func _clear_world() -> void:
 	WorldMap.map = []
 	WorldMap.map_as_dict = {}
 	BattleFront.clear_active_instances()
 
 
-# --- Construcción de configs ------------------------------------------------
-
-func _build_config(kind: String, budget: int) -> AIConfig:
-	match kind:
-		"HEUR": return _heur_config()
-		"MCTS_H": return _mcts_config(budget, true)
-		"MCTS_R": return _mcts_config(budget, false)
-	return _heur_config()
-
-
-func _heur_config() -> AIConfig:
-	var c := AIConfig.new()
-	c.mode = AIConfig.Mode.HEURISTIC
-	return c
-
-
-func _mcts_config(budget: int, heuristic_rollout: bool) -> AIConfig:
-	var c := AIConfig.new()
-	c.mode = AIConfig.Mode.MCTS
-	c.mcts_time_budget_ms = budget
-	c.mcts_iterations = ITER_CAP
-	c.mcts_rollout_depth = ROLLOUT_DEPTH
-	c.mcts_heuristic_rollout = heuristic_rollout
-	return c
+## Consumir errores/warnings del motor de esta partida para que GUT no los
+## cuente como fallo del test.
+func _consume_engine_errors() -> void:
+	for e in get_errors():
+		e.handled = true
 
 
 # --- Resumen stdout --------------------------------------------------------
@@ -163,7 +233,7 @@ func _mcts_config(budget: int, heuristic_rollout: bool) -> AIConfig:
 func _print_summary(s: Dictionary) -> void:
 	var la := String(s["label_a"])
 	var lb := String(s["label_b"])
-	print("\n[ModeCmp] === RESUMEN %s @ %d ms ===" % [s["matchup"], int(s["budget_ms"])])
+	print("\n[ModeCmp] === RESUMEN %s @ %d ms · %d partidas ===" % [s["matchup"], int(s["budget_ms"]), int(s["games"])])
 	var wld := "%d-%d-%d" % [s["a_wins"], s["b_wins"], s["draws"]]
 	var wr := "%.0f%% [%.0f,%.0f]" % [
 		s["a_winrate_decisive"] * 100.0,

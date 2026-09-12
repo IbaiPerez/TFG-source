@@ -9,10 +9,16 @@ class_name AIModeComparator
 ##   - Heurística            vs ISMCTS (rollout aleatorio)
 ##   - ISMCTS (heurístico)   vs ISMCTS (aleatorio)
 ##
-## El contendiente A juega SIEMPRE como AI_A (mueve primero) y B como AI_B. NO hay
-## pares-espejo: con el mismo seed maestro por tanda el mapa/recursos quedan
-## pareados entre tandas, pero AI_A conserva la ventaja de primer turno — tenlo en
-## cuenta al comparar (se documenta en el volcado).
+## Sin `mirror`, el contendiente A juega SIEMPRE como AI_A (mueve primero) y B
+## como AI_B, y AI_A conserva la ventaja de primer turno (se documenta en el
+## volcado). Con `mirror = true`, cada semilla se juega DOS veces con los
+## asientos cambiados: las métricas a_*/b_* siguen siendo del CONTENDIENTE, no
+## del asiento, así que el win-rate queda neutralizado frente al primer turno.
+##
+## `run()` juega todas las semillas de golpe. Para intercalar varias tandas
+## (p.ej. barrer presupuestos semilla a semilla) el llamante usa `play_seed()`
+## + `finalize()` + `dump_to()` por su cuenta; `load_from()` reanuda desde un
+## volcado previo.
 ##
 ## Métricas por bando (a_*/b_*): win-rate con IC95, ms/turno, y diagnóstico MCTS
 ## (override del prior, iters por decisión = cómputo, visitas-raíz por decisión =
@@ -38,7 +44,8 @@ var label_b: String = "B"           ## Etiqueta legible de B (p.ej. "HEUR")
 var matchup_name: String = ""       ## Nombre del emparejamiento (para metadata)
 var budget_ms: int = 0              ## Presupuesto de los MCTS de la tanda (solo metadata/resumen)
 
-var n_games: int = 50               ## Partidas de la tanda
+var n_games: int = 50               ## Semillas de la tanda (×2 partidas si mirror)
+var mirror: bool = false            ## Jugar cada semilla también con los asientos cambiados
 var max_rounds: int = 500           ## Límite de seguridad por partida
 var rng_master_seed: int = 20260611 ## MISMO entre tandas → mismas partidas
 var self_eval_games: int = 0        ## Nº de partidas con traza de auto-evaluación
@@ -67,15 +74,40 @@ func run() -> void:
 	rng.seed = rng_master_seed
 
 	for i in range(n_games):
-		var game_seed := rng.randi()
-		await _play_game(i, game_seed, i < self_eval_games)
+		await play_seed(i, rng.randi(), i < self_eval_games)
+	finalize()
 
+
+## Juega la semilla `idx`: una partida (A en AI_A) y, con mirror, otra con los
+## asientos cambiados sobre el MISMO mapa.
+func play_seed(idx: int, game_seed: int, trace: bool = false) -> void:
+	await _play_game(idx, game_seed, trace, false)
+	if mirror:
+		await _play_game(idx, game_seed, trace, true)
+
+
+func finalize() -> void:
 	summary = _aggregate()
 
 
-# --- Una partida (A = AI_A, B = AI_B) ----------------------------------------
+## Reanuda desde un volcado previo de dump_to(). Devuelve el nº de partidas
+## recuperadas (0 si el fichero no existe o no se pudo leer).
+func load_from(path: String) -> int:
+	if not FileAccess.file_exists(path):
+		return 0
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not (parsed is Dictionary) or not parsed.has("games"):
+		return 0
+	games = parsed["games"]
+	self_eval_traces = parsed.get("self_eval_traces", [])
+	return games.size()
 
-func _play_game(idx: int, game_seed: int, trace: bool) -> void:
+
+# --- Una partida -------------------------------------------------------------
+
+## `swapped` = false → A juega en AI_A (mueve primero); true → A en AI_B.
+## El registro y las métricas se indexan por CONTENDIENTE (a_*/b_*), no por asiento.
+func _play_game(idx: int, game_seed: int, trace: bool, swapped: bool) -> void:
 	# Determinismo del mapa/imperios: el WorldGenerator usa el RNG GLOBAL para
 	# barajar imperios y sembrar los ruidos. Sembrarlo con game_seed garantiza
 	# que la misma partida idx tenga el mismo mapa/recursos en todas las tandas.
@@ -86,43 +118,43 @@ func _play_game(idx: int, game_seed: int, trace: bool) -> void:
 	harness.run_id = idx
 	harness.capture_snapshots = capture_snapshots
 	harness.capture_self_eval = trace
-	harness.config_a = config_a
-	harness.config_b = config_b
+	harness.config_a = config_b if swapped else config_a
+	harness.config_b = config_a if swapped else config_b
 	var run_rng := RandomNumberGenerator.new()
 	run_rng.seed = game_seed
 	harness.rng_master = run_rng
 	harness.attach_to(_gut_test)
 	await harness.run()
 
+	var seat_a := "AI_B" if swapped else "AI_A"
+	var seat_b := "AI_A" if swapped else "AI_B"
 	var winner_side := ""
-	if harness.winner_label == "AI_A":
+	if harness.winner_label == seat_a:
 		winner_side = "A"
-	elif harness.winner_label == "AI_B":
+	elif harness.winner_label == seat_b:
 		winner_side = "B"
-
-	var a_mcts: Dictionary = harness.mcts_stats_by_label["AI_A"]
-	var b_mcts: Dictionary = harness.mcts_stats_by_label["AI_B"]
 
 	games.append({
 		"game": idx,
+		"a_seat": seat_a,
 		"map": harness.run_seed_meta,
 		"winner_label": harness.winner_label,
 		"winner_side": winner_side,
 		"victory_condition": harness.victory_condition,
 		"finished_round": harness.finished_round,
-		"a_usec": int(harness.turn_usec_by_label["AI_A"]),
-		"a_turns": int(harness.turns_by_label["AI_A"]),
-		"b_usec": int(harness.turn_usec_by_label["AI_B"]),
-		"b_turns": int(harness.turns_by_label["AI_B"]),
-		"a_mcts": a_mcts,
-		"b_mcts": b_mcts,
-		"final_tiles_a": harness.final_tiles_a,
-		"final_tiles_b": harness.final_tiles_b,
+		"a_usec": int(harness.turn_usec_by_label[seat_a]),
+		"a_turns": int(harness.turns_by_label[seat_a]),
+		"b_usec": int(harness.turn_usec_by_label[seat_b]),
+		"b_turns": int(harness.turns_by_label[seat_b]),
+		"a_mcts": harness.mcts_stats_by_label[seat_a],
+		"b_mcts": harness.mcts_stats_by_label[seat_b],
+		"final_tiles_a": harness.final_tiles_a if not swapped else harness.final_tiles_b,
+		"final_tiles_b": harness.final_tiles_b if not swapped else harness.final_tiles_a,
 		"final_total_tiles": harness.final_total_tiles,
 		"colonized_pct": float(harness.final_tiles_a + harness.final_tiles_b)
 			/ float(maxi(harness.final_total_tiles, 1)),
-		"a_actions": (harness.actions_by_label["AI_A"] as Dictionary).duplicate(),
-		"b_actions": (harness.actions_by_label["AI_B"] as Dictionary).duplicate(),
+		"a_actions": (harness.actions_by_label[seat_a] as Dictionary).duplicate(),
+		"b_actions": (harness.actions_by_label[seat_b] as Dictionary).duplicate(),
 	})
 
 	if trace and not harness.self_eval_trace.is_empty():
@@ -257,10 +289,12 @@ func _avg(values: Array) -> float:
 func _config_meta(cfg: AIConfig) -> Dictionary:
 	if cfg == null:
 		return {"mode": "DEFAULT"}
+	var weights := "default" if cfg.heuristic_weights == null else cfg.heuristic_weights.resource_path
 	if cfg.mode == AIConfig.Mode.HEURISTIC:
-		return {"mode": "HEURISTIC"}
+		return {"mode": "HEURISTIC", "weights": weights}
 	return {
 		"mode": "MCTS",
+		"weights": weights,
 		"time_budget_ms": cfg.mcts_time_budget_ms,
 		"rollout_depth": cfg.mcts_rollout_depth,
 		"heuristic_rollout": cfg.mcts_heuristic_rollout,
@@ -277,12 +311,14 @@ func dump_to(path: String) -> void:
 			"label_a": label_a,
 			"label_b": label_b,
 			"budget_ms": budget_ms,
-			"n_games": n_games,
+			"mirror": mirror,
+			"games_played": games.size(),
 			"config_a": _config_meta(config_a),
 			"config_b": _config_meta(config_b),
 			"max_rounds_safety_cap": max_rounds,
 			"rng_master_seed": rng_master_seed,
-			"first_move_advantage": "AI_A (label_a) mueve primero — sin pares-espejo",
+			"first_move_advantage": "neutralizada: cada semilla jugada en ambos asientos" if mirror
+				else "AI_A (label_a) mueve primero — sin pares-espejo",
 			"timestamp": Time.get_datetime_string_from_system(true),
 		},
 		"summary": summary,
