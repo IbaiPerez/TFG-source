@@ -105,12 +105,11 @@ no la regla.
 ## Convenciones
 
 - **Longitud**: ninguna función > 40 líneas, ningún fichero > 400. Lo de los
-  ficheros se cumple (0 de 323). Lo de las funciones, casi: quedan **6 de 1701**,
-  dos justificadas abajo y cuatro sin revisar (`EventContext.from_snapshot` 43,
-  `battle_front_visual._setup_front_line` 48, `AIRealSimulator.recompute_economy`
-  44, `AIChoiceScorer.score_choice` 41). Medirlas con el cuerpo real, no de `func`
-  a `func`: contar los `@export` y `const` intermedios infló varias cifras del plan
-  de refactor.
+  ficheros se cumple (0 de 320). Lo de las funciones, casi: quedan **5 de 1690**,
+  dos justificadas abajo y tres sin revisar (`battle_front_visual._setup_front_line`
+  48, `AIRealSimulator.recompute_economy` 44, `AIChoiceScorer.score_choice` 41).
+  Medirlas con el cuerpo real, no de `func` a `func`: contar los `@export` y
+  `const` intermedios infló varias cifras del plan de refactor.
 - **Tipado**: `Array[T]` siempre; `:=` cuando el tipo es evidente; tipo explícito en
   las firmas. Ojo: declarar una función **sin tipo de retorno** devuelve `Variant` y
   rompe la inferencia `:=` de los llamantes en cascada.
