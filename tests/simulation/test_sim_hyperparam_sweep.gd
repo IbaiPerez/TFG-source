@@ -29,10 +29,7 @@ extends GutTest
 
 const COMPARATOR := preload("res://tests/simulation/ai_mode_comparator.gd")
 
-## true → se ejecuta al lanzarlo desde el panel GUT del editor. OJO: con true,
-## una corrida de la suite COMPLETA también dispararía este barrido largo (8
-## puntos); ejecútalo SOLO seleccionando este script, no "Run All".
-const ENABLE_FROM_GUI := true
+const ENABLE_FROM_GUI := false
 
 # --- Parámetros (ajustables) -----------------------------------------------
 const N_GAMES := 30

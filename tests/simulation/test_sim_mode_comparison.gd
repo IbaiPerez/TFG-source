@@ -32,9 +32,7 @@ extends GutTest
 
 const COMPARATOR := preload("res://tests/simulation/ai_mode_comparator.gd")
 
-# Lánzalo desde el panel GUT del editor (corre el round-robin completo). Para una
-# tanda concreta usa los overrides por env.
-const ENABLE_FROM_GUI := true
+const ENABLE_FROM_GUI := false
 
 # --- Parámetros (ajustables) -----------------------------------------------
 const N_GAMES := 50

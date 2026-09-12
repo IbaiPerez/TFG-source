@@ -449,22 +449,16 @@ func _load_turn_events() -> Array[TurnEvent]:
 ## Comprueba dominación (>= 70 % del mapa) y eliminación (rival a 0 tiles).
 ## Devuelve {"winner": nombre, "condition": "domination"|"elimination"}
 ## o {} si la partida continúa.
+## La regla es la del juego (`VictoryRules`, la misma que usa `TurnManager`);
+## aquí solo se traduce el ganador a su nombre para el JSON.
 func _check_victory_in_sim() -> Dictionary:
-	var total := WorldMap.map.size()
-	if total == 0 or stats_a == null or stats_b == null:
+	if stats_a == null or stats_b == null:
 		return {}
-	var a_tiles := stats_a.empire.controlled_tiles.size()
-	var b_tiles := stats_b.empire.controlled_tiles.size()
-	if b_tiles == 0 and a_tiles > 0:
-		return {"winner": stats_a.empire.name, "condition": "elimination"}
-	if a_tiles == 0 and b_tiles > 0:
-		return {"winner": stats_b.empire.name, "condition": "elimination"}
-	const THRESHOLD := 0.70
-	if float(a_tiles) / float(total) >= THRESHOLD:
-		return {"winner": stats_a.empire.name, "condition": "domination"}
-	if float(b_tiles) / float(total) >= THRESHOLD:
-		return {"winner": stats_b.empire.name, "condition": "domination"}
-	return {}
+	var empires: Array[Empire] = [stats_a.empire, stats_b.empire]
+	var result := VictoryRules.check(empires, WorldMap.map.size())
+	if result.is_empty():
+		return {}
+	return {"winner": result["winner"].name, "condition": result["condition"]}
 
 
 # --- Captura de metricas ---------------------------------------------------

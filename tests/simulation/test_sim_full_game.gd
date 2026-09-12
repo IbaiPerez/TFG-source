@@ -12,10 +12,9 @@ extends GutTest
 ##    primer turno es de AI_A.
 ##  - Deck inicial real (sin inyeccion de cartas militares).
 ##
-## GATEADO por RUN_SIM_FULL_GAME, como sus cinco hermanos de tests/simulation/.
+## GATEADO por RUN_SIM_FULL_GAME, como todos los lanzadores de tests/simulation/.
 ## Sin la puerta, 15 partidas de hasta 500 rondas se disparaban en cuanto alguien
-## metiera tests/simulation/ en la config de GUT o pulsara "Run All" en el panel —
-## el peligro del que avisa la cabecera de test_optimize_heuristic_2stage.gd.
+## metiera tests/simulation/ en la config de GUT o pulsara "Run All" en el panel.
 ##
 ## Como ejecutarlo (bash). El "-gconfig=" vacío es imprescindible: sin él siguen
 ## aplicándose los `dirs` de .gutconfig.json y se corre la suite entera.

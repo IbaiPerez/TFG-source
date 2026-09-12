@@ -3,8 +3,8 @@
 Qué se ejecuta por defecto, qué va bajo demanda y cómo lanzar cada cosa.
 
 > Este fichero documentaba antes **41 tests del sistema de bloqueo de menús**, que era
-> toda la suite cuando se escribió. Hoy son 1.431 en 96 scripts, y su comando de
-> arranque apuntaba a `addons/gut/run_tests.gd`, **que no existe**. Reescrito.
+> toda la suite cuando se escribió. Hoy son más de 1.600 en más de 110 scripts, y su
+> comando de arranque apuntaba a `addons/gut/run_tests.gd`, **que no existe**. Reescrito.
 
 ## Corrida por defecto
 
@@ -37,13 +37,16 @@ los subdirectorios. Es deliberado:
 en silencio** y sigue dando ese mensaje con menos tests. Hay que mirar el recuento:
 
 ```
-Scripts              96
-Tests              1431
-Passing Tests      1430
+Scripts             114
+Tests              1620
+Passing Tests      1619
 Risky/Pending         1
-Asserts            3602
-Time              45.658s
+Asserts            3700
+Time              50.0s
 ```
+
+(Cifras orientativas: cambian con cada test nuevo. Lo que importa es que `Scripts` y
+`Tests` **no bajen** respecto a la corrida anterior sin una explicación.)
 
 **Las líneas malas solo salen si hay algo malo.** `Failing Tests`, `Risky/Pending`,
 `Orphans`, `Errors` y `Warnings` pasan por `_log_non_zero_total` (`addons/gut/summary.gd`),
@@ -76,13 +79,18 @@ documenta en su cabecera los parámetros finos y dónde deja el JSON.
 | Variable | Qué lanza | Orden de magnitud |
 |---|---|---|
 | `RUN_SIM_FULL_GAME` | 15 partidas heurística vs heurística (balance) | minutos |
-| `RUN_OPT_SA` / `RUN_OPT_GA` | Optimización de pesos (recocido simulado / genético) | ~horas |
-| `RUN_OPT_2STAGE` | Optimización en dos etapas contra un pool de rivales | ~horas |
+| `RUN_OPT_2STAGE` | Optimización de pesos en dos etapas (SA + GA) contra un pool de rivales | ~horas |
+| `RUN_CALIBRATE_SA` | Calibración de los hiperparámetros del SA (experimento cerrado; ver su cabecera) | ~días |
 | `RUN_HP_SWEEP` | Calibración de hiperparámetros del SO-ISMCTS (ablación) | ~horas |
 | `RUN_MODE_COMPARISON` | Round-robin heurística vs SO-ISMCTS por emparejamiento y presupuesto | ~horas |
-| `RUN_VALIDATE_CHAMPION` | Generalización del campeón contra un pool held-out | ~horas |
+| `RUN_VALIDATE_CHAMPION` | Generalización del campeón contra un pool held-out; reporta también la duración en turnos | ~horas |
 | `RUN_AB_THROUGHPUT` | A/B de throughput del MCTS con las partidas clavadas | ~12 min |
 | `RUN_BENCH_MCTS` | Benchmark campeón-MCTS vs baseline-MCTS, acotado por tiempo | una noche |
+| `RUN_PLAY_VS_AI` | Jugar una partida contra la IA desde fuera, por guion (ver `ManualPolicy`) | segundos por jugada |
+
+Todos llevan `ENABLE_FROM_GUI := false`: desde el panel GUT tampoco se disparan sin la
+variable. Hubo una época en que cinco lo tenían a `true` y un "Run All" con *Include
+Subdirs* lanzaba horas de cómputo.
 
 Atajos de humo, para comprobar que el arnés arranca sin esperar el ciclo entero:
 `OPT_SMOKE=1` (optimizadores) y `BENCH_SMOKE=1` (benchmark).
@@ -107,6 +115,20 @@ $env:RUN_SIM_FULL_GAME=1; & godot --headless -s addons/gut/gut_cmdln.gd "-gconfi
 
 Los JSON de salida van a `user://`, que en Windows es
 `%APPDATA%\Godot\app_userdata\Source\`.
+
+### Lo que NO es un lanzador
+
+`tests/simulation/` contiene también la infraestructura: `game_sim_harness.gd` (una
+partida headless con dos `AIController`), `multi_run_simulator.gd`, `ai_mode_comparator.gd`,
+`heuristic_fitness.gd` + `heuristic_opponents.gd` (fitness y pool del optimizador),
+`sa_optimizer.gd` / `ga_optimizer.gd`, `search_space.gd`, `top_candidates.gd`,
+`opt_checkpoint.gd` y `manual_policy.gd`. Ninguno empieza por `test_`, así que GUT no
+los toma por suites.
+
+El arnés **no pasa por `TurnManager`**: llama a `start_turn()` de cada IA por turnos y
+decide el final con `VictoryRules`, la misma clase que usa `TurnManager` en el juego.
+Es la única regla compartida; el orden de turnos y las señales de ronda del juego real
+no se ejercitan en simulación.
 
 ### No hay una config «lenta» aparte
 
@@ -159,8 +181,20 @@ Al usar los fixtures, **libera las casillas**: devuelven `Tile` sin padre, y
 
 ## El bloque de bloqueo de menús
 
-Lo que documentaba la versión anterior de este fichero sigue existiendo y pasando:
-`test_ui_state.gd`, `test_interaction_blocking.gd`, `test_camera_blocking.gd`,
-`test_menu_registration.gd` y `test_menu_blocking_integration.gd` cubren el contador de
-`UIState`, sus señales de transición (0→1, 1→0) y que los menús abiertos bloqueen el clic
-en el mapa y el zoom de cámara. Se ejecutan con la suite por defecto, sin nada especial.
+Lo que documentaba la versión anterior de este fichero (41 tests) se ha quedado en dos
+ficheros: `test_ui_state.gd` cubre el contador de `UIState` y sus señales de transición
+(0→1, 1→0), y `test_menu_blocking.gd` prueba, **sobre los scripts reales** (`camera_3d.gd`,
+`interaction.gd` y los paneles que se registran), que un menú abierto bloquea el clic en el
+mapa y el zoom de cámara. Los otros cuatro ficheros de aquella versión ejercitaban mocks que
+replicaban la lógica de producción y no habrían cazado que se borrara la comprobación; se
+han eliminado.
+
+## Otros barridos
+
+- `test_turn_event_catalog.gd` recorre todos los `.tres` de `resources/turn_events/` por la
+  vía del juego (`TurnEventLoader.load_all`): claves i18n, opciones, condiciones, y ejecuta
+  cada opción por el camino del jugador y por el de la IA.
+- `test_sim_smoke.gd` juega UNA partida corta (radio 4, 4 rondas) con el arnés de simulación
+  en la suite por defecto, y comprueba que la misma semilla reproduce la misma partida.
+- `test_turn_manager.gd` + `test_victory_rules.gd` cubren la rotación de turnos del juego real
+  y la condición de victoria, que las simulaciones no recorren.

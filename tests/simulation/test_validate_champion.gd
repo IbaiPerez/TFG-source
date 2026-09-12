@@ -12,8 +12,12 @@ extends GutTest
 ## Cierra el caveat de la corrida 2-etapas (validada contra la misma familia de
 ## arquetipos): si el campeón sigue ganando aquí, la mejora generaliza.
 ##
-## Lanzar (UI): selecciona este script en el panel GUT (con "Include Subdirs").
-## CLI:
+## También reporta la DURACIÓN en turnos de las partidas del campeón (media,
+## percentiles y cuántas tocan el tope). Importa porque una partida cortada por
+## `MAX_ROUNDS` no la gana nadie y sale del denominador de decisivas: si muchas
+## tocan el tope, el tope está sesgando el win-rate.
+##
+## Lanzar:
 ##   $env:RUN_VALIDATE_CHAMPION='1'; & godot --headless -s addons/gut/gut_cmdln.gd `
 ##     "-gconfig=" -gtest=res://tests/simulation/test_validate_champion.gd -gexit
 ##   Añade $env:INCLUDE_MCTS='1' para incluir el rival MCTS (más lento).
@@ -22,7 +26,7 @@ extends GutTest
 ## Salida: user://validate_champion.json
 
 
-const ENABLE_FROM_GUI := true
+const ENABLE_FROM_GUI := false
 const CHAMPION_PATH := "res://resources/ai/heuristic_weights_optimized.tres"
 
 # --- Parámetros (ajustables por env var) ------------------------------------
@@ -65,6 +69,9 @@ func test_validate_champion() -> void:
 		fit.opponents.size(), fit.n_games])
 
 	var d_champ := await fit.evaluate_detailed(champion)
+	# `fit.rounds` acumula entre evaluaciones: se copia AQUÍ para quedarse solo
+	# con las partidas del campeón, antes de que entren las de la baseline.
+	var rondas_campeon: Array = fit.rounds.duplicate()
 	var d_base := await fit.evaluate_detailed(baseline)
 	# per_opponent[0] es la baseline (primer elemento del heldout_pool).
 	var champ_vs_base: float = d_champ["per_opponent"][0]["winrate"]
@@ -74,6 +81,7 @@ func test_validate_champion() -> void:
 	print("[valida] CAMPEÓN   WR %.3f  IC95[%.3f, %.3f]  (%d decisivas)" % [
 		d_champ["winrate"], d_champ["ci95_lo"], d_champ["ci95_hi"], int(d_champ["decisive"])])
 	print("[valida] campeón cara a cara vs baseline (seeds nuevos): %.3f" % champ_vs_base)
+	_resumen_duracion(rondas_campeon, fit.max_rounds)
 
 	# ---- Opcional: rival MCTS -------------------------------------------
 	var mcts_report := {}
@@ -107,6 +115,7 @@ func test_validate_champion() -> void:
 		"baseline_vs_pool": {"winrate": d_base["winrate"], "ci95_lo": d_base["ci95_lo"], "ci95_hi": d_base["ci95_hi"], "decisive": d_base["decisive"], "per_opponent": _po(d_base)},
 		"champion_vs_pool": {"winrate": d_champ["winrate"], "ci95_lo": d_champ["ci95_lo"], "ci95_hi": d_champ["ci95_hi"], "decisive": d_champ["decisive"], "per_opponent": _po(d_champ)},
 		"champion_head_to_head_vs_baseline": champ_vs_base,
+		"champion_rounds": rondas_campeon,
 		"mcts": mcts_report,
 		"timestamp": Time.get_datetime_string_from_system(true),
 	}
@@ -126,8 +135,37 @@ func test_validate_champion() -> void:
 func _po(d: Dictionary) -> Array:
 	var out: Array = []
 	for r in d["per_opponent"]:
-		out.append({"label": r["label"], "winrate": r["winrate"], "decisive": r["decisive"]})
+		out.append({"label": r["label"], "winrate": r["winrate"], "decisive": r["decisive"],
+			"avg_rounds": r.get("avg_rounds", 0.0)})
 	return out
+
+
+## Media, percentiles y cuántas partidas tocaron el tope de rondas.
+func _resumen_duracion(rondas: Array, tope_rondas: int) -> void:
+	if rondas.is_empty():
+		return
+	var xs := rondas.duplicate()
+	xs.sort()
+	var n := xs.size()
+	var en_tope := 0
+	for x in xs:
+		if int(x) >= tope_rondas - 1:
+			en_tope += 1
+	print("[valida] duración: %d partidas · media %.1f · p10/p50/p90 %d/%d/%d · máx %d · en el tope %d (%.1f %%)" % [
+		n, _media(xs), _pct(xs, 0.10), _pct(xs, 0.50), _pct(xs, 0.90), int(xs[n - 1]),
+		en_tope, 100.0 * float(en_tope) / float(n)])
+
+
+func _media(xs: Array) -> float:
+	var t := 0.0
+	for x in xs:
+		t += float(x)
+	return t / float(maxi(xs.size(), 1))
+
+
+## Percentil sobre una lista YA ordenada.
+func _pct(xs: Array, p: float) -> int:
+	return int(xs[clampi(int(p * float(xs.size())), 0, xs.size() - 1)])
 
 
 func _int_env(name: String, fallback: int) -> int:

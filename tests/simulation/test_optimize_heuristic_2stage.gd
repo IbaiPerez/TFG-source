@@ -12,11 +12,7 @@ extends GutTest
 ##     MUCHAS partidas y SEMILLAS DISJUNTAS → win-rate con IC95 fiable, sin
 ##     sobreajuste al set de búsqueda.
 ##
-## Cómo lanzar desde la UI: selecciona este script (o el método test_two_stage)
-## en el panel GUT y Run. OJO: NO uses "Run All" si tu config incluye
-## tests/simulation/ — dispararía esta corrida larga.
-##
-## Por CLI:
+## Lanzar:
 ##   $env:RUN_OPT_2STAGE=1; & godot --headless -s addons/gut/gut_cmdln.gd `
 ##     "-gconfig=" -gtest=res://tests/simulation/test_optimize_heuristic_2stage.gd -gexit
 ## Smoke: añade $env:OPT_SMOKE=1.
@@ -24,7 +20,7 @@ extends GutTest
 ## Salidas en user://: heuristic_weights_2stage.tres + opt_2stage.json
 
 
-const ENABLE_FROM_GUI := true
+const ENABLE_FROM_GUI := false
 
 # --- Parámetros por defecto (ajustables por env var) ------------------------
 const STAGE1_RIVALS := 16         ## heurísticas aleatorias frescas en la búsqueda
