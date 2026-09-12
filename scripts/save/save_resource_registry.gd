@@ -10,137 +10,73 @@ class_name SaveResourceRegistry
 ## lo que su path queda vacío y no se pueden serializar usando el path
 ## directo.
 ##
-## Convenciones por tipo:
-## - Card: clave = `card.id` (ya es exportado y único por carta).
-## - Building: clave = `building.name`.
-## - Troop: clave = `troop.name`.
-##
-## Los registros se construyen lazy escaneando los directorios
-## res://resources/cards/, res://resources/buildings/ y
-## res://resources/troops/ recursivamente.
+## La clave es `resource_path` si el recurso lo conserva; si no, el campo
+## identificador de su tipo: `id` para Card, `name` para Building y Troop.
+## El índice de cada tipo se construye lazy escaneando su directorio.
 
 const CARDS_DIR := "res://resources/cards/"
 const BUILDINGS_DIR := "res://resources/buildings/"
 const TROOPS_DIR := "res://resources/troops/"
 
-static var _card_path_by_id:Dictionary = {}
-static var _building_path_by_name:Dictionary = {}
-static var _troop_path_by_name:Dictionary = {}
-static var _initialized:bool = false
+## Directorio → { clave → path }, uno por tipo para que un id de carta y un
+## nombre de edificio no puedan pisarse.
+static var _path_by_key:Dictionary = {}
 
 
-static func _ensure_init() -> void:
-	if _initialized:
-		return
-	_initialized = true
-	_scan_cards(CARDS_DIR)
-	_scan_buildings(BUILDINGS_DIR)
-	_scan_troops(TROOPS_DIR)
+static func _index(dir:String, field:String) -> Dictionary:
+	if not _path_by_key.has(dir):
+		var index := {}
+		_walk(dir, func(path:String):
+			var res = load(path)
+			var key = res.get(field) if res != null else null
+			if key is String and key != "":
+				index[key] = path
+		)
+		_path_by_key[dir] = index
+	return _path_by_key[dir]
 
 
-## Limpia el registro y fuerza un re-scan en el siguiente acceso.
-## Útil para tests que añaden/borran .tres en runtime (raro).
-static func reset() -> void:
-	_card_path_by_id.clear()
-	_building_path_by_name.clear()
-	_troop_path_by_name.clear()
-	_initialized = false
-
-
-# --- Cards --------------------------------------------------------------
-
-## Devuelve un identificador serializable para una card. Si la card tiene
-## resource_path lo prefiere; si no, devuelve su `id` (que el registro
-## puede resolver de vuelta a un .tres).
-static func card_key(card:Card) -> String:
-	if card == null:
+## Clave serializable de un recurso: su path si lo tiene, si no su identificador.
+static func _key(res:Resource, field:String) -> String:
+	if res == null:
 		return ""
-	if card.resource_path != "":
-		return card.resource_path
-	return card.id
+	if res.resource_path != "":
+		return res.resource_path
+	return str(res.get(field))
 
 
-## Carga una card desde su clave (path o id).
-static func load_card(key:String) -> Card:
+## Carga un recurso desde su clave (path o identificador).
+static func _load(key:String, dir:String, field:String) -> Resource:
 	if key == "":
 		return null
 	if ResourceLoader.exists(key):
-		return load(key) as Card
-	_ensure_init()
-	var path:String = _card_path_by_id.get(key, "")
-	if path == "":
-		return null
-	return load(path) as Card
+		return load(key)
+	var path:String = _index(dir, field).get(key, "")
+	return load(path) if path != "" else null
 
 
-# --- Buildings ----------------------------------------------------------
+static func card_key(card:Card) -> String:
+	return _key(card, "id")
+
+
+static func load_card(key:String) -> Card:
+	return _load(key, CARDS_DIR, "id") as Card
+
 
 static func building_key(b:Building) -> String:
-	if b == null:
-		return ""
-	if b.resource_path != "":
-		return b.resource_path
-	return b.name
+	return _key(b, "name")
 
 
 static func load_building(key:String) -> Building:
-	if key == "":
-		return null
-	if ResourceLoader.exists(key):
-		return load(key) as Building
-	_ensure_init()
-	var path:String = _building_path_by_name.get(key, "")
-	if path == "":
-		return null
-	return load(path) as Building
+	return _load(key, BUILDINGS_DIR, "name") as Building
 
-
-# --- Troops -------------------------------------------------------------
 
 static func troop_key(t:Troop) -> String:
-	if t == null:
-		return ""
-	if t.resource_path != "":
-		return t.resource_path
-	return t.name
+	return _key(t, "name")
 
 
 static func load_troop(key:String) -> Troop:
-	if key == "":
-		return null
-	if ResourceLoader.exists(key):
-		return load(key) as Troop
-	_ensure_init()
-	var path:String = _troop_path_by_name.get(key, "")
-	if path == "":
-		return null
-	return load(path) as Troop
-
-
-# --- Scan helpers -------------------------------------------------------
-
-static func _scan_cards(dir_path:String) -> void:
-	_walk(dir_path, func(path:String):
-		var res = load(path)
-		if res is Card and (res as Card).id != "":
-			_card_path_by_id[(res as Card).id] = path
-	)
-
-
-static func _scan_buildings(dir_path:String) -> void:
-	_walk(dir_path, func(path:String):
-		var res = load(path)
-		if res is Building and (res as Building).name != "":
-			_building_path_by_name[(res as Building).name] = path
-	)
-
-
-static func _scan_troops(dir_path:String) -> void:
-	_walk(dir_path, func(path:String):
-		var res = load(path)
-		if res is Troop and (res as Troop).name != "":
-			_troop_path_by_name[(res as Troop).name] = path
-	)
+	return _load(key, TROOPS_DIR, "name") as Troop
 
 
 ## Recorre recursivamente un directorio aplicando `callback(absolute_path)`
