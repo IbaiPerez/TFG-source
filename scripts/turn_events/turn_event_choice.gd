@@ -33,8 +33,10 @@ func get_tile_effect() -> TurnEventEffect:
 	return null
 
 
-func execute(context:EventContext) -> void:
+## Paga el coste y ejecuta los efectos. `chosen_card` es la carta elegida por el
+## jugador cuando algún efecto la pide (needs_player_input); los demás la ignoran.
+func execute(context:EventContext, chosen_card:Card = null) -> void:
 	if cost:
 		cost.pay(context)
 	for effect in effects:
-		effect.execute(context)
+		effect.execute(context, chosen_card)

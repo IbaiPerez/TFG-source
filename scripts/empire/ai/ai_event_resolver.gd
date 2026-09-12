@@ -96,7 +96,7 @@ static func _resolve_turn_event(event: TurnEvent, context: EventContext,
 		GameLogger.debug("    [IA-Event] '%s' → choice '%s' (tile input)%s" % [event.id,
 			choice_label, " | marcado unique" if event.unique else ""])
 	elif picked.needs_player_input():
-		_execute_choice_with_card_input(event, picked, context, hctx)
+		_execute_choice_with_card_input(event, picked, context, hctx, manager)
 		GameLogger.debug("    [IA-Event] '%s' → choice '%s' (card input)%s" % [event.id,
 			choice_label, " | marcado unique" if event.unique else ""])
 	else:
@@ -157,9 +157,9 @@ static func _pick_best_megalopolis_tile(eligible: Array) -> Tile:
 
 ## Replica TurnEventPanel._on_card_selected: identifica el primer
 ## RemoveCardEventEffect en effects, pide candidatas, elige la más
-## prescindible con AIHeuristic y ejecuta los effects.
+## prescindible con AIHeuristic y resuelve el choice con ella (coste incluido).
 static func _execute_choice_with_card_input(event: TurnEvent, choice: TurnEventChoice,
-		context: EventContext, hctx: AITurnContext) -> void:
+		context: EventContext, hctx: AITurnContext, manager: TurnEventManager) -> void:
 	# Buscar el effect que requiere selección de carta.
 	var candidates: Array[Card] = []
 	for effect in choice.effects:
@@ -173,18 +173,7 @@ static func _execute_choice_with_card_input(event: TurnEvent, choice: TurnEventC
 
 	# Elegir la carta con menor valor para el mazo actual (la más prescindible).
 	var chosen_card := AIHeuristic.pick_card_to_remove(candidates, hctx)
-
-	# Ejecutar todos los effects, pasando la carta elegida a los que la pidan.
-	for i in choice.effects.size():
-		var effect: TurnEventEffect = choice.effects[i]
-		if effect == null:
-			continue
-		if effect.needs_player_input():
-			effect.execute(context, chosen_card)
-		else:
-			effect.execute(context)
-
-	_mark_unique_if_applicable(event, context.stats)
+	manager.resolve(event, choice, context, chosen_card)
 
 
 # ============================================================

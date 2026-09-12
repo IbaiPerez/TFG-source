@@ -54,8 +54,9 @@ func evaluate(context:EventContext) -> TurnEvent:
 	return picked
 
 
-func resolve(event:TurnEvent, choice:TurnEventChoice, context:EventContext) -> void:
-	choice.execute(context)
+func resolve(event:TurnEvent, choice:TurnEventChoice, context:EventContext,
+		chosen_card:Card = null) -> void:
+	choice.execute(context, chosen_card)
 	if event.unique:
 		stats.used_unique_events.append(event.id)
 

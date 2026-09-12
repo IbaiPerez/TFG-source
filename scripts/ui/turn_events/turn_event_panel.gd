@@ -199,16 +199,7 @@ func _on_card_selected(card:Card) -> void:
 	var choice := _pending_card_choice
 	_pending_card_choice = null
 
-	# Ejecutar efectos pasando la carta elegida
-	for i in choice.effects.size():
-		if choice.effects[i].needs_player_input():
-			choice.effects[i].execute(context, card)
-		else:
-			choice.effects[i].execute(context)
-
-	if event.unique:
-		context.stats.used_unique_events.append(event.id)
-
+	turn_event_manager.resolve(event, choice, context, card)
 	Events.turn_event_resolved.emit()
 	queue_free()
 

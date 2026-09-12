@@ -212,6 +212,30 @@ func test_card_input_choice_removes_random_candidate() -> void:
 		"Una carta candidata debe haberse eliminado")
 
 
+func test_card_input_choice_cobra_el_coste() -> void:
+	# Regresión: el camino "elegir carta" ejecutaba los efectos sin pasar por
+	# TurnEventChoice.execute, así que el coste no se cobraba (en el panel del
+	# jugador y en el resolver de la IA por igual).
+	var stats := _make_stats(100)
+	var c := Card.new()
+	c.id = "removable"
+	stats.discard_pile.add_card(c)
+
+	var event := _make_event("remove_card_con_coste", true, false)
+	var choice := TurnEventChoice.new()
+	choice.effects = [RemoveCardEventEffect.new()]
+	choice.cost = TurnEventCost.new(30.0)
+	event.choices = [choice]
+
+	AIEventResolver.resolve(event, _make_context(stats), _make_rng(),
+		_make_manager(stats))
+
+	assert_eq(stats.total_gold, 70, "el coste se cobra también con elección de carta")
+	assert_eq(stats.discard_pile.cards.size(), 0, "y la carta elegida se elimina")
+	assert_true("remove_card_con_coste" in stats.used_unique_events,
+		"el evento único queda marcado")
+
+
 # ============================================================
 #  ShopEvent (smoke + behavior)
 # ============================================================
