@@ -16,14 +16,12 @@ class_name AIRealEventEffects
 const MEGALOPOLIS: LocationType = preload("res://resources/location_type/megalopolis.tres")
 
 
-## Coste de oro de un TurnEventCost (resuelve ScaledGoldCost dinámicamente).
+## Coste de oro de un TurnEventCost sobre el snapshot (misma fórmula que
+## TurnEventCost.gold, con el turno y la producción del EmpireSnap).
 static func _cost_gold(cost: TurnEventCost, emp: AIRealState.EmpireSnap,
 		state: AIRealState) -> int:
-	if cost is ScaledGoldCost:
-		var sc := cost as ScaledGoldCost
-		return int(ScaledValue.evaluate(sc.base_gold, sc.turn_factor, sc.gpt_percent,
-			state.turn_number, emp.gold_per_turn))
-	return cost.gold
+	return int(ScaledValue.evaluate(cost.base_gold, cost.turn_factor, cost.gpt_percent,
+		state.turn_number, emp.gold_per_turn))
 
 
 # ============================================================

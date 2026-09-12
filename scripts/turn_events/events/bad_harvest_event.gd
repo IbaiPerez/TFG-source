@@ -30,7 +30,7 @@ func _init():
 	var pay := TurnEventChoice.new()
 	pay.label = tr("EVT_BAD_HARVEST_CH2_LABEL")
 	pay.description = tr("EVT_BAD_HARVEST_CH2_DESC")
-	pay.cost = ScaledGoldCost.new(25.0, 0.5, 0.0)
+	pay.cost = TurnEventCost.new(25.0, 0.5, 0.0)
 	pay.effects = []
 
 	choices = [suffer, pay]

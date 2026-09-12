@@ -225,7 +225,7 @@ func test_cada_opcion_sin_input_del_jugador_se_ejecuta_sobre_un_imperio_de_prueb
 				"%s / '%s': con 1000 de oro toda opción debe ser asequible" % [ev.id, c.label])
 			c.execute(ctx)
 			ejecutadas += 1
-			if c.cost != null and c.cost.gold > 0:
+			if c.cost != null and c.cost.gold(ctx) > 0:
 				assert_lt(stats.total_gold, oro_antes,
 					"%s / '%s': la opción tiene coste y no se cobró" % [ev.id, c.label])
 	assert_gt(ejecutadas, 30, "deben haberse ejecutado decenas de opciones")

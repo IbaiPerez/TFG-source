@@ -31,7 +31,7 @@ func _init():
 	var pay := TurnEventChoice.new()
 	pay.label = tr("EVT_BANDITS_CH2_LABEL")
 	pay.description = tr("EVT_BANDITS_CH2_DESC")
-	pay.cost = ScaledGoldCost.new(30.0, 0.6, 0.0)
+	pay.cost = TurnEventCost.new(30.0, 0.6, 0.0)
 	pay.effects = []
 
 	choices = [suffer, pay]

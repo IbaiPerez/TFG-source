@@ -339,8 +339,7 @@ func test_urbanize_to_megalopolis_effect() -> void:
 
 func test_choice_with_cost_pays_gold() -> void:
 	var ch := _choice([GoldEventEffect.new(300)] as Array[TurnEventEffect])
-	var cost := TurnEventCost.new()
-	cost.gold = 50
+	var cost := TurnEventCost.new(50.0)
 	ch.cost = cost
 	var event := _make_event("evt", EventCategory.Type.FLAVOUR,
 		[ch] as Array[TurnEventChoice], [], false, false)
@@ -352,8 +351,7 @@ func test_choice_with_cost_pays_gold() -> void:
 
 func test_unaffordable_choice_falls_back_to_skip() -> void:
 	var ch := _choice([GoldEventEffect.new(300)] as Array[TurnEventEffect])
-	var cost := TurnEventCost.new()
-	cost.gold = 500  # inasequible
+	var cost := TurnEventCost.new(500.0)  # inasequible
 	ch.cost = cost
 	var event := _make_event("evt", EventCategory.Type.FLAVOUR,
 		[ch] as Array[TurnEventChoice], [], false, true)

@@ -17,12 +17,9 @@ func _init():
 		GoldThresholdCondition.new(200, Comparison.Type.GREATER_EQUAL),
 	]
 
-	var cost := TurnEventCost.new()
-	cost.gold = 200
-
 	var choice := TurnEventChoice.new()
 	choice.label = tr("EVT_MEGALOPOLIS_CH1_LABEL")
 	choice.description = tr("EVT_MEGALOPOLIS_CH1_DESC")
-	choice.cost = cost
+	choice.cost = TurnEventCost.new(200.0)
 	choice.effects = [UrbanizeToMegalopolisEffect.new()]
 	choices = [choice]

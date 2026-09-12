@@ -223,48 +223,45 @@ func test_unlock_building_effect():
 # ============================================================
 
 func test_cost_can_pay_enough_gold():
-	var cost := TurnEventCost.new()
-	cost.gold = 50
+	var cost := TurnEventCost.new(50.0)
 	var stats := _make_stats(100)
 	var ctx := _make_context(stats)
 	assert_true(cost.can_pay(ctx))
 
 
 func test_cost_cannot_pay_not_enough_gold():
-	var cost := TurnEventCost.new()
-	cost.gold = 200
+	var cost := TurnEventCost.new(200.0)
 	var stats := _make_stats(100)
 	var ctx := _make_context(stats)
 	assert_false(cost.can_pay(ctx))
 
 
 func test_cost_pay_deducts_gold():
-	var cost := TurnEventCost.new()
-	cost.gold = 30
+	var cost := TurnEventCost.new(30.0)
 	var stats := _make_stats(100)
 	var ctx := _make_context(stats)
 	cost.pay(ctx)
 	assert_eq(stats.total_gold, 70)
 
 
-func test_scaled_gold_cost_can_pay():
-	var cost := ScaledGoldCost.new(10.0, 2.0, 0.0)
+func test_cost_escalado_can_pay():
+	var cost := TurnEventCost.new(10.0, 2.0, 0.0)
 	var stats := _make_stats(100)
 	var ctx := _make_context(stats, 5)
 	# cost = 10 + 5*2 = 20 <= 100
 	assert_true(cost.can_pay(ctx))
 
 
-func test_scaled_gold_cost_cannot_pay():
-	var cost := ScaledGoldCost.new(50.0, 20.0, 0.0)
+func test_cost_escalado_cannot_pay():
+	var cost := TurnEventCost.new(50.0, 20.0, 0.0)
 	var stats := _make_stats(100)
 	var ctx := _make_context(stats, 10)
 	# cost = 50 + 10*20 = 250 > 100
 	assert_false(cost.can_pay(ctx))
 
 
-func test_scaled_gold_cost_pay():
-	var cost := ScaledGoldCost.new(10.0, 0.0, 0.0)
+func test_cost_escalado_pay():
+	var cost := TurnEventCost.new(10.0, 0.0, 0.0)
 	var stats := _make_stats(100)
 	var ctx := _make_context(stats, 5)
 	cost.pay(ctx)
@@ -284,8 +281,7 @@ func test_choice_is_affordable_no_cost():
 
 func test_choice_is_affordable_with_payable_cost():
 	var choice := TurnEventChoice.new()
-	var cost := TurnEventCost.new()
-	cost.gold = 50
+	var cost := TurnEventCost.new(50.0)
 	choice.cost = cost
 	var stats := _make_stats(100)
 	var ctx := _make_context(stats)
@@ -294,8 +290,7 @@ func test_choice_is_affordable_with_payable_cost():
 
 func test_choice_not_affordable():
 	var choice := TurnEventChoice.new()
-	var cost := TurnEventCost.new()
-	cost.gold = 200
+	var cost := TurnEventCost.new(200.0)
 	choice.cost = cost
 	var stats := _make_stats(100)
 	var ctx := _make_context(stats)
@@ -313,8 +308,7 @@ func test_choice_execute_applies_effects():
 
 func test_choice_execute_pays_cost_then_applies():
 	var choice := TurnEventChoice.new()
-	var cost := TurnEventCost.new()
-	cost.gold = 20
+	var cost := TurnEventCost.new(20.0)
 	choice.cost = cost
 	choice.effects = [GoldEventEffect.new(50)]
 	var stats := _make_stats(100)

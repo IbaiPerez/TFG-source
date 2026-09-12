@@ -78,8 +78,7 @@ func test_unaffordable_choice_is_filtered_out() -> void:
 	var event := _make_event("expensive", false, false)
 
 	var costly := TurnEventChoice.new()
-	costly.cost = TurnEventCost.new()
-	costly.cost.gold = 100
+	costly.cost = TurnEventCost.new(100.0)
 	costly.effects = [GoldEventEffect.new(50)]
 	event.choices = [costly]
 
@@ -101,8 +100,7 @@ func test_skip_choice_added_when_allow_skip_and_no_affordable() -> void:
 	var event := _make_event("skippable", true, true)
 
 	var costly := TurnEventChoice.new()
-	costly.cost = TurnEventCost.new()
-	costly.cost.gold = 999
+	costly.cost = TurnEventCost.new(999.0)
 	costly.effects = [GoldEventEffect.new(50)]
 	event.choices = [costly]
 

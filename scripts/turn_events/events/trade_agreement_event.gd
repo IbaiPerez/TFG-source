@@ -18,7 +18,7 @@ func _init():
 	var invest := TurnEventChoice.new()
 	invest.label = tr("EVT_TRADE_AGREEMENT_CH1_LABEL")
 	invest.description = tr("EVT_TRADE_AGREEMENT_CH1_DESC")
-	invest.cost = ScaledGoldCost.new(60.0, 1.0, 0.0)
+	invest.cost = TurnEventCost.new(60.0, 1.0, 0.0)
 	invest.effects = [
 		ApplyModifierEffect.new(
 			StatModifier.new(

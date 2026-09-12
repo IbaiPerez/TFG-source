@@ -19,7 +19,7 @@ func _init():
 	var hire := TurnEventChoice.new()
 	hire.label = tr("EVT_MERCENARIES_CH1_LABEL")
 	hire.description = tr("EVT_MERCENARIES_CH1_DESC")
-	hire.cost = ScaledGoldCost.new(50.0, 1.2, 0.0)
+	hire.cost = TurnEventCost.new(50.0, 1.2, 0.0)
 	hire.effects = [AddCardEffect.new(COLONIZE_CARD)]
 
 	# Opcion 2: rechazar
