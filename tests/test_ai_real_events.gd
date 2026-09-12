@@ -256,7 +256,7 @@ func test_apply_modifier_effect_affects_economy() -> void:
 	var mod := StatModifier.new("m", "+50%", StatModifier.StatType.PERCENT_GOLD, 50.0, -1)
 	_apply(ApplyModifierEffect.new(mod), s)
 	assert_eq(s.own.modifiers.size(), 1, "El modifier se añade al estado")
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	assert_eq(s.own.gold_per_turn, 150, "La economía refleja el +50% del evento")
 
 

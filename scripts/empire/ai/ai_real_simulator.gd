@@ -113,11 +113,6 @@ static func recompute_economy(state: AIRealState, p_owner: int) -> void:
 		emp.combat_multiplier = clampf(1.0 - float(deficit) / float(total_maint), 0.1, 1.0)
 
 
-static func recompute_own_economy(state: AIRealState) -> void:
-	recompute_economy(state, AIRealState.OWNER_SELF)
-
-
-
 # ---------------------------------------------------------------------------
 # Transición de turno
 # ---------------------------------------------------------------------------
@@ -166,7 +161,6 @@ static func advance_turn(state: AIRealState, rng: RandomNumberGenerator = null,
 
 	AIRealCombat._tick_all_fronts(state)
 	state.turn_number += 1
-
 
 
 # ---------------------------------------------------------------------------

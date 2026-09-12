@@ -318,10 +318,6 @@ func update_borders() -> void:
 	else:
 		border_mesh.mesh = null
 
-## Vértices del hexágono unidad. Delega en TileBorderMesh (la geometría es
-## stateless); se mantiene aquí como accesor público del tile.
-func get_hex_vertices() -> Array:
-	return TileBorderMesh.hex_vertices()
 
 func set_highlight(active: bool) -> void:
 	var mesh_instance: MeshInstance3D = get_child(0) as MeshInstance3D

@@ -68,7 +68,7 @@ func _state_one_owned_tile(resource: NaturalResource) -> AIRealState:
 	var village := _make_location(Tile.location_type.Village, 1, 0)
 	s.tiles[0] = _snap_from_tile(0, resource, village, [])
 	s.total_map_tiles = 1
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	return s
 
 
@@ -126,7 +126,7 @@ func test_recompute_economy_sums_owned_tiles_only() -> void:
 	s.tiles[0] = _snap_from_tile(0, _make_resource(5, 2), village, [], AIRealState.OWNER_SELF)
 	s.tiles[1] = _snap_from_tile(1, _make_resource(7, 1), village, [], AIRealState.OWNER_SELF)
 	s.tiles[2] = _snap_from_tile(2, _make_resource(9, 9), village, [], AIRealState.OWNER_RIVAL)
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	assert_eq(s.own.gold_per_turn, 12, "gpt propio = 5+7 (no cuenta la rival)")
 	assert_eq(s.own.food, 3, "food propio = 2+1 (no cuenta la rival)")
 
@@ -205,7 +205,7 @@ func test_build_blocked_when_no_free_slot() -> void:
 	s.tiles[0] = _snap_from_tile(0, _make_resource(2, 0), village,
 		[_make_building("existente", 5, 0)])
 	s.own.gold = 100
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	AIRealEffects.apply_build(s, 0, _make_building("nuevo", 10, 0))
 	var t := s.tiles[0] as AIRealState.TileSnap
 	assert_eq(t.buildings.size(), 1, "Sin slots libres no se construye")
@@ -233,7 +233,7 @@ func test_upgrade_replaces_building() -> void:
 	var old_b := _make_building("mina", 5, 0)
 	s.tiles[0] = _snap_from_tile(0, _make_resource(2, 0), town, [old_b])
 	s.own.gold = 200
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	var new_b := _make_building("mina_mejorada", 15, 0)
 	AIRealEffects.apply_upgrade(s, 0, old_b, new_b)
 	var t := s.tiles[0] as AIRealState.TileSnap
@@ -262,7 +262,7 @@ func test_change_location_increases_slots_and_consumption() -> void:
 	var s := AIRealState.new()
 	var village := _make_location(Tile.location_type.Village, 1, 0)
 	s.tiles[0] = _snap_from_tile(0, _make_resource(4, 6), village, [])
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	var town := _make_location(Tile.location_type.Town, 3, 5)
 	AIRealEffects.apply_change_location(s, 0, town)
 	var t := s.tiles[0] as AIRealState.TileSnap
@@ -279,7 +279,7 @@ func test_change_location_demolishes_incompatible_buildings() -> void:
 	var village_only := _make_building("choza", 5, 0)
 	village_only.allowed_location_type = [_make_location(Tile.location_type.Village, 1, 0)]
 	s.tiles[0] = _snap_from_tile(0, _make_resource(2, 0), village_lt, [village_only])
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	var town := _make_location(Tile.location_type.Town, 3, 0)
 	AIRealEffects.apply_change_location(s, 0, town)
 	var t := s.tiles[0] as AIRealState.TileSnap

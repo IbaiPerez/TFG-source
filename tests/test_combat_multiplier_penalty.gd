@@ -185,7 +185,7 @@ func test_el_snapshot_calcula_el_mismo_malus_que_el_juego() -> void:
 		tropas.append(x as Troop)
 	fs.attacker_troops = tropas
 	s.fronts = [fs]
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 
 	assert_almost_eq(s.own.combat_multiplier, vivo, 0.001,
 		"los dos mundos deben derivar el mismo malus del mismo déficit")

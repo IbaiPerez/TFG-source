@@ -197,7 +197,7 @@ func test_manager_creates_visual_on_front_opened() -> void:
 	# Esperar un frame para que se procese
 	await get_tree().process_frame
 
-	var visual := manager.get_visual_for_front(front)
+	var visual: BattleFrontVisual = manager._visuals.get(front)
 	assert_not_null(visual, "Debe crear un visual para el frente abierto")
 	assert_eq(parent_3d.get_child_count(), 1, "Visual debe ser hijo del parent_3d")
 
@@ -228,7 +228,7 @@ func test_manager_removes_visual_on_front_resolved() -> void:
 	Events.battle_front_resolved.emit(front, true)
 	await get_tree().process_frame
 
-	var visual := manager.get_visual_for_front(front)
+	var visual: BattleFrontVisual = manager._visuals.get(front)
 	assert_null(visual, "Debe eliminar la referencia al visual tras resolución")
 
 	tile_a.free()
@@ -263,7 +263,7 @@ func test_manager_no_duplicate_visuals() -> void:
 	parent_3d.queue_free()
 
 
-func test_manager_get_all_visuals() -> void:
+func test_manager_tracks_one_visual_per_front() -> void:
 	var parent_3d := Node3D.new()
 	add_child(parent_3d)
 
@@ -287,8 +287,7 @@ func test_manager_get_all_visuals() -> void:
 	Events.battle_front_opened.emit(front2)
 	await get_tree().process_frame
 
-	var all_visuals := manager.get_all_visuals()
-	assert_eq(all_visuals.size(), 2, "Debe devolver todos los visuales activos")
+	assert_eq(manager._visuals.size(), 2, "Debe devolver todos los visuales activos")
 
 	tile_a.free()
 	tile_b.free()

@@ -71,17 +71,3 @@ func _on_front_resolved(front: BattleFront, _attacker_won: bool) -> void:
 func _on_front_visual_clicked(front: BattleFront) -> void:
 	# Emitir señal global para que la UI reaccione
 	Events.battle_front_selected.emit(front)
-
-
-## Obtiene el visual de un frente específico (para targeting de cartas, etc.)
-func get_visual_for_front(front: BattleFront) -> BattleFrontVisual:
-	return _visuals.get(front, null)
-
-
-## Obtiene todos los visuales activos (para get_valid_targets de cartas tácticas).
-func get_all_visuals() -> Array[BattleFrontVisual]:
-	var result: Array[BattleFrontVisual] = []
-	for visual in _visuals.values():
-		if is_instance_valid(visual):
-			result.append(visual)
-	return result

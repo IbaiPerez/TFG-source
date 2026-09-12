@@ -45,8 +45,3 @@ func finish() -> void:
 		_made.disconnect(_on_made)
 	if _cancelled.is_connected(_on_cancelled):
 		_cancelled.disconnect(_on_cancelled)
-
-
-## Si hay una espera en curso (alguna de las dos sigue conectada).
-func is_waiting() -> bool:
-	return _made.is_connected(_on_made) or _cancelled.is_connected(_on_cancelled)

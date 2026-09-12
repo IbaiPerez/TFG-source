@@ -273,20 +273,6 @@ func test_assign_rejects_non_participant() -> void:
 	BattleFront.clear_active_instances()
 
 
-# --- Tests de búsqueda ---
-
-func test_get_front_for_tile() -> void:
-	manager.open_front(atk_tile, def_tile)
-	var found := manager.get_front_for_tile(atk_tile)
-	assert_not_null(found)
-	assert_eq(found.attacker_tile, atk_tile)
-
-
-func test_get_front_for_tile_not_found() -> void:
-	var found := manager.get_front_for_tile(isolated_tile)
-	assert_null(found)
-
-
 # --- Retorno de supervivientes al pool del defensor (bus global) ---
 #
 # Regresion del bug "tropas defensoras supervivientes desaparecen": el

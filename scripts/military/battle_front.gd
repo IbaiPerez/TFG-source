@@ -13,6 +13,8 @@ enum Side { ATTACKER, DEFENDER, NONE }
 
 signal front_resolved(front: BattleFront, attacker_won: bool)
 signal marker_changed(front: BattleFront, new_value: float)
+
+
 ## Emitida cuando la lista de bonuses de un bando cambia (añadido o eliminado).
 ## Permite que la UI y los visuales 3D refresquen sin polling.
 signal bonuses_changed(side: BattleFront.Side)
@@ -254,12 +256,6 @@ func clear_tactics_for_side(side: BattleFront.Side) -> int:
 ## Indica si el bando tiene alguna táctica activa (bonus con tactic_name no vacío).
 func has_active_tactic_on_side(side: BattleFront.Side) -> bool:
 	return CombatMath.has_active_tactic(_bonuses_of(side))
-
-
-## Indica si alguno de los dos bandos tiene una táctica activa.
-## Útil para el indicador visual del frente en el mapa 3D.
-func has_any_active_tactic() -> bool:
-	return has_active_tactic_on_side(BattleFront.Side.ATTACKER) or has_active_tactic_on_side(BattleFront.Side.DEFENDER)
 
 
 ## Mantenimiento TOTAL de las tropas guarnecidas en este bando del frente.

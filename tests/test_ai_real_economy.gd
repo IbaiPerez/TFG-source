@@ -83,7 +83,7 @@ func _assert_economy_parity(resources: Array, troops: Array[Troop],
 		state.tiles[i] = _make_snap(i, resources[i] as NaturalResource)
 	state.own.troop_pool = troops.duplicate()
 	state.own.modifiers = mods.duplicate()
-	AIRealSimulator.recompute_own_economy(state)
+	AIRealSimulator.recompute_economy(state, AIRealState.OWNER_SELF)
 
 	assert_eq(state.own.gold_per_turn, int(result["gold"]),
 		"gpt debe coincidir con ProductionCalculator (sim %d vs real %d)"
@@ -221,7 +221,7 @@ func test_modifier_expires_on_advance_turn() -> void:
 	# Modifier temporal de +50% oro, dura 1 turno.
 	s.own.modifiers = [StatModifier.new(
 		"m", "+50%", StatModifier.StatType.PERCENT_GOLD, 50.0, 1)] as Array[Modifier]
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	assert_eq(s.own.gold_per_turn, 150, "Con el modifier activo: 100 × 1.5")
 	AIRealSimulator.advance_turn(s)
 	assert_eq(s.own.modifiers.size(), 0, "El modifier de 1 turno expira en advance_turn")

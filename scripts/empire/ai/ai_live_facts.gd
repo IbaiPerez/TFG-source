@@ -67,7 +67,6 @@ static func _expansion_factor(ctx: AITurnContext) -> float:
 	return AITerritory.expansion_factor(ctx.colonizable_tiles_count, ctx.get_weights())
 
 
-
 ## Valor de adelgazar el mazo en una carta, proporcional al tamaño del mazo.
 ## Mazo pequeño (≤DECK_SMALL): el ciclo ya es rápido, purgar aporta poco.
 ## Mazo grande (≥DECK_LARGE): el ciclo es lento, purgar acelera las cartas clave.
@@ -209,7 +208,6 @@ static func _complement_bonus(troop: Troop, pool: Array[Troop],
 		* AIMilitary.counter_bonus(troop.type, rival_types, w)
 
 
-
 ## Tiles nuevas que se volverían colonizables exclusivamente gracias a colonizar
 ## `tile`. Una vecina libre cuenta como "nueva" solo si ningún otro tile del
 ## territorio actual ya la hace accesible. Cuanto mayor, más abre esta tile
@@ -291,17 +289,6 @@ static func _territory_race_factor(ctx: AITurnContext,
 	# Cuota sobre el MAPA, no sobre las casillas en disputa: ver AITerritory.
 	return AITerritory.territory_race_factor(
 		my_tiles, rival_tiles, ctx.total_map_tiles, mode, ctx.get_weights())
-
-
-## Factor de coste-eficiencia: coste por unidad de valor del edificio, acotado a
-## [build_cost_min, 1.0]. Solo aplica el default de pesos y delega en AIEconomy.
-##
-## OJO: no tiene ningún llamante de producción — score_build y score_upgrade van
-## directos a AIEconomy.apply_build_cost. Sobrevive solo porque lo usan tests.
-static func _build_cost_factor(cost: int, value: float,
-		w: HeuristicWeights = null) -> float:
-	if w == null: w = HeuristicWeights.get_default()
-	return AIEconomy.build_cost_factor(cost, value, w)
 
 
 ## Multiplicador de dificultad de ataque según el bioma de la tile enemiga.

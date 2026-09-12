@@ -135,7 +135,7 @@ func test_recruit_counts_persist_across_remove() -> void:
 	stats.types_ever_recruited = {}
 	var t := _create_troop(3, 3, 20, 2, 1, Troop.TroopType.A_DISTANCIA)
 	stats.recruit_troop(t)
-	stats.remove_troop(t)
+	stats.troop_pool.erase(t)
 	assert_eq(stats.troop_pool.size(), 0)
 	assert_eq(int(stats.types_ever_recruited.get(Troop.TroopType.A_DISTANCIA, 0)), 1,
 		"Eliminar la tropa NO debe decrementar el contador historico")
@@ -239,30 +239,6 @@ func test_can_afford_troop_false_when_food_already_negative() -> void:
 		"food < 0 bloquea reclutamiento adicional")
 
 
-# --- Tests de remove_troop ---
-
-func test_remove_troop() -> void:
-	var troop := _create_troop(3, 3, 20)
-	stats.recruit_troop(troop)
-	assert_eq(stats.troop_pool.size(), 1)
-
-	watch_signals(stats)
-	stats.remove_troop(troop)
-	assert_eq(stats.troop_pool.size(), 0)
-	assert_signal_emitted(stats, "troop_lost")
-	# Tras eliminar la única tropa, el payload debe ser 0.
-	assert_signal_emitted_with_parameters(stats, "troop_pool_changed", [0])
-
-
-func test_remove_troop_not_in_pool() -> void:
-	var troop := _create_troop(3, 3)
-	watch_signals(stats)
-	stats.remove_troop(troop)
-	assert_eq(stats.troop_pool.size(), 0, "No debe fallar al eliminar tropa inexistente")
-	assert_signal_not_emitted(stats, "troop_pool_changed",
-		"Eliminar una tropa que no está en el pool no debe disparar la señal")
-
-
 # --- Tests de mantenimiento ---
 
 func test_maintenance_calculation() -> void:
@@ -285,7 +261,7 @@ func test_maintenance_after_removal() -> void:
 	var t2 := _create_troop(6, 1, 20, 3, 2)
 	stats.recruit_troop(t1)
 	stats.recruit_troop(t2)
-	stats.remove_troop(t1)
+	stats.troop_pool.erase(t1)
 
 	assert_eq(stats.get_troop_maintenance_gold(), 3, "Solo queda t2: 3 oro")
 	assert_eq(stats.get_troop_maintenance_food(), 2, "Solo queda t2: 2 comida")

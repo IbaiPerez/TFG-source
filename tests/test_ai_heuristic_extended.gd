@@ -1,4 +1,6 @@
 extends GutTest
+
+
 ## Batería extendida de tests para AIHeuristic.
 ## Cubre funciones no testadas en test_ai_heuristic.gd:
 ## urgencias (gold/food/deck), saturación, factores auxiliares,
@@ -453,25 +455,6 @@ func test_building_demolished_by_mismatch_returns_true() -> void:
 	var town := _make_location(Tile.location_type.Town)
 	assert_true(AILiveFacts._building_demolished_by(b, town),
 		"Edificio permitido solo en Village debe demolerse al asignar Town")
-
-
-# ============================================================
-#  _build_cost_factor
-# ============================================================
-
-## La REGLA la cubre test_ai_economy; aqui solo que el wrapper aplica los pesos por
-## defecto cuando no se le pasan. El segundo argumento es el VALOR del edificio.
-func test_build_cost_factor_usa_los_pesos_por_defecto() -> void:
-	var w := HeuristicWeights.get_default()
-	for caso in [[50, 0.0], [100, 100.0], [50, 100.0], [1, 10000.0]]:
-		assert_almost_eq(AILiveFacts._build_cost_factor(caso[0], caso[1]),
-			AIEconomy.build_cost_factor(caso[0], caso[1], w), 0.001)
-
-
-func test_build_cost_factor_coste_residual_es_neutro() -> void:
-	# coste=1 frente a un valor de 10000 → ratio≈0 → factor≈1.0
-	var f := AILiveFacts._build_cost_factor(1, 10000.0)
-	assert_true(f > 0.99, "Un coste residual frente al valor debe dar factor ≈ 1.0")
 
 
 # ============================================================

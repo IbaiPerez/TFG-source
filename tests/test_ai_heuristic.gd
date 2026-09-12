@@ -132,7 +132,7 @@ func test_build_with_add_card_to_deck_effect_scores_higher() -> void:
 
 
 # ============================================================
-#  _build_cost_factor
+#  Factor de coste (AIEconomy.build_cost_factor vía score_option)
 # ============================================================
 
 func test_cost_factor_is_1_when_spending_nothing() -> void:

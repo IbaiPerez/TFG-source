@@ -20,7 +20,6 @@ class_name Stats
 signal stats_changed
 signal possible_buildings_changed
 signal troop_recruited(troop:Troop)
-signal troop_lost(troop:Troop)
 signal troop_pool_changed(new_size:int)
 
 ## Agrupamiento de emisiones de `stats_changed`. Fuera de un batch cada setter
@@ -84,6 +83,8 @@ var modifier_manager:ModifierManager
 @export var empire:Empire
 @export var event_chance:float = 0.5
 @export var available_events:Array[TurnEvent] = []
+
+
 ## Pesos por categoría usados por TurnEventManager para la selección
 ## ponderada en dos fases (categoría → evento). Si es null, el manager
 ## cae a un peso uniforme por categoría.
@@ -111,6 +112,8 @@ var types_ever_recruited:Dictionary = {}
 
 ## Pool de cartas desbloqueadas (evento genérico + tienda)
 var unlocked_card_pool:Array[UnlockedCardEntry] = []
+
+
 ## Cartas exclusivas de tienda (no aparecen en el evento genérico)
 var shop_exclusive_pool:Array[UnlockedCardEntry] = []
 
@@ -242,15 +245,6 @@ func recruit_troop(troop:Troop) -> bool:
 	troop_pool_changed.emit(troop_pool.size())
 	_emit_stats_changed()
 	return true
-
-
-func remove_troop(troop:Troop) -> void:
-	var idx := troop_pool.find(troop)
-	if idx >= 0:
-		troop_pool.remove_at(idx)
-		troop_lost.emit(troop)
-		troop_pool_changed.emit(troop_pool.size())
-		_emit_stats_changed()
 
 
 ## Comprueba si se puede reclutar la tropa AHORA con los recursos de este imperio.

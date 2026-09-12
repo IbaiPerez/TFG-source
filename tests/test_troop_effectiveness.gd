@@ -167,18 +167,3 @@ func test_mixed_own_lineup_each_troop_resolves_its_own_matchup() -> void:
 	var eff := TroopEffectiveness.get_effective_attack(mine, enemy)
 	assert_almost_eq(eff, 25.0, 0.001,
 		"Cada tropa propia aplica su propio multiplicador contra la mezcla enemiga")
-
-
-# --- get_average_multiplier_against ---
-
-func test_average_multiplier_no_enemies_is_neutral() -> void:
-	assert_eq(TroopEffectiveness.get_average_multiplier_against(
-		Troop.TroopType.CABALLERIA, []),
-		TroopEffectiveness.MULTIPLIER_NEUTRAL)
-
-
-func test_average_multiplier_pure_enemy() -> void:
-	var enemy: Array[Troop] = [_make(Troop.TroopType.A_DISTANCIA, 1)]
-	assert_eq(TroopEffectiveness.get_average_multiplier_against(
-		Troop.TroopType.CABALLERIA, enemy),
-		TroopEffectiveness.MULTIPLIER_STRONG)

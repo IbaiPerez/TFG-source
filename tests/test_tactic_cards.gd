@@ -632,13 +632,6 @@ func test_has_active_tactic_ignores_non_tactic_bonuses() -> void:
 		"Bonus sin tactic_name no es una táctica")
 
 
-func test_has_any_active_tactic_detects_either_side() -> void:
-	assert_false(front.has_any_active_tactic())
-	front.add_bonus(BattleFront.Side.DEFENDER, _make_tactic_bonus("Falange"))
-	assert_true(front.has_any_active_tactic(),
-		"Una táctica en el defensor también cuenta")
-
-
 func test_add_bonus_emits_bonuses_changed() -> void:
 	watch_signals(front)
 	front.add_bonus(BattleFront.Side.ATTACKER, _make_tactic_bonus("Carga"))

@@ -111,23 +111,3 @@ static func get_effective_attack(my_troops: Array[Troop], enemy_troops: Array[Tr
 	for troop in my_troops:
 		total += get_effective_attack_for_troop(troop, enemy_troops)
 	return total
-
-
-## Helper para UI: devuelve el multiplicador efectivo medio que un único tipo
-## (atacante) sufriría contra una composición enemiga concreta. Útil para
-## mostrar "tu caballería pega ×1.10 contra esta mezcla".
-static func get_average_multiplier_against(attacker_type: int, enemy_troops: Array[Troop]) -> float:
-	var enemy_count: int = enemy_troops.size()
-	if enemy_count == 0:
-		return MULTIPLIER_NEUTRAL
-
-	var composition: Dictionary = {}
-	for enemy in enemy_troops:
-		var t: int = enemy.type
-		composition[t] = int(composition.get(t, 0)) + 1
-
-	var weighted: float = 0.0
-	for enemy_type in composition.keys():
-		var weight: float = float(composition[enemy_type]) / float(enemy_count)
-		weighted += weight * get_multiplier(attacker_type, enemy_type)
-	return weighted

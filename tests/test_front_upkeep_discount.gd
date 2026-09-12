@@ -128,7 +128,7 @@ func test_el_snapshot_aplica_el_mismo_descuento_a_la_guarnicion() -> void:
 	fs.defender_owner = AIRealState.OWNER_RIVAL
 	fs.attacker_troops = tropas
 	s.fronts = [fs]
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 
 	# Sin producción ni pool, el gpt es exactamente −coste de guarnición.
 	assert_eq(-s.own.gold_per_turn, vivo["gold"],

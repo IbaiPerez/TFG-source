@@ -381,7 +381,7 @@ func test_economy_subtracts_troop_maintenance() -> void:
 		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 5, 1),
 		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 5, 1),
 	]
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	assert_eq(s.own.gold_per_turn, 10, "gpt = tile(20) − maint(2×5)")
 	assert_eq(s.own.food, 8, "food = tile(10) − maint(2×1)")
 
@@ -399,7 +399,7 @@ func test_economy_subtracts_front_surcharge() -> void:
 		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 5, 2),
 		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 5, 2),
 	]
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 
 	var oro := int(round(5 * CombatMath.front_gold_upkeep_multiplier(1)
 		+ 5 * CombatMath.front_gold_upkeep_multiplier(2)))
@@ -415,7 +415,7 @@ func test_combat_multiplier_drops_on_deficit() -> void:
 	s.own.troop_pool = [
 		_make_troop(Troop.TroopType.PIQUEROS, 5, 5, 30, 10, 2),
 	]
-	AIRealSimulator.recompute_own_economy(s)
+	AIRealSimulator.recompute_economy(s, AIRealState.OWNER_SELF)
 	assert_lt(s.own.combat_multiplier, 1.0,
 		"Con déficit económico el combat_multiplier baja de 1.0")
 	assert_gte(s.own.combat_multiplier, 0.1, "Nunca baja de 0.1")

@@ -132,14 +132,6 @@ func assign_troop_to_front(front: BattleFront, troop: Troop, side: BattleFront.S
 	return true
 
 
-## Busca un frente activo que involucre una tile específica.
-func get_front_for_tile(tile: Tile) -> BattleFront:
-	for front in active_fronts:
-		if front.attacker_tile == tile or front.defender_tile == tile:
-			return front
-	return null
-
-
 ## --- Callbacks ---
 
 func _on_front_resolved(front: BattleFront, attacker_won: bool) -> void:

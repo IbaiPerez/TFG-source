@@ -63,7 +63,8 @@ func test_opener_counter_updates_when_troop_removed() -> void:
 	opener.stats = stats
 
 	assert_eq(opener.counter.text, "1")
-	stats.remove_troop(troop)
+	stats.troop_pool.erase(troop)
+	stats.troop_pool_changed.emit(stats.troop_pool.size())
 	assert_eq(opener.counter.text, "0",
 		"Tras retirar la tropa, el contador debe bajar a 0")
 

@@ -40,13 +40,18 @@ func _on_cancelled() -> void:
 	_cancelled_calls += 1
 
 
+## Queda alguna de las dos señales conectada.
+func _waiting() -> bool:
+	return made.is_connected(_on_made) or cancelled.is_connected(_on_cancelled)
+
+
 func test_antes_de_empezar_no_hay_espera() -> void:
-	assert_false(_flow.is_waiting())
+	assert_false(_waiting())
 
 
 func test_start_deja_las_dos_a_la_espera() -> void:
 	_flow.start()
-	assert_true(_flow.is_waiting())
+	assert_true(_waiting())
 	assert_true(made.is_connected(_on_made))
 	assert_true(cancelled.is_connected(_on_cancelled))
 
@@ -57,7 +62,7 @@ func test_elegir_entrega_el_valor_y_cierra_la_espera() -> void:
 
 	assert_eq(_made_calls, [7] as Array[int])
 	assert_eq(_cancelled_calls, 0)
-	assert_false(_flow.is_waiting(), "tras elegir no debe quedar nada conectado")
+	assert_false(_waiting(), "tras elegir no debe quedar nada conectado")
 
 
 func test_elegir_deja_la_hermana_suelta() -> void:
@@ -94,7 +99,7 @@ func test_finish_es_idempotente() -> void:
 	_flow.start()
 	_flow.finish()
 	_flow.finish()
-	assert_false(_flow.is_waiting())
+	assert_false(_waiting())
 
 
 func test_start_sobre_una_espera_viva_no_duplica_la_conexion() -> void:

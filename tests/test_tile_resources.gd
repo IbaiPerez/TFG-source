@@ -1,4 +1,6 @@
 extends GutTest
+
+
 ## Tests para Tile (propiedades), LocationType, NaturalResource, PositionData, TileMeshData.
 
 
@@ -190,18 +192,16 @@ func test_set_controller_null():
 
 
 # ============================================================
-#  Tile.get_hex_vertices
+#  TileBorderMesh.hex_vertices
 # ============================================================
 
 func test_hex_vertices_returns_six():
-	var tile := _make_tile()
-	var verts := tile.get_hex_vertices()
+	var verts := TileBorderMesh.hex_vertices()
 	assert_eq(verts.size(), 6, "Hexagon should have 6 vertices")
 
 
 func test_hex_vertices_unit_radius():
-	var tile := _make_tile()
-	var verts := tile.get_hex_vertices()
+	var verts := TileBorderMesh.hex_vertices()
 	for v in verts:
 		var dist := sqrt(v.x * v.x + v.z * v.z)
 		assert_almost_eq(dist, 1.0, 0.001, "Each vertex should be at radius 1")
