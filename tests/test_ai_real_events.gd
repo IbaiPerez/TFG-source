@@ -45,7 +45,6 @@ func _choice(effects: Array[TurnEventEffect]) -> TurnEventChoice:
 
 func _always_on_weights(chance: float = 1.0) -> EventCategoryWeights:
 	var w := EventCategoryWeights.new()
-	w.event_chance_curve = null
 	w.event_chance_fallback = chance
 	return w
 

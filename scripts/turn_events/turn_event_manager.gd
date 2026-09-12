@@ -13,7 +13,7 @@ var stats:Stats
 ##      stats.category_weights). Si el roll pasa, se dispara un evento
 ##      CORE; si falla, CORE entra al pickeo normal junto al resto.
 ##   C) Pickeo ponderado por categoría usando los pesos de
-##      EventCategoryWeights (curva → fallback constante). Solo participan
+##      EventCategoryWeights. Solo participan
 ##      las categorías que tengan al menos un candidato. Una vez elegida
 ##      la categoría, se hace pickeo ponderado por evento dentro usando
 ##      el campo weight individual.
@@ -22,10 +22,9 @@ var stats:Stats
 ## todas las categorías como fallback de seguridad.
 func evaluate(context:EventContext) -> TurnEvent:
 	# Paso 1: probabilidad global de que ocurra un evento.
-	# Si stats.category_weights está configurado, usa su curva
-	# (event_chance_curve) o su fallback. Si no, cae al legacy
+	# Si stats.category_weights está configurado, la suya; si no, cae al legacy
 	# stats.event_chance para compatibilidad.
-	var event_chance:float = _get_event_chance(context.turn_number)
+	var event_chance:float = _get_event_chance()
 	if randf() > event_chance:
 		return null
 
@@ -45,7 +44,7 @@ func evaluate(context:EventContext) -> TurnEvent:
 
 	# Paso 3: si no se ha priorizado CORE, pickeo por categoría
 	if picked == null:
-		var category:int = _pick_category(by_category, context.turn_number)
+		var category:int = _pick_category(by_category)
 		if category < 0:
 			return null
 		picked = _weighted_pick_event(by_category[category])
@@ -83,10 +82,10 @@ func _collect_available_by_category(context:EventContext) -> Dictionary:
 
 
 ## Selección ponderada de categoría en función del peso que devuelve
-## EventCategoryWeights.get_weight(category, turn). Solo se consideran
+## EventCategoryWeights.get_weight(category). Solo se consideran
 ## las categorías presentes en `by_category`. Devuelve -1 si todos los
 ## pesos son cero (no debería ocurrir en práctica, pero es defensivo).
-func _pick_category(by_category:Dictionary, turn:int) -> int:
+func _pick_category(by_category:Dictionary) -> int:
 	var weights:EventCategoryWeights = stats.category_weights
 	var total_weight:float = 0.0
 	var category_weights:Dictionary = {}
@@ -94,7 +93,7 @@ func _pick_category(by_category:Dictionary, turn:int) -> int:
 	for category in by_category.keys():
 		var w:float = 1.0
 		if weights != null:
-			w = weights.get_weight(category, turn)
+			w = weights.get_weight(category)
 		if w <= 0.0:
 			continue
 		category_weights[category] = w
@@ -143,7 +142,7 @@ func _get_core_priority_chance() -> float:
 	return stats.category_weights.core_priority_chance
 
 
-func _get_event_chance(turn:int) -> float:
+func _get_event_chance() -> float:
 	if stats.category_weights == null:
 		return stats.event_chance
-	return stats.category_weights.get_event_chance(turn)
+	return stats.category_weights.event_chance_fallback

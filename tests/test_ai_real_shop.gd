@@ -209,7 +209,6 @@ func test_shop_fires_through_process_turn_event() -> void:
 	var shop := _basic_shop()
 	s.own.available_events = [shop] as Array[TurnEvent]
 	var w := EventCategoryWeights.new()
-	w.event_chance_curve = null
 	w.event_chance_fallback = 1.0
 	s.own.category_weights = w
 	var fired := AIRealEvents.process_turn_event(s, AIRealState.OWNER_SELF, _rng())

@@ -28,9 +28,6 @@ class_name AIRealEvents
 ## no exacta).
 
 
-
-
-
 ## Punto de entrada: evalúa y resuelve (si dispara) el evento de fin de turno de
 ## `p_owner` sobre el snapshot. Devuelve el TurnEvent disparado o null.
 ## Espejo de TurnEventManager.evaluate + AIEventResolver.resolve.
@@ -43,7 +40,7 @@ static func process_turn_event(state: AIRealState, p_owner: int,
 		return null
 
 	# Paso 1: probabilidad global de evento.
-	if rng.randf() > _event_chance(emp, state.turn_number):
+	if rng.randf() > _event_chance(emp):
 		return null
 
 	# Candidatos disponibles agrupados por categoría. El contexto agregado se
@@ -60,7 +57,7 @@ static func process_turn_event(state: AIRealState, p_owner: int,
 
 	# Paso 3: pickeo ponderado por categoría.
 	if picked == null:
-		var category := _pick_category(by_category, state.turn_number, emp.category_weights, rng)
+		var category := _pick_category(by_category, emp.category_weights, rng)
 		if category < 0:
 			return null
 		picked = _weighted_pick_event(by_category[category], rng)
@@ -74,10 +71,10 @@ static func process_turn_event(state: AIRealState, p_owner: int,
 #  Manager (espejo de TurnEventManager)
 # ============================================================
 
-static func _event_chance(emp: AIRealState.EmpireSnap, turn: int) -> float:
+static func _event_chance(emp: AIRealState.EmpireSnap) -> float:
 	if emp.category_weights == null:
 		return emp.event_chance
-	return emp.category_weights.get_event_chance(turn)
+	return emp.category_weights.event_chance_fallback
 
 
 static func _core_priority_chance(emp: AIRealState.EmpireSnap) -> float:
@@ -100,14 +97,14 @@ static func _collect_available_by_category(emp: AIRealState.EmpireSnap,
 	return by_category
 
 
-static func _pick_category(by_category: Dictionary, turn: int,
-		weights: EventCategoryWeights, rng: RandomNumberGenerator) -> int:
+static func _pick_category(by_category: Dictionary, weights: EventCategoryWeights,
+		rng: RandomNumberGenerator) -> int:
 	var total_weight := 0.0
 	var category_weights := {}
 	for category in by_category.keys():
 		var w := 1.0
 		if weights != null:
-			w = weights.get_weight(category, turn)
+			w = weights.get_weight(category)
 		if w <= 0.0:
 			continue
 		category_weights[category] = w
@@ -223,5 +220,3 @@ static func _choice_affordable(choice: TurnEventChoice, emp: AIRealState.EmpireS
 	if cost.player_remove_filter != null and AIRealEventEffects._filter_candidates(cost.player_remove_filter, emp).is_empty():
 		return false
 	return true
-
-
