@@ -88,7 +88,6 @@ func _select_tile(tile: Tile) -> void:
 	_resolved = true
 	_cleanup_highlights()
 	card.set_source_tile(tile)
-	Events.open_front_source_selected.emit(card, tile)
 	card_confirmed.emit(tile)
 
 
@@ -97,7 +96,6 @@ func cancel() -> void:
 		return
 	_resolved = true
 	_cleanup_highlights()
-	Events.open_front_source_cancelled.emit(card)
 	card_confirmed.emit(null)
 
 

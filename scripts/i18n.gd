@@ -8,7 +8,7 @@ extends Node
 ##   - Controles (Label/Button/OptionButton/...): auto-traducción de su propiedad
 ##     `text` cuando esta contiene una CLAVE definida en el CSV.
 ##   - Cadenas dinámicas (formato con `%`, BBCode generado en código): vía
-##     `tr("CLAVE")` (o el helper `I18n.format(...)`).
+##     `tr("CLAVE")`.
 ##
 ## Las traducciones se cargan por el sistema estándar de Godot: el CSV se importa
 ## a archivos `.translation` registrados en project.godot
@@ -31,9 +31,6 @@ const LOCALE_NAMES := {
 	"es": "Español",
 	"en": "English",
 }
-
-signal locale_changed(locale: String)
-
 
 func _ready() -> void:
 	TranslationServer.set_locale(_resolve_initial_locale())
@@ -58,20 +55,11 @@ func set_locale(locale: String) -> void:
 		return
 	TranslationServer.set_locale(locale)
 	_save_locale(locale)
-	locale_changed.emit(locale)
 
 
 ## Código de idioma activo ("es"/"en").
 func get_current_locale() -> String:
 	return TranslationServer.get_locale().substr(0, 2)
-
-
-## Helper para cadenas con formato: `I18n.format("SHOP_GOLD", [oro])`.
-## Equivale a `tr(key) % args` pero acepta tanto un valor suelto como un Array.
-func format(key: String, args) -> String:
-	if args is Array:
-		return tr(key) % args
-	return tr(key) % [args]
 
 
 func _load_saved_locale() -> String:

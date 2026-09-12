@@ -112,9 +112,6 @@ func _run_turn() -> void:
 func _begin_turn(empire_name: String) -> void:
 	GameLogger.debug("[IA] === TURNO DE %s (turno %d) ===" % [empire_name, stats.turn_number + 1])
 
-	# Señal de inicio para la capa de presentación (log, banner, etc.).
-	Events.ai_turn_started.emit(self)
-
 	_seed_rng_for_turn()
 	_process_turn_start()
 	_process_battle_fronts()
@@ -230,7 +227,6 @@ func _end_turn(empire_name: String) -> void:
 	_evaluate_and_resolve_event(empire_name)
 
 	await _wait(turn_end_delay)
-	Events.ai_turn_ended.emit(self)
 	_finish_turn()
 
 

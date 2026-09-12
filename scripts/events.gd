@@ -55,12 +55,7 @@ signal player_turn_ended
 signal turn_event_triggered(event:TurnEvent, context:EventContext)
 signal turn_event_resolved()
 
-signal shop_event_triggered(shop_config:ShopConfig, context:EventContext)
 signal shop_event_resolved()
-
-# Señales genericas de turno (para cualquier imperio)
-signal empire_turn_started(controller:EmpireController)
-signal empire_turn_ended(controller:EmpireController)
 
 # Señales para que los BuildingEffect puedan añadir/quitar modificadores
 signal request_add_modifier(modifier:Modifier, stats:Stats)
@@ -79,21 +74,14 @@ signal card_selection_cancelled()
 # Señales de confirmación de cartas militares
 signal recruit_card_confirm_started(card:RecruitCard, stats:Stats)
 signal open_front_card_confirm_started(card:OpenFrontCard, target_tile:Tile, own_tiles:Array[Tile], stats:Stats)
-signal open_front_source_selected(card:OpenFrontCard, source_tile:Tile)
-signal open_front_source_cancelled(card:OpenFrontCard)
 
-# Señales específicas de feedback de la IA. Existen aparte de
-# empire_turn_started/ended porque las usa la capa de presentación
-# (floating labels, log lateral) y queremos poder cambiar su contrato
-# sin tocar el flujo de turno general.
+# Feedback de la IA para la capa de presentación (floating labels, log lateral).
 #
 # ai_card_played se emite cada vez que la IA ejecuta una AIPlayOption
 # (excluyendo PASS). `anchor_tile` puede ser null si la opción no tiene
 # una tile clara (p.ej. RecruitCard SELF). `payload` lleva sub-decisiones
 # para enriquecer el texto del feedback (building elegido, tropa, etc.).
 signal ai_card_played(card:Card, anchor_tile:Tile, empire:Empire, payload:Dictionary)
-signal ai_turn_started(controller:EmpireController)
-signal ai_turn_ended(controller:EmpireController)
 
 # Señales de frentes de batalla
 signal battle_front_opened(front:BattleFront)

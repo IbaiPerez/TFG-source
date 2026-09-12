@@ -14,13 +14,6 @@ enum Level { DEBUG = 0, INFO = 1, WARN = 2, ERROR = 3 }
 
 var current_level: int = Level.DEBUG
 
-const _COLORS := {
-	Level.DEBUG: "",
-	Level.INFO:  "",
-	Level.WARN:  "",
-	Level.ERROR: "",
-}
-
 const _LABELS := {
 	Level.DEBUG: "DEBUG",
 	Level.INFO:  "INFO ",

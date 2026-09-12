@@ -27,26 +27,3 @@ enum Type {
 	DECISION,
 }
 
-
-static func all() -> Array:
-	return [
-		Type.CORE_PROGRESSION,
-		Type.OPTIONAL_PROGRESSION,
-		Type.FLAVOUR,
-		Type.DECK,
-		Type.SHOP,
-		Type.SPIRIT,
-		Type.DECISION,
-	]
-
-
-static func to_string_name(category:Type) -> String:
-	match category:
-		Type.CORE_PROGRESSION: return "CORE_PROGRESSION"
-		Type.OPTIONAL_PROGRESSION: return "OPTIONAL_PROGRESSION"
-		Type.FLAVOUR: return "FLAVOUR"
-		Type.DECK: return "DECK"
-		Type.SHOP: return "SHOP"
-		Type.SPIRIT: return "SPIRIT"
-		Type.DECISION: return "DECISION"
-	return "UNKNOWN"

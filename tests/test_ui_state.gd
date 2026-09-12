@@ -87,96 +87,35 @@ func test_unregister_menu_cannot_go_negative():
 
 
 # ============================================================================
-# TESTS: Signal Emissions
-# ============================================================================
-
-func test_menu_opened_signal_emitted_on_first_registration():
-	# Arrange: Initial state should have no menus
-	assert_eq(UIState._menu_count, 0, "Setup: counter should start at 0")
-	watch_signals(UIState)
-
-	# Act: Register first menu
-	UIState.register_menu()
-
-	# Assert: menu_opened signal should emit on 0→1 transition
-	assert_signal_emitted(UIState, "menu_opened", "menu_opened signal should emit on first registration")
-
-
-func test_menu_opened_signal_not_emitted_on_subsequent_registrations():
-	# Arrange: First menu already registered
-	UIState.register_menu()
-
-	# Act: Connect listener and register another menu
-	var signal_count = 0
-	UIState.menu_opened.connect(func(): signal_count += 1)
-	UIState.register_menu()
-
-	# Assert: Signal should not emit when already open (not a 0→1 transition)
-	assert_eq(signal_count, 0, "menu_opened should only emit on 0→1 transition")
-
-
-func test_menu_closed_signal_emitted_on_last_unregistration():
-	# Arrange: One menu registered
-	UIState.register_menu()
-	assert_eq(UIState._menu_count, 1, "Setup: one menu registered")
-	watch_signals(UIState)
-
-	# Act: Unregister last menu
-	UIState.unregister_menu()
-
-	# Assert: menu_closed signal should emit on 1→0 transition
-	assert_signal_emitted(UIState, "menu_closed", "menu_closed signal should emit on last unregistration")
-
-
-func test_menu_closed_signal_not_emitted_on_partial_unregistration():
-	# Arrange: Two menus registered
-	UIState.register_menu()
-	UIState.register_menu()
-
-	# Act: Connect listener and unregister one menu
-	var signal_count = 0
-	UIState.menu_closed.connect(func(): signal_count += 1)
-	UIState.unregister_menu()
-
-	# Assert: Signal should not emit when menus still open (not a 1→0 transition)
-	assert_eq(signal_count, 0, "menu_closed should only emit on 1→0 transition")
-
-
-# ============================================================================
 # TESTS: Complex Scenarios
 # ============================================================================
 
-func test_signal_transitions_with_multiple_menus():
+func test_open_state_follows_counter_transitions():
 	# Arrange: Initial state
 	assert_eq(UIState._menu_count, 0, "Setup: counter at 0")
-	watch_signals(UIState)
 
-	# Act: Complex sequence of registrations and unregistrations
-	UIState.register_menu()  # 0→1, should emit opened
-	UIState.register_menu()  # 1→2, should not emit
-	UIState.register_menu()  # 2→3, should not emit
-	UIState.unregister_menu()  # 3→2, should not emit
-	UIState.unregister_menu()  # 2→1, should not emit
-	UIState.unregister_menu()  # 1→0, should emit closed
-
-	# Assert: Signals emitted only on transitions
-	assert_signal_emit_count(UIState, "menu_opened", 1)
-	assert_signal_emit_count(UIState, "menu_closed", 1)
+	# Act + Assert: solo la transición 0→1 abre y solo la 1→0 cierra
+	UIState.register_menu()
+	assert_true(UIState.is_any_menu_open(), "0→1 abre")
+	UIState.register_menu()
+	UIState.register_menu()
+	UIState.unregister_menu()
+	UIState.unregister_menu()
+	assert_true(UIState.is_any_menu_open(), "3→1 sigue abierto")
+	UIState.unregister_menu()
+	assert_false(UIState.is_any_menu_open(), "1→0 cierra")
 
 
 func test_repeated_open_close_cycles():
 	# Arrange: Initial state
 	assert_eq(UIState._menu_count, 0, "Setup: counter at 0")
-	watch_signals(UIState)
 
-	# Act: Multiple open/close cycles
+	# Act + Assert: cada ciclo vuelve al estado cerrado
 	for i in range(3):
-		UIState.register_menu()  # Should emit opened (0→1)
-		UIState.unregister_menu()  # Should emit closed (1→0)
-
-	# Assert: Each cycle should emit both signals
-	assert_signal_emit_count(UIState, "menu_opened", 3)
-	assert_signal_emit_count(UIState, "menu_closed", 3)
+		UIState.register_menu()
+		assert_true(UIState.is_any_menu_open(), "ciclo %d: abierto" % i)
+		UIState.unregister_menu()
+		assert_false(UIState.is_any_menu_open(), "ciclo %d: cerrado" % i)
 
 
 # ============================================================================
