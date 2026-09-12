@@ -200,10 +200,7 @@ func test_card_input_choice_removes_random_candidate() -> void:
 	stats.discard_pile.add_card(c1)
 	stats.discard_pile.add_card(c2)
 
-	var filter := CardRemovalFilter.new()
-	filter.card_id = "removable"
-
-	var effect := RemoveCardEventEffect.new(null, filter)
+	var effect := RemoveCardEventEffect.new()
 	var event := _make_event("remove_card", false, false)
 	var choice := TurnEventChoice.new()
 	choice.effects = [effect]

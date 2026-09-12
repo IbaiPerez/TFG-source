@@ -24,5 +24,5 @@ func can_pay(context:EventContext) -> bool:
 	return context.total_gold >= _calculate(context)
 
 
-func pay(context:EventContext, _chosen_card:Card = null) -> void:
+func pay(context:EventContext) -> void:
 	context.stats.total_gold -= _calculate(context)

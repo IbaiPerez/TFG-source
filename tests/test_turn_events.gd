@@ -2,7 +2,7 @@ extends GutTest
 
 
 ## Tests para TurnEvent, TurnEventChoice, TurnEventCondition, TurnEventEffect,
-## TurnEventCost, Comparison, CardRemovalFilter, y TurnEventManager.
+## TurnEventCost, Comparison y TurnEventManager.
 
 
 # ============================================================
@@ -247,15 +247,6 @@ func test_cost_pay_deducts_gold():
 	assert_eq(stats.total_gold, 70)
 
 
-func test_cost_pay_deducts_food():
-	var cost := TurnEventCost.new()
-	cost.food = 5
-	var stats := _make_stats(100, 10)
-	var ctx := _make_context(stats)
-	cost.pay(ctx)
-	assert_eq(stats.food, 5)
-
-
 func test_scaled_gold_cost_can_pay():
 	var cost := ScaledGoldCost.new(10.0, 2.0, 0.0)
 	var stats := _make_stats(100)
@@ -336,67 +327,6 @@ func test_choice_execute_pays_cost_then_applies():
 func test_choice_needs_player_input_false_by_default():
 	var choice := TurnEventChoice.new()
 	assert_false(choice.needs_player_input())
-
-
-# ============================================================
-#  CardRemovalFilter
-# ============================================================
-
-func test_filter_matches_by_id():
-	var filter := CardRemovalFilter.new()
-	filter.card_id = "Build"
-	var stats := _make_stats()
-	stats.draw_pile.add_card(_make_card("Build"))
-	stats.draw_pile.add_card(_make_card("Colonize"))
-	var candidates := filter.get_candidates(stats)
-	assert_eq(candidates.size(), 1)
-	assert_eq(candidates[0].id, "Build")
-
-
-func test_filter_matches_by_type():
-	var filter := CardRemovalFilter.new()
-	filter.card_type = Card.Type.SINGLE_USE
-	var stats := _make_stats()
-	stats.draw_pile.add_card(_make_card("a", Card.Type.BASIC))
-	stats.draw_pile.add_card(_make_card("b", Card.Type.SINGLE_USE))
-	var candidates := filter.get_candidates(stats)
-	assert_eq(candidates.size(), 1)
-	assert_eq(candidates[0].id, "b")
-
-
-func test_filter_find_first():
-	var filter := CardRemovalFilter.new()
-	filter.card_id = "target"
-	var stats := _make_stats()
-	stats.discard_pile.add_card(_make_card("target"))
-	var result := filter.find_first(stats)
-	assert_false(result.is_empty())
-	assert_eq(result.card.id, "target")
-
-
-func test_filter_find_first_empty_when_no_match():
-	var filter := CardRemovalFilter.new()
-	filter.card_id = "nonexistent"
-	var stats := _make_stats()
-	stats.draw_pile.add_card(_make_card("other"))
-	var result := filter.find_first(stats)
-	assert_true(result.is_empty())
-
-
-func test_filter_has_match():
-	var filter := CardRemovalFilter.new()
-	filter.card_id = "Build"
-	var stats := _make_stats()
-	stats.draw_pile.add_card(_make_card("Build"))
-	assert_true(filter.has_match(stats))
-
-
-func test_filter_no_match():
-	var filter := CardRemovalFilter.new()
-	filter.card_id = "Build"
-	var stats := _make_stats()
-	stats.draw_pile.add_card(_make_card("Colonize"))
-	assert_false(filter.has_match(stats))
 
 
 # ============================================================

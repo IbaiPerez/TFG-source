@@ -163,7 +163,7 @@ static func _execute_choice_with_card_input(event: TurnEvent, choice: TurnEventC
 	# Buscar el effect que requiere selección de carta.
 	var candidates: Array[Card] = []
 	for effect in choice.effects:
-		if effect != null and effect.needs_player_input() and effect is RemoveCardEventEffect:
+		if effect is RemoveCardEventEffect:
 			candidates = effect.get_candidates(context.stats)
 			break
 

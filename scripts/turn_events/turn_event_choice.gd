@@ -13,8 +13,6 @@ func is_affordable(context:EventContext) -> bool:
 
 
 func needs_player_input() -> bool:
-	if cost != null and cost.needs_player_input():
-		return true
 	for effect in effects:
 		if effect.needs_player_input():
 			return true
@@ -35,9 +33,8 @@ func get_tile_effect() -> TurnEventEffect:
 	return null
 
 
-func execute(context:EventContext, chosen_cards:Dictionary = {}) -> void:
+func execute(context:EventContext) -> void:
 	if cost:
-		cost.pay(context, chosen_cards.get("cost"))
-
-	for i in effects.size():
-		effects[i].execute(context, chosen_cards.get(i))
+		cost.pay(context)
+	for effect in effects:
+		effect.execute(context)

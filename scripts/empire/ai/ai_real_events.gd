@@ -211,12 +211,4 @@ static func _choice_affordable(choice: TurnEventChoice, emp: AIRealState.EmpireS
 		return true
 	var cost := choice.cost
 	var gold_needed := AIRealEventEffects._cost_gold(cost, emp, state)
-	if gold_needed > 0 and emp.gold < gold_needed:
-		return false
-	if cost.food > 0 and emp.food < cost.food:
-		return false
-	if cost.auto_remove_filter != null and not AIRealEventEffects._filter_has_match(cost.auto_remove_filter, emp):
-		return false
-	if cost.player_remove_filter != null and AIRealEventEffects._filter_candidates(cost.player_remove_filter, emp).is_empty():
-		return false
-	return true
+	return emp.gold >= gold_needed

@@ -301,14 +301,11 @@ func test_scaled_gold_effect_uses_turn_and_gpt() -> void:
 	assert_eq(s.own.gold, 120, "ScaledGold escala con turno y gpt")
 
 
-func test_remove_card_event_effect_auto_filter() -> void:
+func test_remove_card_event_effect_purga_una_carta_del_mazo() -> void:
 	var s := AIRealState.new()
 	s.own.deck = [_make_card("colonize", 0), _make_card("build", 1)]
-	var filter := CardRemovalFilter.new()
-	filter.card_id = "colonize"
-	_apply(RemoveCardEventEffect.new(filter, null), s)
-	assert_eq(s.own.deck.size(), 1, "Elimina la carta que casa el filtro")
-	assert_eq(s.own.deck[0].id, "build", "Queda la otra carta")
+	_apply(RemoveCardEventEffect.new(), s)
+	assert_eq(s.own.deck.size(), 1, "Purga exactamente una carta")
 
 
 func test_colonize_adjacent_effect() -> void:

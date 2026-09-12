@@ -26,7 +26,6 @@ static func _cost_gold(cost: TurnEventCost, emp: AIRealState.EmpireSnap,
 	return cost.gold
 
 
-
 # ============================================================
 #  Aplicación de coste y efectos (espejo sobre el snapshot)
 # ============================================================
@@ -44,11 +43,6 @@ static func _apply_choice(choice: TurnEventChoice, state: AIRealState, p_owner: 
 static func _apply_cost(cost: TurnEventCost, emp: AIRealState.EmpireSnap,
 		state: AIRealState) -> void:
 	emp.gold -= _cost_gold(cost, emp, state)
-	emp.food -= cost.food
-	if cost.auto_remove_filter != null:
-		_filter_remove_first(cost.auto_remove_filter, emp)
-	if cost.player_remove_filter != null:
-		_remove_most_expendable(cost.player_remove_filter, emp)
 
 
 ## Tabla `Script → Callable` de aplicadores de efecto, en lugar de la cadena
@@ -152,12 +146,11 @@ static func _eff_unlock_building(effect, _state, _p_owner, emp, _rng) -> void:
 		emp.possible_buildings.append(b)
 
 
-static func _eff_remove_card(effect, _state, _p_owner, emp, _rng) -> void:
-	var e := effect as RemoveCardEventEffect
-	if e.auto_filter != null:
-		_filter_remove_first(e.auto_filter, emp)
-	if e.player_filter != null:
-		_remove_most_expendable(e.player_filter, emp)
+## El jugador elegiría qué carta purgar (AIHeuristic.pick_card_to_remove en el
+## mundo vivo); el snapshot se conforma con la primera del mazo.
+static func _eff_remove_card(_effect, _state, _p_owner, emp, _rng) -> void:
+	if not emp.deck.is_empty():
+		emp.deck.remove_at(0)
 
 
 static func _eff_colonize_adjacent(effect, state, p_owner, _emp, rng) -> void:
@@ -210,50 +203,6 @@ static func _weighted_pick_pool_card(emp: AIRealState.EmpireSnap, turn: int,
 		if roll <= cumulative:
 			return entry.card
 	return emp.unlocked_card_pool.back().card
-
-
-# ── Filtros de eliminación de cartas (espejo de CardRemovalFilter sobre deck) ──
-
-static func _filter_matches(filter: CardRemovalFilter, card: Card) -> bool:
-	if filter.card_id != "" and card.id != filter.card_id:
-		return false
-	if filter.card_type != -1 and card.type != filter.card_type:
-		return false
-	return true
-
-
-static func _filter_candidates(filter: CardRemovalFilter,
-		emp: AIRealState.EmpireSnap) -> Array[Card]:
-	var result: Array[Card] = []
-	for c in emp.deck:
-		if _filter_matches(filter, c):
-			result.append(c)
-	return result
-
-
-static func _filter_has_match(filter: CardRemovalFilter, emp: AIRealState.EmpireSnap) -> bool:
-	for c in emp.deck:
-		if _filter_matches(filter, c):
-			return true
-	return false
-
-
-static func _filter_remove_first(filter: CardRemovalFilter, emp: AIRealState.EmpireSnap) -> void:
-	for i in range(emp.deck.size()):
-		if _filter_matches(filter, emp.deck[i]):
-			emp.deck.remove_at(i)
-			return
-
-
-## Elimina la carta "más prescindible" entre las candidatas. Aproximación de
-## AIHeuristic.pick_card_to_remove: prioriza descartar duplicados de la carta más
-## repetida del filtro; sin criterio mejor, la primera candidata.
-static func _remove_most_expendable(filter: CardRemovalFilter,
-		emp: AIRealState.EmpireSnap) -> void:
-	var candidates := _filter_candidates(filter, emp)
-	if candidates.is_empty():
-		return
-	emp.deck.erase(candidates[0])
 
 
 # ── Efectos de tile (reusan AIRealSimulator, sin señales) ─────────────────────

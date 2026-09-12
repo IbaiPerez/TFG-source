@@ -15,6 +15,8 @@ var turn_event_manager:TurnEventManager
 
 ## Almacena la choice pendiente mientras el jugador selecciona una tile.
 var _pending_tile_choice:TurnEventChoice = null
+
+
 ## Almacena la choice pendiente mientras el jugador selecciona una carta.
 var _pending_card_choice:TurnEventChoice = null
 
@@ -173,7 +175,7 @@ func _start_card_selection(choice:TurnEventChoice) -> void:
 	# Buscar el efecto que necesita input del jugador para obtener candidatas
 	var candidates:Array[Card] = []
 	for effect in choice.effects:
-		if effect.needs_player_input() and effect is RemoveCardEventEffect:
+		if effect is RemoveCardEventEffect:
 			candidates = effect.get_candidates(context.stats)
 			break
 

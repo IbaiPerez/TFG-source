@@ -19,7 +19,7 @@ func _init():
 	var purge := TurnEventChoice.new()
 	purge.label = tr("EVT_DECK_PURGE_CH1_LABEL")
 	purge.description = tr("EVT_DECK_PURGE_CH1_DESC")
-	purge.effects = [RemoveCardEventEffect.new(null, CardRemovalFilter.new())]
+	purge.effects = [RemoveCardEventEffect.new()]
 
 	# Opcion 2: no hacer nada
 	var skip := TurnEventChoice.new()
