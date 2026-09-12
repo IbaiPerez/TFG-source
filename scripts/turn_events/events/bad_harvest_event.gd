@@ -11,7 +11,7 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		TurnNumberCondition.new(4, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(4),
 	]
 
 	# Opcion 1: sufrir la penalizacion

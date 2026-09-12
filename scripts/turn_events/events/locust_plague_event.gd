@@ -10,7 +10,7 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		TurnNumberCondition.new(6, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(6),
 		TurnNumberCondition.new(30, Comparison.Type.LESS_EQUAL),
 	]
 

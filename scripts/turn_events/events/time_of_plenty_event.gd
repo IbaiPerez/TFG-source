@@ -10,8 +10,8 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		TurnNumberCondition.new(8, Comparison.Type.GREATER_EQUAL),
-		FoodThresholdCondition.new(5, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(8),
+		FoodThresholdCondition.new(5),
 	]
 
 	var choice := TurnEventChoice.new()

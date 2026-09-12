@@ -14,7 +14,7 @@ func _init():
 
 	# Condicion: controlar al menos 5 casillas
 	conditions = [
-		ControlledTilesCondition.new(5, Comparison.Type.GREATER_EQUAL)
+		ControlledTilesCondition.new(5)
 	]
 
 	# Eleccion: recibir la carta de construir

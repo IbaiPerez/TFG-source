@@ -12,7 +12,7 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		ControlledTilesCondition.new(3, Comparison.Type.GREATER_EQUAL, 3)
+		ControlledTilesCondition.new(3, 3)
 	]
 
 	choices = [make_building_unlock_choice(GRANJA,

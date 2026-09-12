@@ -10,8 +10,8 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		TurnNumberCondition.new(10, Comparison.Type.GREATER_EQUAL),
-		GoldGenerationCondition.new(15, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(10),
+		GoldGenerationCondition.new(15),
 	]
 
 	# Opcion 1: invertir en el tratado

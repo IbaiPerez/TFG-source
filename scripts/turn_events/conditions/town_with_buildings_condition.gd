@@ -8,7 +8,7 @@ var min_buildings: int
 var op: Comparison.Type
 
 
-func _init(p_min_buildings: int, p_op: Comparison.Type):
+func _init(p_min_buildings: int, p_op: Comparison.Type = Comparison.Type.GREATER_EQUAL):
 	min_buildings = p_min_buildings
 	op = p_op
 

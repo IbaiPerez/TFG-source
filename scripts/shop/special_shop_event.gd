@@ -10,7 +10,7 @@ func _init():
 	category = EventCategory.Type.SHOP
 	shop_type = ShopType.SPECIAL
 	conditions = [
-		TurnNumberCondition.new(12, Comparison.Type.GREATER_EQUAL),
-		ControlledTilesCondition.new(5, Comparison.Type.GREATER_EQUAL),
-		GoldThresholdCondition.new(40, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(12),
+		ControlledTilesCondition.new(5),
+		GoldThresholdCondition.new(40),
 	]

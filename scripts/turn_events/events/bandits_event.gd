@@ -11,8 +11,8 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		TurnNumberCondition.new(5, Comparison.Type.GREATER_EQUAL),
-		ControlledTilesCondition.new(4, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(5),
+		ControlledTilesCondition.new(4),
 	]
 
 	# Opcion 1: sufrir el robo

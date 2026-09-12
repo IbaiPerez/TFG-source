@@ -9,9 +9,9 @@ var required_biome_type: int = -1
 var required_location_type: int = -1
 
 
-func _init(p_count: int, p_op: Comparison.Type,
-		p_biome: int = -1,
-		p_location: int = -1) -> void:
+## Los filtros van antes que el operador porque casi siempre se usan con "al menos".
+func _init(p_count: int, p_biome: int = -1, p_location: int = -1,
+		p_op: Comparison.Type = Comparison.Type.GREATER_EQUAL) -> void:
 	super(p_count, p_op)
 	required_biome_type = p_biome
 	required_location_type = p_location

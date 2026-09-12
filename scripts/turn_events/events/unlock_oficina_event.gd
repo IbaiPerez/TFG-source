@@ -14,9 +14,9 @@ func _init():
 
 	conditions = [
 		# Al menos 1 Megalopolis (location_type = 3)
-		ControlledTilesCondition.new(1, Comparison.Type.GREATER_EQUAL, -1, 3),
+		ControlledTilesCondition.new(1, -1, 3),
 		# 10+ edificios construidos en total
-		BuildingCountCondition.new(10, Comparison.Type.GREATER_EQUAL),
+		BuildingCountCondition.new(10),
 	]
 
 	choices = [make_card_unlock_choice(BUILD_OFICINA_CARD,

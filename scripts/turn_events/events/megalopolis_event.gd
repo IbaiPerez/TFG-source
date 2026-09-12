@@ -12,9 +12,9 @@ func _init():
 
 	conditions = [
 		# Al menos 1 Town con 3+ edificios
-		TownWithBuildingsCondition.new(3, Comparison.Type.GREATER_EQUAL),
+		TownWithBuildingsCondition.new(3),
 		# Al menos 200 de oro para poder pagar
-		GoldThresholdCondition.new(200, Comparison.Type.GREATER_EQUAL),
+		GoldThresholdCondition.new(200),
 	]
 
 	var choice := TurnEventChoice.new()

@@ -10,8 +10,8 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		TurnNumberCondition.new(5, Comparison.Type.GREATER_EQUAL),
-		FoodThresholdCondition.new(10, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(5),
+		FoodThresholdCondition.new(10),
 	]
 
 	# Opcion 1: aceptar el intercambio

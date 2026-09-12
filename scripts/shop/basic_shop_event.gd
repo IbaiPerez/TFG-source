@@ -10,6 +10,6 @@ func _init():
 	category = EventCategory.Type.SHOP
 	shop_type = ShopType.BASIC
 	conditions = [
-		TurnNumberCondition.new(8, Comparison.Type.GREATER_EQUAL),
-		ControlledTilesCondition.new(3, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(8),
+		ControlledTilesCondition.new(3),
 	]

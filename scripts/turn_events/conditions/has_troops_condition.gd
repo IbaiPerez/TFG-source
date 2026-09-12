@@ -1,14 +1,12 @@
-extends TurnEventCondition
+extends ThresholdCondition
 class_name HasTroopsCondition
 
-## Comprueba si el jugador tiene al menos un número determinado de tropas reclutadas.
-
-var min_count:int
+## Al menos `threshold` tropas reclutadas en el pool.
 
 
-func _init(p_min_count:int = 1):
-	min_count = p_min_count
+func _init(p_min_count:int = 1) -> void:
+	super(p_min_count)
 
 
-func is_met(context:EventContext) -> bool:
-	return context.troop_pool_size >= min_count
+func _value(context: EventContext) -> int:
+	return context.troop_pool_size

@@ -14,9 +14,9 @@ func _init():
 
 	conditions = [
 		# Al menos 1 Town (location_type = 2)
-		ControlledTilesCondition.new(1, Comparison.Type.GREATER_EQUAL, -1, 2),
+		ControlledTilesCondition.new(1, -1, 2),
 		# 3+ casillas urbanizadas (Town o Megalopolis)
-		UrbanizedTilesCondition.new(3, Comparison.Type.GREATER_EQUAL),
+		UrbanizedTilesCondition.new(3),
 	]
 
 	choices = [make_card_unlock_choice(BUILD_LIBRARY_CARD,

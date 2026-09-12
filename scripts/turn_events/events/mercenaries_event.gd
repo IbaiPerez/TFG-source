@@ -12,7 +12,7 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		TurnNumberCondition.new(12, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(12),
 	]
 
 	# Opcion 1: contratar mercenarios

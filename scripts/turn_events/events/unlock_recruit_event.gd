@@ -19,7 +19,7 @@ func _init():
 	category = EventCategory.Type.CORE_PROGRESSION
 
 	conditions = [
-		UrbanizedTilesCondition.new(1, Comparison.Type.GREATER_EQUAL),
+		UrbanizedTilesCondition.new(1),
 		HasAdjacentEnemyCondition.new(),
 	]
 

@@ -14,7 +14,7 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		BuildingCountCondition.new(4, Comparison.Type.GREATER_EQUAL),
+		BuildingCountCondition.new(4),
 	]
 
 	choices = [make_card_unlock_choice(UPGRADE_CARD,

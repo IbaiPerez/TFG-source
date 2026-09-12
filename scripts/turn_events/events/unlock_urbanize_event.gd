@@ -23,7 +23,7 @@ func _init():
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
 		# 8+ edificios construidos en total (después de unlock_upgrade)
-		BuildingCountCondition.new(8, Comparison.Type.GREATER_EQUAL),
+		BuildingCountCondition.new(8),
 	]
 
 	choices = [make_card_unlock_choice(URBAN_PROJECT_CARD,

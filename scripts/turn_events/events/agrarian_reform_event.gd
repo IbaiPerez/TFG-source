@@ -10,8 +10,8 @@ func _init():
 
 	conditions = [
 		UniqueEventOccurredCondition.new("construction_boom"),
-		TurnNumberCondition.new(10, Comparison.Type.GREATER_EQUAL),
-		ControlledTilesCondition.new(8, Comparison.Type.GREATER_EQUAL),
+		TurnNumberCondition.new(10),
+		ControlledTilesCondition.new(8),
 	]
 
 	# Opcion 1: implementar la reforma

@@ -14,9 +14,9 @@ func _init():
 
 	conditions = [
 		# Al menos 1 Town (location_type = 2)
-		ControlledTilesCondition.new(1, Comparison.Type.GREATER_EQUAL, -1, 2),
+		ControlledTilesCondition.new(1, -1, 2),
 		# 5+ edificios construidos en total
-		BuildingCountCondition.new(5, Comparison.Type.GREATER_EQUAL),
+		BuildingCountCondition.new(5),
 	]
 
 	choices = [make_card_unlock_choice(BUILD_TEMPLE_CARD,
