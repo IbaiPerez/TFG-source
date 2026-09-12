@@ -89,11 +89,11 @@ func test_troop_type_bonus_attack_scales_with_matching_troops() -> void:
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_name": "Milicia",
 		"attack_per_troop": 2.0,
 		"defense_per_troop": 1.0,
-	})
+	}))
 
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_atk - base_atk, 6.0, 0.01, "Bonus ATK plano debe escalar con el número de tropas del tipo")
@@ -105,11 +105,11 @@ func test_troop_type_bonus_defense_scales_with_matching_troops() -> void:
 
 	var base_def := front.get_total_defense(BattleFront.Side.DEFENDER)
 
-	front.add_bonus(BattleFront.Side.DEFENDER, {
+	front.add_bonus(BattleFront.Side.DEFENDER, TacticBonus.from_dict({
 		"troop_name": "Piqueros",
 		"attack_per_troop": 1.0,
 		"defense_per_troop": 3.0,
-	})
+	}))
 
 	var boosted_def := front.get_total_defense(BattleFront.Side.DEFENDER)
 	assert_almost_eq(boosted_def - base_def, 6.0, 0.01, "Bonus DEF plano debe escalar con el número de tropas del tipo")
@@ -122,11 +122,11 @@ func test_troop_type_bonus_ignores_other_troop_types() -> void:
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_name": "Milicia",
 		"attack_per_troop": 2.0,
 		"defense_per_troop": 2.0,
-	})
+	}))
 
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_atk - base_atk, 4.0, 0.01, "Bonus solo debe afectar a tropas del tipo indicado")
@@ -137,11 +137,11 @@ func test_troop_type_bonus_zero_matching_troops() -> void:
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_name": "Milicia",
 		"attack_per_troop": 2.0,
 		"defense_per_troop": 2.0,
-	})
+	}))
 
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_eq(boosted_atk, base_atk, "Sin tropas del tipo, el bonus no debe aplicarse")
@@ -150,11 +150,11 @@ func test_troop_type_bonus_zero_matching_troops() -> void:
 func test_troop_type_bonus_is_permanent_without_duration() -> void:
 	front.assign_troop(_create_troop("Milicia", 3, 3), BattleFront.Side.ATTACKER)
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_name": "Milicia",
 		"attack_per_troop": 2.0,
 		"defense_per_troop": 2.0,
-	})
+	}))
 
 	# La regla de caducidad vive en CombatMath, compartida con el snapshot del MCTS.
 	CombatMath.tick_bonuses(front.attacker_bonuses)
@@ -170,16 +170,16 @@ func test_multiple_troop_type_bonuses_stack() -> void:
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_name": "Milicia",
 		"attack_per_troop": 2.0,
 		"defense_per_troop": 1.0,
-	})
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	}))
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_name": "Milicia",
 		"attack_per_troop": 1.0,
 		"defense_per_troop": 2.0,
-	})
+	}))
 
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_atk - base_atk, 6.0, 0.01, "Múltiples bonus del mismo tipo deben apilarse")
@@ -222,10 +222,10 @@ func test_bonus_targets_troops_by_type() -> void:
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_type": Troop.TroopType.CABALLERIA,
 		"attack_per_troop": 3.0,
-	})
+	}))
 
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_atk - base_atk, 6.0, 0.01,
@@ -238,10 +238,10 @@ func test_bonus_by_type_ignores_other_types() -> void:
 
 	var base_def := front.get_total_defense(BattleFront.Side.ATTACKER)
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_type": Troop.TroopType.PIQUEROS,
 		"defense_per_troop": 4.0,
-	})
+	}))
 
 	var boosted_def := front.get_total_defense(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_def - base_def, 4.0, 0.01)
@@ -254,12 +254,12 @@ func test_bonus_with_troop_types_array_takes_precedence_over_singular() -> void:
 	front.assign_troop(_create_troop("Pikeman", 1, 6, Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_name": "Pikeman",
 		"troop_type": Troop.TroopType.CABALLERIA,
 		"troop_types": [Troop.TroopType.PIQUEROS],
 		"attack_per_troop": 5.0,
-	})
+	}))
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_atk - base_atk, 10.0, 0.01,
 		"troop_types (array) debe ganar a troop_type y a troop_name")
@@ -287,10 +287,10 @@ func test_bonus_with_multiple_types_affects_all_listed() -> void:
 	front.assign_troop(_create_troop("Cab", 6, 1, Troop.TroopType.CABALLERIA), BattleFront.Side.DEFENDER)
 
 	var base_def := front.get_total_defense(BattleFront.Side.DEFENDER)
-	front.add_bonus(BattleFront.Side.DEFENDER, {
+	front.add_bonus(BattleFront.Side.DEFENDER, TacticBonus.from_dict({
 		"troop_types": [Troop.TroopType.PIQUEROS, Troop.TroopType.INFANTERIA_LIGERA],
 		"defense_per_troop": 2.0,
-	})
+	}))
 	var boosted_def := front.get_total_defense(BattleFront.Side.DEFENDER)
 	# 2 tropas afectadas (PIQ + LIG) × 2 DEF = +4. La caballería no cuenta.
 	assert_almost_eq(boosted_def - base_def, 4.0, 0.01,
@@ -308,10 +308,10 @@ func test_attack_percent_per_type_applies_to_effective_attack() -> void:
 	front.assign_troop(_create_troop("Dis", 1, 0, Troop.TroopType.A_DISTANCIA), BattleFront.Side.DEFENDER)
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_types": [Troop.TroopType.CABALLERIA],
 		"attack_percent_per_type": 30.0,
-	})
+	}))
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_atk - base_atk, 15.0 * 0.30, 0.01,
 		"+30%% sobre el ATK efectivo (15) debería sumar 4.5")
@@ -324,10 +324,10 @@ func test_attack_percent_per_type_passes_through_weak_matchup() -> void:
 	front.assign_troop(_create_troop("Piq", 1, 6, Troop.TroopType.PIQUEROS), BattleFront.Side.DEFENDER)
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_types": [Troop.TroopType.CABALLERIA],
 		"attack_percent_per_type": 30.0,
-	})
+	}))
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_atk - base_atk, 7.0 * 0.30, 0.01,
 		"+30%% sobre matchup débil (7) debería sumar 2.1, no 3.0")
@@ -339,10 +339,10 @@ func test_defense_percent_per_type_applies_to_base_defense() -> void:
 	front.assign_troop(_create_troop("Lig", 3, 3, Troop.TroopType.INFANTERIA_LIGERA), BattleFront.Side.DEFENDER)
 
 	var base_def := front.get_total_defense(BattleFront.Side.DEFENDER)
-	front.add_bonus(BattleFront.Side.DEFENDER, {
+	front.add_bonus(BattleFront.Side.DEFENDER, TacticBonus.from_dict({
 		"troop_types": [Troop.TroopType.PIQUEROS, Troop.TroopType.INFANTERIA_LIGERA],
 		"defense_percent_per_type": 30.0,
-	})
+	}))
 	var boosted_def := front.get_total_defense(BattleFront.Side.DEFENDER)
 	# DEF base afectada = 6 (PIQ) + 3 (LIG) = 9. +30% = +2.7.
 	assert_almost_eq(boosted_def - base_def, 9.0 * 0.30, 0.01,
@@ -355,11 +355,11 @@ func test_attack_biome_modifier_scales_percent_bonus() -> void:
 	front.assign_troop(_create_troop("Dis", 1, 0, Troop.TroopType.A_DISTANCIA), BattleFront.Side.DEFENDER)
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_types": [Troop.TroopType.CABALLERIA],
 		"attack_percent_per_type": 30.0,
 		"attack_biome_modifier": 1.5,
-	})
+	}))
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_almost_eq(boosted_atk - base_atk, 15.0 * 0.30 * 1.5, 0.01,
 		"El biome_modifier debe multiplicar el bonus efectivo")
@@ -370,11 +370,11 @@ func test_zero_biome_modifier_nullifies_percent_bonus() -> void:
 	front.assign_troop(_create_troop("Dis", 1, 0, Troop.TroopType.A_DISTANCIA), BattleFront.Side.DEFENDER)
 
 	var base_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_types": [Troop.TroopType.CABALLERIA],
 		"attack_percent_per_type": 30.0,
 		"attack_biome_modifier": 0.0,
-	})
+	}))
 	var boosted_atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	assert_eq(boosted_atk, base_atk,
 		"Con biome_modifier=0 el bonus no debe aportar nada")
@@ -386,11 +386,11 @@ func test_percent_bonus_dynamically_includes_newly_assigned_troops() -> void:
 	front.assign_troop(_create_troop("Cab1", 10, 0, Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
 	front.assign_troop(_create_troop("Dis", 1, 0, Troop.TroopType.A_DISTANCIA), BattleFront.Side.DEFENDER)
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({
 		"troop_types": [Troop.TroopType.CABALLERIA],
 		"attack_percent_per_type": 30.0,
 		"attack_biome_modifier": 1.0,
-	})
+	}))
 	var atk_with_one := front.get_total_attack(BattleFront.Side.ATTACKER)
 
 	# Asignar otra caballería al frente DESPUÉS del bonus.
@@ -575,9 +575,9 @@ func test_apply_effects_full_flow_bonus_affects_combat() -> void:
 #  Política exclusiva: una sola táctica activa por bando
 # ============================================================
 
-func _make_tactic_bonus(name: String) -> Dictionary:
+func _make_tactic_bonus(name: String) -> TacticBonus:
 	# Helper: bonus dict mínimo equivalente al que mete una TacticCard.
-	return {
+	return TacticBonus.from_dict({
 		"tactic_name": name,
 		"troop_types": [Troop.TroopType.CABALLERIA],
 		"attack_percent_per_type": 20.0,
@@ -586,20 +586,20 @@ func _make_tactic_bonus(name: String) -> Dictionary:
 		"defense_per_troop": 0.0,
 		"attack_biome_modifier": 1.0,
 		"defense_biome_modifier": 1.0,
-	}
+	})
 
 
 func test_clear_tactics_removes_only_entries_with_tactic_name() -> void:
 	# Mezcla bonuses de táctica con bonuses planos manuales.
 	front.add_bonus(BattleFront.Side.ATTACKER, _make_tactic_bonus("Carga"))
-	front.add_bonus(BattleFront.Side.ATTACKER, {"attack": 5.0})  # plano sin tactic_name
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({"attack": 5.0}))  # plano sin tactic_name
 	front.add_bonus(BattleFront.Side.ATTACKER, _make_tactic_bonus("Falange"))
 
 	var removed := front.clear_tactics_for_side(BattleFront.Side.ATTACKER)
 	assert_eq(removed, 2, "Debe eliminar las 2 tácticas, no el bonus plano")
 	assert_eq(front.attacker_bonuses.size(), 1,
 		"Sólo debe quedar el bonus plano sin tactic_name")
-	assert_eq(front.attacker_bonuses[0].get_value("attack", 0.0), 5.0)
+	assert_eq(front.attacker_bonuses[0].attack, 5.0)
 
 
 func test_clear_tactics_does_not_touch_opposite_side() -> void:
@@ -627,7 +627,7 @@ func test_has_active_tactic_on_side() -> void:
 
 func test_has_active_tactic_ignores_non_tactic_bonuses() -> void:
 	# Un bonus plano sin tactic_name no debe contar como táctica.
-	front.add_bonus(BattleFront.Side.ATTACKER, {"attack": 10.0})
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({"attack": 10.0}))
 	assert_false(front.has_active_tactic_on_side(BattleFront.Side.ATTACKER),
 		"Bonus sin tactic_name no es una táctica")
 

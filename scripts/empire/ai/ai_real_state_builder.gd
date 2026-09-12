@@ -146,10 +146,10 @@ static func _snapshot_fronts(s: AIRealState, ctx: AITurnContext, index_of: Dicti
 		fs.defender_tile_id = index_of.get(front.defender_tile, -1)
 		fs.attacker_troops = front.attacker_troops.duplicate()
 		fs.defender_troops = front.defender_troops.duplicate()
-		for raw in front.attacker_bonuses:
-			fs.attacker_bonuses.append(_as_tactic_bonus(raw))
-		for raw in front.defender_bonuses:
-			fs.defender_bonuses.append(_as_tactic_bonus(raw))
+		for b in front.attacker_bonuses:
+			fs.attacker_bonuses.append(b.duplicate() as TacticBonus)
+		for b in front.defender_bonuses:
+			fs.defender_bonuses.append(b.duplicate() as TacticBonus)
 		fs.marker = front.marker
 		fs.turns_elapsed = front.turns_elapsed
 		fs.threshold = front.threshold
@@ -185,13 +185,6 @@ static func _owner_of_empire(empire: Empire, own_empire: Empire,
 	if empire != null and empire == rival_empire:
 		return AIRealState.OWNER_RIVAL
 	return AIRealState.OWNER_NONE
-
-
-## Normaliza un bonus de frente (TacticBonus o Dictionary legacy) a TacticBonus.
-static func _as_tactic_bonus(raw: Variant) -> TacticBonus:
-	if raw is TacticBonus:
-		return (raw as TacticBonus).duplicate() as TacticBonus
-	return TacticBonus.from_dict(raw as Dictionary)
 
 
 ## Copia profunda barata: comparte los campos inmutables de cada AIRealState.TileSnap y

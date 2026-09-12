@@ -20,7 +20,7 @@ class_name CombatMath
 ## efectivo pasa por la matriz de efectividad contra la composición enemiga; los
 ## edificios y bonuses no se ven afectados por el bioma base ni por combat_mult.
 static func total_attack(troops: Array[Troop], enemy_troops: Array[Troop],
-		bonuses: Array, biome_atk_mult: float, combat_mult: float,
+		bonuses: Array[TacticBonus], biome_atk_mult: float, combat_mult: float,
 		building_attack: float = 0.0) -> float:
 	var total := building_attack
 	var troops_attack := TroopEffectiveness.get_effective_attack(troops, enemy_troops)
@@ -28,8 +28,7 @@ static func total_attack(troops: Array[Troop], enemy_troops: Array[Troop],
 
 	var flat_bonus := 0.0
 	var percent_bonus := 0.0
-	for raw in bonuses:
-		var bonus := as_tactic_bonus(raw)
+	for bonus in bonuses:
 		flat_bonus += bonus.attack
 		percent_bonus += bonus.attack_percent
 		# Bonus plano por tipo de tropa (NO pasa por la matriz).
@@ -49,7 +48,7 @@ static func total_attack(troops: Array[Troop], enemy_troops: Array[Troop],
 
 ## Defensa total: edificios defensivos + (defensa base de tropas × bioma ×
 ## combat_mult) + bonuses tácticos. La defensa NO pasa por la matriz de efectividad.
-static func total_defense(troops: Array[Troop], bonuses: Array,
+static func total_defense(troops: Array[Troop], bonuses: Array[TacticBonus],
 		biome_def_mult: float, combat_mult: float,
 		building_defense: float = 0.0) -> float:
 	var total := building_defense
@@ -60,8 +59,7 @@ static func total_defense(troops: Array[Troop], bonuses: Array,
 
 	var flat_bonus := 0.0
 	var percent_bonus := 0.0
-	for raw in bonuses:
-		var bonus := as_tactic_bonus(raw)
+	for bonus in bonuses:
 		flat_bonus += bonus.defense
 		percent_bonus += bonus.defense_percent
 		if bonus.defense_per_troop != 0.0:
@@ -154,35 +152,16 @@ static func casualties(marker: float, effective_threshold: float,
 # ---------------------------------------------------------------------------
 # Bonuses tácticos
 # ---------------------------------------------------------------------------
-
-## Normaliza un bonus (TacticBonus o Dictionary legacy) a TacticBonus.
-static func as_tactic_bonus(raw: Variant) -> TacticBonus:
-	if raw is TacticBonus:
-		return raw as TacticBonus
-	return TacticBonus.from_dict(raw as Dictionary)
-
-
 ## Decrementa la duración de los bonuses y elimina los agotados. Los de duración
 ## negativa son permanentes y no expiran.
-##
-## Tolera el formato Dictionary legacy porque el mundo vivo aún lo admite; en el
-## snapshot esa rama nunca se toma (allí los bonuses siempre nacen tipados).
-static func tick_bonuses(bonuses: Array) -> void:
+static func tick_bonuses(bonuses: Array[TacticBonus]) -> void:
 	var i := bonuses.size() - 1
 	while i >= 0:
-		var raw: Variant = bonuses[i]
-		if raw is TacticBonus:
-			var b := raw as TacticBonus
-			if b.duration >= 0:
-				b.duration -= 1
-				if b.duration <= 0:
-					bonuses.remove_at(i)
-		elif raw is Dictionary:
-			var d := raw as Dictionary
-			if d.has("duration"):
-				d["duration"] = int(d["duration"]) - 1
-				if int(d["duration"]) <= 0:
-					bonuses.remove_at(i)
+		var b := bonuses[i]
+		if b.duration >= 0:
+			b.duration -= 1
+			if b.duration <= 0:
+				bonuses.remove_at(i)
 		i -= 1
 
 
@@ -190,11 +169,11 @@ static func tick_bonuses(bonuses: Array) -> void:
 ## cuántas quitó. NO toca el resto de bonuses: planos manuales, de evento o de
 ## edificio. Es la regla que hace que cada bando tenga como mucho UNA táctica
 ## activa — las cartas tácticas llaman aquí antes de aplicarse.
-static func clear_tactics(bonuses: Array) -> int:
+static func clear_tactics(bonuses: Array[TacticBonus]) -> int:
 	var removed := 0
 	var i := bonuses.size() - 1
 	while i >= 0:
-		if as_tactic_bonus(bonuses[i]).tactic_name != "":
+		if bonuses[i].tactic_name != "":
 			bonuses.remove_at(i)
 			removed += 1
 		i -= 1
@@ -202,9 +181,9 @@ static func clear_tactics(bonuses: Array) -> int:
 
 
 ## True si la lista tiene alguna táctica activa (bonus con `tactic_name` no vacío).
-static func has_active_tactic(bonuses: Array) -> bool:
-	for raw in bonuses:
-		if as_tactic_bonus(raw).tactic_name != "":
+static func has_active_tactic(bonuses: Array[TacticBonus]) -> bool:
+	for bonus in bonuses:
+		if bonus.tactic_name != "":
 			return true
 	return false
 

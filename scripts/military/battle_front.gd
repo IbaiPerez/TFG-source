@@ -52,15 +52,8 @@ var attacker_troops: Array[Troop] = []
 var defender_troops: Array[Troop] = []
 
 ## Bonus temporales de cartas tácticas activas.
-## En runtime SIEMPRE contienen instancias TacticBonus: `add_bonus` convierte los
-## Dictionaries legacy y `BattleFrontSerializer._restore_bonuses` reconstruye
-## TacticBonus al cargar. Aun así el Array se declara SIN TIPO a propósito: hay
-## código (y tests) que asignan un array de Dictionaries directamente a estos
-## campos —p.ej. test_battle_front_serializer, que valida el saneado de la ruta
-## legacy—. `CombatMath.as_tactic_bonus()` garantiza acceso tipado en cada operación, así
-## que ambos formatos conviven de forma segura.
-var attacker_bonuses: Array = []
-var defender_bonuses: Array = []
+var attacker_bonuses: Array[TacticBonus] = []
+var defender_bonuses: Array[TacticBonus] = []
 
 ## Estado
 var is_resolved: bool = false
@@ -224,16 +217,9 @@ func assign_troop(troop: Troop, side: BattleFront.Side) -> void:
 
 
 ## Añade un bonus a un bando (de carta táctica, evento, edificio, etc.).
-## Acepta un TacticBonus o un Dictionary (compatibilidad legacy para tests y
-## código existente). Los Dictionaries se convierten internamente a TacticBonus.
 ## Emite `bonuses_changed` para que UI y visuales puedan refrescar.
-func add_bonus(side: BattleFront.Side, bonus: Variant) -> void:
-	var typed_bonus: TacticBonus
-	if bonus is TacticBonus:
-		typed_bonus = bonus
-	else:
-		typed_bonus = TacticBonus.from_dict(bonus as Dictionary)
-	_bonuses_of(side).append(typed_bonus)
+func add_bonus(side: BattleFront.Side, bonus: TacticBonus) -> void:
+	_bonuses_of(side).append(bonus)
 	bonuses_changed.emit(side)
 
 
@@ -335,7 +321,7 @@ func _troops_of(side: BattleFront.Side) -> Array[Troop]:
 	return attacker_troops if side == BattleFront.Side.ATTACKER else defender_troops
 
 
-func _bonuses_of(side: BattleFront.Side) -> Array:
+func _bonuses_of(side: BattleFront.Side) -> Array[TacticBonus]:
 	return attacker_bonuses if side == BattleFront.Side.ATTACKER else defender_bonuses
 
 

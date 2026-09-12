@@ -106,45 +106,33 @@ static func _restore_troops(keys:Array) -> Array[Troop]:
 	return out
 
 
-## Convierte cada bonus (TacticBonus o Dictionary) a un Dictionary JSON-safe.
-## Los TacticBonus se serialerizan campo a campo; los Dictionaries legacy
-## se sanitizan igual que antes (convirtiendo Resources a paths).
-static func _sanitize_bonuses(bonuses:Array) -> Array:
+## Convierte cada TacticBonus a un Dictionary JSON-safe, campo a campo.
+static func _sanitize_bonuses(bonuses:Array[TacticBonus]) -> Array:
 	var out:Array = []
-	for raw in bonuses:
+	for b in bonuses:
 		var clean:Dictionary = {}
-		if raw is TacticBonus:
-			var b := raw as TacticBonus
-			clean["tactic_name"]              = b.tactic_name
-			clean["troop_name"]               = b.troop_name
-			clean["troop_type"]               = b.troop_type
-			clean["troop_types"]              = b.troop_types.duplicate()
-			clean["attack"]                   = b.attack
-			clean["attack_percent"]           = b.attack_percent
-			clean["attack_per_troop"]         = b.attack_per_troop
-			clean["attack_percent_per_type"]  = b.attack_percent_per_type
-			clean["attack_biome_modifier"]    = b.attack_biome_modifier
-			clean["defense"]                  = b.defense
-			clean["defense_percent"]          = b.defense_percent
-			clean["defense_per_troop"]        = b.defense_per_troop
-			clean["defense_percent_per_type"] = b.defense_percent_per_type
-			clean["defense_biome_modifier"]   = b.defense_biome_modifier
-			clean["duration"]                 = b.duration
-		elif raw is Dictionary:
-			var d := raw as Dictionary
-			for key in d.keys():
-				var v = d[key]
-				if v is Resource:
-					clean[key] = (v as Resource).resource_path
-				else:
-					clean[key] = v
+		clean["tactic_name"]              = b.tactic_name
+		clean["troop_name"]               = b.troop_name
+		clean["troop_type"]               = b.troop_type
+		clean["troop_types"]              = b.troop_types.duplicate()
+		clean["attack"]                   = b.attack
+		clean["attack_percent"]           = b.attack_percent
+		clean["attack_per_troop"]         = b.attack_per_troop
+		clean["attack_percent_per_type"]  = b.attack_percent_per_type
+		clean["attack_biome_modifier"]    = b.attack_biome_modifier
+		clean["defense"]                  = b.defense
+		clean["defense_percent"]          = b.defense_percent
+		clean["defense_per_troop"]        = b.defense_per_troop
+		clean["defense_percent_per_type"] = b.defense_percent_per_type
+		clean["defense_biome_modifier"]   = b.defense_biome_modifier
+		clean["duration"]                 = b.duration
 		out.append(clean)
 	return out
 
 
 ## Restaura los bonuses desde datos serializados como instancias TacticBonus.
-static func _restore_bonuses(data:Array) -> Array:
-	var out:Array = []
+static func _restore_bonuses(data:Array) -> Array[TacticBonus]:
+	var out:Array[TacticBonus] = []
 	for entry in data:
 		if entry is Dictionary:
 			out.append(TacticBonus.from_dict(entry as Dictionary))

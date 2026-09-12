@@ -205,20 +205,20 @@ func test_defender_wins_with_negative_marker() -> void:
 
 func test_flat_attack_bonus() -> void:
 	var base_pressure := front.get_pressure(BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 5.0, "duration": 2 })
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({ "attack": 5.0, "duration": 2 }))
 	var boosted_pressure := front.get_pressure(BattleFront.Side.ATTACKER)
 	assert_gt(boosted_pressure, base_pressure, "Bonus de ataque debe aumentar presión")
 
 
 func test_bonus_expires_after_duration() -> void:
-	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 100.0, "duration": 1 })
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({ "attack": 100.0, "duration": 1 }))
 	assert_eq(front.attacker_bonuses.size(), 1)
 	front.tick()
 	assert_eq(front.attacker_bonuses.size(), 0, "Bonus debe expirar tras 1 turno")
 
 
 func test_permanent_bonus_persists() -> void:
-	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 5.0 })  # Sin "duration"
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({ "attack": 5.0 }))  # Sin "duration"
 	front.tick()
 	front.tick()
 	assert_eq(front.attacker_bonuses.size(), 1, "Bonus sin duración debe persistir")
@@ -283,7 +283,7 @@ func test_assigned_troops_defense_sums_only_troop_defense() -> void:
 func test_assigned_troops_stats_ignore_biome_and_bonuses() -> void:
 	# El atk total tiene bioma + bonuses; el de tropas asignadas no.
 	front.assign_troop(_create_troop(3, 0), BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 50.0 })
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({ "attack": 50.0 }))
 
 	assert_eq(front.get_assigned_troops_attack(BattleFront.Side.ATTACKER), 3,
 		"Las tropas asignadas no deben incluir bioma ni bonuses")
@@ -395,7 +395,7 @@ func test_effective_attack_does_not_modify_buildings_or_bonuses() -> void:
 	# el multiplicador de bioma. Solo el aporte de tropas pasa por ambos.
 	front.assign_troop(_create_troop(10, 0, "Cab", Troop.TroopType.CABALLERIA), BattleFront.Side.ATTACKER)
 	front.assign_troop(_create_troop(1, 0, "Dis", Troop.TroopType.A_DISTANCIA), BattleFront.Side.DEFENDER)
-	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 5.0 })
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({ "attack": 5.0 }))
 
 	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	# Tropas: 10 × 1.5 (efectividad) × 1.2 (bioma) = 18; bonus plano: +5 → 23
@@ -525,7 +525,7 @@ func test_biome_does_not_scale_flat_bonus() -> void:
 	BattleFront.clear_active_instances()
 	front = _make_front(Tile.biome_type.Tundra, Tile.biome_type.Mountain)
 	front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 100.0 })
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({ "attack": 100.0 }))
 
 	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	# Tropas: 10 × 0.6 = 6;  bonus plano: 100 → total = 106
@@ -587,7 +587,7 @@ func test_combat_multiplier_does_not_affect_flat_bonus() -> void:
 	# tacticos planos siguen al 100%. Verificamos con un bonus de +100 ATK.
 	atk_empire.combat_multiplier = 0.1  # Peor caso
 	front.assign_troop(_create_troop(10, 0), BattleFront.Side.ATTACKER)
-	front.add_bonus(BattleFront.Side.ATTACKER, { "attack": 100.0 })
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({ "attack": 100.0 }))
 
 	var atk := front.get_total_attack(BattleFront.Side.ATTACKER)
 	# Tropas: 10 × 1.20 × 0.1 = 1.2;  bonus plano: 100 → total = 101.2

@@ -298,16 +298,16 @@ func test_manager_tracks_one_visual_per_front() -> void:
 
 # --- Tests del indicador 3D filtrado al bando del jugador ---
 
-func _make_tactic_bonus() -> Dictionary:
+func _make_tactic_bonus() -> TacticBonus:
 	# Bonus dict mínimo con tactic_name (el filtro de "es táctica" se basa en
 	# esa clave). Suficiente para los tests del indicador.
-	return {
+	return TacticBonus.from_dict({
 		"tactic_name": "TestTactic",
 		"troop_types": [Troop.TroopType.CABALLERIA],
 		"attack_percent_per_type": 20.0,
 		"attack_biome_modifier": 1.0,
 		"defense_biome_modifier": 1.0,
-	}
+	})
 
 
 func _setup_visual_with_player(player_empire_local: Empire) -> Dictionary:
@@ -438,7 +438,7 @@ func test_tactic_indicator_ignores_non_tactic_bonuses() -> void:
 	var front: BattleFront = setup["front"]
 	var visual: BattleFrontVisual = setup["visual"]
 
-	front.add_bonus(BattleFront.Side.ATTACKER, {"attack": 10.0})
+	front.add_bonus(BattleFront.Side.ATTACKER, TacticBonus.from_dict({"attack": 10.0}))
 	assert_false(visual.tactic_indicator_sprite.visible,
 		"Bonus plano sin tactic_name no debe contar como táctica")
 

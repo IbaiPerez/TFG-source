@@ -158,7 +158,7 @@ func _defensa_segun_el_motor(bioma: Tile.biome_type, puntos: int) -> Array:
 	var sin_tropas: Array[Troop] = []
 	var con_tropas: Array[Troop] = [
 		TestBuilders.troop().with_defense(puntos).build()]
-	var sin_bonus: Array = []
+	var sin_bonus: Array[TacticBonus] = []
 	return [
 		CombatMath.total_defense(sin_tropas, sin_bonus, mult, 1.0, float(puntos)),
 		CombatMath.total_defense(con_tropas, sin_bonus, mult, 1.0, 0.0),

@@ -1,4 +1,6 @@
 extends GutTest
+
+
 ## Tests de BattleFrontSerializer.
 
 
@@ -78,23 +80,6 @@ func test_to_dict_serializes_troops_by_resource_path():
 
 	var d := BattleFrontSerializer.to_dict(front)
 	assert_eq(d["attacker_troops"].size(), 2)
-
-
-func test_to_dict_sanitizes_resource_in_bonuses():
-	var front := BattleFront.new(atk_tile, def_tile, atk_emp, def_emp)
-	# Bonus que mete un Resource bajo una clave: el serializer debe
-	# guardarlo como path (string), no como objeto.
-	var fake_card := Card.new()
-	fake_card.id = "tactic_x"
-	front.attacker_bonuses = [
-		{ "tactic_name": "Test Tactic", "attack": 5.0, "card_ref": fake_card }
-	]
-
-	var d := BattleFrontSerializer.to_dict(front)
-	assert_eq(d["attacker_bonuses"].size(), 1)
-	# El Resource sin resource_path queda como "" pero NO como objeto Card.
-	var entry:Dictionary = d["attacker_bonuses"][0]
-	assert_typeof(entry["card_ref"], TYPE_STRING)
 
 
 func test_from_dict_returns_null_when_tiles_not_in_world():
