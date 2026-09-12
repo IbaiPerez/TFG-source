@@ -16,22 +16,16 @@ func _init():
 	]
 
 	# Opcion 1: sufrir el robo
-	var suffer := TurnEventChoice.new()
-	suffer.label = tr("EVT_BANDITS_CH1_LABEL")
-	suffer.description = tr("EVT_BANDITS_CH1_DESC")
-	suffer.effects = [
+	var suffer := make_choice("EVT_BANDITS_CH1_LABEL", "EVT_BANDITS_CH1_DESC", [
 		ScaledStatModifierEffect.new(
 			"bandits_gold", "EVT_BANDITS_TITLE",
 			StatModifier.StatType.FLAT_GOLD,
 			-8.0, -0.3, 0.0, 3
 		)
-	]
+	])
 
 	# Opcion 2: pagar oro para evitarlo
-	var pay := TurnEventChoice.new()
-	pay.label = tr("EVT_BANDITS_CH2_LABEL")
-	pay.description = tr("EVT_BANDITS_CH2_DESC")
-	pay.cost = TurnEventCost.new(30.0, 0.6, 0.0)
-	pay.effects = []
+	var pay := make_choice("EVT_BANDITS_CH2_LABEL", "EVT_BANDITS_CH2_DESC",
+		[], TurnEventCost.new(30.0, 0.6, 0.0))
 
 	choices = [suffer, pay]

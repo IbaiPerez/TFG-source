@@ -14,10 +14,7 @@ func _init():
 		HasAdjacentUncontrolledCondition.new()
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_SPIRIT_PACTO_CH1_LABEL")
-	choice.description = tr("EVT_SPIRIT_PACTO_CH1_DESC")
-	choice.effects = [
+	var choice := make_choice("EVT_SPIRIT_PACTO_CH1_LABEL", "EVT_SPIRIT_PACTO_CH1_DESC", [
 		ColonizeAdjacentEffect.new(1)  # 1 = Forest, prioriza bosque
-	]
+	])
 	choices = [choice]

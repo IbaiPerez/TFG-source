@@ -14,14 +14,11 @@ func _init():
 		GoldGenerationCondition.new(10),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_TRADE_WINDS_CH1_LABEL")
-	choice.description = tr("EVT_TRADE_WINDS_CH1_DESC")
-	choice.effects = [
+	var choice := make_choice("EVT_TRADE_WINDS_CH1_LABEL", "EVT_TRADE_WINDS_CH1_DESC", [
 		ScaledStatModifierEffect.new(
 			"trade_winds_gold", "EVT_TRADE_WINDS_TITLE",
 			StatModifier.StatType.PERCENT_GOLD,
 			15.0, 0.3, 0.0, 3
 		)
-	]
+	])
 	choices = [choice]

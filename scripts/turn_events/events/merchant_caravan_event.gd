@@ -14,8 +14,6 @@ func _init():
 		ControlledTilesCondition.new(3),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_MERCHANT_CARAVAN_CH1_LABEL")
-	choice.description = tr("EVT_MERCHANT_CARAVAN_CH1_DESC")
-	choice.effects = [ScaledGoldEffect.new(20.0, 0.8, 0.05)]
+	var choice := make_choice("EVT_MERCHANT_CARAVAN_CH1_LABEL", "EVT_MERCHANT_CARAVAN_CH1_DESC",
+		[ScaledGoldEffect.new(20.0, 0.8, 0.05)])
 	choices = [choice]

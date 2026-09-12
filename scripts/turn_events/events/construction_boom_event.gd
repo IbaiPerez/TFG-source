@@ -18,11 +18,8 @@ func _init():
 	]
 
 	# Eleccion: recibir la carta de construir
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_CONSTRUCTION_BOOM_CH1_LABEL")
-	choice.description = tr("EVT_CONSTRUCTION_BOOM_CH1_DESC")
-	choice.effects = [
+	var choice := make_choice("EVT_CONSTRUCTION_BOOM_CH1_LABEL", "EVT_CONSTRUCTION_BOOM_CH1_DESC", [
 		AddCardEffect.new(BUILD_CARD),
 		AddToCardPoolEffect.new(BUILD_CARD, 10.0, -0.2, 3.0),
-	]
+	])
 	choices = [choice]

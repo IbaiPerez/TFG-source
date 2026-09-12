@@ -15,15 +15,12 @@ func _init():
 	]
 
 	# Unica opcion: sufrir la plaga
-	var suffer := TurnEventChoice.new()
-	suffer.label = tr("EVT_LOCUST_CH1_LABEL")
-	suffer.description = tr("EVT_LOCUST_CH1_DESC")
-	suffer.effects = [
+	var suffer := make_choice("EVT_LOCUST_CH1_LABEL", "EVT_LOCUST_CH1_DESC", [
 		ScaledStatModifierEffect.new(
 			"locust_plague_food", "EVT_LOCUST_TITLE",
 			StatModifier.StatType.PERCENT_FOOD,
 			-20.0, 0.0, 0.0, 4
 		)
-	]
+	])
 
 	choices = [suffer]

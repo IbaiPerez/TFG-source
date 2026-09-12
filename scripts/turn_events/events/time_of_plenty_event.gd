@@ -14,14 +14,11 @@ func _init():
 		FoodThresholdCondition.new(5),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_TIME_OF_PLENTY_CH1_LABEL")
-	choice.description = tr("EVT_TIME_OF_PLENTY_CH1_DESC")
-	choice.effects = [
+	var choice := make_choice("EVT_TIME_OF_PLENTY_CH1_LABEL", "EVT_TIME_OF_PLENTY_CH1_DESC", [
 		ScaledStatModifierEffect.new(
 			"time_of_plenty_food", "EVT_TIME_OF_PLENTY_TITLE",
 			StatModifier.StatType.PERCENT_FOOD,
 			20.0, 0.3, 0.0, 3
 		)
-	]
+	])
 	choices = [choice]

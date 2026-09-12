@@ -15,10 +15,7 @@ func _init():
 	]
 
 	# Opcion 1: implementar la reforma
-	var reform := TurnEventChoice.new()
-	reform.label = tr("EVT_AGRARIAN_CH1_LABEL")
-	reform.description = tr("EVT_AGRARIAN_CH1_DESC")
-	reform.effects = [
+	var reform := make_choice("EVT_AGRARIAN_CH1_LABEL", "EVT_AGRARIAN_CH1_DESC", [
 		ScaledStatModifierEffect.new(
 			"agrarian_reform_gold", "EVT_AGRARIAN_TITLE",
 			StatModifier.StatType.PERCENT_GOLD,
@@ -29,12 +26,9 @@ func _init():
 			StatModifier.StatType.PERCENT_FOOD,
 			20.0, 0.3, 0.0, 4
 		),
-	]
+	])
 
 	# Opcion 2: rechazar
-	var decline := TurnEventChoice.new()
-	decline.label = tr("EVT_AGRARIAN_CH2_LABEL")
-	decline.description = tr("EVT_AGRARIAN_CH2_DESC")
-	decline.effects = []
+	var decline := make_choice("EVT_AGRARIAN_CH2_LABEL", "EVT_AGRARIAN_CH2_DESC", [])
 
 	choices = [reform, decline]

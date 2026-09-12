@@ -15,10 +15,7 @@ func _init():
 	]
 
 	# Opcion 1: aceptar el intercambio
-	var trade := TurnEventChoice.new()
-	trade.label = tr("EVT_CATTLE_FAIR_CH1_LABEL")
-	trade.description = tr("EVT_CATTLE_FAIR_CH1_DESC")
-	trade.effects = [
+	var trade := make_choice("EVT_CATTLE_FAIR_CH1_LABEL", "EVT_CATTLE_FAIR_CH1_DESC", [
 		ScaledStatModifierEffect.new(
 			"cattle_fair_food", "EVT_CATTLE_FAIR_TITLE",
 			StatModifier.StatType.FLAT_FOOD,
@@ -29,12 +26,9 @@ func _init():
 			StatModifier.StatType.PERCENT_GOLD,
 			15.0, 0.2, 0.0, 3
 		),
-	]
+	])
 
 	# Opcion 2: rechazar
-	var decline := TurnEventChoice.new()
-	decline.label = tr("EVT_CATTLE_FAIR_CH2_LABEL")
-	decline.description = tr("EVT_CATTLE_FAIR_CH2_DESC")
-	decline.effects = []
+	var decline := make_choice("EVT_CATTLE_FAIR_CH2_LABEL", "EVT_CATTLE_FAIR_CH2_DESC", [])
 
 	choices = [trade, decline]

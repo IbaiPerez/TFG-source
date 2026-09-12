@@ -14,15 +14,12 @@ func _init():
 		ControlledTilesCondition.new(10),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_WISE_TRAVELERS_CH1_LABEL")
-	choice.description = tr("EVT_WISE_TRAVELERS_CH1_DESC")
-	choice.effects = [
+	var choice := make_choice("EVT_WISE_TRAVELERS_CH1_LABEL", "EVT_WISE_TRAVELERS_CH1_DESC", [
 		ApplyModifierEffect.new(
 			StatModifier.new(
 				"wise_travelers_cards", "EVT_WISE_TRAVELERS_TITLE",
 				StatModifier.StatType.CARDS_PER_TURN, 1.0, -1
 			)
 		)
-	]
+	])
 	choices = [choice]

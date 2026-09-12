@@ -13,13 +13,11 @@ func _init():
 		TurnNumberCondition.new(6),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_TRAVELING_ARTISANS_CH1_LABEL")
-	choice.description = tr("EVT_TRAVELING_ARTISANS_CH1_DESC")
-	choice.effects = [
+	var choice := make_choice("EVT_TRAVELING_ARTISANS_CH1_LABEL", "EVT_TRAVELING_ARTISANS_CH1_DESC",
+		[
 		ScaledBuildCostModifierEffect.new(
 			"artisans_discount", "EVT_TRAVELING_ARTISANS_TITLE",
 			15.0, 0.0, 4
 		)
-	]
+	])
 	choices = [choice]

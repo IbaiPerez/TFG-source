@@ -16,8 +16,6 @@ func _init():
 		ControlledTilesCondition.new(3, 1)
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_UNLOCK_SANTUARIO_CH1_LABEL")
-	choice.description = tr("EVT_UNLOCK_SANTUARIO_CH1_DESC")
-	choice.effects = [AddCardEffect.new(BUILD_SANTUARIO_CARD)]
+	var choice := make_choice("EVT_UNLOCK_SANTUARIO_CH1_LABEL", "EVT_UNLOCK_SANTUARIO_CH1_DESC",
+		[AddCardEffect.new(BUILD_SANTUARIO_CARD)])
 	choices = [choice]

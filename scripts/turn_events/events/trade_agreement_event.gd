@@ -15,23 +15,16 @@ func _init():
 	]
 
 	# Opcion 1: invertir en el tratado
-	var invest := TurnEventChoice.new()
-	invest.label = tr("EVT_TRADE_AGREEMENT_CH1_LABEL")
-	invest.description = tr("EVT_TRADE_AGREEMENT_CH1_DESC")
-	invest.cost = TurnEventCost.new(60.0, 1.0, 0.0)
-	invest.effects = [
+	var invest := make_choice("EVT_TRADE_AGREEMENT_CH1_LABEL", "EVT_TRADE_AGREEMENT_CH1_DESC", [
 		ApplyModifierEffect.new(
 			StatModifier.new(
 				"trade_agreement_gold", "EVT_TRADE_AGREEMENT_TITLE",
 				StatModifier.StatType.PERCENT_GOLD, 10.0, -1
 			)
 		)
-	]
+	], TurnEventCost.new(60.0, 1.0, 0.0))
 
 	# Opcion 2: rechazar
-	var decline := TurnEventChoice.new()
-	decline.label = tr("EVT_TRADE_AGREEMENT_CH2_LABEL")
-	decline.description = tr("EVT_TRADE_AGREEMENT_CH2_DESC")
-	decline.effects = []
+	var decline := make_choice("EVT_TRADE_AGREEMENT_CH2_LABEL", "EVT_TRADE_AGREEMENT_CH2_DESC", [])
 
 	choices = [invest, decline]

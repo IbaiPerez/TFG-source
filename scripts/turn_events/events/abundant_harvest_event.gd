@@ -13,8 +13,6 @@ func _init():
 		TurnNumberCondition.new(5),
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_ABUNDANT_CH1_LABEL")
-	choice.description = tr("EVT_ABUNDANT_CH1_DESC")
-	choice.effects = [ScaledFoodEffect.new(15.0, 0.5, 0.08)]
+	var choice := make_choice("EVT_ABUNDANT_CH1_LABEL", "EVT_ABUNDANT_CH1_DESC",
+		[ScaledFoodEffect.new(15.0, 0.5, 0.08)])
 	choices = [choice]

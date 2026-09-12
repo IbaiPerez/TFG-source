@@ -16,16 +16,10 @@ func _init():
 	]
 
 	# Opcion 1: contratar mercenarios
-	var hire := TurnEventChoice.new()
-	hire.label = tr("EVT_MERCENARIES_CH1_LABEL")
-	hire.description = tr("EVT_MERCENARIES_CH1_DESC")
-	hire.cost = TurnEventCost.new(50.0, 1.2, 0.0)
-	hire.effects = [AddCardEffect.new(COLONIZE_CARD)]
+	var hire := make_choice("EVT_MERCENARIES_CH1_LABEL", "EVT_MERCENARIES_CH1_DESC",
+		[AddCardEffect.new(COLONIZE_CARD)], TurnEventCost.new(50.0, 1.2, 0.0))
 
 	# Opcion 2: rechazar
-	var decline := TurnEventChoice.new()
-	decline.label = tr("EVT_MERCENARIES_CH2_LABEL")
-	decline.description = tr("EVT_MERCENARIES_CH2_DESC")
-	decline.effects = []
+	var decline := make_choice("EVT_MERCENARIES_CH2_LABEL", "EVT_MERCENARIES_CH2_DESC", [])
 
 	choices = [hire, decline]

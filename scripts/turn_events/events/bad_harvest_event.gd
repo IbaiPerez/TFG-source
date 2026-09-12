@@ -15,22 +15,16 @@ func _init():
 	]
 
 	# Opcion 1: sufrir la penalizacion
-	var suffer := TurnEventChoice.new()
-	suffer.label = tr("EVT_BAD_HARVEST_CH1_LABEL")
-	suffer.description = tr("EVT_BAD_HARVEST_CH1_DESC")
-	suffer.effects = [
+	var suffer := make_choice("EVT_BAD_HARVEST_CH1_LABEL", "EVT_BAD_HARVEST_CH1_DESC", [
 		ScaledStatModifierEffect.new(
 			"bad_harvest_food", "EVT_BAD_HARVEST_TITLE",
 			StatModifier.StatType.FLAT_FOOD,
 			-10.0, -0.3, 0.0, 3
 		)
-	]
+	])
 
 	# Opcion 2: pagar oro para evitarlo
-	var pay := TurnEventChoice.new()
-	pay.label = tr("EVT_BAD_HARVEST_CH2_LABEL")
-	pay.description = tr("EVT_BAD_HARVEST_CH2_DESC")
-	pay.cost = TurnEventCost.new(25.0, 0.5, 0.0)
-	pay.effects = []
+	var pay := make_choice("EVT_BAD_HARVEST_CH2_LABEL", "EVT_BAD_HARVEST_CH2_DESC",
+		[], TurnEventCost.new(25.0, 0.5, 0.0))
 
 	choices = [suffer, pay]

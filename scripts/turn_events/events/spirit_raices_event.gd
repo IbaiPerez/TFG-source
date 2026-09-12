@@ -12,13 +12,10 @@ func _init():
 		HasBuildingCondition.new("BLD_SANTUARIO_NAME")
 	]
 
-	var choice := TurnEventChoice.new()
-	choice.label = tr("EVT_SPIRIT_RAICES_CH1_LABEL")
-	choice.description = tr("EVT_SPIRIT_RAICES_CH1_DESC")
-	choice.effects = [
+	var choice := make_choice("EVT_SPIRIT_RAICES_CH1_LABEL", "EVT_SPIRIT_RAICES_CH1_DESC", [
 		ScaledBuildCostModifierEffect.new(
 			"spirit_raices", "EVT_SPIRIT_RAICES_TITLE",
 			15.0, 0.0, 3
 		)
-	]
+	])
 	choices = [choice]

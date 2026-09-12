@@ -15,15 +15,12 @@ func _init():
 	]
 
 	# Unica opcion: sufrir la sequia
-	var suffer := TurnEventChoice.new()
-	suffer.label = tr("EVT_DROUGHT_CH1_LABEL")
-	suffer.description = tr("EVT_DROUGHT_CH1_DESC")
-	suffer.effects = [
+	var suffer := make_choice("EVT_DROUGHT_CH1_LABEL", "EVT_DROUGHT_CH1_DESC", [
 		ScaledStatModifierEffect.new(
 			"drought_food", "EVT_DROUGHT_TITLE",
 			StatModifier.StatType.PERCENT_FOOD,
 			-15.0, -0.2, 0.0, 5
 		)
-	]
+	])
 
 	choices = [suffer]

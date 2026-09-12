@@ -15,21 +15,15 @@ func _init():
 	]
 
 	# Opcion 1: sufrir el encarecimiento
-	var suffer := TurnEventChoice.new()
-	suffer.label = tr("EVT_MATERIAL_CRISIS_CH1_LABEL")
-	suffer.description = tr("EVT_MATERIAL_CRISIS_CH1_DESC")
-	suffer.effects = [
+	var suffer := make_choice("EVT_MATERIAL_CRISIS_CH1_LABEL", "EVT_MATERIAL_CRISIS_CH1_DESC", [
 		ScaledBuildCostModifierEffect.new(
 			"material_crisis_cost", "EVT_MATERIAL_CRISIS_TITLE",
 			-25.0, 0.0, 4
 		)
-	]
+	])
 
 	# Opcion 2: pagar oro para evitarlo
-	var pay := TurnEventChoice.new()
-	pay.label = tr("EVT_MATERIAL_CRISIS_CH2_LABEL")
-	pay.description = tr("EVT_MATERIAL_CRISIS_CH2_DESC")
-	pay.cost = TurnEventCost.new(40.0, 0.8, 0.0)
-	pay.effects = []
+	var pay := make_choice("EVT_MATERIAL_CRISIS_CH2_LABEL", "EVT_MATERIAL_CRISIS_CH2_DESC",
+		[], TurnEventCost.new(40.0, 0.8, 0.0))
 
 	choices = [suffer, pay]
