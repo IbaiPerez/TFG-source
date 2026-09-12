@@ -25,10 +25,15 @@ func before_each() -> void:
 
 func after_each() -> void:
 	TestWorld.reset()
-	# Como en test_harness_no_double_generation: el arnés arrastra warnings del
-	# motor de física al instanciar colliders headless y del fallback de
-	# EmpireCreator con radios bajos. Se consumen para que GUT no los cuente como
-	# "Unexpected Errors"; lo que este test afirma está en sus aserciones.
+
+
+## Como en test_harness_no_double_generation: el arnés arrastra warnings del
+## motor de física al instanciar colliders headless y del fallback de
+## EmpireCreator con radios bajos. Se consumen para que GUT no los cuente como
+## "Unexpected Errors"; lo que estos tests afirman está en sus aserciones.
+## Tiene que llamarse DENTRO del test: GUT decide el fallo por errores justo al
+## terminar el cuerpo, antes de after_each.
+func _consume_bootstrap_warnings() -> void:
 	for e in get_errors():
 		e.handled = true
 
@@ -83,6 +88,7 @@ func test_una_partida_corta_arranca_juega_y_termina() -> void:
 	for s in h.snapshots:
 		assert_gte(int(s["economy"]["total_gold"]), 0,
 			"el oro no puede ser negativo (ronda %s, %s)" % [s.get("round"), s.get("ai_label")])
+	_consume_bootstrap_warnings()
 
 
 func test_la_misma_semilla_reproduce_la_misma_partida() -> void:
@@ -96,3 +102,4 @@ func test_la_misma_semilla_reproduce_la_misma_partida() -> void:
 	assert_eq(h2.final_tiles_a, h1.final_tiles_a)
 	assert_eq(h2.final_tiles_b, h1.final_tiles_b)
 	assert_eq(h2.victory_condition, h1.victory_condition)
+	_consume_bootstrap_warnings()

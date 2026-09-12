@@ -223,3 +223,11 @@ func test_el_fin_de_turno_del_jugador_se_ignora_fuera_de_su_turno() -> void:
 	_tm.on_player_hand_discarded()
 	assert_eq(_tm.current_index, 1, "no cambia nada")
 	assert_eq(_b.starts, 1)
+	# El aviso que emite TurnManager es justo lo que se está probando: GUT lo
+	# contaría como "Unexpected Error" si no se da por consumido.
+	var avisos := 0
+	for e in get_errors():
+		if e.code.contains("fuera del turno del jugador"):
+			e.handled = true
+			avisos += 1
+	assert_eq(avisos, 1, "on_player_turn_ended avisa; on_player_hand_discarded calla")
