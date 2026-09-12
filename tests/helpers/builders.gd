@@ -328,3 +328,15 @@ static func location(type: Tile.location_type, food_consumption := 0,
 	loc.food_consumption = food_consumption
 	loc.max_building = max_building
 	return loc
+
+
+# ---------------------------------------------------------------------------
+# NaturalResource (recurso suelto)
+# ---------------------------------------------------------------------------
+
+static func resource(gold: int, food: int, name := "") -> NaturalResource:
+	var r := NaturalResource.new()
+	r.name = name
+	r.gold_produced = gold
+	r.food_produced = food
+	return r

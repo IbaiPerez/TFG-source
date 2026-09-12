@@ -44,12 +44,12 @@ func test_jugar_contra_la_ia() -> void:
 	# —que son índices dentro de una enumeración— deja de significar nada. Se
 	# detectó porque tras "colonizar" una casilla concreta resultaban ser otras
 	# dos las controladas.
-	var semilla := _int_env("PLAY_SEED", PLAY_SEED)
+	var semilla := SimEnv.int_env("PLAY_SEED", PLAY_SEED)
 	seed(semilla)
 
 	var h := GameSimHarness.new()
 	h.run_id = 0
-	h.max_rounds = _int_env("PLAY_MAX_ROUNDS", PLAY_MAX_ROUNDS)
+	h.max_rounds = SimEnv.int_env("PLAY_MAX_ROUNDS", PLAY_MAX_ROUNDS)
 	h.rng_master = RandomNumberGenerator.new()
 	h.rng_master.seed = semilla
 	h.capture_snapshots = false
@@ -130,8 +130,3 @@ func _informar(h: GameSimHarness, pol: ManualPolicy) -> void:
 	if f != null:
 		f.store_string(JSON.stringify(c, "  "))
 		f.close()
-
-
-func _int_env(name: String, fallback: int) -> int:
-	var v := OS.get_environment(name)
-	return int(v) if v != "" else fallback

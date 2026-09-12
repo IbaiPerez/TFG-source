@@ -8,12 +8,7 @@ var stats: Stats
 
 
 func _create_tile(biome: Tile.biome_type, ctrl: Empire, pos: Vector3) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = biome
-	tile.natural_resource = NaturalResource.new()
-	tile.buildings = []
-	tile.controller = ctrl
+	var tile := TestBuilders.tile().with_biome(biome).with_resource(0, 0).with_controller(ctrl).build()
 	tile.position = pos
 	return tile
 

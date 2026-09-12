@@ -22,15 +22,9 @@ func after_all() -> void:
 func _create_troop(atk: int, def: int, gold_cost: int = 20,
 		maint_gold: int = 2, maint_food: int = 1,
 		troop_type: int = Troop.TroopType.INFANTERIA_LIGERA) -> Troop:
-	var troop := Troop.new()
-	troop.name = "Test Troop"
-	troop.type = troop_type
-	troop.attack = atk
-	troop.defense = def
-	troop.recruitment_cost_gold = gold_cost
-	troop.maintenance_gold = maint_gold
-	troop.maintenance_food = maint_food
-	return troop
+	return TestBuilders.troop().with_name("Test Troop").with_type(troop_type) \
+		.with_attack(atk).with_defense(def).with_recruit_cost(gold_cost) \
+		.with_maintenance(maint_gold, maint_food).build()
 
 
 func before_each() -> void:

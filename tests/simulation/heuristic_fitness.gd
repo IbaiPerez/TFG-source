@@ -103,17 +103,6 @@ func evaluate_detailed(candidate: HeuristicWeights, seed_val: int = -1, games: i
 	}
 	_cache[key] = result
 	return result
-
-
-func _media(xs: Array) -> float:
-	if xs.is_empty():
-		return 0.0
-	var t := 0.0
-	for x in xs:
-		t += float(x)
-	return t / float(xs.size())
-
-
 ## Intervalo de confianza al 95 % de una proporción, por el método de WILSON.
 ##
 ## No es Wald (`p ± 1.96·√(p(1−p)/n)`) a propósito, y el motivo se vio corriendo
@@ -170,7 +159,7 @@ func _matchup(cand_cfg: AIConfig, opp_cfg: AIConfig, g: int, s: int) -> Dictiona
 		"wins": wins, "decisive": decisive, "winrate": wr,
 		"ci95_lo": ci.x, "ci95_hi": ci.y,
 		"label": _label(opp_cfg),
-		"avg_rounds": _media(rondas),
+		"avg_rounds": SimEnv.mean(rondas),
 	}
 
 

@@ -18,37 +18,17 @@ const BUILDING_PANEL_SCENE := preload("uid://d4kc0x1wj7vrm")
 # ============================================================
 
 func _make_resource(p_name: String = "Wheat") -> NaturalResource:
-	var res := NaturalResource.new()
-	res.name = p_name
-	res.gold_produced = 1
-	res.food_produced = 1
-	return res
+	return TestBuilders.resource(1, 1, p_name)
 
 
 func _make_location() -> LocationType:
-	var loc := LocationType.new()
-	loc.type = Tile.location_type.Village
-	loc.max_building = 5
-	loc.food_consumption = 0
-	return loc
-
-
-func _make_mesh_data() -> TileMeshData:
-	var md := TileMeshData.new()
-	md.color = Color.GREEN
-	md.type = Tile.biome_type.Grassland
-	return md
+	return TestBuilders.location(Tile.location_type.Village, 0, 5)
 
 
 func _make_tile() -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = _make_mesh_data()
-	tile.natural_resource = _make_resource()
-	tile.location = _make_location()
-	tile.max_buildings = 5
-	tile.food_production = 1
-	tile.gold_production = 1
-	tile.buildings = []
+	var tile := TestBuilders.tile().with_resource(1, 1) \
+		.with_location(Tile.location_type.Village, 5, 0).build()
+	tile.natural_resource.name = "Wheat"
 	autofree(tile)
 	return tile
 
@@ -60,9 +40,7 @@ func _make_building(p_cost:int) -> Building:
 
 
 func _make_stats(p_gold:int) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	return s
+	return TestBuilders.stats().with_gold(p_gold).build()
 
 
 func _spawn_panel(tile:Tile, stats:Stats) -> BuildingPanel:

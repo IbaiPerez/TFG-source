@@ -27,15 +27,8 @@ func _make_stats(p_gold: int = 100, p_food: int = 10) -> Stats:
 
 
 func _make_tile(empire: Empire = null, loc_type: int = Tile.location_type.Village) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = Tile.biome_type.Grassland
-	tile.natural_resource = NaturalResource.new()
-	tile.buildings = []
-	tile.location = LocationType.new()
-	tile.location.type = loc_type
-	tile.controller = empire
-	tile.neighbors = []
+	var tile := TestBuilders.tile().with_resource(0, 0).with_location(loc_type, 0, 0) \
+		.with_controller(empire).build()
 	autofree(tile)
 	return tile
 

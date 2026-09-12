@@ -11,18 +11,11 @@ extends GutTest
 # ============================================================
 
 func _make_resource(gold: int, food: int) -> NaturalResource:
-	var r := NaturalResource.new()
-	r.gold_produced = gold
-	r.food_produced = food
-	return r
+	return TestBuilders.resource(gold, food)
 
 
 func _make_location() -> LocationType:
-	var lt := LocationType.new()
-	lt.type = Tile.location_type.Village
-	lt.max_building = 1
-	lt.food_consumption = 0
-	return lt
+	return TestBuilders.location(Tile.location_type.Village, 0, 1)
 
 
 func _make_troop(p_type: int, maint_g: int, maint_f: int) -> Troop:

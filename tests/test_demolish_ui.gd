@@ -17,32 +17,20 @@ func _make_building(b_name:String = "TestBldg", cost:int = 50) -> Building:
 
 
 func _make_location(type:int, max_b:int = 3) -> LocationType:
-	var loc := LocationType.new()
-	loc.type = type
-	loc.max_building = max_b
+	var loc := TestBuilders.location(type, 0, max_b)
 	loc.color = Color.WHITE
-	loc.food_consumption = 0
 	return loc
 
 
 func _make_tile(controller:Empire, building:Building) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = Tile.biome_type.Grassland
-	tile.location = _make_location(Tile.location_type.Village, 3)
-	tile.buildings = [building] as Array[Building]
-	tile.controller = controller
-	tile.recalculate_modifiers()
+	var tile := TestBuilders.tile().with_resource(0, 0).with_location(Tile.location_type.Village, 3, 0) \
+		.with_buildings([building]).with_controller(controller).build()
 	autofree(tile)
 	return tile
 
 
 func _make_stats(empire:Empire) -> Stats:
-	var s := Stats.new()
-	s.empire = empire
-	s.total_gold = 0
-	s.food = 0
-	return s
+	return TestBuilders.stats().with_empire(empire).with_gold(0).with_food(0).build()
 
 
 # --- BuildingCardUI: visibilidad del botón ---------------------------------

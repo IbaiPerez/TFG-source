@@ -8,24 +8,12 @@ var enemy_empire: Empire
 
 
 func _create_troop(atk: int = 3, def: int = 3, gold: int = 20) -> Troop:
-	var troop := Troop.new()
-	troop.name = "Test"
-	troop.attack = atk
-	troop.defense = def
-	troop.recruitment_cost_gold = gold
-	troop.maintenance_gold = 2
-	troop.maintenance_food = 1
-	return troop
+	return TestBuilders.troop().with_name("Test").with_attack(atk).with_defense(def) \
+		.with_recruit_cost(gold).with_maintenance(2, 1).build()
 
 
 func _create_tile(biome: Tile.biome_type, ctrl: Empire) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = biome
-	tile.natural_resource = NaturalResource.new()
-	tile.buildings = []
-	tile.controller = ctrl
-	return tile
+	return TestBuilders.tile().with_biome(biome).with_resource(0, 0).with_controller(ctrl).build()
 
 
 func before_each() -> void:

@@ -3,41 +3,21 @@ extends GutTest
 
 
 func _make_resource(p_name: String = "Iron") -> NaturalResource:
-	var res := NaturalResource.new()
-	res.name = p_name
-	res.gold_produced = 5
-	res.food_produced = 2
-	return res
+	return TestBuilders.resource(5, 2, p_name)
 
 
 func _make_location(p_type: Tile.location_type = Tile.location_type.Village,
 		p_max: int = 2) -> LocationType:
-	var loc := LocationType.new()
-	loc.type = p_type
-	loc.max_building = p_max
-	loc.food_consumption = 1
-	return loc
-
-
-func _make_mesh_data(p_biome: Tile.biome_type = Tile.biome_type.Grassland) -> TileMeshData:
-	var md := TileMeshData.new()
-	md.color = Color.GREEN
-	md.type = p_biome
-	return md
+	return TestBuilders.location(p_type, 1, p_max)
 
 
 func _make_tile(p_biome: Tile.biome_type = Tile.biome_type.Grassland,
 		p_resource_name: String = "Iron",
 		p_location_type: Tile.location_type = Tile.location_type.Village,
 		p_max_buildings: int = 2) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = _make_mesh_data(p_biome)
-	tile.natural_resource = _make_resource(p_resource_name)
-	tile.location = _make_location(p_location_type, p_max_buildings)
-	# Skip set_parameters (needs mesh children) - set values directly
-	tile.max_buildings = p_max_buildings
-	tile.food_production = tile.natural_resource.food_produced - tile.location.food_consumption
-	tile.gold_production = tile.natural_resource.gold_produced
+	var tile := TestBuilders.tile().with_biome(p_biome).with_resource(5, 2) \
+		.with_location(p_location_type, p_max_buildings, 1).build()
+	tile.natural_resource.name = p_resource_name
 	autofree(tile)
 	return tile
 
@@ -55,15 +35,7 @@ func _make_building(p_name: String = "Mine", p_cost: int = 50,
 
 
 func _make_stats(p_gold: int = 200) -> Stats:
-	var s := Stats.new()
-	s.total_gold = p_gold
-	s.gold_per_turn = 0
-	s.food = 0
-	s.draw_pile = CardPile.new()
-	s.discard_pile = CardPile.new()
-	s.played_pile = CardPile.new()
-	s.empire = Empire.new()
-	return s
+	return TestBuilders.stats().with_gold(p_gold).with_gpt(0).with_food(0).build()
 
 
 # --- Building.can_be_upgraded ---

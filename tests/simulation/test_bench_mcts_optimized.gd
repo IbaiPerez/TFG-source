@@ -44,8 +44,8 @@ func test_bench_mcts_optimized() -> void:
 	if champ == null or base == null:
 		return
 
-	var max_rounds := _int_env("BENCH_MAX_ROUNDS", MAX_ROUNDS)
-	var budget_ms := int(_float_env("BENCH_HOURS", HOURS) * 3600.0 * 1000.0)
+	var max_rounds := SimEnv.int_env("BENCH_MAX_ROUNDS", MAX_ROUNDS)
+	var budget_ms := int(SimEnv.float_env("BENCH_HOURS", HOURS) * 3600.0 * 1000.0)
 
 	# Duplicar (no mutar el recurso compartido/desplegado) y forzar límite por
 	# TIEMPO: tope de iteraciones ALTO → la búsqueda para por tiempo, no por
@@ -201,13 +201,3 @@ func _dump(champ_wins: int, decisive: int, draws: int, pairs: int,
 	if f != null:
 		f.store_string(JSON.stringify(payload, "  "))
 		f.close()
-
-
-func _int_env(name: String, fallback: int) -> int:
-	var v := OS.get_environment(name)
-	return int(v) if v != "" else fallback
-
-
-func _float_env(name: String, fallback: float) -> float:
-	var v := OS.get_environment(name)
-	return float(v) if v != "" else fallback

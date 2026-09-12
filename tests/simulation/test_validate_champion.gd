@@ -59,12 +59,12 @@ func test_validate_champion() -> void:
 
 	# ---- Pool HELD-OUT heurístico (baseline + k aleatorias frescas) -------
 	var fit := HeuristicFitness.new(self)
-	fit.n_games = SMOKE_GAMES if smoke else _int_env("VAL_GAMES", VAL_GAMES)
+	fit.n_games = SMOKE_GAMES if smoke else SimEnv.int_env("VAL_GAMES", VAL_GAMES)
 	fit.seed_master = HELDOUT_GAME_SEED
 	fit.mirror = true
 	fit.max_rounds = SMOKE_MAX_ROUNDS if smoke else MAX_ROUNDS
 	fit.opponents = HeuristicOpponents.heldout_pool(
-		HELDOUT_OPP_SEED, SMOKE_K if smoke else _int_env("HELDOUT_K", HELDOUT_K))
+		HELDOUT_OPP_SEED, SMOKE_K if smoke else SimEnv.int_env("HELDOUT_K", HELDOUT_K))
 	print("[valida] === Pool HELD-OUT heurístico: %d rivales · %d partidas/matchup · seed disjunto ===" % [
 		fit.opponents.size(), fit.n_games])
 
@@ -87,11 +87,11 @@ func test_validate_champion() -> void:
 	var mcts_report := {}
 	if OS.get_environment("INCLUDE_MCTS") != "" and not smoke:
 		var fit_m := HeuristicFitness.new(self)
-		fit_m.n_games = _int_env("MCTS_GAMES", MCTS_GAMES)
+		fit_m.n_games = SimEnv.int_env("MCTS_GAMES", MCTS_GAMES)
 		fit_m.seed_master = HELDOUT_GAME_SEED
 		fit_m.mirror = true
 		fit_m.max_rounds = MAX_ROUNDS
-		var budget := _int_env("MCTS_BUDGET_MS", MCTS_BUDGET_MS)
+		var budget := SimEnv.int_env("MCTS_BUDGET_MS", MCTS_BUDGET_MS)
 		fit_m.opponents = [HeuristicOpponents.mcts_config(budget)]
 		print("[valida] === Rival MCTS (presupuesto %d ms) · %d partidas ===" % [budget, fit_m.n_games])
 		var dc := await fit_m.evaluate_detailed(champion)
@@ -152,22 +152,8 @@ func _resumen_duracion(rondas: Array, tope_rondas: int) -> void:
 		if int(x) >= tope_rondas - 1:
 			en_tope += 1
 	print("[valida] duración: %d partidas · media %.1f · p10/p50/p90 %d/%d/%d · máx %d · en el tope %d (%.1f %%)" % [
-		n, _media(xs), _pct(xs, 0.10), _pct(xs, 0.50), _pct(xs, 0.90), int(xs[n - 1]),
+		n, SimEnv.mean(xs), _pct(xs, 0.10), _pct(xs, 0.50), _pct(xs, 0.90), int(xs[n - 1]),
 		en_tope, 100.0 * float(en_tope) / float(n)])
-
-
-func _media(xs: Array) -> float:
-	var t := 0.0
-	for x in xs:
-		t += float(x)
-	return t / float(maxi(xs.size(), 1))
-
-
 ## Percentil sobre una lista YA ordenada.
 func _pct(xs: Array, p: float) -> int:
 	return int(xs[clampi(int(p * float(xs.size())), 0, xs.size() - 1)])
-
-
-func _int_env(name: String, fallback: int) -> int:
-	var v := OS.get_environment(name)
-	return int(v) if v != "" else fallback

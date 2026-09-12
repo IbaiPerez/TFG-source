@@ -72,29 +72,29 @@ func test_two_stage() -> void:
 
 func _build_fit1(smoke: bool) -> HeuristicFitness:
 	var fit := HeuristicFitness.new(self)
-	fit.n_games = SMOKE_GAMES if smoke else _int_env("STAGE1_GAMES", STAGE1_GAMES)
+	fit.n_games = SMOKE_GAMES if smoke else SimEnv.int_env("STAGE1_GAMES", STAGE1_GAMES)
 	fit.seed_master = SEARCH_SEED
 	fit.mirror = true
 	fit.max_rounds = SMOKE_MAX_ROUNDS if smoke \
-		else _int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
+		else SimEnv.int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
 	# En smoke solo 1 rival (baseline) para que el flujo termine en segundos.
 	fit.opponents = [HeuristicOpponents.heur_config(HeuristicOpponents.baseline())] \
 		if smoke else HeuristicOpponents.search_pool(
-			SEARCH_OPP_SEED, _int_env("STAGE1_RIVALS", STAGE1_RIVALS))
+			SEARCH_OPP_SEED, SimEnv.int_env("STAGE1_RIVALS", STAGE1_RIVALS))
 	return fit
 
 
 func _build_fit2(smoke: bool) -> HeuristicFitness:
 	var fit := HeuristicFitness.new(self)
-	fit.n_games = SMOKE_STAGE2_GAMES if smoke else _int_env("STAGE2_GAMES", STAGE2_GAMES)
+	fit.n_games = SMOKE_STAGE2_GAMES if smoke else SimEnv.int_env("STAGE2_GAMES", STAGE2_GAMES)
 	fit.seed_master = VALIDATE_SEED
 	fit.mirror = true
 	fit.max_rounds = SMOKE_MAX_ROUNDS if smoke \
-		else _int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
+		else SimEnv.int_env("STAGE_MAX_ROUNDS", STAGE_MAX_ROUNDS)
 	# En smoke, pool reducido para acabar rápido; real usa el completo.
 	fit.opponents = HeuristicOpponents.selection_pool(SELECT_OPP_SEED, 2) if smoke \
 		else HeuristicOpponents.selection_pool(
-			SELECT_OPP_SEED, _int_env("STAGE2_RIVALS", STAGE2_RIVALS))
+			SELECT_OPP_SEED, SimEnv.int_env("STAGE2_RIVALS", STAGE2_RIVALS))
 	return fit
 
 
@@ -105,10 +105,10 @@ func _config(smoke: bool, fit1: HeuristicFitness, fit2: HeuristicFitness) -> Dic
 		"opp1": SEARCH_OPP_SEED, "opp2": SELECT_OPP_SEED,
 		"riv1": fit1.opponents.size(), "riv2": fit2.opponents.size(),
 		"g1": fit1.n_games, "g2": fit2.n_games, "rounds": fit1.max_rounds,
-		"sa_iters": SMOKE_SA_ITERS if smoke else _int_env("STAGE1_SA_ITERS", STAGE1_SA_ITERS),
-		"ga_pop": SMOKE_GA_POP if smoke else _int_env("STAGE1_GA_POP", STAGE1_GA_POP),
-		"ga_gens": SMOKE_GA_GENS if smoke else _int_env("STAGE1_GA_GENS", STAGE1_GA_GENS),
-		"top_k": 1 if smoke else _int_env("TOP_K", TOP_K),
+		"sa_iters": SMOKE_SA_ITERS if smoke else SimEnv.int_env("STAGE1_SA_ITERS", STAGE1_SA_ITERS),
+		"ga_pop": SMOKE_GA_POP if smoke else SimEnv.int_env("STAGE1_GA_POP", STAGE1_GA_POP),
+		"ga_gens": SMOKE_GA_GENS if smoke else SimEnv.int_env("STAGE1_GA_GENS", STAGE1_GA_GENS),
+		"top_k": 1 if smoke else SimEnv.int_env("TOP_K", TOP_K),
 	}
 
 
@@ -124,17 +124,17 @@ func _etapa1(fit1: HeuristicFitness, smoke: bool, hue: String, m: Dictionary) ->
 
 	print("[2stage] === ETAPA 1: búsqueda · pool ligero (%d rivales) · %d partidas/matchup ===" % [
 		fit1.opponents.size(), fit1.n_games])
-	var k_fin := 1 if smoke else _int_env("TOP_K", TOP_K)
+	var k_fin := 1 if smoke else SimEnv.int_env("TOP_K", TOP_K)
 
 	var sa := SAOptimizer.new(fit1, 4242)
-	sa.iterations = SMOKE_SA_ITERS if smoke else _int_env("STAGE1_SA_ITERS", STAGE1_SA_ITERS)
+	sa.iterations = SMOKE_SA_ITERS if smoke else SimEnv.int_env("STAGE1_SA_ITERS", STAGE1_SA_ITERS)
 	sa.top_k = k_fin
 	print("[2stage] -- SA (%d iters, top-%d) --" % [sa.iterations, k_fin])
 	await sa.run()
 
 	var ga := GAOptimizer.new(fit1, 999)
-	ga.pop_size = SMOKE_GA_POP if smoke else _int_env("STAGE1_GA_POP", STAGE1_GA_POP)
-	ga.generations = SMOKE_GA_GENS if smoke else _int_env("STAGE1_GA_GENS", STAGE1_GA_GENS)
+	ga.pop_size = SMOKE_GA_POP if smoke else SimEnv.int_env("STAGE1_GA_POP", STAGE1_GA_POP)
+	ga.generations = SMOKE_GA_GENS if smoke else SimEnv.int_env("STAGE1_GA_GENS", STAGE1_GA_GENS)
 	ga.top_k = k_fin
 	print("[2stage] -- GA (pop %d × %d gen, top-%d) --" % [ga.pop_size, ga.generations, k_fin])
 	await ga.run()
@@ -241,13 +241,6 @@ func _weights_dict(w: HeuristicWeights) -> Dictionary:
 	for k in HeuristicWeightsSpec.OPTIMIZABLE_KEYS:
 		out[k] = w.get(k)
 	return out
-
-
-func _int_env(name: String, fallback: int) -> int:
-	var v := OS.get_environment(name)
-	return int(v) if v != "" else fallback
-
-
 ## Copia del informe SIN el objeto de pesos: `JSON.stringify` no sabe serializar
 ## un Resource y lo dejaría como basura silenciosa en el fichero.
 func _report_serializable(report: Array) -> Array:

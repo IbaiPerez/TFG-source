@@ -126,21 +126,8 @@ func test_location_type_enum():
 func _make_tile(p_biome: Tile.biome_type = Tile.biome_type.Grassland,
 		p_gold: int = 5, p_food: int = 2, p_loc_type: Tile.location_type = Tile.location_type.Village,
 		p_max_buildings: int = 2, p_food_consumption: int = 1) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = p_biome
-	tile.mesh_data.color = Color.GREEN
-	tile.natural_resource = NaturalResource.new()
-	tile.natural_resource.gold_produced = p_gold
-	tile.natural_resource.food_produced = p_food
-	var loc := LocationType.new()
-	loc.type = p_loc_type
-	loc.max_building = p_max_buildings
-	loc.food_consumption = p_food_consumption
-	tile.location = loc
-	tile.max_buildings = p_max_buildings
-	tile.buildings = []
-	tile.recalculate_modifiers()
+	var tile := TestBuilders.tile().with_biome(p_biome).with_resource(p_gold, p_food) \
+		.with_location(p_loc_type, p_max_buildings, p_food_consumption).build()
 	autofree(tile)
 	return tile
 

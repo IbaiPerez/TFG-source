@@ -14,9 +14,7 @@ func _make_building(p_gold: int = 0, p_food: int = 0, p_defense: int = 0) -> Bui
 
 
 func _make_location(p_type: Tile.location_type) -> LocationType:
-	var loc := LocationType.new()
-	loc.type = p_type
-	return loc
+	return TestBuilders.location(p_type, 0, 0)
 
 
 # ------------------------------------------------------------------

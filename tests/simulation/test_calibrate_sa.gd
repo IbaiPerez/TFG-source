@@ -83,7 +83,7 @@ func test_calibrar_sa() -> void:
 		pass_test("Saltado: RUN_CALIBRATE_SA=1 para ejecutar.")
 		return
 
-	var iters := _int_env("CAL_ITERS", CAL_ITERS)
+	var iters := SimEnv.int_env("CAL_ITERS", CAL_ITERS)
 	var configs := _configs_pedidas()
 	var informe: Array = []
 	var partidas := 0
@@ -115,12 +115,12 @@ func test_calibrar_sa() -> void:
 ## que dentro de una réplica el punto de partida se evalúa una sola vez.
 func _build_fitness(semilla_juego: int) -> HeuristicFitness:
 	var fit := HeuristicFitness.new(self)
-	fit.n_games = _int_env("CAL_GAMES", CAL_GAMES)
+	fit.n_games = SimEnv.int_env("CAL_GAMES", CAL_GAMES)
 	fit.seed_master = semilla_juego
 	fit.mirror = true
 	fit.max_rounds = CAL_MAX_ROUNDS
 	fit.opponents = HeuristicOpponents.search_pool(
-		OPP_SEED, _int_env("CAL_RIVALS", CAL_RIVALS))
+		OPP_SEED, SimEnv.int_env("CAL_RIVALS", CAL_RIVALS))
 	return fit
 
 
@@ -141,8 +141,8 @@ func _configs_pedidas() -> Array:
 
 
 func _replicas_pedidas() -> Array:
-	var desde := _int_env("CAL_REP_FROM", 0)
-	var hasta := mini(_int_env("CAL_REP_TO", 0), REPLICAS.size() - 1)
+	var desde := SimEnv.int_env("CAL_REP_FROM", 0)
+	var hasta := mini(SimEnv.int_env("CAL_REP_TO", 0), REPLICAS.size() - 1)
 	var out: Array = []
 	for r in range(maxi(desde, 0), hasta + 1):
 		out.append(r)
@@ -188,17 +188,8 @@ func _agregado(informe: Array) -> void:
 		var mej: Array = filas.map(func(d): return float(d["pct_mejora"]))
 		print("[cal] %-16s %4d  %5.1f%% [%.0f–%.0f]  %5.1f%% [%.0f–%.0f]" % [
 			cfg["nombre"], filas.size(),
-			_media(rech), rech.min(), rech.max(),
-			_media(mej), mej.min(), mej.max()])
-
-
-func _media(xs: Array) -> float:
-	var t := 0.0
-	for x in xs:
-		t += x
-	return t / float(maxi(xs.size(), 1))
-
-
+			SimEnv.mean(rech), rech.min(), rech.max(),
+			SimEnv.mean(mej), mej.min(), mej.max()])
 func _guardar(informe: Array, iters: int, partidas: int) -> void:
 	var f := FileAccess.open("user://calibrate_sa.json", FileAccess.WRITE)
 	if f == null:
@@ -212,8 +203,3 @@ func _guardar(informe: Array, iters: int, partidas: int) -> void:
 	}, "  "))
 	f.close()
 	print("[cal] informe en: %s" % ProjectSettings.globalize_path("user://calibrate_sa.json"))
-
-
-func _int_env(name: String, fallback: int) -> int:
-	var v := OS.get_environment(name)
-	return int(v) if v != "" else fallback

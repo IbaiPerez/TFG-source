@@ -36,18 +36,11 @@ func _make_empire(combat_mult: float = 1.0) -> Empire:
 
 
 func _make_resource(gold: int, food: int) -> NaturalResource:
-	var r := NaturalResource.new()
-	r.gold_produced = gold
-	r.food_produced = food
-	return r
+	return TestBuilders.resource(gold, food)
 
 
 func _make_location(p_type: int, max_b: int, food_cons: int) -> LocationType:
-	var lt := LocationType.new()
-	lt.type = p_type
-	lt.max_building = max_b
-	lt.food_consumption = food_cons
-	return lt
+	return TestBuilders.location(p_type, food_cons, max_b)
 
 
 func _make_building(p_name: String, defense: int) -> Building:

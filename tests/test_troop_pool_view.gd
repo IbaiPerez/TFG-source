@@ -12,14 +12,8 @@ var stats: Stats
 
 func _create_troop(troop_name: String, atk: int = 3, def: int = 3,
 		gold_cost: int = 20) -> Troop:
-	var troop := Troop.new()
-	troop.name = troop_name
-	troop.attack = atk
-	troop.defense = def
-	troop.recruitment_cost_gold = gold_cost
-	troop.maintenance_gold = 1
-	troop.maintenance_food = 1
-	return troop
+	return TestBuilders.troop().with_name(troop_name).with_attack(atk).with_defense(def) \
+		.with_recruit_cost(gold_cost).with_maintenance(1, 1).build()
 
 
 func before_each() -> void:

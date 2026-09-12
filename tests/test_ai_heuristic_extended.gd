@@ -28,17 +28,8 @@ func _make_ctx(stats: Stats) -> AITurnContext:
 
 func _make_building(p_gold: int = 0, p_food: int = 0,
 		p_defense: int = 0, p_cost: int = 50) -> Building:
-	var b := Building.new()
-	b.name = "TestBuilding"
-	b.gold_produced = p_gold
-	b.food_produced = p_food
-	b.flat_defense_bonus = p_defense
-	b.construction_cost = p_cost
-	b.effects = []
-	b.upgrades_to = []
-	b.allowed_biomes = []
-	b.allowed_location_type = []
-	return b
+	return TestBuilders.building().with_gold(p_gold).with_food(p_food) \
+		.with_defense(p_defense).with_cost(p_cost).build()
 
 
 func _make_tile(p_empire: Empire = null,
@@ -58,11 +49,7 @@ func _make_troop(p_atk: int = 3, p_def: int = 3,
 
 func _make_location(p_type: Tile.location_type,
 		p_food: int = 0, p_max_b: int = 2) -> LocationType:
-	var loc := LocationType.new()
-	loc.type = p_type
-	loc.food_consumption = p_food
-	loc.max_building = p_max_b
-	return loc
+	return TestBuilders.location(p_type, p_food, p_max_b)
 
 
 func _make_ctx_with_deck_size(size: int) -> AITurnContext:

@@ -12,24 +12,12 @@ var isolated_tile: Tile
 
 
 func _create_tile(biome: Tile.biome_type, empire: Empire) -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = biome
-	tile.natural_resource = NaturalResource.new()
-	tile.buildings = []
-	tile.controller = empire
-	return tile
+	return TestBuilders.tile().with_biome(biome).with_resource(0, 0).with_controller(empire).build()
 
 
 func _create_troop(atk: int = 3, def: int = 3) -> Troop:
-	var troop := Troop.new()
-	troop.name = "Test"
-	troop.attack = atk
-	troop.defense = def
-	troop.recruitment_cost_gold = 10
-	troop.maintenance_gold = 2
-	troop.maintenance_food = 1
-	return troop
+	return TestBuilders.troop().with_name("Test").with_attack(atk).with_defense(def) \
+		.with_recruit_cost(10).with_maintenance(2, 1).build()
 
 
 func before_each() -> void:

@@ -50,10 +50,7 @@ func _always_on_weights(chance: float = 1.0) -> EventCategoryWeights:
 
 
 func _make_resource(gold: int, food: int) -> NaturalResource:
-	var r := NaturalResource.new()
-	r.gold_produced = gold
-	r.food_produced = food
-	return r
+	return TestBuilders.resource(gold, food)
 
 
 func _make_snap(id: int, owner: int, biome: int = 0,

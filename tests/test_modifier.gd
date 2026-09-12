@@ -27,9 +27,7 @@ func _make_stats(p_gold: int = 100) -> Stats:
 
 
 func _make_resource(p_name: String = "Iron") -> NaturalResource:
-	var res := NaturalResource.new()
-	res.name = p_name
-	return res
+	return TestBuilders.resource(0, 0, p_name)
 
 
 func _make_tile_with_resource(res: NaturalResource) -> Tile:

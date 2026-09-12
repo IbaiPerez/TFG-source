@@ -13,14 +13,9 @@ func _make_empire(p_name: String = "TestEmp") -> Empire:
 
 
 func _make_tile() -> Tile:
-	var tile := Tile.new()
-	tile.mesh_data = TileMeshData.new()
-	tile.mesh_data.type = Tile.biome_type.Grassland
-	tile.natural_resource = NaturalResource.new()
+	var tile := TestBuilders.tile().with_resource(0, 0).build()
 	tile.pos_data = PositionData.new()
 	tile.pos_data.grid_position = Vector2i(3, 2)
-	tile.neighbors = []
-	tile.buildings = []
 	return tile
 
 
