@@ -55,16 +55,20 @@ func avg_value() -> float:
 
 
 ## Hijo más visitado (robust child) — la decisión final del MCTS.
-## Desempata por mayor avg_value en perspectiva propia.
+## Desempata por mayor PRIOR (la elección de la heurística), no por avg_value:
+## con pocas iteraciones por decisión todas las hijas quedan a 1 visita, y el
+## valor de UN rollout tiene una desviación del orden de la diferencia real entre
+## jugadas (medido en las sondas de 2026-09), así que desempatar por él era elegir
+## al azar entre el top-K. Con más visitas, mandan las visitas.
 func most_visited_child() -> AIRealMCTSNode:
 	var best: AIRealMCTSNode = null
 	var best_visits := -1
-	var best_avg := -INF
+	var best_prior := -INF
 	for child in children:
 		if child.visits > best_visits \
-				or (child.visits == best_visits and child.avg_value() > best_avg):
+				or (child.visits == best_visits and child.prior > best_prior):
 			best_visits = child.visits
-			best_avg = child.avg_value()
+			best_prior = child.prior
 			best = child
 	return best
 

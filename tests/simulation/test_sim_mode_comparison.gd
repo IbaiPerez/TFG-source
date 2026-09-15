@@ -25,6 +25,8 @@ extends GutTest
 ##   MODE_CMP_SEEDS    tope de semillas (def 1000 → manda el reloj)
 ##   MODE_CMP_BUDGETS  "500,750,1000"
 ##   MODE_CMP_MATCHUPS "ISMCTS_H_vs_HEUR,ISMCTS_R_vs_HEUR" (nombres de MATCHUPS)
+##   MODE_CMP_TAG      sufijo del fichero de salida: sim_final<tag>_<matchup>_<b>ms.json
+##                     (p.ej. "_prior" para no pisar la tanda anterior)
 ##   MODE_CMP_RESUME=1 reanudar desde los JSON existentes (misma config)
 ##   MODE_CMP_SMOKE=1  1 semilla (MODE_CMP_SEEDS) a 40/60 ms y 30 rondas (~1 min) para probar el circuito
 ##
@@ -171,7 +173,8 @@ func _build_cells(matchups: Array, budgets: Array) -> Array:
 			cmp.rng_master_seed = RNG_SEED
 			cmp.attach_to(self)
 			cmp.finalize()   # summary vacío pero con forma, para _progress_line
-			cells.append({"cmp": cmp, "path": "user://sim_final_%s_%dms.json" % [mu["name"], b]})
+			cells.append({"cmp": cmp, "path": "user://sim_final%s_%s_%dms.json" % [
+				OS.get_environment("MODE_CMP_TAG"), mu["name"], b]})
 	return cells
 
 

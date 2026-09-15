@@ -77,6 +77,24 @@ func test_avg_value_and_robust_child() -> void:
 	assert_eq(root.most_visited_child(), a, "El robust child es el más visitado")
 
 
+## A igual número de visitas, decide el PRIOR (la heurística), no el valor de
+## un rollout aislado: con pocas iteraciones todas las hijas quedan a 1 visita y
+## un solo rollout es demasiado ruidoso para desempatar (medido: sd ≈ separación
+## entre jugadas).
+func test_robust_child_ties_broken_by_prior_not_value() -> void:
+	var root := AIRealMCTSNode.create(AIRealState.OWNER_SELF, 0)
+	var a := AIRealMCTSNode.create(AIRealState.OWNER_SELF, 0)
+	a.visits = 1; a.value_sum = -0.4; a.prior = 0.6
+	var b := AIRealMCTSNode.create(AIRealState.OWNER_SELF, 0)
+	b.visits = 1; b.value_sum = 0.3; b.prior = 0.2
+	root.add_child(b, "b")
+	root.add_child(a, "a")
+	assert_eq(root.most_visited_child(), a,
+		"A igual visitas gana el mayor prior aunque su rollout fuese peor")
+	b.visits = 2
+	assert_eq(root.most_visited_child(), b, "Más visitas siguen mandando sobre el prior")
+
+
 # ============================================================
 #  PUCT + negamax
 # ============================================================
