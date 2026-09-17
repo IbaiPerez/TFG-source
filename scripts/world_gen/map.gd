@@ -2,10 +2,13 @@ extends Node3D
 
 @export var stats:Stats
 
-## Config de IA por defecto para imperios adicionales (N>1): MCTS dirigido por
-## los pesos optimizados (campeón). El imperio i==0 reutiliza el nodo de escena,
-## cuyo ai_config ya apunta al mismo recurso; esto cubre los creados en código.
-const AI_CONFIG_OPTIMIZED := preload("res://resources/ai/ai_config_mcts_optimized.tres")
+## Config de IA por defecto para imperios adicionales (N>1): heurística con los
+## pesos optimizados (campeón). Se prefiere a la variante MCTS porque, a
+## presupuestos jugables (≤1 s), el SO-ISMCTS no supera a esta heurística — ver
+## _ai_docs/BITACORA_EXPERIMENTOS_MCTS_2026-09.md. El imperio i==0 reutiliza el
+## nodo de escena, cuyo ai_config ya apunta al mismo recurso; esto cubre los
+## creados en código.
+const AI_CONFIG_OPTIMIZED := preload("res://resources/ai/ai_config_heuristic_optimized.tres")
 
 var generation_settings:GenerationSettings
 
