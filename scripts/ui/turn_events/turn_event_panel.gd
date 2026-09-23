@@ -126,7 +126,7 @@ func _start_tile_selection(choice:TurnEventChoice) -> void:
 		return
 
 	# Ocultar el panel mientras el jugador selecciona
-	visible = false
+	_set_shown(false)
 
 	# Resaltar tiles elegibles y pedir selección
 	Events.request_tile_selection.emit(eligible)
@@ -166,7 +166,7 @@ func _on_tile_selected(tile:Tile) -> void:
 func _on_tile_selection_cancelled() -> void:
 	_tile_flow.finish()
 	_pending_tile_choice = null
-	visible = true
+	_set_shown(true)
 
 
 func _start_card_selection(choice:TurnEventChoice) -> void:
@@ -184,7 +184,7 @@ func _start_card_selection(choice:TurnEventChoice) -> void:
 		return
 
 	# Ocultar el panel mientras el jugador selecciona
-	visible = false
+	_set_shown(false)
 
 	Events.request_card_selection.emit(candidates)
 	_card_flow.start()
@@ -207,7 +207,21 @@ func _on_card_selected(card:Card) -> void:
 func _on_card_selection_cancelled() -> void:
 	_card_flow.finish()
 	_pending_card_choice = null
-	visible = true
+	_set_shown(true)
+
+
+## Oculto mientras el jugador elige casilla o carta, el panel deja de contar como
+## menú abierto: si no, `interaction.gd` descartaría el clic en el mapa que
+## está esperando.
+func _set_shown(shown:bool) -> void:
+	if visible == shown:
+		return
+	visible = shown
+	if UIState:
+		if shown:
+			UIState.register_menu()
+		else:
+			UIState.unregister_menu()
 
 
 ## Patrón único de limpieza: todo lo que este panel enganchó se suelta aquí, no en
@@ -215,7 +229,7 @@ func _on_card_selection_cancelled() -> void:
 ## (cerrar, resolver el evento, cambio de escena), incluso a mitad de una selección.
 ## Este panel nunca se reparenta, así que salir del árbol equivale a cerrarse.
 func _exit_tree() -> void:
-	if UIState:
+	if UIState and visible:
 		UIState.unregister_menu()
 	if _tile_flow:
 		_tile_flow.finish()

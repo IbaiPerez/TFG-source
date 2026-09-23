@@ -40,8 +40,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _active:
 		return
 
-	# Cancelar con Escape
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+	# Cancelar con clic derecho o Escape, igual que el selector de cartas
+	if event.is_action_pressed("RightClick") or event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
 		_cleanup()
 		Events.tile_selection_cancelled.emit()
 

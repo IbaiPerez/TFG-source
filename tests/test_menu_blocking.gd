@@ -196,6 +196,84 @@ func test_el_selector_de_cartas_registra_por_visibilidad() -> void:
 	p.free()
 
 
+## Town con 3 edificios: la única casilla que admite Megalópolis.
+func _town_elegible() -> Tile:
+	var tile := Tile.new()
+	tile.mesh_data = TileMeshData.new()
+	tile.mesh_data.type = Tile.biome_type.Grassland
+	tile.natural_resource = NaturalResource.new()
+	var loc := LocationType.new()
+	loc.type = Tile.location_type.Town
+	tile.location = loc
+	tile.buildings = [Building.new(), Building.new(), Building.new()]
+	tile.neighbors = []
+	tile.add_child(MeshInstance3D.new())  # la malla que resalta set_highlight
+	return autofree(tile)
+
+
+## Abre el evento de Megalópolis y pulsa su opción: el panel se oculta y espera
+## un clic en el mapa.
+func _panel_eligiendo_casilla() -> TurnEventPanel:
+	var panel: TurnEventPanel = _panel(TURN_EVENT_PANEL)
+	panel.context = EventContext.new()
+	panel.context.controlled_tiles = [_town_elegible()]
+	var choice := TurnEventChoice.new()
+	choice.effects = [UrbanizeToMegalopolisEffect.new()]
+	panel._on_choice_selected(choice)
+	return panel
+
+
+## El panel se oculta para que el jugador elija casilla; si siguiera contando
+## como menú abierto, `interaction.gd` tiraría ese clic y la selección no
+## terminaría nunca (las ciudades salían resaltadas pero ninguna respondía).
+func test_el_panel_de_evento_libera_el_mapa_mientras_se_elige_casilla() -> void:
+	var tracker := _tracker()
+	var listener := DeselectListener.new()
+	Events.tile_deselected.connect(listener.on_fired)
+	var panel := _panel_eligiendo_casilla()
+	assert_false(panel.visible, "se oculta para dejar ver el mapa")
+	assert_eq(UIState._menu_count, _menus_before, "oculto no cuenta como menú")
+	tracker._unhandled_input(_click())
+	Events.tile_deselected.disconnect(listener.on_fired)
+	assert_eq(listener.count, 1, "el clic en el mapa llega al raycast")
+
+	Events.tile_selection_cancelled.emit()
+	assert_true(panel.visible, "al cancelar vuelve el panel")
+	assert_eq(UIState._menu_count, _menus_before + 1, "y vuelve a bloquear el mapa")
+	panel.free()
+	assert_eq(UIState._menu_count, _menus_before)
+
+
+func _tecla(keycode: Key) -> InputEventKey:
+	var ev := InputEventKey.new()
+	ev.keycode = keycode
+	ev.pressed = true
+	return ev
+
+
+func test_clic_derecho_y_escape_cancelan_la_seleccion_de_casilla() -> void:
+	var selector := EventTileSelector.new()
+	add_child_autofree(selector)
+	for ev: InputEvent in [_wheel(MOUSE_BUTTON_RIGHT), _tecla(KEY_ESCAPE)]:
+		var panel := _panel_eligiendo_casilla()
+		selector._unhandled_input(ev)
+		assert_true(panel.visible, "%s cancela y vuelve el panel" % ev.as_text())
+		panel.free()
+	var otro := _panel_eligiendo_casilla()
+	selector._unhandled_input(_click())
+	assert_false(otro.visible, "el clic izquierdo no cancela")
+	otro.free()
+
+
+func test_liberar_el_panel_oculto_no_descuenta_otro_menu() -> void:
+	var panel := _panel_eligiendo_casilla()
+	UIState.register_menu()
+	panel.free()
+	assert_eq(UIState._menu_count, _menus_before + 1,
+		"el panel ya se había dado de baja al ocultarse")
+	UIState.unregister_menu()
+
+
 # ============================================================
 #  Integración: un panel real bloquea la cámara y el mapa
 # ============================================================
