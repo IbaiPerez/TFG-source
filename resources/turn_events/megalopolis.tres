@@ -7,6 +7,5 @@ script = ExtResource("1_script")
 id = "megalopolis"
 title = "EVT_MEGALOPOLIS_TITLE"
 description = "EVT_MEGALOPOLIS_DESC"
-allow_skip = false
 weight = 8.0
 unique = false
