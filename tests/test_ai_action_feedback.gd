@@ -172,3 +172,28 @@ func test_log_describes_troop_from_payload() -> void:
 	var line: Label = box.get_child(0) as Label
 	assert_true(line.text.contains("Caballería"),
 		"El log debe mencionar la tropa del payload")
+
+
+## La ofensiva avanza sin jugar carta, así que el registro la anuncia aparte: la del
+## rival sí (le abre al jugador un frente nuevo sin defensores), la propia no.
+func test_log_anuncia_el_avance_de_la_ofensiva_rival_y_no_el_propio() -> void:
+	var log_panel := preload("res://scenes/UI/ai_action_log.tscn").instantiate() as AIActionLog
+	add_child_autofree(log_panel)
+	var player := PlayerHandler.new()
+	player.stats = Stats.new()
+	player.stats.empire = _make_empire("Jugador")
+	add_child_autofree(player)
+	await get_tree().process_frame
+	var box := log_panel.get_node("Layout/Lines") as VBoxContainer
+	var before := box.get_child_count()
+
+	var tile := _make_tile()
+	add_child_autofree(tile)
+	var rival := BattleFront.new(tile, tile, _make_empire("Mongol"), player.stats.empire)
+	rival.campaign_step = 2
+	Events.battle_front_advanced.emit(rival)
+	assert_eq(box.get_child_count(), before + 1, "la ofensiva de la IA se anuncia")
+	var own := BattleFront.new(tile, tile, player.stats.empire, rival.attacker_empire)
+	Events.battle_front_advanced.emit(own)
+	assert_eq(box.get_child_count(), before + 1, "la del jugador no")
+	BattleFront.clear_active_instances()

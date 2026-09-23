@@ -145,11 +145,14 @@ func _on_front_resolved(front: BattleFront, attacker_won: bool) -> void:
 		_apply_conquest(front.attacker_tile, front.defender_empire, front.attacker_empire)
 
 	# Devolver tropas supervivientes al pool de cada bando
-	_return_surviving_troops(front, casualties)
+	var survivors := _return_surviving_troops(front, casualties)
 
 	# Limpiar
 	active_fronts.erase(front)
 	Events.battle_front_resolved.emit(front, attacker_won)
+
+	if attacker_won:
+		_continue_offensive(front, survivors)
 
 
 func _on_marker_changed(front: BattleFront, new_value: float) -> void:
@@ -193,8 +196,47 @@ func _apply_conquest(conquered_tile: Tile, winner: Empire, _loser: Empire) -> vo
 	Events.change_tile_controller.emit(conquered_tile, winner)
 
 
-## Devuelve tropas supervivientes al pool correspondiente.
-func _return_surviving_troops(front: BattleFront, casualties: Dictionary) -> void:
+## Ofensiva: si le quedan casillas por tomar, reabre el frente desde la casilla
+## conquistada hacia la siguiente (FrontAdvance) y mete dentro a las supervivientes.
+## Las candidatas se recorren en el orden de vecinas, que el snapshot conserva.
+func _continue_offensive(front: BattleFront, survivors: Array[Troop]) -> void:
+	if front.campaign_step >= GameBalance.FRONT_CAMPAIGN_TILES:
+		return
+	var from := front.defender_tile
+	var targets: Array[Tile] = []
+	var candidates: Array[FrontAdvance.Candidate] = []
+	for t in from.neighbors:
+		if t == null or t.controller != front.defender_empire \
+				or get_registry().is_tile_in_active_front(t):
+			continue
+		targets.append(t)
+		candidates.append(FrontAdvance.candidate(_attacker_neighbors(t, from),
+			t.buildings, t.mesh_data.type if t.mesh_data != null else -1))
+	var i := FrontAdvance.pick(candidates)
+	if i < 0:
+		return
+	var next := open_front(from, targets[i])
+	if next == null:
+		return
+	next.campaign_step = front.campaign_step + 1
+	for troop in survivors:
+		assign_troop_to_front(next, troop, BattleFront.Side.ATTACKER)
+	Events.battle_front_advanced.emit(next)
+
+
+## Vecinas de `tile` que son del atacante. `conquered` cuenta aunque el cambio de
+## dueño aún no se haya propagado (lo hace TilesTracker por el bus).
+func _attacker_neighbors(tile: Tile, conquered: Tile) -> int:
+	var n := 0
+	for nb in tile.neighbors:
+		if nb != null and (nb == conquered or nb.controller == stats.empire):
+			n += 1
+	return n
+
+
+## Devuelve tropas supervivientes al pool correspondiente. Retorna las del
+## atacante que han vuelto a ESTE pool (vacío si este imperio no atacaba).
+func _return_surviving_troops(front: BattleFront, casualties: Dictionary) -> Array[Troop]:
 	var atk_losses: int = casualties["attacker_losses"]
 	var def_losses: int = casualties["defender_losses"]
 
@@ -210,9 +252,12 @@ func _return_surviving_troops(front: BattleFront, casualties: Dictionary) -> voi
 
 	# Devolver supervivientes al pool (nota: las tropas del otro imperio
 	# se devuelven a su propio pool a través de su BattleFrontManager)
+	var returned: Array[Troop] = []
 	for troop in atk_survivors:
 		if front.attacker_empire == stats.empire:
 			stats.troop_pool.append(troop)
+			returned.append(troop)
 	for troop in def_survivors:
 		if front.defender_empire == stats.empire:
 			stats.troop_pool.append(troop)
+	return returned

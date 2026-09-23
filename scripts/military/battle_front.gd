@@ -30,6 +30,10 @@ var defender_empire: Empire
 ## Marcador de tira y afloja (positivo = ventaja atacante)
 var marker: float = 0.0
 
+## Casilla n.º de la ofensiva que disputa este frente (1 = la del Abrir frente).
+## Ver GameBalance.FRONT_CAMPAIGN_TILES.
+var campaign_step: int = 1
+
 ## Control de tiempo
 var turns_elapsed: int = 0
 var min_duration: int = GameBalance.FRONT_MIN_DURATION

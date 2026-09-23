@@ -121,3 +121,18 @@ func test_from_dict_rebuilds_with_world_and_empires():
 	assert_eq(front.attacker_empire.name, "Mongol")
 	assert_eq(front.marker, 4.0)
 	assert_eq(front.turns_elapsed, 2)
+
+
+## La casilla de la ofensiva viaja en el guardado: si no, cargar a mitad de una
+## ofensiva la reiniciaría con todas sus casillas por delante. Los saves anteriores
+## a las ofensivas no la traen y cargan como la primera casilla.
+func test_la_casilla_de_la_ofensiva_viaja_en_el_guardado():
+	var front := BattleFront.new(atk_tile, def_tile, atk_emp, def_emp)
+	front.campaign_step = 2
+	var d := BattleFrontSerializer.to_dict(front)
+	var tiles_by_pos := { Vector2(1, 0): atk_tile, Vector2(2, 0): def_tile }
+	var empires := { "res://test/mongol.tres": atk_emp, "res://test/babylonian.tres": def_emp }
+	assert_eq(BattleFrontSerializer.from_dict(d, empires, tiles_by_pos).campaign_step, 2)
+	d.erase("campaign_step")
+	assert_eq(BattleFrontSerializer.from_dict(d, empires, tiles_by_pos).campaign_step, 1)
+	BattleFront.clear_active_instances()

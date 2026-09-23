@@ -19,6 +19,7 @@ const PLAIN_FIELDS := {
 	"turns_elapsed": 0,
 	"min_duration": SerializationUtils.KEEP,
 	"threshold": SerializationUtils.KEEP,
+	"campaign_step": SerializationUtils.KEEP,
 }
 
 

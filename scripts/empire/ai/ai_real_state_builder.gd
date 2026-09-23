@@ -152,6 +152,7 @@ static func _snapshot_fronts(s: AIRealState, ctx: AITurnContext, index_of: Dicti
 			fs.defender_bonuses.append(b.duplicate() as TacticBonus)
 		fs.marker = front.marker
 		fs.turns_elapsed = front.turns_elapsed
+		fs.campaign_step = front.campaign_step
 		fs.threshold = front.threshold
 		fs.min_duration = front.min_duration
 		s.fronts.append(fs)

@@ -88,6 +88,7 @@ LOC_TOWN,Town,Ciudad
 LOC_MEGALOPOLIS,Megalopolis,Megalópolis
 BATTLE_MARKER,Score: %s%.1f / %.1f,Marcador: %s%.1f / %.1f
 BATTLE_TURNS,Turn %d (min. %d remaining),Turno %d (mín. %d restantes)
+BATTLE_CAMPAIGN,Offensive %d/%d,Ofensiva %d/%d
 BATTLE_TROOPS_LINE,Troops: %d ATK · %d DEF,Tropas: %d ATK · %d DEF
 BATTLE_EFFECTIVENESS_LINE,Effectiveness: ×%.2f (%.1f effective),Efectividad: ×%.2f (%.1f efectivo)
 BATTLE_PRESSURE_LINE,Pressure: %.2f,Presión: %.2f
@@ -128,6 +129,7 @@ AILOG_UPGRADES,upgrades to %s,mejora a %s
 AILOG_RECRUITS,recruits %s,recluta %s
 AILOG_RECOVERS,recovers %s,recupera %s
 AILOG_PLAYS,plays %s,juega %s
+AILOG_ADVANCES,advances its offensive (%d/%d),avanza su ofensiva (%d/%d)
 RECRUIT_TITLE,Recruit Troop,Reclutar Tropa
 MATCHUP_STRONG,Strong vs: %s,Fuerte vs: %s
 MATCHUP_WEAK,Weak vs: %s,Débil vs: %s

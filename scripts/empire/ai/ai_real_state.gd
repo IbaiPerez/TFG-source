@@ -199,6 +199,7 @@ class FrontSnap:
 	var defender_bonuses: Array[TacticBonus] = []
 	var marker: float = 0.0
 	var turns_elapsed: int = 0
+	var campaign_step: int = 1   ## espejo de BattleFront.campaign_step
 	var threshold: float = 10.0
 	var min_duration: int = 3
 	var is_resolved: bool = false

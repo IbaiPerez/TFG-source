@@ -85,6 +85,9 @@ signal ai_card_played(card:Card, anchor_tile:Tile, empire:Empire, payload:Dictio
 
 # Señales de frentes de batalla
 signal battle_front_opened(front:BattleFront)
+## Una ofensiva ha conquistado su casilla y sigue: `front` es el frente reabierto
+## una casilla más adentro (ver GameBalance.FRONT_CAMPAIGN_TILES).
+signal battle_front_advanced(front:BattleFront)
 signal battle_front_resolved(front:BattleFront, attacker_won:bool)
 signal battle_front_marker_changed(front:BattleFront, new_value:float)
 signal troop_assigned_to_front(front:BattleFront, troop:Troop, side:BattleFront.Side)

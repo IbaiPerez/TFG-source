@@ -54,6 +54,15 @@ const FRONT_MIN_DURATION: int = 3
 const FRONT_UPKEEP_GROWTH_GOLD: float = 1.5
 const FRONT_UPKEEP_GROWTH_FOOD: float = 2.5
 
+## Ofensivas: al ganar el atacante, el frente no desaparece sin más. Se reabre desde
+## la casilla conquistada hacia la siguiente casilla enemiga (la elige FrontAdvance
+## con FRONT_ADVANCE_CRITERION), con las tropas supervivientes dentro, hasta que la
+## ofensiva ha tomado FRONT_CAMPAIGN_TILES casillas. Cada casilla se gana entera:
+## marcador a 0, umbral inicial y duración mínima de nuevo. Si gana el defensor, la
+## ofensiva termina como siempre.
+const FRONT_CAMPAIGN_TILES: int = 3
+enum FrontAdvanceCriterion { CONSOLIDATE, WEAKEST }
+const FRONT_ADVANCE_CRITERION: FrontAdvanceCriterion = FrontAdvanceCriterion.CONSOLIDATE
 ## Frentes simultáneos máximos = MAX_FRONTS_BASE + tiles / TILES_PER_EXTRA_FRONT.
 const MAX_FRONTS_BASE: int = 1
 const TILES_PER_EXTRA_FRONT: int = 5

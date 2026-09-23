@@ -227,7 +227,53 @@ static func _resolve_front(state: AIRealState, front: AIRealState.FrontSnap) -> 
 	else:
 		_apply_conquest(state, front.attacker_tile_id, front.defender_owner)
 
-	_return_surviving_troops(state, front, casualties)
+	var survivors := _return_surviving_troops(state, front, casualties)
+	if attacker_won:
+		_continue_offensive(state, front, survivors)
+
+
+## Ofensiva (espejo de BattleFrontManager._continue_offensive): reabre el frente
+## desde la casilla conquistada hacia la que elige FrontAdvance, con las
+## supervivientes del atacante dentro. `apply_open_front` aplica la misma
+## legalidad que el juego (adyacencia, tope de frentes, casilla libre).
+static func _continue_offensive(state: AIRealState, front: AIRealState.FrontSnap,
+		survivors: Array[Troop]) -> void:
+	if front.campaign_step >= GameBalance.FRONT_CAMPAIGN_TILES:
+		return
+	var from := state.tiles.get(front.defender_tile_id) as AIRealState.TileSnap
+	if from == null:
+		return
+	var targets: Array[int] = []
+	var candidates: Array[FrontAdvance.Candidate] = []
+	for nid in from.neighbor_ids:
+		var t := state.tiles.get(nid) as AIRealState.TileSnap
+		if t == null or t.owner != front.defender_owner \
+				or AIRealEffects._tile_in_active_front(state, nid):
+			continue
+		targets.append(nid)
+		candidates.append(FrontAdvance.candidate(
+			_owned_neighbors(state, t, front.attacker_owner), t.buildings, t.biome))
+	var i := FrontAdvance.pick(candidates)
+	if i < 0:
+		return
+	var next := AIRealEffects.apply_open_front(state, from.id, targets[i], front.attacker_owner)
+	if next == null:
+		return
+	next.campaign_step = front.campaign_step + 1
+	var emp := state.empire(front.attacker_owner)
+	for troop in survivors:
+		if emp != null:
+			emp.troop_pool.erase(troop)
+		next.attacker_troops.append(troop)
+
+
+static func _owned_neighbors(state: AIRealState, t: AIRealState.TileSnap, p_owner: int) -> int:
+	var n := 0
+	for nid in t.neighbor_ids:
+		var nb := state.tiles.get(nid) as AIRealState.TileSnap
+		if nb != null and nb.owner == p_owner:
+			n += 1
+	return n
 
 
 ## Bajas al resolver el frente: computa las presiones desde el snapshot y delega
@@ -258,8 +304,9 @@ static func _apply_conquest(state: AIRealState, tile_id: int, winner_owner: int)
 
 ## Devuelve las tropas supervivientes al pool de cada imperio (espejo de
 ## BattleFrontManager._return_surviving_troops: elimina las bajas desde el final).
+## Retorna las supervivientes del atacante.
 static func _return_surviving_troops(state: AIRealState,
-		front: AIRealState.FrontSnap, casualties: Dictionary) -> void:
+		front: AIRealState.FrontSnap, casualties: Dictionary) -> Array[Troop]:
 	var atk_losses: int = casualties["attacker_losses"]
 	var def_losses: int = casualties["defender_losses"]
 
@@ -276,7 +323,7 @@ static func _return_surviving_troops(state: AIRealState,
 	var def_emp := state.empire(front.defender_owner)
 	if def_emp != null:
 		def_emp.troop_pool.append_array(def_survivors)
-
+	return atk_survivors
 
 
 # --- Internals del combate ------------------------------------------------

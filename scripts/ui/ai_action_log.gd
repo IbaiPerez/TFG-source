@@ -28,7 +28,13 @@ func _ready() -> void:
 	# Fallback a 300 cuando se instancia fuera de esa escena (p.ej. en tests).
 	_full_height = offset_bottom - offset_top if offset_bottom > offset_top else 300.0
 	Events.ai_card_played.connect(_on_ai_card_played)
+	Events.battle_front_advanced.connect(_on_front_advanced)
 	_toggle_btn.pressed.connect(_on_toggle_pressed)
+
+
+func _exit_tree() -> void:
+	Events.ai_card_played.disconnect(_on_ai_card_played)
+	Events.battle_front_advanced.disconnect(_on_front_advanced)
 
 
 func _on_toggle_pressed() -> void:
@@ -62,22 +68,39 @@ func _on_ai_card_played(card: Card, anchor_tile: Tile, empire: Empire,
 	_append_line(line, empire.color)
 
 
+## La ofensiva avanza sola, sin jugar carta: sin esta línea el jugador no se
+## enteraría de que tiene un frente nuevo, y sin defensores, en su territorio.
+## Las ofensivas del propio jugador no van a este registro.
+func _on_front_advanced(front: BattleFront) -> void:
+	var empire := front.attacker_empire
+	var player := SceneGroups.player_handler(get_tree()) as PlayerHandler
+	if empire == null or (player != null and player.stats != null \
+			and player.stats.empire == empire):
+		return
+	var what := tr("AILOG_ADVANCES") % [front.campaign_step, GameBalance.FRONT_CAMPAIGN_TILES]
+	_append_line("[%s] %s%s" % [tr(empire.name) if empire.name else "?", what,
+		_location_of(front.defender_tile)], empire.color)
+
+
 ## Formatea una entrada del log. Si la opción lleva payload con
 ## sub-decisiones (building, troop), las incluye.
 func _format_line(card: Card, anchor_tile: Tile, empire: Empire,
 		payload: Dictionary) -> String:
 	var empire_name := tr(empire.name) if empire.name else "?"
 	var card_name := _describe_card(card, payload)
+	return "[%s] %s%s" % [empire_name, card_name, _location_of(anchor_tile)]
 
-	var location := ""
-	if anchor_tile != null:
-		if anchor_tile.province_name and not anchor_tile.province_name.is_empty():
-			location = tr("AILOG_AT") % anchor_tile.province_name
-		elif anchor_tile.pos_data != null:
-			var g: Vector2i = anchor_tile.pos_data.grid_position
-			location = tr("AILOG_AT_COORDS") % [g.x, g.y]
 
-	return "[%s] %s%s" % [empire_name, card_name, location]
+## " en <provincia>" (o sus coordenadas), o "" si no hay casilla.
+func _location_of(tile: Tile) -> String:
+	if tile == null:
+		return ""
+	if tile.province_name and not tile.province_name.is_empty():
+		return tr("AILOG_AT") % tile.province_name
+	if tile.pos_data != null:
+		var g: Vector2i = tile.pos_data.grid_position
+		return tr("AILOG_AT_COORDS") % [g.x, g.y]
+	return ""
 
 
 func _describe_card(card: Card, payload: Dictionary) -> String:

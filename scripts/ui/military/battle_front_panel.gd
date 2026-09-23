@@ -90,7 +90,8 @@ func _update_display() -> void:
 	marker_label.text = tr("BATTLE_MARKER") % [marker_sign, battle_front.marker, effective_threshold]
 
 	var turns_remaining := maxi(battle_front.min_duration - battle_front.turns_elapsed, 0)
-	turns_label.text = tr("BATTLE_TURNS") % [battle_front.turns_elapsed, turns_remaining]
+	turns_label.text = tr("BATTLE_TURNS") % [battle_front.turns_elapsed, turns_remaining] \
+		+ "   " + tr("BATTLE_CAMPAIGN") % [battle_front.campaign_step, GameBalance.FRONT_CAMPAIGN_TILES]
 
 	# Actualizar barra de tira y afloja
 	_update_tug_bar()
