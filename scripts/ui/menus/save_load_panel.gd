@@ -25,6 +25,14 @@ func _ready() -> void:
 	_refresh_slots()
 
 
+## Escape cierra este panel y no llega al menú que lo abrió (la pausa), igual
+## que en el tutorial, los comentarios y los créditos.
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		_on_close_pressed()
+		get_viewport().set_input_as_handled()
+
+
 func _build_ui() -> void:
 	UIDialog.add_dim_background(self)
 	var vbox := UIDialog.add_centered_panel(self, Vector2(480, 440), 14)

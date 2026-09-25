@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 @onready var _continue_button:  Button = %ContinueButton
+@onready var _save_button:      Button = %SaveButton
 @onready var _tutorial_button:  Button = %TutorialButton
 @onready var _feedback_button:  Button = %FeedbackButton
 @onready var _main_menu_button: Button = %MainMenuButton
@@ -8,13 +9,20 @@ extends CanvasLayer
 
 func _ready() -> void:
 	visible = false
-	var buttons: Array[Button] = [_continue_button, _tutorial_button,
+	_save_button.pressed.connect(_on_save_button_pressed)
+	GameSaveManager.load_requested.connect(_on_load_requested)
+	var buttons: Array[Button] = [_continue_button, _save_button, _tutorial_button,
 			_feedback_button, _main_menu_button]
 	for i in buttons.size():
 		var prev := buttons[(i - 1 + buttons.size()) % buttons.size()]
 		var next := buttons[(i + 1) % buttons.size()]
 		buttons[i].focus_neighbor_top    = buttons[i].get_path_to(prev)
 		buttons[i].focus_neighbor_bottom = buttons[i].get_path_to(next)
+
+
+func _exit_tree() -> void:
+	_save_button.pressed.disconnect(_on_save_button_pressed)
+	GameSaveManager.load_requested.disconnect(_on_load_requested)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -53,6 +61,24 @@ func _resume() -> void:
 
 func _on_continue_button_pressed() -> void:
 	_resume()
+
+
+## Guardar desde la pausa: el mismo panel que carga en el menú principal, en su
+## modo completo (guardar, cargar y borrar ranuras). Como el tutorial, se eleva por
+## encima del menú de pausa (layer 20) después de add_child, porque su _ready lo
+## pone en 10, y hereda el process_mode ALWAYS para funcionar con el árbol pausado.
+func _on_save_button_pressed() -> void:
+	var panel := SaveLoadPanel.new()
+	panel.mode = SaveLoadPanel.Mode.FULL
+	add_child(panel)
+	panel.layer = 25
+
+
+## Si desde ese panel se carga una partida, hay que soltar la pausa: el flujo de
+## carga no la toca, y la partida cargada arrancaría con el árbol congelado.
+func _on_load_requested(_snapshot: Dictionary) -> void:
+	if visible:
+		_resume()
 
 
 func _on_tutorial_button_pressed() -> void:
