@@ -16,7 +16,9 @@ var neighbors = []
 var province_name: String = ""
 
 var debug_label : Label3D
-var material:StandardMaterial3D
+const BIOME_SHADER = preload("res://resources/styles/tiles/tile_biome.gdshader")
+
+var material:ShaderMaterial
 var highlight_material: StandardMaterial3D
 var natural_resource_image: Sprite3D
 var border_mesh:MeshInstance3D
@@ -57,8 +59,14 @@ static func location_key(location_value: int) -> String:
 
 
 func set_parameters() -> void:
-	material = StandardMaterial3D.new()
-	material.albedo_color = mesh_data.color
+	material = ShaderMaterial.new()
+	material.shader = BIOME_SHADER
+	material.set_shader_parameter("biome", mesh_data.type)
+	if mesh_data.detail_texture:
+		material.set_shader_parameter("use_texture", true)
+		material.set_shader_parameter("detail_tex", mesh_data.detail_texture)
+		material.set_shader_parameter("normal_tex", mesh_data.normal_texture)
+	_paint(mesh_data.color, 1.0)
 	var mesh_instance: MeshInstance3D = get_child(0) as MeshInstance3D
 	if mesh_instance:
 		mesh_instance.material_override = material
@@ -250,20 +258,28 @@ func demolish(building:Building, stats:Stats) -> void:
 	recalculate_with_neighbors()
 	building_demolished.emit(building)
 
+## En el modo Biomas la textura procedural va entera; en los demás se atenúa
+## para que el color del modo sea lo que se lea.
+const MODE_DETAIL := 0.35
+
+func _paint(color: Color, detail: float) -> void:
+	material.set_shader_parameter("tint", color)
+	material.set_shader_parameter("detail", detail)
+
 func set_biome_material():
-	material.albedo_color = mesh_data.color
+	_paint(mesh_data.color, 1.0)
 	natural_resource_image.visible = false
 
 func set_natural_resource_material():
-	material.albedo_color = natural_resource.color
+	_paint(natural_resource.color, MODE_DETAIL)
 	natural_resource_image.visible = true
 
 func set_empire_material():
-	material.albedo_color = controller.color if controller else Color.WHITE
+	_paint(controller.color if controller else Color.WHITE, MODE_DETAIL)
 	natural_resource_image.visible = false
 
 func set_location_type_material():
-	material.albedo_color = location.color
+	_paint(location.color, MODE_DETAIL)
 	natural_resource_image.visible = false
 
 func set_controller(new_controller:Empire):

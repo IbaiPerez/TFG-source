@@ -1,11 +1,15 @@
-[gd_resource type="Resource" script_class="TileMeshData" load_steps=3 format=3 uid="uid://fdtmsxpg31sc"]
+[gd_resource type="Resource" script_class="TileMeshData" load_steps=5 format=3 uid="uid://fdtmsxpg31sc"]
 
 [ext_resource type="PackedScene" uid="uid://coarmrcnsa46" path="res://assets/tiles/tile.glb" id="1_axer6"]
 [ext_resource type="Script" uid="uid://dv1xa0u4u1a3g" path="res://scripts/tile/tile_mesh_data.gd" id="1_ttr01"]
+[ext_resource type="Texture2D" uid="uid://bse00j2nmi0yo" path="res://assets/tiles/textures/desert_detail.jpg" id="3_detail"]
+[ext_resource type="Texture2D" uid="uid://hercwm30icfi" path="res://assets/tiles/textures/desert_normal.jpg" id="4_normal"]
 
 [resource]
 script = ExtResource("1_ttr01")
 mesh = ExtResource("1_axer6")
 color = Color(0.6784314, 0.69803923, 0.31764707, 1)
 type = 2
+detail_texture = ExtResource("3_detail")
+normal_texture = ExtResource("4_normal")
 metadata/_custom_type_script = "uid://dv1xa0u4u1a3g"
