@@ -216,6 +216,9 @@ static func _restore_battle_fronts(fronts_data:Array, empires_by_name:Dictionary
 				atk_ctrl.battle_front_manager.active_fronts.append(front)
 			front.front_resolved.connect(atk_ctrl.battle_front_manager._on_front_resolved)
 			front.marker_changed.connect(atk_ctrl.battle_front_manager._on_marker_changed)
+		# Como open_front, se anuncia el frente: de ese aviso cuelga su visual en el
+		# mapa, y sin él el frente restaurado seguía activo pero invisible.
+		Events.battle_front_opened.emit(front)
 
 
 ## 7) UI inicial (igual que en el flujo normal post-generación).

@@ -103,6 +103,11 @@ func _set_stats(value:Stats) -> void:
 	if stats == null:
 		return
 	stats.stats_changed.connect(_on_stats_changed)
+	# Mostrar ya los valores que traen, como hace el rival: al cargar partida el
+	# turno se reanuda sin producción y no llega ningún cambio hasta el siguiente,
+	# así que sin esto el panel seguía enseñando la plantilla (0 de oro, +10).
+	if is_node_ready():
+		stats_ui.update_stats(stats)
 
 
 func _on_stats_changed() -> void:

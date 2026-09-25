@@ -177,3 +177,56 @@ func test_apply_snapshot_starts_from_a_clean_front_registry() -> void:
 	assert_eq(BattleFront.get_active_instances().size(), 0,
 		"apply_snapshot debe vaciar el registro de frentes antes de restaurar")
 	assert_not_null(stale)   # mantener la referencia viva hasta el final del test
+
+
+# ------------------------------------------------------------------
+#  Presentación tras cargar
+# ------------------------------------------------------------------
+
+class OpenedListener extends RefCounted:
+	var fronts: Array = []
+	func on_opened(front: BattleFront) -> void:
+		fronts.append(front)
+
+
+## Los frentes restaurados se anuncian como al abrirlos: de ese aviso cuelga su
+## visual en el mapa, y sin él seguían activos pero no se veían ni se podían abrir.
+func test_los_frentes_restaurados_se_anuncian_para_dibujarse() -> void:
+	var snap := _snapshot(
+		[_tile_entry(0, 0, EMPIRE_A), _tile_entry(1, 0, EMPIRE_B)],
+		[_empire_entry(EMPIRE_A, true, 290), _empire_entry(EMPIRE_B, false, 50)])
+	snap["battle_fronts"] = [{
+		"attacker_pos": [0, 0], "defender_pos": [1, 0],
+		"attacker_empire": EMPIRE_A, "defender_empire": EMPIRE_B,
+		"marker": 2.5, "turns_elapsed": 2, "min_duration": 3, "threshold": 10.0,
+		"campaign_step": 2, "attacker_troops": [], "defender_troops": [],
+		"attacker_bonuses": [], "defender_bonuses": [],
+	}]
+	var listener := OpenedListener.new()
+	Events.battle_front_opened.connect(listener.on_opened)
+	GameStateSerializer.apply_snapshot(snap, _make_map_node())
+	Events.battle_front_opened.disconnect(listener.on_opened)
+
+	var restored := BattleFront.get_active_instances()
+	assert_eq(restored.size(), 1, "el frente vuelve al registro")
+	assert_eq(listener.fronts.size(), 1, "y se anuncia una vez para que se dibuje")
+	if restored.size() == 1 and listener.fronts.size() == 1:
+		assert_same(listener.fronts[0], restored[0])
+		assert_eq(restored[0].campaign_step, 2, "con su casilla de la ofensiva")
+
+
+## Al cargar, el turno se reanuda sin producción y no llega ningún cambio de stats
+## hasta el turno siguiente: el panel tiene que mostrar ya las restauradas.
+func test_el_panel_muestra_las_stats_restauradas_sin_esperar_al_turno() -> void:
+	var ui: Control = load("res://scenes/UI/general_ui.tscn").instantiate()
+	add_child_autofree(ui)
+	var stats := Stats.new()
+	stats.total_gold = 290
+	stats.gold_per_turn = 205
+	stats.food = 16
+	ui.stats = stats
+	assert_eq(ui.stats_ui.gold.text, "290", "oro guardado, no el de la plantilla")
+	# Suelta, fuera de la escena del mapa, CardPileViews no encuentra Hand ni UI: son
+	# errores del montaje de la prueba, no de lo que se mide.
+	for e in get_errors():
+		e.handled = true
