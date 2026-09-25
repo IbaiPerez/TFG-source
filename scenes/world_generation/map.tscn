@@ -31,11 +31,9 @@ uv1_scale = Vector3(20, 20, 1)
 size = Vector2(200, 200)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_parch"]
+shading_mode = 0
 albedo_texture = ExtResource("16_parch")
-emission_enabled = true
-emission = Color(0.4, 0.35, 0.3, 1)
-emission_energy_multiplier = 3.5
-uv1_scale = Vector3(4, 4, 1)
+disable_fog = true
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_parch"]
 size = Vector2(40, 40)
