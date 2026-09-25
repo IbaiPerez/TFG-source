@@ -84,6 +84,7 @@ documenta en su cabecera los parámetros finos y dónde deja el JSON.
 | `RUN_HP_SWEEP` | Calibración de hiperparámetros del SO-ISMCTS (ablación) | ~horas |
 | `RUN_MODE_COMPARISON` | Round-robin heurística vs SO-ISMCTS por emparejamiento y presupuesto | ~horas |
 | `RUN_VALIDATE_CHAMPION` | Generalización del campeón contra un pool held-out; reporta también la duración en turnos | ~horas |
+| `RUN_HEAD_TO_HEAD` | Cara a cara entre dos juegos de pesos (`H2H_A` contra `H2H_B`), en espejo y con semillas disjuntas; por defecto, el campeón recién optimizado contra el desplegado | ~20 min |
 | `RUN_AB_THROUGHPUT` | A/B de throughput del MCTS con las partidas clavadas | ~12 min |
 | `RUN_BENCH_MCTS` | Benchmark campeón-MCTS vs baseline-MCTS, acotado por tiempo | una noche |
 | `RUN_PLAY_VS_AI` | Jugar una partida contra la IA desde fuera, por guion (ver `ManualPolicy`) | segundos por jugada |
