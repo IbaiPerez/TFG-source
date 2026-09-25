@@ -394,7 +394,7 @@ EVT_UNLOCK_URBANIZE_DESC,"[i]Your villages prosper and grow endlessly. The most 
 EVT_WISE_TRAVELERS_TITLE,Wise Travelers,Sabios Viajeros
 EVT_WISE_TRAVELERS_DESC,"[i]A group of scholars and sages arrives at your court. Their knowledge is vast and they wish to share it in exchange for refuge.[/i]","[i]Un grupo de eruditos y sabios llega a tu corte. Su conocimiento es vasto y desean compartirlo a cambio de refugio.[/i]"
 EVT_ABUNDANT_CH1_LABEL,Gather the harvest,Recoger la cosecha
-EVT_ABUNDANT_CH1_DESC,Your fields produce more than expected.,Tus campos producen mas de lo esperado.
+EVT_ABUNDANT_CH1_DESC,Your fields produce more food over the next 3 turns.,Tus campos producen más comida durante los próximos 3 turnos.
 EVT_BAD_HARVEST_CH1_LABEL,Accept the losses,Aceptar las perdidas
 EVT_BAD_HARVEST_CH1_DESC,Your fields produce less than expected.,Tus campos producen menos de lo esperado.
 EVT_BAD_HARVEST_CH2_LABEL,Buy emergency grain,Comprar grano de emergencia
@@ -438,7 +438,7 @@ EVT_MERCHANT_CARAVAN_CH1_DESC,You receive gold from the merchants.,Recibes oro d
 EVT_SPIRIT_BENDICION_CH1_LABEL,Accept the blessing,Aceptar la bendición
 EVT_SPIRIT_BENDICION_CH1_DESC,The spirits bless your harvests. +25% food production for 3 turns.,Los espíritus bendicen tus cosechas. +25% producción de comida durante 3 turnos.
 EVT_SPIRIT_OFRENDA_CH1_LABEL,Accept the offering,Aceptar la ofrenda
-EVT_SPIRIT_OFRENDA_CH1_DESC,The spirits offer the fruits of the forest. You gain food based on game progress.,Los espíritus ofrecen los frutos del bosque. Ganas comida según el avance de la partida.
+EVT_SPIRIT_OFRENDA_CH1_DESC,"The spirits share the fruits of the forest: more food each turn for 3 turns, growing with game progress.","Los espíritus comparten los frutos del bosque: más comida por turno durante 3 turnos, según el avance de la partida."
 EVT_SPIRIT_PACTO_CH1_LABEL,Seal the pact,Sellar el pacto
 EVT_SPIRIT_PACTO_CH1_DESC,The spirits extend the forest roots and claim an adjacent tile for your empire.,Los espíritus extienden las raíces del bosque y reclaman una casilla adyacente para tu imperio.
 EVT_SPIRIT_RAICES_CH1_LABEL,Accept the protection,Aceptar la protección

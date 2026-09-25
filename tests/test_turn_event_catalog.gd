@@ -221,10 +221,16 @@ func test_cada_opcion_sin_input_del_jugador_se_ejecuta_sobre_un_imperio_de_prueb
 			var stats := _rich_stats()
 			var ctx := _context(stats)
 			var oro_antes := stats.total_gold
+			var comida_antes := stats.food
 			assert_true(c.is_affordable(ctx),
 				"%s / '%s': con 1000 de oro toda opción debe ser asequible" % [ev.id, c.label])
 			c.execute(ctx)
 			ejecutadas += 1
+			# La comida es un balance que se recalcula cada turno, no un depósito:
+			# sumarla de golpe se pierde al empezar el turno siguiente. Un evento
+			# solo puede tocarla a través de la producción (modificadores).
+			assert_eq(stats.food, comida_antes,
+				"%s / '%s': da o quita comida de golpe" % [ev.id, c.label])
 			if c.cost != null and c.cost.gold(ctx) > 0:
 				assert_lt(stats.total_gold, oro_antes,
 					"%s / '%s': la opción tiene coste y no se cobró" % [ev.id, c.label])

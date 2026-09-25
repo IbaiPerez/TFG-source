@@ -2,7 +2,9 @@ extends TurnEvent
 class_name AbundantHarvestEvent
 
 ## Cosecha Abundante - Evento positivo repetible
-## +comida directa escalada (base 15 + turno*0.5 + 8% food)
+## +comida por turno durante 3 turnos (escalado: 5 + turno*0.2). La comida es un
+## balance que se recalcula cada turno, no un depósito: un evento solo puede
+## tocarla a través de la producción.
 
 
 func _init():
@@ -14,5 +16,8 @@ func _init():
 	]
 
 	var choice := make_choice("EVT_ABUNDANT_CH1_LABEL", "EVT_ABUNDANT_CH1_DESC",
-		[ScaledFoodEffect.new(15.0, 0.5, 0.08)])
+		[ScaledStatModifierEffect.new(
+			"abundant_harvest_food", "EVT_ABUNDANT_TITLE",
+			StatModifier.StatType.FLAT_FOOD, 5.0, 0.2, 0.0, 3
+		)])
 	choices = [choice]

@@ -996,15 +996,6 @@ func test_score_choice_gold_effect() -> void:
 		esperado, 0.01, "100 de oro × choice_gold × urgencia de oro")
 
 
-func test_score_choice_food_effect() -> void:
-	var ctx := _make_ctx(_make_stats(100, 10))
-	var u := _urgencias(ctx)
-	var esperado: float = 5.0 * u["w"].choice_food * u["fu"]
-	assert_almost_eq(
-		AIHeuristic.score_choice(_make_choice([FoodEventEffect.new(5)]), ctx),
-		esperado, 0.01, "5 de comida × choice_food × urgencia de comida")
-
-
 func test_score_choice_add_card_effect() -> void:
 	# La carta se valora por lo que vale EN EL MAZO (scd_gold_weight), no por
 	# choice_gold: es una carta que se añade, no oro que entra.
@@ -1046,11 +1037,11 @@ func test_score_choice_multiple_effects_stack() -> void:
 	var ctx := _make_ctx(_make_stats(100, 10))
 	var solo_oro := AIHeuristic.score_choice(
 		_make_choice([GoldEventEffect.new(100)]), ctx)
-	var solo_comida := AIHeuristic.score_choice(
-		_make_choice([FoodEventEffect.new(5)]), ctx)
+	var solo_desbloqueo := AIHeuristic.score_choice(
+		_make_choice([UnlockBuildingEffect.new(null)]), ctx)
 	var juntos := AIHeuristic.score_choice(
-		_make_choice([GoldEventEffect.new(100), FoodEventEffect.new(5)]), ctx)
-	assert_almost_eq(juntos, solo_oro + solo_comida, 0.01,
+		_make_choice([GoldEventEffect.new(100), UnlockBuildingEffect.new(null)]), ctx)
+	assert_almost_eq(juntos, solo_oro + solo_desbloqueo, 0.01,
 		"los efectos de una opción se acumulan")
 
 

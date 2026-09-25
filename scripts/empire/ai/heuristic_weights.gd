@@ -292,7 +292,6 @@ class_name HeuristicWeights
 # score_choice (eventos) y should_buy_shop_item.
 @export_group("Eventos")
 @export var choice_gold: float = 0.4
-@export var choice_food: float = 0.5
 @export var choice_random_pool: float = 8.0
 @export var choice_megalopolis: float = 28.0
 @export var choice_unknown: float = 3.0

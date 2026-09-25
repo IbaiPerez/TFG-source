@@ -5,7 +5,7 @@ class_name ScaledValue
 ##   base + turno · turn_factor + reference · ref_percent
 ##
 ## La misma fórmula la usaban, reescrita, los efectos y costes escalados de evento
-## (ScaledGoldEffect, ScaledFoodEffect, ScaledStatModifierEffect,
+## (ScaledGoldEffect, ScaledStatModifierEffect,
 ## ScaledBuildCostModifierEffect, TurnEventCost) y su espejo en AIRealEvents. Aquí
 ## vive una sola vez.
 ##

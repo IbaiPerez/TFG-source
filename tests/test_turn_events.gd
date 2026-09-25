@@ -172,14 +172,6 @@ func test_gold_event_effect_subtracts_gold():
 	assert_eq(stats.total_gold, 70)
 
 
-func test_food_event_effect():
-	var effect := FoodEventEffect.new(20)
-	var stats := _make_stats(100, 10)
-	var ctx := _make_context(stats)
-	effect.execute(ctx)
-	assert_eq(stats.food, 30)
-
-
 func test_scaled_gold_effect_base_only():
 	var effect := ScaledGoldEffect.new(50.0, 0.0, 0.0)
 	var stats := _make_stats(100)

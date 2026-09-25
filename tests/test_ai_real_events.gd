@@ -278,14 +278,11 @@ func test_add_random_pool_card_effect() -> void:
 	assert_eq(s.own.deck.size(), 1, "Roba una carta del pool desbloqueado al mazo")
 
 
-func test_gold_and_food_effects() -> void:
+func test_gold_effect() -> void:
 	var s := AIRealState.new()
 	s.own.gold = 100
-	s.own.food = 10
 	_apply(GoldEventEffect.new(-30), s)
-	_apply(FoodEventEffect.new(5), s)
 	assert_eq(s.own.gold, 70, "GoldEventEffect aplica delta (puede ser negativo)")
-	assert_eq(s.own.food, 15, "FoodEventEffect aplica delta")
 
 
 func test_scaled_gold_effect_uses_turn_and_gpt() -> void:

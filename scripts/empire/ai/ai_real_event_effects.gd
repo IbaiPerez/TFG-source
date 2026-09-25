@@ -54,9 +54,7 @@ static func _ensure_effect_handlers() -> void:
 	if not _effect_handlers.is_empty():
 		return
 	_effect_handlers[GoldEventEffect]              = Callable(AIRealEventEffects, "_eff_gold")
-	_effect_handlers[FoodEventEffect]              = Callable(AIRealEventEffects, "_eff_food")
 	_effect_handlers[ScaledGoldEffect]             = Callable(AIRealEventEffects, "_eff_scaled_gold")
-	_effect_handlers[ScaledFoodEffect]             = Callable(AIRealEventEffects, "_eff_scaled_food")
 	_effect_handlers[ApplyModifierEffect]          = Callable(AIRealEventEffects, "_eff_apply_modifier")
 	_effect_handlers[ScaledStatModifierEffect]     = Callable(AIRealEventEffects, "_eff_scaled_stat_modifier")
 	_effect_handlers[ScaledBuildCostModifierEffect] = Callable(AIRealEventEffects, "_eff_scaled_build_cost")
@@ -88,20 +86,10 @@ static func _eff_gold(effect, _state, _p_owner, emp, _rng) -> void:
 	emp.gold += (effect as GoldEventEffect).amount
 
 
-static func _eff_food(effect, _state, _p_owner, emp, _rng) -> void:
-	emp.food += (effect as FoodEventEffect).amount
-
-
 static func _eff_scaled_gold(effect, state, _p_owner, emp, _rng) -> void:
 	var e := effect as ScaledGoldEffect
 	emp.gold += int(ScaledValue.evaluate(e.base, e.turn_factor, e.gpt_percent,
 		state.turn_number, emp.gold_per_turn))
-
-
-static func _eff_scaled_food(effect, state, _p_owner, emp, _rng) -> void:
-	var e := effect as ScaledFoodEffect
-	emp.food += int(ScaledValue.evaluate(e.base, e.turn_factor, e.food_percent,
-		state.turn_number, emp.food))
 
 
 static func _eff_apply_modifier(effect, _state, _p_owner, emp, _rng) -> void:

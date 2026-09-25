@@ -32,20 +32,11 @@ static func score_choice(view: AIStateView, choice: TurnEventChoice) -> float:
 		if effect is GoldEventEffect:
 			score += (effect as GoldEventEffect).amount * w.choice_gold * view.gold_urgency()
 
-		elif effect is FoodEventEffect:
-			score += (effect as FoodEventEffect).amount * w.choice_food * view.food_urgency()
-
 		elif effect is ScaledGoldEffect:
 			var eg := effect as ScaledGoldEffect
 			var amt_g := ScaledValue.evaluate(eg.base, eg.turn_factor, eg.gpt_percent,
 				view.turn_number(), view.gold_per_turn())
 			score += amt_g * w.choice_gold * view.gold_urgency()
-
-		elif effect is ScaledFoodEffect:
-			var ef := effect as ScaledFoodEffect
-			var amt_f := ScaledValue.evaluate(ef.base, ef.turn_factor, ef.food_percent,
-				view.turn_number(), view.food())
-			score += amt_f * w.choice_food * view.food_urgency()
 
 		elif effect is AddCardEffect:
 			# Valor REAL de la carta para el mazo (el espejo usaba un plano 8.0).
