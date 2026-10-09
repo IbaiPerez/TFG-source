@@ -26,8 +26,8 @@ const UNKNOWN_VERSION := "dev"
 ## feedback deshabilita el botón en vez de abrir una URL rota, así que la build
 ## es utilizable aunque los formularios lleguen más tarde.
 const SURVEY_URLS := {
-	"es": "",
-	"en": "",
+	"es": "https://docs.google.com/forms/d/e/1FAIpQLSe56dZUCBBI5XHapXF799RMjl9TgjzZZynDQxu-qflZse6Svg/viewform",
+	"en": "https://docs.google.com/forms/d/e/1FAIpQLScXDoGCvPpTbTqMD6OIWud25gtDyB0fYhLNLwj1hisgUvzRrA/viewform",
 }
 
 
