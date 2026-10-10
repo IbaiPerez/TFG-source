@@ -80,18 +80,11 @@ static func load_troop(key:String) -> Troop:
 
 
 ## Recorre recursivamente un directorio aplicando `callback(absolute_path)`
-## a cada `.tres` encontrado.
+## a cada `.tres` encontrado. Usa ResourceLoader y no DirAccess porque en la
+## build exportada los ficheros aparecen como `*.tres.remap`.
 static func _walk(dir_path:String, callback:Callable) -> void:
-	var dir := DirAccess.open(dir_path)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	var f := dir.get_next()
-	while f != "":
-		if dir.current_is_dir():
-			if f != "." and f != "..":
-				_walk(dir_path + f + "/", callback)
+	for f in ResourceLoader.list_directory(dir_path):
+		if f.ends_with("/"):
+			_walk(dir_path + f, callback)
 		elif f.ends_with(".tres"):
 			callback.call(dir_path + f)
-		f = dir.get_next()
-	dir.list_dir_end()
