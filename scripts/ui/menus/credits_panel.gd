@@ -75,6 +75,8 @@ func _make_body() -> ScrollContainer:
 	# la mitad de la URL, que queda ilegible.
 	content.add_child(_make_text(tr("CREDITS_ART_LICENSE")))
 	content.add_child(_make_text(ICON_LICENSE_URL))
+	content.add_child(_make_spacer())
+	content.add_child(_make_text(tr("CREDITS_FONT")))
 
 	scroll.add_child(content)
 	return scroll

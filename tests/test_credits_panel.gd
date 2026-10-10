@@ -52,7 +52,7 @@ func test_los_textos_estan_traducidos_en_ambos_idiomas() -> void:
 	# Una clave sin entrada en el CSV se muestra como la clave misma (CREDITS_ART),
 	# que es un fallo visible pero que ninguna otra prueba mira.
 	var claves := ["MENU_CREDITS", "CREDITS_DEVELOPMENT", "CREDITS_AUTHOR",
-		"CREDITS_ENGINE", "CREDITS_ART", "CREDITS_ART_INTRO", "CREDITS_ART_LICENSE"]
+		"CREDITS_ENGINE", "CREDITS_ART", "CREDITS_ART_INTRO", "CREDITS_ART_LICENSE", "CREDITS_FONT"]
 	var previo := TranslationServer.get_locale()
 	for locale in ["es", "en"]:
 		TranslationServer.set_locale(locale)
