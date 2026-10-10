@@ -13,10 +13,11 @@ config_version=5
 config/name="Deck & Domain"
 config/version="0.1.0"
 run/main_scene="res://scenes/UI/menus/main_menu.tscn"
-config/features=PackedStringArray("4.5", "Forward Plus")
-config/icon="res://icon.svg"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Godot/app_userdata/Source"
+config/features=PackedStringArray("4.5", "Forward Plus")
+config/icon="res://icon.png"
+config/windows_native_icon="res://icon.ico"
 
 [autoload]
 
